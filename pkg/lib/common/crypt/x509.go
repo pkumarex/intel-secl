@@ -349,7 +349,7 @@ func SavePrivateKeyAsPKCS8(keyDer []byte, filePath string) error {
 	}
 	defer keyOut.Close()
 
-	if err := pem.Encode(keyOut, &pem.Block{Type: "PKCS8 PRIVATE KEY", Bytes: keyDer}); err != nil {
+	if err := pem.Encode(keyOut, &pem.Block{Type: "PRIVATE KEY", Bytes: keyDer}); err != nil {
 		return fmt.Errorf("could not pem encode the private key: %v", err)
 	}
 	return nil
@@ -364,7 +364,7 @@ func GetPKCS8PrivKeyDerFromFile(path string) ([]byte, error) {
 	}
 
 	block, _ := pem.Decode(privKeyPem)
-	if block == nil || block.Type != "PKCS8 PRIVATE KEY" {
+	if block == nil || block.Type != "PKCS8 PRIVATE KEY"  && block.Type != "PRIVATE KEY"{
 		return nil, fmt.Errorf("failed to parse private Key PEM file")
 	}
 
