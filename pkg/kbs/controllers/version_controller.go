@@ -19,7 +19,7 @@ type VersionController struct {
 }
 
 //GetVersion : Function to get version of kbs
-func (vc *VersionController) GetVersion() http.HandlerFunc {
+func (vc VersionController) GetVersion() http.HandlerFunc {
 	defaultLog.Trace("controllers/version_controller:GetVersion() Entering")
 	defer defaultLog.Trace("controllers/version_controller:GetVersion() Leaving")
 

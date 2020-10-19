@@ -12,13 +12,13 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/validation"
 )
 
-//setSamlCertRoutes registers routes to perform import and search certificate operations
+//setSamlCertRoutes registers routes to perform SamlCertificate CRUD operations
 func setSamlCertRoutes(router *mux.Router) *mux.Router {
 	defaultLog.Trace("router/saml_certificates:setSamlCertRoutes() Entering")
 	defer defaultLog.Trace("router/saml_certificates:setSamlCertRoutes() Leaving")
 
 	certStore := directory.NewCertificateStore(constants.SamlCertsDir)
-	samlCertController := controllers.NewSamlCertController(certStore)
+	samlCertController := controllers.NewCertificateController(certStore)
 	certIdExpr := "/saml-certificates/" + validation.IdReg
 
 	router.Handle("/saml-certificates", ErrorHandler(permissionsHandler(JsonResponseHandler(samlCertController.Import),

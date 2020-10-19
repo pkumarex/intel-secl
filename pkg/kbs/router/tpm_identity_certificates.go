@@ -12,13 +12,13 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/validation"
 )
 
-//setTpmIdentityCertRoutes registers routes to perform import and search certificate operations
+//setTpmIdentityCertRoutes registers routes to perform TpmIdentityCertificate CRUD operations
 func setTpmIdentityCertRoutes(router *mux.Router) *mux.Router {
 	defaultLog.Trace("router/tpm_identity_certificates:setTpmIdentityCertRoutes() Entering")
 	defer defaultLog.Trace("router/tpm_identity_certificates:setTpmIdentityCertRoutes() Leaving")
 
 	certStore := directory.NewCertificateStore(constants.TpmIdentityCertsDir)
-	tpmIdentityCertController := controllers.NewTpmIdentityCertController(certStore)
+	tpmIdentityCertController := controllers.NewCertificateController(certStore)
 	certIdExpr := "/tpm-identity-certificates/" + validation.IdReg
 
 	router.Handle("/tpm-identity-certificates", ErrorHandler(permissionsHandler(JsonResponseHandler(tpmIdentityCertController.Import),

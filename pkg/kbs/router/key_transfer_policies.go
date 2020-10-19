@@ -12,7 +12,7 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/validation"
 )
 
-//setKeyTransferPolicyRoutes registers routes to perform KeyTransferPolicy CRUD Operations
+//setKeyTransferPolicyRoutes registers routes to perform KeyTransferPolicy CRUD operations
 func setKeyTransferPolicyRoutes(router *mux.Router) *mux.Router {
 	defaultLog.Trace("router/key_transfer_policy:setKeyTransferPolicyRoutes() Entering")
 	defer defaultLog.Trace("router/key_transfer_policy:setKeyTransferPolicyRoutes() Leaving")

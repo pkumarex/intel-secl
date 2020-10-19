@@ -26,7 +26,7 @@ var _ = Describe("SamlCertController", func() {
 	var router *mux.Router
 	var w *httptest.ResponseRecorder
 	var certStore *mocks.MockCertificateStore
-	var samlCertController *controllers.SamlCertController
+	var samlCertController *controllers.CertificateController
 
 	validSamlCert, _ := ioutil.ReadFile(samlCertsDir + "saml_cert.pem")
 	invalidSamlCert := strings.Replace(strings.Replace(string(validSamlCert), "-----BEGIN CERTIFICATE-----\n", "", 2), "-----END CERTIFICATE-----", "", 2)
@@ -34,7 +34,7 @@ var _ = Describe("SamlCertController", func() {
 	BeforeEach(func() {
 		router = mux.NewRouter()
 		certStore = mocks.NewFakeCertificateStore()
-		samlCertController = controllers.NewSamlCertController(certStore)
+		samlCertController = controllers.NewCertificateController(certStore)
 	})
 
 	// Specs for HTTP Post to "/saml-certificates"

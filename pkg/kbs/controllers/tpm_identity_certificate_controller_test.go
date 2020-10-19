@@ -26,7 +26,7 @@ var _ = Describe("TpmIdentityCertController", func() {
 	var router *mux.Router
 	var w *httptest.ResponseRecorder
 	var certStore *mocks.MockCertificateStore
-	var tpmIdentityCertController *controllers.TpmIdentityCertController
+	var tpmIdentityCertController *controllers.CertificateController
 
 	validTpmCert, _ := ioutil.ReadFile(tpmIdentityCertsDir + "privacyca_cert.pem")
 	invalidTpmCert := strings.Replace(strings.Replace(string(validTpmCert), "-----BEGIN CERTIFICATE-----\n", "", 1), "-----END CERTIFICATE-----", "", 1)
@@ -34,7 +34,7 @@ var _ = Describe("TpmIdentityCertController", func() {
 	BeforeEach(func() {
 		router = mux.NewRouter()
 		certStore = mocks.NewFakeCertificateStore()
-		tpmIdentityCertController = controllers.NewTpmIdentityCertController(certStore)
+		tpmIdentityCertController = controllers.NewCertificateController(certStore)
 	})
 
 	// Specs for HTTP Post to "/tpm-identity-certificates"

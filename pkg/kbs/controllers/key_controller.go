@@ -20,12 +20,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	"github.com/intel-secl/intel-secl/v3/pkg/hvs/utils"
 	consts "github.com/intel-secl/intel-secl/v3/pkg/kbs/constants"
 	"github.com/intel-secl/intel-secl/v3/pkg/kbs/domain"
 	"github.com/intel-secl/intel-secl/v3/pkg/kbs/domain/models"
 	"github.com/intel-secl/intel-secl/v3/pkg/kbs/keymanager"
 	"github.com/intel-secl/intel-secl/v3/pkg/kbs/keytransfer"
+	"github.com/intel-secl/intel-secl/v3/pkg/kbs/utils"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/auth"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/constants"
 	comctx "github.com/intel-secl/intel-secl/v3/pkg/lib/common/context"
@@ -307,7 +307,7 @@ func (kc KeyController) TransferWithSaml(responseWriter http.ResponseWriter, req
 	return wrappedKey, http.StatusOK, nil
 }
 
-func (kc *KeyController) wrapSecretKey(id uuid.UUID, publicKey *rsa.PublicKey, hash hash.Hash, label []byte) (interface{}, int, error) {
+func (kc KeyController) wrapSecretKey(id uuid.UUID, publicKey *rsa.PublicKey, hash hash.Hash, label []byte) (interface{}, int, error) {
 	defaultLog.Trace("controllers/key_controller:wrapSecretKey() Entering")
 	defer defaultLog.Trace("controllers/key_controller:wrapSecretKey() Leaving")
 
@@ -332,6 +332,7 @@ func (kc *KeyController) wrapSecretKey(id uuid.UUID, publicKey *rsa.PublicKey, h
 	return wrappedKey, http.StatusOK, nil
 }
 
+//validateKeyCreateRequest checks for various attributes in the Key Create request and returns a boolean value
 func validateKeyCreateRequest(requestKey kbs.KeyRequest) error {
 	defaultLog.Trace("controllers/key_controller:validateKeyCreateRequest() Entering")
 	defer defaultLog.Trace("controllers/key_controller:validateKeyCreateRequest() Leaving")
@@ -387,6 +388,7 @@ func validateKeyCreateRequest(requestKey kbs.KeyRequest) error {
 	return nil
 }
 
+//getKeyFilterCriteria checks for set filter params in the Search request and returns a valid KeyFilterCriteria
 func getKeyFilterCriteria(params url.Values) (*models.KeyFilterCriteria, error) {
 	defaultLog.Trace("controllers/key_controller:getKeyFilterCriteria() Entering")
 	defer defaultLog.Trace("controllers/key_controller:getKeyFilterCriteria() Leaving")
