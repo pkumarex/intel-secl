@@ -203,7 +203,7 @@ func ReadCertificate(certType string, certStore *models.CertificatesStore) (*hvs
 	}
 
 	if len(certCollection.CaCerts) > 0 {
-		return certCollection.CaCerts[len(certCollection.CaCerts)-1], nil
+                return certCollection.CaCerts[0], nil
 	}
 	return nil, errors.Wrap(err, "controllers/ca_certificates_controller:ReadCertificate() Certificate not found")
 }
