@@ -64,7 +64,23 @@ func (km *KmipManager) RegisterKey(request *kbs.KeyRequest) (*models.KeyAttribut
 	defaultLog.Trace("keymanager/kmip_key_manager:RegisterKey() Entering")
 	defer defaultLog.Trace("keymanager/kmip_key_manager:RegisterKey() Leaving")
 
-	return nil, errors.New("register operation is not supported")
+	if request.KeyInformation.KmipKeyID == "" {
+		return nil, errors.New("kmip_key_id cannot be empty for register operation in kmip mode")
+	}
+
+	keyAttributes := &models.KeyAttributes{
+		ID:               uuid.New(),
+		Algorithm:        request.KeyInformation.Algorithm,
+		KeyLength:        request.KeyInformation.KeyLength,
+		CurveType:        request.KeyInformation.CurveType,
+		KmipKeyID:        request.KeyInformation.KmipKeyID,
+		TransferPolicyId: request.TransferPolicyID,
+		CreatedAt:        time.Now().UTC(),
+		Label:            request.Label,
+		Usage:            request.Usage,
+	}
+
+	return keyAttributes, nil
 }
 
 func (km *KmipManager) TransferKey(attributes *models.KeyAttributes) ([]byte, error) {

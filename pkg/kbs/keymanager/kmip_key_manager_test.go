@@ -54,12 +54,22 @@ func TestKmipManager_DeleteKey(t *testing.T) {
 func TestKmipManager_RegisterKey(t *testing.T) {
 	assert := assert.New(t)
 
+	keyInfo := &kbs.KeyInformation{
+		Algorithm: "AES",
+		KmipKeyID: "1",
+	}
+
+	keyRequest := &kbs.KeyRequest{
+		KeyInformation:   keyInfo,
+	}
+
 	mockClient := kmipclient.NewMockKmipClient()
 
 	keyManager := &KmipManager{mockClient}
 
-	_, err := keyManager.RegisterKey(&kbs.KeyRequest{})
-	assert.Error(err)
+	keyAttributes, err := keyManager.RegisterKey(keyRequest)
+	assert.NoError(err)
+	assert.Equal("1", keyAttributes.KmipKeyID)
 }
 
 func TestKmipManager_TransferKey(t *testing.T) {

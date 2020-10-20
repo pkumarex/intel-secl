@@ -95,6 +95,10 @@ func (dm *DirectoryManager) RegisterKey(request *kbs.KeyRequest) (*models.KeyAtt
 	defaultLog.Trace("keymanager/directory_key_manager:RegisterKey() Entering")
 	defer defaultLog.Trace("keymanager/directory_key_manager:RegisterKey() Leaving")
 
+	if request.KeyInformation.KeyString == "" {
+		return nil, errors.New("key_string cannot be empty for register operation in directory mode")
+	}
+
 	var key, publicKey, privateKey string
 	if request.KeyInformation.Algorithm == constants.CRYPTOALG_AES {
 		key = request.KeyInformation.KeyString

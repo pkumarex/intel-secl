@@ -110,7 +110,7 @@ func (kc KeyController) Create(responseWriter http.ResponseWriter, request *http
 	}
 
 	var createdKey *kbs.KeyResponse
-	if requestKey.KeyInformation.KeyString == "" {
+	if requestKey.KeyInformation.KeyString == "" && requestKey.KeyInformation.KmipKeyID == "" {
 
 		if !checkValidKeyPermission(privileges, []string{consts.KeyCreate}) {
 			secLog.Errorf("controllers/key_controller:Create() %s", commLogMsg.UnauthorizedAccess)
@@ -350,27 +350,27 @@ func validateKeyCreateRequest(requestKey kbs.KeyRequest) error {
 	}
 
 	keyString := requestKey.KeyInformation.KeyString
-	if keyString == "" {
+	if keyString == "" && requestKey.KeyInformation.KmipKeyID == "" {
 		if strings.ToUpper(algorithm) == consts.CRYPTOALG_EC {
 			if requestKey.KeyInformation.CurveType == "" {
-				return errors.New("either curve_type or key_string must be specified")
+				return errors.New("either curve_type or key_string or kmip_key_id must be specified")
 			} else if !allowedCurveTypes[requestKey.KeyInformation.CurveType] {
 				return errors.New("curve_type is not supported")
 			}
 		} else {
 			if requestKey.KeyInformation.KeyLength == 0 {
-				return errors.New("either key_length or key_string must be specified")
+				return errors.New("either key_length or key_string or kmip_key_id must be specified")
 			} else if !allowedKeyLengths[requestKey.KeyInformation.KeyLength] {
 				return errors.New("key_length is not supported")
 			}
 		}
-	} else if err := validation.ValidatePemEncodedKey(keyString); err != nil {
-		return errors.New("key_string must be PEM formatted")
-	}
-
-	if requestKey.KeyInformation.KmipKeyID != "" {
-		if err := validation.ValidateIdentifier(requestKey.KeyInformation.KmipKeyID); err != nil {
-			return errors.New("kmip_key_id must be a valid identifier")
+	} else if keyString != "" {
+		if err := validation.ValidatePemEncodedKey(keyString); err != nil {
+			return errors.New("key_string must be PEM formatted")
+		}
+	} else {
+		if err := validation.ValidateStrings([]string{requestKey.KeyInformation.KmipKeyID}); err != nil {
+			return errors.New("kmip_key_id must be a valid string")
 		}
 	}
 
