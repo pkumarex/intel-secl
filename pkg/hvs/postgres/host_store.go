@@ -259,18 +259,17 @@ func (hs *HostStore) RemoveTrustCacheFlavors(hId uuid.UUID, fIds []uuid.UUID) er
 	defaultLog.Trace("postgres/host_store:RemoveTrustCacheFlavors() Entering")
 	defer defaultLog.Trace("postgres/host_store:RemoveTrustCacheFlavors() Leaving")
 
-	if hId == uuid.Nil && len(fIds) <= 0 {
-		return errors.New("postgres/flavorgroup_store:RemoveTrustCacheFlavors()- invalid input : must have flavorId or hostId to delete from the trust cache")
+	if hId == uuid.Nil || len(fIds) <= 0 {
+		defaultLog.Warn("postgres/flavorgroup_store:RemoveTrustCacheFlavors()- invalid input : must have flavorId and hostId to delete from the trust cache")
+		return nil
 	}
 
 	tx := hs.Store.Db
 	if hId != uuid.Nil {
-		fmt.Println(hId.String())
 		tx = tx.Where("host_id = ?", hId)
 	}
 
 	if len(fIds) >= 1 {
-		fmt.Println(fIds)
 		tx = tx.Where("flavor_id IN (?)", fIds)
 	}
 
