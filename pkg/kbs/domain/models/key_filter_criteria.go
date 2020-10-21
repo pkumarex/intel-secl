@@ -8,7 +8,8 @@ import "github.com/google/uuid"
 
 //KeyFilterCriteria stores the parameters for filtering the keys
 type KeyFilterCriteria struct {
-	AlgorithmEqualTo string
-	KeyLengthEqualTo int
+	Algorithm        string
+	KeyLength        int
+	CurveType        string
 	TransferPolicyId uuid.UUID
 }

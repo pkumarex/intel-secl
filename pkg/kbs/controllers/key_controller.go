@@ -54,7 +54,10 @@ func NewKeyController(rm *keymanager.RemoteManager, ps domain.KeyTransferPolicyS
 	}
 }
 
-var keySearchParams = map[string]bool{"algorithmEqualTo": true, "keyLengthEqualTo": true, "transferPolicyId": true}
+var keySearchParams   = map[string]bool{"algorithm": true, "keyLength": true, "curveType": true, "transferPolicyId": true}
+var allowedAlgorithms = map[string]bool{"AES": true, "RSA": true, "EC": true, "aes": true, "rsa": true, "ec": true}
+var allowedCurveTypes = map[string]bool{"secp256r1": true, "secp384r1": true, "secp521r1": true, "prime256v1": true}
+var allowedKeyLengths = map[int]bool{128: true, 192: true, 256: true, 2048: true, 3072: true, 4096: true, 7680: true, 15360: true}
 
 //Create : Function to create key
 func (kc KeyController) Create(responseWriter http.ResponseWriter, request *http.Request) (interface{}, int, error) {
@@ -338,10 +341,6 @@ func validateKeyCreateRequest(requestKey kbs.KeyRequest) error {
 	defaultLog.Trace("controllers/key_controller:validateKeyCreateRequest() Entering")
 	defer defaultLog.Trace("controllers/key_controller:validateKeyCreateRequest() Leaving")
 
-	allowedAlgorithms := map[string]bool{"AES": true, "RSA": true, "EC": true, "aes": true, "rsa": true, "ec": true}
-	allowedCurveTypes := map[string]bool{"secp256r1": true, "secp384r1": true, "secp521r1": true, "prime256v1": true}
-	allowedKeyLengths := map[int]bool{128: true, 192: true, 256: true, 2048: true, 3072: true, 4096: true, 7680: true, 15360: true}
-
 	algorithm := requestKey.KeyInformation.Algorithm
 	if algorithm == "" {
 		return errors.New("key algorithm is missing")
@@ -396,21 +395,32 @@ func getKeyFilterCriteria(params url.Values) (*models.KeyFilterCriteria, error) 
 
 	criteria := models.KeyFilterCriteria{}
 
-	// algorithmEqualTo
-	if param := strings.TrimSpace(params.Get("algorithmEqualTo")); param != "" {
-		if err := validation.ValidateStrings([]string{param}); err != nil {
-			return nil, errors.New("Valid contents for algorithmEqualTo must be specified")
+	// algorithm
+	if param := strings.TrimSpace(params.Get("algorithm")); param != "" {
+		if !allowedAlgorithms[param] {
+			return nil, errors.New("Valid algorithm must be specified")
 		}
-		criteria.AlgorithmEqualTo = param
+		criteria.Algorithm = param
 	}
 
-	// keyLengthEqualTo
-	if param := strings.TrimSpace(params.Get("keyLengthEqualTo")); param != "" {
+	// keyLength
+	if param := strings.TrimSpace(params.Get("keyLength")); param != "" {
 		length, err := strconv.Atoi(param)
 		if err != nil {
-			return nil, errors.Wrap(err, "Valid contents for keyLengthEqualTo must be specified")
+			return nil, errors.Wrap(err, "Invalid keyLength query param value, must be Integer")
 		}
-		criteria.KeyLengthEqualTo = length
+		if !allowedKeyLengths[length] {
+			return nil, errors.New("Valid keyLength must be specified")
+		}
+		criteria.KeyLength = length
+	}
+
+	// curveType
+	if param := strings.TrimSpace(params.Get("curveType")); param != "" {
+		if !allowedCurveTypes[param] {
+			return nil, errors.New("Valid curveType must be specified")
+		}
+		criteria.CurveType = param
 	}
 
 	// transferPolicyId

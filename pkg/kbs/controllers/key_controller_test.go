@@ -557,10 +557,10 @@ var _ = Describe("KeyController", func() {
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
 			})
 		})
-		Context("Get all the Keys with algorithm", func() {
+		Context("Get all the Keys with valid algorithm param", func() {
 			It("Should get list of all the filtered Keys", func() {
 				router.Handle("/keys", kbsRoutes.ErrorHandler(kbsRoutes.JsonResponseHandler(keyController.Search))).Methods("GET")
-				req, err := http.NewRequest("GET", "/keys?algorithmEqualTo=AES", nil)
+				req, err := http.NewRequest("GET", "/keys?algorithm=AES", nil)
 				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
@@ -573,26 +573,64 @@ var _ = Describe("KeyController", func() {
 				Expect(len(keyResponses)).To(Equal(1))
 			})
 		})
-		Context("Get all the Keys with valid keyLengthEqualTo param", func() {
-			It("Should get list of all the filtered Keys", func() {
-				router.Handle("/keys", kbsRoutes.ErrorHandler(kbsRoutes.JsonResponseHandler(keyController.Search))).Methods("GET")
-				req, err := http.NewRequest("GET", "/keys?keyLengthEqualTo=2048", nil)
-				Expect(err).NotTo(HaveOccurred())
-				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				w = httptest.NewRecorder()
-				router.ServeHTTP(w, req)
-				Expect(w.Code).To(Equal(http.StatusOK))
-
-				var keyResponses []kbs.KeyResponse
-				json.Unmarshal(w.Body.Bytes(), &keyResponses)
-				// Verifying mocked data of 1 key
-				Expect(len(keyResponses)).To(Equal(1))
-			})
-		})
-		Context("Get all the Keys with invalid keyLengthEqualTo param", func() {
+		Context("Get all the Keys with invalid algorithm param", func() {
 			It("Should fail to get Keys", func() {
 				router.Handle("/keys", kbsRoutes.ErrorHandler(kbsRoutes.JsonResponseHandler(keyController.Search))).Methods("GET")
-				req, err := http.NewRequest("GET", "/keys?keyLengthEqualTo=abc", nil)
+				req, err := http.NewRequest("GET", "/keys?algorithm=AE$", nil)
+				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
+				w = httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				Expect(w.Code).To(Equal(http.StatusBadRequest))
+			})
+		})
+		Context("Get all the Keys with valid keyLength param", func() {
+			It("Should get list of all the filtered Keys", func() {
+				router.Handle("/keys", kbsRoutes.ErrorHandler(kbsRoutes.JsonResponseHandler(keyController.Search))).Methods("GET")
+				req, err := http.NewRequest("GET", "/keys?keyLength=256", nil)
+				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
+				w = httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				Expect(w.Code).To(Equal(http.StatusOK))
+
+				var keyResponses []kbs.KeyResponse
+				json.Unmarshal(w.Body.Bytes(), &keyResponses)
+				// Verifying mocked data of 1 key
+				Expect(len(keyResponses)).To(Equal(1))
+			})
+		})
+		Context("Get all the Keys with invalid keyLength param", func() {
+			It("Should fail to get Keys", func() {
+				router.Handle("/keys", kbsRoutes.ErrorHandler(kbsRoutes.JsonResponseHandler(keyController.Search))).Methods("GET")
+				req, err := http.NewRequest("GET", "/keys?keyLength=abc", nil)
+				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
+				w = httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				Expect(w.Code).To(Equal(http.StatusBadRequest))
+			})
+		})
+		Context("Get all the Keys with valid curveType param", func() {
+			It("Should get list of all the filtered Keys", func() {
+				router.Handle("/keys", kbsRoutes.ErrorHandler(kbsRoutes.JsonResponseHandler(keyController.Search))).Methods("GET")
+				req, err := http.NewRequest("GET", "/keys?curveType=prime256v1", nil)
+				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
+				w = httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				Expect(w.Code).To(Equal(http.StatusOK))
+
+				var keyResponses []kbs.KeyResponse
+				json.Unmarshal(w.Body.Bytes(), &keyResponses)
+				// Verifying mocked data of 1 key
+				Expect(len(keyResponses)).To(Equal(1))
+			})
+		})
+		Context("Get all the Keys with invalid curveType param", func() {
+			It("Should fail to get Keys", func() {
+				router.Handle("/keys", kbsRoutes.ErrorHandler(kbsRoutes.JsonResponseHandler(keyController.Search))).Methods("GET")
+				req, err := http.NewRequest("GET", "/keys?curveType=primev!", nil)
 				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()

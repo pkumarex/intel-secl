@@ -290,16 +290,24 @@ type KeyTransferAttributes struct {
 // produces:
 //  - application/json
 // parameters:
-// - name: algorithmEqualTo
+// - name: algorithm
 //   description: Key algorithm.
 //   in: query
 //   type: string
 //   required: false
-// - name: keyLengthEqualTo
+//   enum: [AES, RSA, EC, aes, rsa, ec]
+// - name: keyLength
 //   description: Key length.
 //   in: query
 //   type: integer
 //   required: false
+//   enum: [128, 192, 256, 2048, 3072, 4096, 7680, 15360]
+// - name: curveType
+//   description: Elliptic Curve name.
+//   in: query
+//   type: string
+//   required: false
+//   enum: [secp256r1, secp384r1, secp521r1, prime256v1]
 // - name: transferPolicyId
 //   description: Unique identifier of transfer policy.
 //   in: query

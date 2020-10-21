@@ -56,22 +56,33 @@ func (store *MockKeyStore) Search(criteria *models.KeyFilterCriteria) ([]models.
 		return keys, nil
 	}
 
-	// AlgorithmEqualTo filter
-	if criteria.AlgorithmEqualTo != "" {
+	// Algorithm filter
+	if criteria.Algorithm != "" {
 		var kFiltered []models.KeyAttributes
 		for _, k := range keys {
-			if k.Algorithm == criteria.AlgorithmEqualTo {
+			if k.Algorithm == criteria.Algorithm {
 				kFiltered = append(kFiltered, k)
 			}
 		}
 		keys = kFiltered
 	}
 
-	// KeyLengthEqualTo filter
-	if criteria.KeyLengthEqualTo != 0 {
+	// KeyLength filter
+	if criteria.KeyLength != 0 {
 		var kFiltered []models.KeyAttributes
 		for _, k := range keys {
-			if k.KeyLength == criteria.KeyLengthEqualTo {
+			if k.KeyLength == criteria.KeyLength {
+				kFiltered = append(kFiltered, k)
+			}
+		}
+		keys = kFiltered
+	}
+
+	// CurveType filter
+	if criteria.CurveType != "" {
+		var kFiltered []models.KeyAttributes
+		for _, k := range keys {
+			if k.CurveType == criteria.CurveType {
 				kFiltered = append(kFiltered, k)
 			}
 		}
@@ -110,8 +121,8 @@ func NewFakeKeyStore() *MockKeyStore {
 
 	store.Create(&models.KeyAttributes{
 		ID:               uuid.MustParse("e57e5ea0-d465-461e-882d-1600090caa0d"),
-		Algorithm:        "RSA",
-		KeyLength:        2048,
+		Algorithm:        "EC",
+		CurveType:        "prime256v1",
 		PublicKey:        "",
 		PrivateKey:       "",
 		TransferPolicyId: uuid.MustParse("ee37c360-7eae-4250-a677-6ee12adce8e2"),

@@ -114,22 +114,33 @@ func filterKeys(keys []models.KeyAttributes, criteria *models.KeyFilterCriteria)
 		return keys
 	}
 
-	// AlgorithmEqualTo filter
-	if criteria.AlgorithmEqualTo != "" {
+	// Algorithm filter
+	if criteria.Algorithm != "" {
 		var filteredKeys []models.KeyAttributes
 		for _, key := range keys {
-			if key.Algorithm == criteria.AlgorithmEqualTo {
+			if key.Algorithm == criteria.Algorithm {
 				filteredKeys = append(filteredKeys, key)
 			}
 		}
 		keys = filteredKeys
 	}
 
-	// KeyLengthEqualTo filter
-	if criteria.KeyLengthEqualTo != 0 {
+	// KeyLength filter
+	if criteria.KeyLength != 0 {
 		var filteredKeys []models.KeyAttributes
 		for _, key := range keys {
-			if key.KeyLength == criteria.KeyLengthEqualTo {
+			if key.KeyLength == criteria.KeyLength {
+				filteredKeys = append(filteredKeys, key)
+			}
+		}
+		keys = filteredKeys
+	}
+
+	// CurveType filter
+	if criteria.CurveType != "" {
+		var filteredKeys []models.KeyAttributes
+		for _, key := range keys {
+			if key.CurveType == criteria.CurveType {
 				filteredKeys = append(filteredKeys, key)
 			}
 		}
