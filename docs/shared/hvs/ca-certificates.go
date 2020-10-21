@@ -39,11 +39,11 @@ type CaCertificateCollection struct {
 //   - application/x-pem-file
 // parameters:
 //   - name: domain
-//     description: Certificate Domain
+//     description: Available Certificate Domains are {saml, ek, endorsement, root}
 //     in: query
 //     type: string
 //     required: true
-//     enum: [saml, ek, endorsement]
+//     enum: [saml, ek, endorsement, root]
 //   - name: Accept
 //     description: Accept header
 //     in: header
@@ -70,11 +70,11 @@ type CaCertificateCollection struct {
 //   {
 //   "ca_certificate": [
 //   {
-//     "name": "CMS Signing CA",
+//     "name": "GlobalSign Trusted Platform Module Root CA",
 //     "certificate": "MIID/DCCAmSgAwIBAgIBCDANBgkqhkiG9w0BAQwFADBQMQswCQYDVQQGEwJVUzELMAkGA1UECBMCU0YxCzAJBgNVBAcTAlNDMQ4wDAYDVQQKEwVJTlRFTDEXMBUGA1UEAxMOQ01TIFNpZ25pbmcgQ0EwHhcNMjAwODExMDEzMDE2WhcNMjEwODExMDEzMDE2WjAfMR0wGwYDVQQDExRIVlMgU0FNTCBDZXJ0aWZpY2F0ZTCCAaIwDQYJKoZIhvcNAQEBBQADggGPADCCAYoCggGBALsrGJ2+r+uqHKDC4LyVdyHQB2X9sNvs0eBbUz1bDY/vYAvXaIJ05ay32sxw0MeccvkTWFfS+4us/Ou6cz+9j+vi2MwpMHMWbZb3twj7L6TVagQ4D1kkc6XXBKjnuFLnaRoZPw5CNHT8UgXDI5ZwulMk90MOfbh4Dubp9jGgnFJB0npShZPcIww/spiSUFbhDBCeEe9zRhOHpGtsonRfRRgC8KYMELvS8dgadaJcQt6X079wvNu/YU1ypAf+fa85F+knycsxcN82yu6LwYl6QlFizbrTOqZR/pFL/y8rM4t+xySApOj7sf84uuLGP3YjhCiBS2w2e9AUTav1fwLLja3adJjFtg6p9E7HG5KzUmMt/sd3vU17ZtNQK7OI5BEuKVafuWjIyBYyrp4cEtFZg382x9XWf5L6ZrCBxV0IH7MNkmM56QCwuMU02tZEZhIlz0k+QUu56K/7OO4Fe25SSC4UFPz2AC8v2IF06vLYaas+icfAFoTEnBZzcVZTW63LlwIDAQABoxIwEDAOBgNVHQ8BAf8EBAMCBsAwDQYJKoZIhvcNAQEMBQADggGBAMCsexjl3bqCgmWOcZfMCT+yEf/r6kYUPsMYSzQE4jlxIHVfySNaMUhOsxS6x7XUDizMDGudorH4yLCXGSHfA0uhipArLEeIZjMI0ED6NAnlr3xgUHTQG9bwfCO5Gqw5yh+WrpzuyCjH4I560pf6JSzLuOJcdXf7H3s3f9MNwtTpKl6V2DUj7+X7HvyANyWqALvlSCAxbM2wyt0eIC8DhVkTvsqF5eCqOjkBD4UXj9rPJfFdVdMzhrkzr3iT+XSFHY6WMn6ePcvI6NNkHZ8SCI3A7VSXeiZyIe81igRY3WlkQbRvXEXAuwKC494DrnlN18xMlUBRj70QOW2wgEA1TbZVpGhZzsNBmFFbBttBWb3tBdcxQKbeonKVim2BFealU3uIS3hhxAP7LSNaGUFNC6hZ3hL4iRTR6pYiXgcYlu1LjWt4z/oibCB02Vqjx60xRcN0Pis+4W0acOffnXewTn3468o3UqQzBGOr+tBBL2zNwKDPhiNmkNCmzg/+H4sO7w=="
 //   },
 //   {
-//     "name": "CMSCA",
+//     "name": "STM TPM EK Root CA",
 //     "certificate": "MIIENTCCAp2gAwIBAgIBAzANBgkqhkiG9w0BAQwFADBHMQswCQYDVQQGEwJVUzELMAkGA1UECBMCU0YxCzAJBgNVBAcTAlNDMQ4wDAYDVQQKEwVJTlRFTDEOMAwGA1UEAxMFQ01TQ0EwHhcNMjAwODExMDEyNzM4WhcNMjUwODExMDEyNzM4WjBQMQswCQYDVQQGEwJVUzELMAkGA1UECBMCU0YxCzAJBgNVBAcTAlNDMQ4wDAYDVQQKEwVJTlRFTDEXMBUGA1UEAxMOQ01TIFNpZ25pbmcgQ0EwggGiMA0GCSqGSIb3DQEBAQUAA4IBjwAwggGKAoIBgQDCpynt4bdlRofh83Y1xm+6Jk3VGwqQI63PXkUDJ8xqcybMv9S9Au0f165f+DksZ3A+PrtCmyzuL1G4klPgCoY3QeWYEFRrD1qnc1UESD+zyqPizUeKAGHq7x298D8ztrkAT+1ChmdlF2DXB7hIKX69/AjnwyobW/pgJv8V1XG7+nD+wUqyKEzPkQbMrNSoRzf4YjkVWZ4v2DECcHYE3GbUaOZkAo5jaqc74v3D5n33j84aPfsD4aL5VVz/61Akkv6wWlW2NoIecwsjFxr4+oviKy62V9s1Ndti+L9SLaZApEsXjNV7kmtIVllPSb2rO2T1/cTJNGViJrAwMd173JvLLtBL8a1mVZMYXMXmuKc/yIQ0lCwseXQkNrP+jAcZLe0N0U5/hJmwO8ojVaXNg5BfTUefH6kkbIFYB3kpMcCZ99Mvkkm+XQUs3yGHc2bVRdWFgyk3fy5bVzvyY/LpI0FQkIWdCJbcnIZn68mIpiYsJPmM7JxY4Ua1nXitxgGbn9MCAwEAAaMjMCEwDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQEMBQADggGBALZqCy21FSA2NI45LT4gOab9K7XrmMB55Jxecnb8QoRAkyBhPgBe5kw2KjXQ1ocoAe/fmiPhAIOPZdgm7H+G5LyYHRIvuqUyAoap9yDH5xvolVz1wBvLU+XLYWN9JfbYWQvDp96FxZ+gvIVKPzMQ1PTXPL6pLU4z6rAE5t94IsKZw7v3ip3KwYnBfEYuzUs+eAD+iLwpXzJcSoCbXWU9aAMv3MElM5EcCrmHvbOML5uS4NG+MBNv9XsLJp3FDs6EkewG/cWgMqGIskXsVbZICTCI7FxnWA0E1k0/qX2tu1QAe74vF2pAT51lKN30w8dn3FLnLyuAEoOfVJF7dOaRS5zwg1J4WD/ubW5WBOi0z1yUa850H7A1zoY9HUYHcrI84pJMaPRVMD4Q6p+JXp/DyEQXYDt6ySRL3dNT4j3rgoGY2P0GosUd4UFJXCFD6EfsfhmDLkweTFV/H+ASSIjs0qUGjRMQCTNvHOB1QoaqE7KvB6BjQFFcnfYj2chSAGbUVA=="
 //   }
 //   ]
@@ -83,8 +83,8 @@ type CaCertificateCollection struct {
 // swagger:operation POST /ca-certificates CACertificates CreateCACertificate
 // ---
 // description: |
-//   Retrieve returns an existing CA certificate from the Certificate store.
-//   Returns - The retrieved CA Certificate from the Certificate store.
+//   Imports an existing CA certificate into the Certificate store.
+//   Returns - The imported CA Certificate from the store.
 //
 // consumes:
 //   - application/json
@@ -152,7 +152,7 @@ type CaCertificateCollection struct {
 //   - application/json
 // parameters:
 //   - name: certType
-//     description: Certificate Type
+//     description: Available Certificate Types are {root, endorsement, ek, privacy, aik, tag, saml, tls}
 //     in: path
 //     type: string
 //     required: true
