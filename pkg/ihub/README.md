@@ -64,16 +64,16 @@ make ihub-installer
 
 ### Direct dependencies
 
-| Name        | Repo URL                            | Minimum Version Required            |
-| ----------- | ------------------------------------| :---------------------------------- |
-| jwt-go      | github.com/dgrijalva/jwt-go         | v3.2.0+incompatible                 |
-| uuid        | github.com/google/uuid              | v1.1.1                              |
-| mux         | github.com/gorilla/mux              | v1.7.3                              |
-| logrus      | github.com/sirupsen/logrus          | v1.4.0                              |
-| goxmldsig   | github.com/russellhaering/goxmldsig | v0.0.0-20180430223755-7acd5e4a6ef7  | 
-| errors      | github.com/pkg/errors               | v0.9.1                              |
-| testify     | github.com/stretchr/testify         | v1.2.2	                          |
-| yaml.v2     | gopkg.in/yaml.v2                    | v2.3.0                              |
+| Name        | Repo URL                            | Minimum Version Required                          |
+| ----------- | ------------------------------------| :------------------------------------------------ |
+| jwt-go      | github.com/Waterdrips/jwt-go        | v3.2.1-0.20200915121943-f6506928b72e+incompatible |
+| uuid        | github.com/google/uuid              | v1.1.1                                            |
+| mux         | github.com/gorilla/mux              | v1.7.3                                            |
+| logrus      | github.com/sirupsen/logrus          | v1.4.0                                            |
+| goxmldsig   | github.com/russellhaering/goxmldsig | v0.0.0-20180430223755-7acd5e4a6ef7                | 
+| errors      | github.com/pkg/errors               | v0.9.1                                            |
+| testify     | github.com/stretchr/testify         | v1.2.2	                                        |
+| yaml.v2     | gopkg.in/yaml.v2                    | v2.3.0                                            |
 
 
 *Note: All dependencies are listed in go.mod*

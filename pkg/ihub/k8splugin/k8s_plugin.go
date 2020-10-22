@@ -25,7 +25,7 @@ import (
 
 	commonLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/Waterdrips/jwt-go"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 

@@ -6,8 +6,7 @@ package model
 
 import (
 	"time"
-
-	"github.com/dgrijalva/jwt-go"
+	"github.com/Waterdrips/jwt-go"
 	"github.com/google/uuid"
 )
 
