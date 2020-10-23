@@ -7,8 +7,6 @@ package hosttrust
 
 import (
 	"context"
-	"sync"
-
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
@@ -19,6 +17,8 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"strconv"
+	"sync"
 )
 
 var defaultLog = commLog.GetDefaultLogger()
@@ -165,7 +165,11 @@ func (svc *Service) ProcessQueue() error {
 				preferHashMatch := false
 				for key, value := range queue.Params {
 					if key == "host_id" {
-						hostId = value.(uuid.UUID)
+						if _, ok := value.(string); ok {
+							hostId = uuid.MustParse(value.(string))
+						} else {
+							hostId = value.(uuid.UUID)
+						}
 					}
 					if key == "fetch_host_data" {
 						fetchHostData = value.(bool)
@@ -211,15 +215,22 @@ func (svc *Service) VerifyHostsAsync(hostIds []uuid.UUID, fetchHostData, preferH
 	adds := make([]uuid.UUID, 0, len(hostIds))
 	updates := []uuid.UUID{}
 
-	svc.mapmtx.RLock()
 	// iterate through the hosts and check if there is an existing entry
 	for _, hid := range hostIds {
+		svc.mapmtx.RLock()
 		vtj, found := svc.hosts[hid]
+		svc.mapmtx.RUnlock()
+
 		if found {
 			prevJobStage, _ := taskstage.FromContext(vtj.ctx)
-			if shouldCancelPrevJob(fetchHostData, vtj.getNewHostData, prevJobStage) {
+			if !shouldAllowDupeJob(fetchHostData, vtj.getNewHostData, prevJobStage) {
+				defaultLog.Debugf("hosttrust/manager:VerifyHostsAsync() Skipping dupe FVS job hostFetch - %s - for host %s", strconv.FormatBool(fetchHostData), hid.String())
+				continue
+			}
+			if shouldCancelPrevJob(fetchHostData, vtj.getNewHostData) {
 				// cancel the curr Job and make a new entry
 				vtj.cancelFn()
+				defaultLog.Debugf("hosttrust/manager:VerifyHostsAsync() Cancelling FVS job %s for host %s", vtj.storPersistId.String(), hid.String())
 				updates = append(updates, hid)
 			}
 			continue
@@ -227,7 +238,7 @@ func (svc *Service) VerifyHostsAsync(hostIds []uuid.UUID, fetchHostData, preferH
 			adds = append(adds, hid)
 		}
 	}
-	svc.mapmtx.RUnlock()
+
 	if err := svc.persistToStore(adds, updates, fetchHostData, preferHashMatch); err != nil {
 		return errors.Wrap(err, "hosttrust/manager:VerifyHostsAsync() persistRequest - error in Persisting to Store")
 	}
@@ -490,7 +501,22 @@ func (svc *Service) ProcessHostData(ctx context.Context, host hvs.Host, data *ty
 	return nil
 }
 
-func shouldCancelPrevJob(newJobNeedFreshHostData, prevJobNeededFreshData bool, prevJobStage taskstage.Stage) bool {
+// shouldAllowDupeJob determines if the new incoming job is a dupe of currently running job
+func shouldAllowDupeJob(newJobNeedFreshHostData, prevJobNeededFreshData bool, prevJobStage taskstage.Stage) bool {
+	defaultLog.Trace("hosttrust/manager:shouldAllowDupeJob() Entering")
+	defer defaultLog.Trace("hosttrust/manager:shouldAllowDupeJob() Leaving")
+
+	if (prevJobStage < taskstage.FlavorVerifyStarted &&
+		prevJobNeededFreshData == newJobNeedFreshHostData == false) ||
+		(prevJobStage < taskstage.GetHostDataStarted &&
+			prevJobNeededFreshData == newJobNeedFreshHostData == true) {
+		return false
+	}
+	return true
+}
+
+// shouldCancelPrevJob determines if the previous job can be cancelled out
+func shouldCancelPrevJob(newJobNeedFreshHostData, prevJobNeededFreshData bool) bool {
 	defaultLog.Trace("hosttrust/manager:shouldCancelPrevJob() Entering")
 	defer defaultLog.Trace("hosttrust/manager:shouldCancelPrevJob() Leaving")
 
