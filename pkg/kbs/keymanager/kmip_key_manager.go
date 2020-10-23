@@ -23,28 +23,27 @@ func (km *KmipManager) CreateKey(request *kbs.KeyRequest) (*models.KeyAttributes
 	defaultLog.Trace("keymanager/kmip_key_manager:CreateKey() Entering")
 	defer defaultLog.Trace("keymanager/kmip_key_manager:CreateKey() Leaving")
 
-	var err error
-	var kmipId string
+	keyAttributes := &models.KeyAttributes{
+		Algorithm:        request.KeyInformation.Algorithm,
+		TransferPolicyId: request.TransferPolicyID,
+		Label:            request.Label,
+		Usage:            request.Usage,
+	}
 
 	if request.KeyInformation.Algorithm == constants.CRYPTOALG_AES {
-		kmipId, err = km.client.CreateSymmetricKey(constants.KMIP_CRYPTOALG_AES, request.KeyInformation.KeyLength)
+		kmipId, err := km.client.CreateSymmetricKey(constants.KMIP_CRYPTOALG_AES, request.KeyInformation.KeyLength)
 		if err != nil {
 			return nil, err
 		}
+
+		keyAttributes.KeyLength = request.KeyInformation.KeyLength
+		keyAttributes.KmipKeyID = kmipId
 	} else {
 		return nil, errors.Errorf("%s algorithm is not supported", request.KeyInformation.Algorithm)
 	}
 
-	keyAttributes := &models.KeyAttributes{
-		ID:               uuid.New(),
-		Algorithm:        request.KeyInformation.Algorithm,
-		KeyLength:        request.KeyInformation.KeyLength,
-		KmipKeyID:        kmipId,
-		TransferPolicyId: request.TransferPolicyID,
-		CreatedAt:        time.Now().UTC(),
-		Label:            request.Label,
-		Usage:            request.Usage,
-	}
+	keyAttributes.ID = uuid.New()
+	keyAttributes.CreatedAt = time.Now().UTC()
 
 	return keyAttributes, nil
 }

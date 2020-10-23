@@ -29,15 +29,22 @@ func (dm *DirectoryManager) CreateKey(request *kbs.KeyRequest) (*models.KeyAttri
 	defaultLog.Trace("keymanager/directory_key_manager:CreateKey() Entering")
 	defer defaultLog.Trace("keymanager/directory_key_manager:CreateKey() Leaving")
 
+	keyAttributes := &models.KeyAttributes{
+		Algorithm:        request.KeyInformation.Algorithm,
+		TransferPolicyId: request.TransferPolicyID,
+		Label:            request.Label,
+		Usage:            request.Usage,
+	}
+
 	var err error
-	var key, publicKey, privateKey string
 	if request.KeyInformation.Algorithm == constants.CRYPTOALG_AES {
 		keyBytes, err := generateAESKey(request.KeyInformation.KeyLength)
 		if err != nil {
 			return nil, errors.Wrap(err, "Could not generate AES key")
 		}
 
-		key = base64.StdEncoding.EncodeToString(keyBytes)
+		keyAttributes.KeyLength = request.KeyInformation.KeyLength
+		keyAttributes.KeyData = base64.StdEncoding.EncodeToString(keyBytes)
 	} else {
 
 		var public crypto.PublicKey
@@ -47,39 +54,31 @@ func (dm *DirectoryManager) CreateKey(request *kbs.KeyRequest) (*models.KeyAttri
 			if err != nil {
 				return nil, errors.Wrap(err, "Could not generate RSA keypair")
 			}
+			keyAttributes.KeyLength = request.KeyInformation.KeyLength
 		} else {
 			private, public, err = generateECKeyPair(request.KeyInformation.CurveType)
 			if err != nil {
 				return nil, errors.Wrap(err, "Could not generate EC keypair")
 			}
+			keyAttributes.CurveType = request.KeyInformation.CurveType
 		}
 
 		privateKeyBytes, err := x509.MarshalPKCS8PrivateKey(private)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to marshal private key")
 		}
-		privateKey = base64.StdEncoding.EncodeToString(privateKeyBytes)
 
 		publicKeyBytes, err := x509.MarshalPKIXPublicKey(public)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to marshal public key")
 		}
-		publicKey = base64.StdEncoding.EncodeToString(publicKeyBytes)
+
+		keyAttributes.PrivateKey = base64.StdEncoding.EncodeToString(privateKeyBytes)
+		keyAttributes.PublicKey = base64.StdEncoding.EncodeToString(publicKeyBytes)
 	}
 
-	keyAttributes := &models.KeyAttributes{
-		ID:               uuid.New(),
-		Algorithm:        request.KeyInformation.Algorithm,
-		KeyLength:        request.KeyInformation.KeyLength,
-		KeyData:          key,
-		CurveType:        request.KeyInformation.CurveType,
-		PublicKey:        publicKey,
-		PrivateKey:       privateKey,
-		TransferPolicyId: request.TransferPolicyID,
-		CreatedAt:        time.Now().UTC(),
-		Label:            request.Label,
-		Usage:            request.Usage,
-	}
+	keyAttributes.ID = uuid.New()
+	keyAttributes.CreatedAt = time.Now().UTC()
 
 	return keyAttributes, nil
 }
@@ -143,9 +142,7 @@ func (dm *DirectoryManager) RegisterKey(request *kbs.KeyRequest) (*models.KeyAtt
 	keyAttributes := &models.KeyAttributes{
 		ID:               uuid.New(),
 		Algorithm:        request.KeyInformation.Algorithm,
-		KeyLength:        request.KeyInformation.KeyLength,
 		KeyData:          key,
-		CurveType:        request.KeyInformation.CurveType,
 		PublicKey:        publicKey,
 		PrivateKey:       privateKey,
 		TransferPolicyId: request.TransferPolicyID,
