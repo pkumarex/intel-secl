@@ -60,8 +60,8 @@ type App struct {
 	WlsSanList string
 	TaCN       string
 	TaSanList  string
-	KmsCN      string
-	KmsSanList string
+	KbsCN      string
+	KbsSanList string
 
 	InstallAdminUserName   string
 	InstallAdminPassword   string
@@ -148,7 +148,7 @@ func (a *App) GetServiceUsers() []UserAndRolesCreate {
 		case "WPM":
 			urc.Name = a.WpmServiceUserName
 			urc.Password = a.WpmServiceUserPassword
-			urc.Roles = append(urc.Roles, NewRole("KMS", "KeyManager", "", []string{"keys:create:*", "keys:transfer:*"}))
+			urc.Roles = append(urc.Roles, NewRole("KBS", "KeyManager", "", []string{"keys:create:*", "keys:transfer:*"}))
 		case "WLS":
 			urc.Name = a.WlsServiceUserName
 			urc.Password = a.WlsServiceUserPassword
@@ -188,7 +188,7 @@ func (a *App) GetGlobalAdminUser() *UserAndRolesCreate {
 		case "TA":
 			urc.Roles = append(urc.Roles, NewRole("TA", "Administrator", "", []string{"*:*:*"}))
 		case "KBS":
-			urc.Roles = append(urc.Roles, NewRole("KMS", "KeyCRUD", "", []string{"*:*:*"}))
+			urc.Roles = append(urc.Roles, NewRole("KBS", "Administrator", "", []string{"*:*:*"}))
 		case "WLS":
 			urc.Roles = append(urc.Roles, NewRole("WLS", "Administrator", "", []string{"*:*:*"}))
 		case "AAS":
@@ -224,7 +224,7 @@ func (a *App) GetSuperInstallUser() UserAndRolesCreate {
 		case "IH":
 			urc.Roles = append(urc.Roles, MakeTlsCertificateRole(a.IhCN, a.IhSanList))
 		case "KBS":
-			urc.Roles = append(urc.Roles, MakeTlsCertificateRole(a.KmsCN, a.KmsSanList))
+			urc.Roles = append(urc.Roles, MakeTlsCertificateRole(a.KbsCN, a.KbsSanList))
 		case "WPM":
 			urc.Roles = append(urc.Roles, NewRole("CMS", "CertApprover", "CN=WPM Flavor Signing Certificate;certType=Signing", nil))
 		case "WLS":
@@ -296,8 +296,8 @@ func (a *App) LoadAllVariables(envFile string) error {
 		{&a.WlsCN, "WLS_CERT_COMMON_NAME", "WLS TLS Certificate", "Workload Service TLS Certificate Common Name", false, false},
 		{&a.WlsSanList, "WLS_CERT_SAN_LIST", "", "Workload Service TLS Certificate SAN LIST", false, false},
 
-		{&a.KmsCN, "KBS_CERT_COMMON_NAME", "KMS TLS Certificate", "Key Broker Service TLS Certificate Common Name", false, false},
-		{&a.KmsSanList, "KBS_CERT_SAN_LIST", "", "Key Broker Service TLS Certificate SAN LIST", false, false},
+		{&a.KbsCN, "KBS_CERT_COMMON_NAME", "KBS TLS Certificate", "Key Broker Service TLS Certificate Common Name", false, false},
+		{&a.KbsSanList, "KBS_CERT_SAN_LIST", "", "Key Broker Service TLS Certificate SAN LIST", false, false},
 
 		{&a.TaCN, "TA_CERT_COMMON_NAME", "Trust Agent TLS Certificate", "Trust Agent TLS Certificate Common Name", false, false},
 		{&a.TaSanList, "TA_CERT_SAN_LIST", "", "Trust Agent TLS Certificate SAN LIST", false, false},
@@ -411,8 +411,8 @@ func (a *App) GetNewOrExistingRoleID(role aas.RoleCreate, aascl *claas.Client) (
 		return newRole.ID, nil
 	}
 	if len(roles) != 1 {
-		// we should not really be here.. we have multiple users with matched name
-		return "", fmt.Errorf("Multiple records found when searching for role record - %v", role)
+		// we should not really be here.. we have multiple roles with matched name
+		return "", fmt.Errorf("Multiple records found when searching for role %v - record - %v", role, roles)
 	}
 
 	// found single record that corresponds to the user.
