@@ -120,7 +120,7 @@ func (kc *SKCController) TransferApplicationKey(responseWriter http.ResponseWrit
 		}
 
 		url := kc.config.EndpointURL + "/key-transfer-policies/" + key.TransferPolicyID.String()
-		var outputKeyData kbs.OutputKey
+		var outputKeyData kbs.KeyTransferResponse
 		outputKeyData.KeyInfo.KeyAlgorithm = key.KeyInformation.Algorithm
 		outputKeyData.KeyInfo.CreatedAt = &key.CreatedAt
 		outputKeyData.KeyInfo.KeyId = keyID

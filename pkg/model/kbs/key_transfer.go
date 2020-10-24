@@ -5,7 +5,7 @@
 
 package kbs
 
-type OutputKey struct {
+type KeyTransferResponse struct {
 	KeyInfo   KeyTransferAttributes `json:"data"`
 	Operation string                `json:"operation"`
 	Status    string                `json:"status"`
