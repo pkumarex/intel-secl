@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
+	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/saml"
 	flavorVerifier "github.com/intel-secl/intel-secl/v3/pkg/lib/verifier"
@@ -68,9 +69,25 @@ func (v *Verifier) Verify(hostId uuid.UUID, hostData *types.HostManifest, newDat
 	// create an empty trust report with the host manifest
 	finalTrustReport := hvs.TrustReport{HostManifest: *hostData}
 
+	// Get the types of host unique flavors (such as HOST_UNIQUE and ASSET_TAG) that exist for the host.
+	// This can be used when determining the flavor groups requirement for each flavors.
+	// It will reduce the number of calls made to the database to determine this list. Since it applicable for
+	// all flavorgroups, repeated calls can be avoided
+
+	hostUniqueFlavorParts, err := v.HostStore.RetrieveDistinctUniqueFlavorParts(hostId)
+	if err != nil {
+		return nil, errors.Wrap(err, "hosttrust/verifier:Verify() Error while retrieving host unique flavor parts")
+	}
+	// convert hostUniqueFlavorParts to a map
+	hostUniqueFlavorPartsMap := make(map[common.FlavorPart]bool)
+
+	for _, flavorPart := range hostUniqueFlavorParts {
+		hostUniqueFlavorPartsMap[common.FlavorPart(flavorPart)] = true
+	}
+
 	for _, fg := range flvGroups {
 		//TODO - handle errors in case of DB transaction
-		fgTrustReqs, err := NewFlvGrpHostTrustReqs(hostId, hwUuid, fg, v.FlavorStore, hostData, v.SkipFlavorSignatureVerification)
+		fgTrustReqs, err := NewFlvGrpHostTrustReqs(hostId, hostUniqueFlavorPartsMap, fg, v.FlavorStore, v.FlavorGroupStore, hostData, v.SkipFlavorSignatureVerification)
 		if err != nil {
 			return nil, errors.Wrap(err, "hosttrust/verifier:Verify() Error while retrieving NewFlvGrpHostTrustReqs")
 		}

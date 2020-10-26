@@ -67,6 +67,7 @@ func (store *MockHostStore) DeleteByHostName(hostName string) error {
 	}
 	return errors.New(commErr.RecordNotFound)
 }
+
 // Search returns a collection of Hosts filtered as per HostFilterCriteria
 func (store *MockHostStore) Search(criteria *models.HostFilterCriteria) ([]*hvs.Host, error) {
 	if criteria == nil || reflect.DeepEqual(*criteria, models.HostFilterCriteria{}) {
@@ -79,10 +80,10 @@ func (store *MockHostStore) Search(criteria *models.HostFilterCriteria) ([]*hvs.
 		if h != nil {
 			hosts = append(hosts, h)
 		}
-	}  else if criteria.HostHardwareId != uuid.Nil {
+	} else if criteria.HostHardwareId != uuid.Nil {
 		for _, h := range store.hostStore {
 			if *h.HardwareUuid == criteria.HostHardwareId {
-				hosts =  append(hosts, h)
+				hosts = append(hosts, h)
 			}
 		}
 	} else if criteria.NameEqualTo != "" {
@@ -148,17 +149,36 @@ func (store *MockHostStore) SearchFlavorgroups(hId uuid.UUID) ([]uuid.UUID, erro
 	return fgIds, nil
 }
 
-func (store *MockHostStore) AddTrustCacheFlavors(hId uuid.UUID, fIds []uuid.UUID) ([]uuid.UUID, error){
+func (store *MockHostStore) AddTrustCacheFlavors(uuid.UUID, []uuid.UUID) ([]uuid.UUID, error) {
 	// TODO: to be implemented
 	return nil, nil
 }
 
-func (store *MockHostStore) RemoveTrustCacheFlavors(hId uuid.UUID, fId []uuid.UUID) (error) {
+func (store *MockHostStore) RemoveTrustCacheFlavors(uuid.UUID, []uuid.UUID) error {
 	// TODO: to be implemented
 	return nil
 }
 
-func (store *MockHostStore) RetrieveTrustCacheFlavors(hId ,fgId uuid.UUID) ([]uuid.UUID, error) {
+func (store *MockHostStore) RetrieveTrustCacheFlavors(_, _ uuid.UUID) ([]uuid.UUID, error) {
+	// TODO: to be implemented
+	return nil, nil
+}
+
+func (store *MockHostStore) AddHostUniqueFlavors(uuid.UUID, []uuid.UUID) ([]uuid.UUID, error) {
+	// TODO: to be implemented
+	return nil, nil
+}
+func (store *MockHostStore) RemoveHostUniqueFlavors(uuid.UUID, []uuid.UUID) error {
+	// TODO: to be implemented
+	return nil
+}
+
+func (store *MockHostStore) RetrieveHostUniqueFlavors(uuid.UUID) ([]uuid.UUID, error) {
+	// TODO: to be implemented
+	return nil, nil
+}
+
+func (store *MockHostStore) RetrieveDistinctUniqueFlavorParts(uuid.UUID) ([]string, error) {
 	// TODO: to be implemented
 	return nil, nil
 }

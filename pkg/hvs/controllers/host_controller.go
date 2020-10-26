@@ -29,18 +29,20 @@ import (
 type HostController struct {
 	HStore    domain.HostStore
 	HSStore   domain.HostStatusStore
+	FStore    domain.FlavorStore
 	FGStore   domain.FlavorGroupStore
 	HCStore   domain.HostCredentialStore
 	HTManager domain.HostTrustManager
 	HCConfig  domain.HostControllerConfig
 }
 
-func NewHostController(hs domain.HostStore, hss domain.HostStatusStore,
+func NewHostController(hs domain.HostStore, hss domain.HostStatusStore, fs domain.FlavorStore,
 	fgs domain.FlavorGroupStore, hcs domain.HostCredentialStore,
 	htm domain.HostTrustManager, hcc domain.HostControllerConfig) *HostController {
 	return &HostController{
 		HStore:    hs,
 		HSStore:   hss,
+		FStore:    fs,
 		FGStore:   fgs,
 		HCStore:   hcs,
 		HTManager: htm,
@@ -317,6 +319,12 @@ func (hc *HostController) CreateHost(reqHost hvs.HostCreateRequest) (interface{}
 		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to associate Host with flavorgroups"}
 	}
 
+	defaultLog.Debugf("Associating host %s with all host unique flavors", reqHost.HostName)
+	if err := hc.linkHostUniqueFlavorsToHost(createdHost); err != nil {
+		defaultLog.WithError(err).Error("controllers/host_controller:CreateHost() Host Unique flavor association failed")
+		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to associate Host with host unique flavors"}
+	}
+
 	defaultLog.Debugf("Adding host %s to flavor-verify queue", reqHost.HostName)
 	// Since we are adding a new host, the forceUpdate flag should be set to true so that
 	// we connect to the host and get the latest host manifest to verify against.
@@ -503,13 +511,13 @@ func (hc *HostController) linkFlavorgroupsToHost(flavorgroupNames []string, host
 		return errors.Wrapf(err, "Could not fetch flavorgroup Ids")
 	}
 	for _, flavorgroup := range flavorgroups {
-			linkExists, err := hc.flavorGroupHostLinkExists(hostId, flavorgroup.ID)
-			if err != nil {
-				return errors.Wrap(err, "Could not check host-flavorgroup link existence")
-			}
-			if !linkExists {
-				flavorgroupIds = append(flavorgroupIds, flavorgroup.ID)
-			}
+		linkExists, err := hc.flavorGroupHostLinkExists(hostId, flavorgroup.ID)
+		if err != nil {
+			return errors.Wrap(err, "Could not check host-flavorgroup link existence")
+		}
+		if !linkExists {
+			flavorgroupIds = append(flavorgroupIds, flavorgroup.ID)
+		}
 	}
 
 	defaultLog.Debugf("Linking host %v with flavorgroups %+q", hostId, flavorgroupIds)
@@ -520,7 +528,43 @@ func (hc *HostController) linkFlavorgroupsToHost(flavorgroupNames []string, host
 	return nil
 }
 
-func CreateMissingFlavorgroups(fGStore domain.FlavorGroupStore, flavorgroupNames []string,) ([]hvs.FlavorGroup, error) {
+func (hc *HostController) linkHostUniqueFlavorsToHost(newHost *hvs.Host) error {
+	defaultLog.Trace("controllers/host_controller:linkHostUniqueFlavorsToHost() Entering")
+	defer defaultLog.Trace("controllers/host_controller:linkHostUniqueFlavorsToHost() Leaving")
+
+	// ignore if hwUuid is nil - need to check for nil for the pointer as well as invalid uuid
+	if newHost == nil || newHost.HardwareUuid == nil || *newHost.HardwareUuid == uuid.Nil {
+		return nil
+	}
+
+	// get the associated flavors
+	signedFlavors, err := hc.FStore.Search(&models.FlavorVerificationFC{
+		FlavorFC: models.FlavorFilterCriteria{
+			Key:   "hardware_uuid",
+			Value: newHost.HardwareUuid.String(),
+		},
+	})
+	if err != nil {
+		return errors.Wrap(err, "error while searching host unique flavors")
+	}
+
+	var flavorIds []uuid.UUID
+	for _, signedFlavor := range signedFlavors {
+		flavorIds = append(flavorIds, signedFlavor.Flavor.Meta.ID)
+	}
+
+	if len(flavorIds) == 0 {
+		return nil
+	}
+	defaultLog.Debugf("Linking host %v with flavors %+q", newHost.Id, flavorIds)
+	if _, err := hc.HStore.AddHostUniqueFlavors(newHost.Id, flavorIds); err != nil {
+		return errors.Wrap(err, "Could not create host-unique flavors link")
+	}
+
+	return nil
+}
+
+func CreateMissingFlavorgroups(fGStore domain.FlavorGroupStore, flavorgroupNames []string) ([]hvs.FlavorGroup, error) {
 	flavorgroups := []hvs.FlavorGroup{}
 	for _, flavorgroupName := range flavorgroupNames {
 		existingFlavorGroups, _ := fGStore.Search(&models.FlavorGroupFilterCriteria{

@@ -443,36 +443,7 @@ func (store *MockFlavorStore) Create(sf *hvs.SignedFlavor) (*hvs.SignedFlavor, e
 	return sf, nil
 }
 
-func (store *MockFlavorStore) GetUniqueFlavorTypesThatExistForHost(hwId uuid.UUID) (map[cf.FlavorPart]bool, error) {
-	flavorParts := make(map[cf.FlavorPart]bool)
-	//find flavors for given hwId and either flavorPart is host_unique or asset_tag
-	var hwMatchedFlavors []hvs.SignedFlavor
-	for _, flavor := range store.flavorStore {
-		//skip for flavor with not matching hwuuid
-		if flavor.Flavor.Meta.Description.HardwareUUID == nil {
-			continue
-		}
-		if *flavor.Flavor.Meta.Description.HardwareUUID == hwId && (flavor.Flavor.Meta.Description.FlavorPart == cf.FlavorPartHostUnique.String() ||
-			flavor.Flavor.Meta.Description.FlavorPart == cf.FlavorPartAssetTag.String()) {
-			hwMatchedFlavors = append(hwMatchedFlavors, flavor)
-		}
-	}
-
-	// find flavorgroups with name host_unique and flavour group id in FlavorFlavorGroupStore and flavor id in list of obtained flavors
-	var flavorPart cf.FlavorPart
-	fgs := store.FlavorgroupStore
-	for _, flavor := range hwMatchedFlavors {
-		for fg := range store.FlavorFlavorGroupStore {
-			if _, ok := fgs[fg]; ok && fgs[fg].Name == cf.FlavorPartHostUnique.String() {
-				_ = (&flavorPart).Parse(flavor.Flavor.Meta.Description.FlavorPart)
-				flavorParts[flavorPart] = true
-			}
-		}
-	}
-
-	return flavorParts, nil
-}
-
+/*
 func (store *MockFlavorStore) GetFlavorTypesInFlavorgroup(flvGrpId uuid.UUID, flvParts []cf.FlavorPart) (map[cf.FlavorPart]bool, error) {
 	flavorTypesInFlavorGroup := make(map[cf.FlavorPart]bool)
 
@@ -487,6 +458,7 @@ func (store *MockFlavorStore) GetFlavorTypesInFlavorgroup(flvGrpId uuid.UUID, fl
 
 	return flavorTypesInFlavorGroup, nil
 }
+
 
 func (store *MockFlavorStore) flavorgroupContainsFlavorType(flvrPart cf.FlavorPart, fgId uuid.UUID) bool {
 	fgStore := store.FlavorgroupStore
@@ -528,6 +500,7 @@ func (store *MockFlavorStore) flavorgroupContainsFlavorType(flvrPart cf.FlavorPa
 
 	return false
 }
+*/
 
 // NewMockFlavorStore provides one dummy data for Flavors
 func NewMockFlavorStore() *MockFlavorStore {

@@ -29,6 +29,7 @@ var _ = Describe("HostController", func() {
 	var w *httptest.ResponseRecorder
 	var hostStore *mocks.MockHostStore
 	var hostStatusStore *mocks.MockHostStatusStore
+	var flavorStore *mocks.MockFlavorStore
 	var flavorGroupStore *mocks.MockFlavorgroupStore
 	var hostCredentialStore *mocks.MockHostCredentialStore
 	var hostController *controllers.HostController
@@ -39,6 +40,7 @@ var _ = Describe("HostController", func() {
 		router = mux.NewRouter()
 		hostStore = mocks.NewMockHostStore()
 		hostStatusStore = mocks.NewMockHostStatusStore()
+		flavorStore = mocks.NewMockFlavorStore()
 		flavorGroupStore = mocks.NewFakeFlavorgroupStore()
 		hostCredentialStore = mocks.NewMockHostCredentialStore()
 
@@ -54,6 +56,7 @@ var _ = Describe("HostController", func() {
 		hostController = &controllers.HostController{
 			HStore:    hostStore,
 			HSStore:   hostStatusStore,
+			FStore:    flavorStore,
 			FGStore:   flavorGroupStore,
 			HCStore:   hostCredentialStore,
 			HTManager: hostTrustManager,

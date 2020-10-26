@@ -26,10 +26,10 @@ func SetESXiClusterRoutes(router *mux.Router, store *postgres.DataStore,
 	esxiClusterStore := postgres.NewESXiCLusterStore(store, hostControllerConfig.DataEncryptionKey)
 	hostStore := postgres.NewHostStore(store)
 	hostStatusStore := postgres.NewHostStatusStore(store)
-
+	flavorStore := postgres.NewFlavorStore(store)
 	flavorGroupStore := postgres.NewFlavorGroupStore(store)
 	hostCredentialStore := postgres.NewHostCredentialStore(store, hostControllerConfig.DataEncryptionKey)
-	hc := controllers.NewHostController(hostStore, hostStatusStore,
+	hc := controllers.NewHostController(hostStore, hostStatusStore, flavorStore,
 		flavorGroupStore, hostCredentialStore, hostTrustManager, hostControllerConfig)
 	esxiClusterController := controllers.NewESXiClusterController(esxiClusterStore, *hc)
 

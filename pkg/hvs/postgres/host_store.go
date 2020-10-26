@@ -74,7 +74,7 @@ func (hs *HostStore) Update(h *hvs.Host) error {
 
 	if db := hs.Store.Db.Model(&dbHost).Updates(&dbHost); db.Error != nil || db.RowsAffected != 1 {
 		if db.Error != nil {
-			return errors.Wrap(db.Error, "postgres/host_store:Update() failed to update Host  " + dbHost.Id.String())
+			return errors.Wrap(db.Error, "postgres/host_store:Update() failed to update Host  "+dbHost.Id.String())
 		} else {
 			return errors.New("postgres/host_store:Update() - no rows affected - Record not found = id :  " + dbHost.Id.String())
 		}
@@ -303,4 +303,83 @@ func (hs *HostStore) RetrieveTrustCacheFlavors(hId, fgId uuid.UUID) ([]uuid.UUID
 		flavorIds = append(flavorIds, flavorId)
 	}
 	return flavorIds, nil
+}
+
+func (hs *HostStore) AddHostUniqueFlavors(hId uuid.UUID, fIds []uuid.UUID) ([]uuid.UUID, error) {
+	defaultLog.Trace("postgres/host_store:AddHostUniqueFlavors() Entering")
+	defer defaultLog.Trace("postgres/host_store:AddHostUniqueFlavors() Leaving")
+	if len(fIds) <= 0 || hId == uuid.Nil {
+		return nil, errors.New("postgres/host_store:AddHostUniqueFlavors()- invalid input : must have flavorId and hostId associate flavors ")
+	}
+
+	uniqueFlavorsValues := []string{}
+	uniqueFlavorsValueArgs := []interface{}{}
+	for _, fId := range fIds {
+		uniqueFlavorsValues = append(uniqueFlavorsValues, "(?, ?)")
+		uniqueFlavorsValueArgs = append(uniqueFlavorsValueArgs, hId)
+		uniqueFlavorsValueArgs = append(uniqueFlavorsValueArgs, fId)
+	}
+
+	insertQuery := fmt.Sprintf("INSERT INTO hostunique_flavor VALUES %s on conflict (host_id, flavor_id) do nothing", strings.Join(uniqueFlavorsValues, ","))
+	err := hs.Store.Db.Model(hostuniqueFlavor{}).Exec(insertQuery, uniqueFlavorsValueArgs...).Error
+	if err != nil {
+		return nil, errors.Wrap(err, "postgres/host_store:AddHostUniqueFlavors() failed to add host unique flavors")
+	}
+	return fIds, nil
+
+}
+
+func (hs *HostStore) RemoveHostUniqueFlavors(hId uuid.UUID, fIds []uuid.UUID) error {
+	defaultLog.Trace("postgres/host_store:RemoveHostUniquelavors() Entering")
+	defer defaultLog.Trace("postgres/host_store:RemoveHostUniquelavors() Leaving")
+
+	if hId == uuid.Nil && len(fIds) <= 0 {
+		return errors.New("postgres/flavorgroup_store:RemoveHostUniquelavors()- invalid input : must have flavorId or hostId to delete from the host unique flavors")
+	}
+
+	tx := hs.Store.Db
+	if hId != uuid.Nil {
+		fmt.Println(hId.String())
+		tx = tx.Where("host_id = ?", hId)
+	}
+
+	if len(fIds) >= 1 {
+		fmt.Println(fIds)
+		tx = tx.Where("flavor_id IN (?)", fIds)
+	}
+
+	if err := tx.Delete(&hostuniqueFlavor{}).Error; err != nil {
+		return errors.Wrap(err, "postgres/host_store:RemoveHostUniqueFlavors() failed to delete from host unique flavors")
+	}
+	return nil
+}
+
+func (hs *HostStore) RetrieveHostUniqueFlavors(hId uuid.UUID) ([]uuid.UUID, error) {
+	defaultLog.Trace("postgres/host_store:RetrieveHostUniqueFlavors() Entering")
+	defer defaultLog.Trace("postgres/host_store:RetrieveHostUniqueFlavors() Leaving")
+
+	if hId == uuid.Nil {
+		return nil, errors.New("postgres/host_store:RetrieveHostUniqueFlavors() Host ID must be set to get the list of host unique flavor ids")
+	}
+	var flavorIds []uuid.UUID
+	err := hs.Store.Db.Model(&hostuniqueFlavor{}).Where("host_id = ?", hId).Pluck("flavor_id", &flavorIds).Error
+	if err != nil {
+		return nil, errors.Wrap(err, "postgres/host_store:RetrieveHostUniqueFlavors() failed to retrieve records from db")
+	}
+	return flavorIds, nil
+}
+
+func (hs *HostStore) RetrieveDistinctUniqueFlavorParts(hId uuid.UUID) ([]string, error) {
+	defaultLog.Trace("postgres/host_store:RetrieveDistinctUniqueFlavorParts() Entering")
+	defer defaultLog.Trace("postgres/host_store:RetrieveDistinctUniqueFlavorParts() Leaving")
+
+	if hId == uuid.Nil {
+		return nil, errors.New("postgres/host_store:RetrieveDistinctUniqueFlavorParts() Host ID must be set to get the list of host unique flavor ids")
+	}
+	var uniqueFlavorParts []string
+	err := hs.Store.Db.Model(&flavor{}).Where("id in (select flavor_id from hostunique_flavor where host_id = ?)", hId).Pluck(("DISTINCT(flavor_part)"), &uniqueFlavorParts).Error
+	if err != nil {
+		return nil, errors.Wrap(err, "postgres/host_store:RetrieveDistinctUniqueFlavorParts() failed to retrieve records from db")
+	}
+	return uniqueFlavorParts, nil
 }

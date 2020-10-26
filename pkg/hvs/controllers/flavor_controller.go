@@ -412,8 +412,14 @@ func (fcon *FlavorController) addFlavorToFlavorgroup(flavorFlavorPartMap map[fc.
 					if len(hosts) == 0 || err != nil {
 						defaultLog.Infof("Host with matching hardware UUID not registered")
 					}
-					// add hosts to the list of host Id's to be added into flavor-verification queue
 					for _, host := range hosts {
+						// associate host unique flavors such as HOST_UNIQUE and ASSET_TAG with the hosts
+						if _, err := fcon.HStore.AddHostUniqueFlavors(host.Id, []uuid.UUID{signedFlavorCreated.Flavor.Meta.ID}); err != nil {
+							defaultLog.WithError(err).Errorf("controllers/flavor_controller: addFlavorToFlavorgroup() : "+
+								"Unable to associate %s flavorPart with host id : %v", flavorPart.String(), host.Id)
+							return nil, errors.Wrap(err, "Unable to associate flavorPart with host id")
+						}
+						// add host to the list of host Id's to be added into flavor-verification queue
 						fgHostIds = append(fgHostIds, host.Id)
 					}
 					if flavorPart == fc.FlavorPartAssetTag {

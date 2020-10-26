@@ -26,6 +26,7 @@ type (
 		SearchFlavors(uuid.UUID) ([]uuid.UUID, error)
 		RetrieveFlavor(uuid.UUID, uuid.UUID) (*hvs.FlavorgroupFlavorLink, error)
 		SearchHostsByFlavorGroup(fgID uuid.UUID) ([]uuid.UUID, error)
+		GetFlavorTypesInFlavorGroup(flvGrpId uuid.UUID) (map[cf.FlavorPart]bool, error)
 	}
 
 	HostStore interface {
@@ -44,6 +45,13 @@ type (
 		// RetrieveTrustCacheFlavors function takes in host UUID and a flavorgroup uuid. The reason for this
 		// is the trust cache is associated to a flavor group.
 		RetrieveTrustCacheFlavors(uuid.UUID, uuid.UUID) ([]uuid.UUID, error)
+		// Flavors that are unique to the host such as HOST_UNIQUE and ASSET_TAG should have an association
+		// with the host.
+
+		AddHostUniqueFlavors(hId uuid.UUID, fIds []uuid.UUID) ([]uuid.UUID, error)
+		RemoveHostUniqueFlavors(hId uuid.UUID, fIds []uuid.UUID) error
+		RetrieveHostUniqueFlavors(hId uuid.UUID) ([]uuid.UUID, error)
+		RetrieveDistinctUniqueFlavorParts(hId uuid.UUID) ([]string, error)
 	}
 
 	HostCredentialStore interface {
@@ -56,8 +64,6 @@ type (
 	}
 
 	FlavorStore interface {
-		GetUniqueFlavorTypesThatExistForHost(hwId uuid.UUID) (map[cf.FlavorPart]bool, error)
-		GetFlavorTypesInFlavorgroup(flvGrpId uuid.UUID, flvParts []cf.FlavorPart) (map[cf.FlavorPart]bool, error)
 		Create(*hvs.SignedFlavor) (*hvs.SignedFlavor, error)
 		Retrieve(uuid.UUID) (*hvs.SignedFlavor, error)
 		Search(*models.FlavorVerificationFC) ([]hvs.SignedFlavor, error)

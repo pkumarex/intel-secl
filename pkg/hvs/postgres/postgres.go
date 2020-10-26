@@ -141,7 +141,7 @@ func (ds *DataStore) Migrate() {
 	defaultLog.Trace("postgres/postgres:Migrate() Entering")
 	defer defaultLog.Trace("postgres/postgres:Migrate() Leaving")
 
-	ds.Db.AutoMigrate(flavorGroup{}, host{}, flavor{}, trustCache{}, flavorgroupFlavor{}, hostStatus{}, esxiCluster{},
+	ds.Db.AutoMigrate(flavorGroup{}, host{}, flavor{}, trustCache{}, hostuniqueFlavor{}, flavorgroupFlavor{}, hostStatus{}, esxiCluster{},
 		esxiClusterHost{}, tagCertificate{}, tpmEndorsement{}, report{}, hostCredential{}, hostFlavorgroup{}, auditLogEntry{},
 		queue{})
 }

@@ -41,13 +41,14 @@ func NewVCenterClusterSyncer(cfg config.VCSSConfig, hcConfig domain.HostControll
 	hostStore := postgres.NewHostStore(dataStore)
 	hostStatusStore := postgres.NewHostStatusStore(dataStore)
 
+	flavorStore := postgres.NewFlavorStore(dataStore)
 	flavorGroupStore := postgres.NewFlavorGroupStore(dataStore)
 	hostCredentialStore := postgres.NewHostCredentialStore(dataStore, hcConfig.DataEncryptionKey)
 
 	ecStore := postgres.NewESXiCLusterStore(dataStore, hcConfig.DataEncryptionKey)
 
 	hostController := controllers.NewHostController(hostStore, hostStatusStore,
-		flavorGroupStore, hostCredentialStore,
+		flavorStore, flavorGroupStore, hostCredentialStore,
 		hostTrustManager, hcConfig)
 
 	return &vCenterClusterSyncerImpl{
@@ -162,7 +163,7 @@ func (syncer *vCenterClusterSyncerImpl) syncHosts() error {
 		if len(hostNames) > 0 {
 			err = syncer.esxiClusterStore.AddHosts(cluster.Id, hostNames)
 			if err != nil {
-				defaultLog.WithError(err).Error( "vcss/vcenter_cluster_syncer:syncHosts() Linking ESXi cluster to"+
+				defaultLog.WithError(err).Error("vcss/vcenter_cluster_syncer:syncHosts() Linking ESXi cluster to" +
 					" host failed")
 			}
 		}
@@ -176,7 +177,7 @@ func (syncer *vCenterClusterSyncerImpl) syncHosts() error {
 				defaultLog.WithError(err).Errorf("vcss/vcenter_cluster_syncer:syncHosts() Error removing host from DB with "+
 					"host name %s", hostName)
 			} else {
-				defaultLog.Infof("vcss/vcenter_cluster_syncer:syncHosts() Host with name %s removed from DB since " +
+				defaultLog.Infof("vcss/vcenter_cluster_syncer:syncHosts() Host with name %s removed from DB since "+
 					"it is not present in cluster %s", hostName, cluster.ClusterName)
 			}
 		}

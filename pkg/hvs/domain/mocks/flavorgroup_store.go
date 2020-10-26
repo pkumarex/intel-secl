@@ -164,6 +164,12 @@ func (store *MockFlavorgroupStore) SearchHostsByFlavorGroup(fgID uuid.UUID) ([]u
 	return hIds, nil
 }
 
+func (store *MockFlavorgroupStore) GetFlavorTypesInFlavorGroup(fgId uuid.UUID) (map[cf.FlavorPart]bool, error) {
+
+
+	return make(map[cf.FlavorPart]bool), nil
+}
+
 // NewFakeFlavorgroupStore provides two dummy data for Flavorgroups
 func NewFakeFlavorgroupStore() *MockFlavorgroupStore {
 	store := &MockFlavorgroupStore{

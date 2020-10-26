@@ -124,6 +124,7 @@ var tablesToDrop = []string{
 	"queue",
 	"flavor",
 	"trust_cache",
+	"hostunique_flavor",
 	"audit_log_entry",
 }
 

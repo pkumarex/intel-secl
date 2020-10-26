@@ -22,12 +22,12 @@ func SetHostRoutes(router *mux.Router, store *postgres.DataStore, hostTrustManag
 
 	hostStore := postgres.NewHostStore(store)
 	hostStatusStore := postgres.NewHostStatusStore(store)
-
+	flavorStore := postgres.NewFlavorStore(store)
 	flavorGroupStore := postgres.NewFlavorGroupStore(store)
 	hostCredentialStore := postgres.NewHostCredentialStore(store, hostControllerConfig.DataEncryptionKey)
 
 	hostController := controllers.NewHostController(hostStore, hostStatusStore,
-		flavorGroupStore, hostCredentialStore,
+		flavorStore, flavorGroupStore, hostCredentialStore,
 		hostTrustManager, hostControllerConfig)
 
 	hostExpr := "/hosts"

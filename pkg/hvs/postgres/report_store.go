@@ -8,6 +8,7 @@ package postgres
 import (
 	"encoding/json"
 	"fmt"
+	consts "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants"
 	"reflect"
 	"strings"
 	"sync"
@@ -146,9 +147,7 @@ func (r *ReportStore) Search(criteria *models.ReportFilterCriteria) ([]models.HV
 		fromDate = criteria.FromDate
 	}
 	if criteria.Limit == 0 && criteria.LatestPerHost {
-		criteria.Limit = 1
-	} else {
-		criteria.Limit = 2000
+		criteria.Limit = consts.DefaultSearchResultRowLimit
 	}
 	latestPerHost = criteria.LatestPerHost
 

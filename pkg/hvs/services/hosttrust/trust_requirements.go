@@ -19,17 +19,17 @@ import (
 )
 
 type flvGrpHostTrustReqs struct {
-	HostId                        uuid.UUID
-	FlavorGroupId                 uuid.UUID
-	FlavorMatchPolicies           hvs.FlavorMatchPolicies
-	MatchTypeFlavorParts          map[hvs.MatchType][]cf.FlavorPart
-	AllOfFlavors                  []hvs.SignedFlavor
-	DefinedAndRequiredFlavorTypes map[cf.FlavorPart]bool
-	FlavorPartMatchPolicy         map[cf.FlavorPart]hvs.MatchPolicy
+	HostId                          uuid.UUID
+	FlavorGroupId                   uuid.UUID
+	FlavorMatchPolicies             hvs.FlavorMatchPolicies
+	MatchTypeFlavorParts            map[hvs.MatchType][]cf.FlavorPart
+	AllOfFlavors                    []hvs.SignedFlavor
+	DefinedAndRequiredFlavorTypes   map[cf.FlavorPart]bool
+	FlavorPartMatchPolicy           map[cf.FlavorPart]hvs.MatchPolicy
 	SkipFlavorSignatureVerification bool
 }
 
-func NewFlvGrpHostTrustReqs(hostId uuid.UUID, hwUUID uuid.UUID, fg hvs.FlavorGroup, fs domain.FlavorStore, hostData *types.HostManifest, SkipFlavorSignatureVerification bool) (*flvGrpHostTrustReqs, error) {
+func NewFlvGrpHostTrustReqs(hostId uuid.UUID, definedUniqueFlavorParts map[cf.FlavorPart]bool, fg hvs.FlavorGroup, fs domain.FlavorStore, fgs domain.FlavorGroupStore, hostData *types.HostManifest, SkipFlavorSignatureVerification bool) (*flvGrpHostTrustReqs, error) {
 	defaultLog.Trace("hosttrust/trust_requirements:NewFlvGrpHostTrustReqs() Entering")
 	defer defaultLog.Trace("hosttrust/trust_requirements:NewFlvGrpHostTrustReqs() Leaving")
 
@@ -55,7 +55,7 @@ func NewFlvGrpHostTrustReqs(hostId uuid.UUID, hwUUID uuid.UUID, fg hvs.FlavorGro
 		if err != nil {
 			return nil, errors.Wrap(err, "error while creating host manifest map")
 		}
-		reqs.AllOfFlavors, _ = fs.Search(&models.FlavorVerificationFC{
+		reqs.AllOfFlavors, err = fs.Search(&models.FlavorVerificationFC{
 			FlavorFC: models.FlavorFilterCriteria{
 				// Flavor Parts of the Search Criteria takes a []cf.FlavorPart - but we have a map.
 				// So dump keys of the map into a slice.
@@ -66,7 +66,7 @@ func NewFlvGrpHostTrustReqs(hostId uuid.UUID, hwUUID uuid.UUID, fg hvs.FlavorGro
 			FlavorPartsWithLatest: nil,
 		})
 		if err != nil {
-			return nil, errors.Wrap(err, "error searching flavor for "+hwUUID.String())
+			return nil, errors.Wrap(err, "error searching flavor for host id "+hostId.String())
 		}
 		defaultLog.Debugf("%v from Flavorgroup %v Flavors retrieved with ALL_OF policy", fg.ID, len(reqs.AllOfFlavors))
 	}
@@ -74,35 +74,30 @@ func NewFlvGrpHostTrustReqs(hostId uuid.UUID, hwUUID uuid.UUID, fg hvs.FlavorGro
 	reqPartsMap := fgRequirePolicyMap[hvs.FlavorRequired]
 	reqIfdefPartsMap := fgRequirePolicyMap[hvs.FlavorRequiredIfDefined]
 
-	definedUniqueFlavorParts, err := fs.GetUniqueFlavorTypesThatExistForHost(hwUUID)
-	if err != nil {
-		return nil, errors.Wrap(err, "error getting unique flavor types that exist for hardware id "+hwUUID.String())
-	}
-
-	for part, _ := range definedUniqueFlavorParts {
-		if policy, exists := reqs.FlavorPartMatchPolicy[part]; !exists ||
-			(exists && policy.Required != hvs.FlavorRequiredIfDefined && policy.Required != hvs.FlavorRequired) {
-			delete(definedUniqueFlavorParts, part)
-		}
-	}
-
-	// since the required if defined flavor part is a map and the function expect a slice,
-	// convert from a map to a slice and call the GetFlavorTypesInFlavorgroup method
-	// of FlavorRepository
-
-	definedAutomaticFlavorParts, err := fs.GetFlavorTypesInFlavorgroup(fg.ID, reqIfdefPartsMap)
-
 	// create the host defined and required falvorTypes by joining the map
 	for _, part := range reqPartsMap {
 		reqs.DefinedAndRequiredFlavorTypes[part] = true
 	}
-	// now add defined automatic flavor parts
-	for part, _ := range definedAutomaticFlavorParts {
-		reqs.DefinedAndRequiredFlavorTypes[part] = true
+
+	// now add defined if required flavor parts
+	flavorPartsInFlavorGroup, err := fgs.GetFlavorTypesInFlavorGroup(fg.ID)
+	if err != nil {
+		return nil, errors.Wrap(err, "error searching flavor types in flavorgroup ")
 	}
+	// since the above query returns all the different flavors types in the flavorgroup, filter only
+	// those flavor parts that are required if defined
+	for _, part := range reqIfdefPartsMap {
+		if _, exists := flavorPartsInFlavorGroup[part]; exists {
+			reqs.DefinedAndRequiredFlavorTypes[part] = true
+		}
+	}
+
 	// add the host unique flavor parts
-	for part, _ := range definedUniqueFlavorParts {
-		reqs.DefinedAndRequiredFlavorTypes[part] = true
+	for part := range definedUniqueFlavorParts {
+		if policy, exists := reqs.FlavorPartMatchPolicy[part]; exists &&
+			(policy.Required == hvs.FlavorRequiredIfDefined || policy.Required == hvs.FlavorRequired) {
+			reqs.DefinedAndRequiredFlavorTypes[part] = true
+		}
 	}
 
 	return &reqs, nil
@@ -113,7 +108,7 @@ func (r *flvGrpHostTrustReqs) GetLatestFlavorTypeMap() map[cf.FlavorPart]bool {
 	defer defaultLog.Trace("hosttrust/trust_requirements:NewFlvGrpHostTrustReqs() Leaving")
 
 	result := make(map[cf.FlavorPart]bool)
-	for part, _ := range r.DefinedAndRequiredFlavorTypes {
+	for part := range r.DefinedAndRequiredFlavorTypes {
 		if r.FlavorPartMatchPolicy[part].MatchType == hvs.MatchTypeLatest {
 			result[part] = true
 		} else {

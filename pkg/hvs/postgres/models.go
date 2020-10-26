@@ -40,8 +40,8 @@ type (
 	}
 
 	host struct {
-		Id               uuid.UUID     `gorm:"primary_key;type:uuid"`
-		Name             string        `gorm:"unique;type:varchar(255);not null"`
+		Id               uuid.UUID `gorm:"primary_key;type:uuid"`
+		Name             string    `gorm:"unique;type:varchar(255);not null"`
 		Description      string
 		ConnectionString string        `gorm:"not null"`
 		HardwareUuid     models.HwUUID `gorm:"type:uuid;index:idx_host_hardware_uuid"`
@@ -60,6 +60,11 @@ type (
 	trustCache struct {
 		FlavorId uuid.UUID `gorm:"type:uuid REFERENCES flavor(Id) ON UPDATE CASCADE ON DELETE CASCADE;not null;unique_index:idx_flavor_host"`
 		HostId   uuid.UUID `gorm:"type:uuid REFERENCES host(Id) ON UPDATE CASCADE ON DELETE CASCADE;not null;unique_index:idx_flavor_host"`
+	}
+
+	hostuniqueFlavor struct {
+		HostId   uuid.UUID `gorm:"type:uuid REFERENCES host(Id) ON UPDATE CASCADE ON DELETE CASCADE;not null;unique_index:idx_hostunique_flavor"`
+		FlavorId uuid.UUID `gorm:"type:uuid REFERENCES flavor(Id) ON UPDATE CASCADE ON DELETE CASCADE;not null;unique_index:idx_hostunique_flavor"`
 	}
 
 	hostCredential struct {

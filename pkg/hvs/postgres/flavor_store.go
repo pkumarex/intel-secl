@@ -69,7 +69,7 @@ func (f *FlavorStore) Search(flavorFilter *models.FlavorVerificationFC) ([]hvs.S
 	}
 	// build partial query with the given key-value pair from falvor description
 	if flavorFilter.FlavorFC.Key != "" && flavorFilter.FlavorFC.Value != "" {
-		tx = tx.Where(convertToPgJsonqueryString("f.content", "meta.description."+flavorFilter.FlavorFC.Key) + " = ?", flavorFilter.FlavorFC.Value)
+		tx = tx.Where(convertToPgJsonqueryString("f.content", "meta.description."+flavorFilter.FlavorFC.Key)+" = ?", flavorFilter.FlavorFC.Value)
 	}
 	if flavorFilter.FlavorFC.FlavorgroupID.String() != "" ||
 		len(flavorFilter.FlavorFC.FlavorParts) >= 1 || len(flavorFilter.FlavorPartsWithLatest) >= 1 || flavorFilter.FlavorMeta != nil || len(flavorFilter.FlavorMeta) >= 1 {
@@ -122,7 +122,7 @@ func (f *FlavorStore) buildMultipleFlavorPartQueryString(tx *gorm.DB, fgId uuid.
 				// build biosQuery with all the platform flavor query attributes from host manifest
 				pfQueryAttributes := flavorMetaInfo[fc.FlavorPartPlatform]
 				for _, pfQueryAttribute := range pfQueryAttributes {
-					biosQuery = biosQuery.Where(convertToPgJsonqueryString("f.content", pfQueryAttribute.Key) + " = ?", pfQueryAttribute.Value)
+					biosQuery = biosQuery.Where(convertToPgJsonqueryString("f.content", pfQueryAttribute.Key)+" = ?", pfQueryAttribute.Value)
 				}
 				// apply limit if latest
 				if flavorPartsWithLatest[fc.FlavorPartPlatform] {
@@ -135,7 +135,7 @@ func (f *FlavorStore) buildMultipleFlavorPartQueryString(tx *gorm.DB, fgId uuid.
 				// build osQuery with all the OS flavor query attributes from host manifest
 				osfQueryAttributes := flavorMetaInfo[fc.FlavorPartOs]
 				for _, osfQueryAttribute := range osfQueryAttributes {
-					osQuery = osQuery.Where(convertToPgJsonqueryString("f.content", osfQueryAttribute.Key) + " = ?", osfQueryAttribute.Value)
+					osQuery = osQuery.Where(convertToPgJsonqueryString("f.content", osfQueryAttribute.Key)+" = ?", osfQueryAttribute.Value)
 				}
 				// apply limit if latest
 				if flavorPartsWithLatest[fc.FlavorPartOs] {
@@ -146,11 +146,11 @@ func (f *FlavorStore) buildMultipleFlavorPartQueryString(tx *gorm.DB, fgId uuid.
 				hostUniqueQuery = f.Store.Db
 				hostUniqueQuery = hostUniqueQuery.Table("flavor f")
 				hostUniqueQuery = hostUniqueQuery.Select("f.id")
-				hostUniqueQuery = hostUniqueQuery.Where(convertToPgJsonqueryString("f.content", "meta.description.flavor_part") + " = ?", fc.FlavorPartHostUnique.String())
+				hostUniqueQuery = hostUniqueQuery.Where(convertToPgJsonqueryString("f.content", "meta.description.flavor_part")+" = ?", fc.FlavorPartHostUnique.String())
 				// build host unique Query with all the host unique flavor query attributes from host manifest
 				hufQueryAttributes := flavorMetaInfo[fc.FlavorPartHostUnique]
 				for _, hufQueryAttribute := range hufQueryAttributes {
-					hostUniqueQuery = hostUniqueQuery.Where(convertToPgJsonqueryString("f.content", hufQueryAttribute.Key) + " = ?", hufQueryAttribute.Value)
+					hostUniqueQuery = hostUniqueQuery.Where(convertToPgJsonqueryString("f.content", hufQueryAttribute.Key)+" = ?", hufQueryAttribute.Value)
 				}
 				// apply limit if latest
 				if flavorPartsWithLatest[fc.FlavorPartHostUnique] {
@@ -173,11 +173,11 @@ func (f *FlavorStore) buildMultipleFlavorPartQueryString(tx *gorm.DB, fgId uuid.
 			case fc.FlavorPartAssetTag:
 				aTagQuery = f.Store.Db
 				aTagQuery = aTagQuery.Table("flavor f").Select("f.id")
-				aTagQuery = aTagQuery.Where(convertToPgJsonqueryString("f.content", "meta.description.flavor_part") + " = ?", fc.FlavorPartAssetTag)
+				aTagQuery = aTagQuery.Where(convertToPgJsonqueryString("f.content", "meta.description.flavor_part")+" = ?", fc.FlavorPartAssetTag)
 				// build assetTag Query with all the assetTag flavor query attributes from host manifest
 				atfQueryAttributes := flavorMetaInfo[fc.FlavorPartAssetTag]
 				for _, atfQueryAttribute := range atfQueryAttributes {
-					aTagQuery = aTagQuery.Where(convertToPgJsonqueryString("f.content", atfQueryAttribute.Key) + " = ?", atfQueryAttribute.Value)
+					aTagQuery = aTagQuery.Where(convertToPgJsonqueryString("f.content", atfQueryAttribute.Key)+" = ?", atfQueryAttribute.Value)
 				}
 				// apply limit if latest
 				if flavorPartsWithLatest[fc.FlavorPartAssetTag] {
@@ -259,11 +259,11 @@ func buildFlavorPartQueryStringWithFlavorParts(flavorpart, flavorgroupId string,
 
 	if flavorgroupId != "" && uuid.MustParse(flavorgroupId) != uuid.Nil {
 		subQuery := buildFlavorPartQueryStringWithFlavorgroup(flavorgroupId, tx)
-		tx = subQuery.Where(convertToPgJsonqueryString("f.content", "meta.description.flavor_part") + " = ?", flavorpart)
+		tx = subQuery.Where(convertToPgJsonqueryString("f.content", "meta.description.flavor_part")+" = ?", flavorpart)
 	} else {
 		tx = tx.Table("flavor f").Select("f.id").Joins("INNER JOIN flavorgroup_flavor fgf ON f.id = fgf.flavor_id")
 		tx = tx.Joins("INNER JOIN flavor_group fg ON fgf.flavorgroup_id = fg.id")
-		tx = tx.Where(convertToPgJsonqueryString("f.content", "meta.description.flavor_part") + " = ?", flavorpart)
+		tx = tx.Where(convertToPgJsonqueryString("f.content", "meta.description.flavor_part")+" = ?", flavorpart)
 	}
 	return tx
 }
@@ -320,101 +320,4 @@ func (f *FlavorStore) Delete(flavorId uuid.UUID) error {
 		return errors.Wrap(err, "postgres/flavor_store:Delete() failed to delete Flavor")
 	}
 	return nil
-}
-
-func (f *FlavorStore) GetUniqueFlavorTypesThatExistForHost(hwId uuid.UUID) (map[fc.FlavorPart]bool, error) {
-	uniqueFlavorTypesForHost := make(map[fc.FlavorPart]bool)
-
-	// check for HOST_UNIQUE flavor part
-	hostHasHostUniqueFlavor, err := f.isHostHavingFlavorType(hwId.String(), fc.FlavorPartHostUnique.String())
-	if err != nil {
-		return nil, err
-	}
-	if hostHasHostUniqueFlavor {
-		defaultLog.Debugf("Host [%s] has %s flavor type", hwId.String(), fc.FlavorPartHostUnique.String())
-		uniqueFlavorTypesForHost[fc.FlavorPartHostUnique] = true
-	}
-
-	// check for ASSET_TAG flavor part
-	hostHasAssetTagFlavor, err := f.isHostHavingFlavorType(hwId.String(), fc.FlavorPartAssetTag.String())
-	if err != nil {
-		return nil, err
-	}
-	if hostHasAssetTagFlavor {
-		defaultLog.Debugf("Host [%s] has %s flavor type", hwId.String(), fc.FlavorPartAssetTag.String())
-		uniqueFlavorTypesForHost[fc.FlavorPartAssetTag] = true
-	}
-
-	if len(uniqueFlavorTypesForHost) == 0 {
-		return nil, nil
-	}
-
-	return uniqueFlavorTypesForHost, nil
-}
-
-func (f *FlavorStore) GetFlavorTypesInFlavorgroup(flvGrpId uuid.UUID, flvParts []fc.FlavorPart) (map[fc.FlavorPart]bool, error) {
-	flavorTypesInFlavorGroup := make(map[fc.FlavorPart]bool)
-	if flvParts == nil || len(flvParts) == 0 {
-		flvParts = fc.GetFlavorTypes()
-	}
-	for _, flvrPart := range flvParts {
-		flavorgroupContainsFlavorType, err := f.flavorgroupContainsFlavorType(flvGrpId.String(), flvrPart.String())
-		if err != nil {
-			return nil, err
-		}
-		if flavorgroupContainsFlavorType {
-			defaultLog.Debugf("Flavorgroup [%s] contains flavor type [%s]", flvGrpId.String(), strings.Join(fc.GetFlavorTypesString(flvParts), ","))
-			flavorTypesInFlavorGroup[flvrPart] = true
-		}
-	}
-
-	if len(flavorTypesInFlavorGroup) == 0 {
-		defaultLog.Debugf("Flavorgroup [%s] does not contain flavor type [%s]", flvGrpId.String(), fc.GetFlavorTypesString(flvParts))
-		return nil, nil
-	}
-
-	return flavorTypesInFlavorGroup, nil
-}
-
-//Check whether flavors exists for given flavorPart and hardware uuid, associated with host_unique flavorgroup
-func (f *FlavorStore) isHostHavingFlavorType(hwId, flavorType string) (bool, error) {
-	var tx *gorm.DB
-	var count int
-	tx = f.Store.Db.Model(&flavor{}).Joins("INNER JOIN flavorgroup_flavor as l ON flavor.id = l.flavor_id").
-		Joins("INNER JOIN flavor_group as fg ON l.flavorgroup_id = fg.id").
-		Where("fg.name = 'host_unique'").
-		Where(convertToPgJsonqueryString("flavor.content", "meta.description.flavor_part") + " = ?", flavorType).
-		Where("LOWER(flavor.content -> 'meta' -> 'description' ->> 'hardware_uuid') = ?", strings.ToLower(hwId))
-
-	if err := tx.Count(&count).Error; err != nil {
-		return false, errors.Wrap(err, "postgres/flavor_store:isHostHavingFlavorType() failed to execute query")
-	}
-
-	if count > 0 {
-		return true, nil
-	}
-	return false, nil
-}
-
-// Checks whether any flavors exists with given flavorPart and associated with flavorgroup for given flavorgroup Id fgId
-// and which has policies with given flavorPart.
-func (f *FlavorStore) flavorgroupContainsFlavorType(fgId, flavorPart string) (bool, error) {
-	var tx *gorm.DB
-	var count int
-
-	tx = f.Store.Db.Model(&flavor{}).Joins("INNER JOIN flavorgroup_flavor as l ON flavor.id = l.flavor_id").
-		Joins("INNER JOIN flavor_group as fg ON l.flavorgroup_id = fg.id, jsonb_array_elements(fg.flavor_type_match_policy) policies").
-		Where("fg.id = ?", fgId).
-		Where("fg.name != ?", models.FlavorGroupsHostUnique.String()).
-		Where("policies ->> 'flavor_part' = ?", flavorPart).
-		Where(convertToPgJsonqueryString("flavor.content", "meta.description.flavor_part") + " = ?", flavorPart)
-	if err := tx.Count(&count).Error; err != nil {
-		return false, errors.Wrap(err, "postgres/flavor_store:flavorgroupContainsFlavorType() failed to execute query")
-	}
-
-	if count > 0 {
-		return true, nil
-	}
-
-	return false, nil
 }
