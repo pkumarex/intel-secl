@@ -26,12 +26,12 @@ type ServerSetup struct {
 const svrEnvHelpPrompt = "Following environment variables are required for Server setup:"
 
 var svrEnvHelp = map[string]string{
-	"SERVER_PORT":                "The port on which to listen",
-	"SERVER_READ_TIMEOUT":        "Service Read Timeout",
-	"SERVER_READ_HEADER_TIMEOUT": "Service Read Header Timeout",
-	"SERVER_WRITE_TIMEOUT":       "Service Write Timeout",
-	"SERVER_IDLE_TIMEOUT":        "Service Idle Timeout",
-	"SERVER_MAX_HEADER_BYTES":    "Max Header Bytes",
+	"SERVER_PORT":                "The Port on which Server Listens to",
+	"SERVER_READ_TIMEOUT":        "Request Read Timeout Duration in Seconds",
+	"SERVER_READ_HEADER_TIMEOUT": "Request Read Header Timeout Duration in Seconds",
+	"SERVER_WRITE_TIMEOUT":       "Request Write Timeout Duration in Seconds",
+	"SERVER_IDLE_TIMEOUT":        "Request Idle Timeout in Seconds",
+	"SERVER_MAX_HEADER_BYTES":    "Max Length Of Request Header in Bytes ",
 }
 
 func (t *ServerSetup) Run() error {
