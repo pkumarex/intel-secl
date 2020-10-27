@@ -5,9 +5,8 @@
 package setup
 
 import (
-	"io"
-
 	"github.com/pkg/errors"
+	"io"
 )
 
 type Task interface {
@@ -118,6 +117,7 @@ func (r *Runner) Run(taskName string, force bool) error {
 			return retErr
 		}
 	}
+	printToWriter(r.ConsoleWriter,"", "Setup task finished successfully: "+taskName)
 	return nil
 }
 

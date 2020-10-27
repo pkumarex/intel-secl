@@ -395,6 +395,11 @@ func (controller UsersController) QueryUserRoles(w http.ResponseWriter, r *http.
 	}
 
 	userRoleBytes, err := json.Marshal(userRoles)
+	if err != nil {
+		log.WithError(err).Error("Failed to marshal user roles to JSON")
+		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: err.Error()}
+	}
+
 	secLog.Infof("%s: Return user permission query request to: %s", commLogMsg.AuthorizedAccess, r.RemoteAddr)
 	return string(userRoleBytes), http.StatusOK, nil
 }
@@ -469,6 +474,10 @@ func (controller UsersController) QueryUserPermissions(w http.ResponseWriter, r 
 	}
 
 	userPermissionsBytes, err := json.Marshal(userPermissions)
+	if err != nil {
+		log.WithError(err).Error("Failed to marshal user permissions to JSON")
+		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: err.Error()}
+	}
 	secLog.Infof("%s: Return user permissions query request to: %s", commLogMsg.AuthorizedAccess, r.RemoteAddr)
 	return string(userPermissionsBytes), http.StatusOK, nil
 }
@@ -502,7 +511,11 @@ func (controller UsersController) GetUserRoleById(w http.ResponseWriter, r *http
 	secLog.WithField("user", *u).Infof("%s: User role found by: %s", commLogMsg.AuthorizedAccess, r.RemoteAddr)
 
 	roleBytes, err := json.Marshal(role)
-	return roleBytes, http.StatusOK, nil
+	if err != nil {
+		log.WithError(err).Error("Failed to marshal user role to JSON")
+		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: err.Error()}
+	}
+	return string(roleBytes), http.StatusOK, nil
 }
 
 func (controller UsersController) DeleteUserRole(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
@@ -608,7 +621,7 @@ func (controller UsersController) ChangePassword(w http.ResponseWriter, r *http.
 	}
 	secLog.WithField("user", existingUser.ID).Infof("%s: User %s password changed by: %s", commLogMsg.PrivilegeModified, existingUser.ID, r.RemoteAddr)
 
-	return nil, http.StatusNoContent, nil
+	return nil, http.StatusOK, nil
 }
 
 func authorizeEndpoint(r *http.Request, permissionNames []string, retNilCtxForEmptyCtx bool) (*map[string]aasModel.PermissionInfo, error) {

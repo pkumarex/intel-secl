@@ -91,6 +91,7 @@ func (a *App) Run(args []string) error {
 		return a.uninstall(purge)
 	case "version", "--version", "-v":
 		a.printVersion()
+		return nil
 	case "setup":
 		if err := a.setup(args[1:]); err != nil {
 			if errors.Cause(err) == setup.ErrTaskNotFound {

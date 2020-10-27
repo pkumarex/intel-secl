@@ -7,7 +7,7 @@ BUILDDATE := $(shell TZ=UTC date +%Y-%m-%dT%H:%M:%S%z)
 .PHONY: installer test all clean
 
 cms:
-	cd cmd/cms && env GOOS=linux GOSUMDB=off GOPROXY=direct go build -gcflags=all="-N -l" -ldflags "-X github.com/intel-secl/intel-secl/v3/pkg/cms/version.BuildDate=$(BUILDDATE) -X github.com/intel-secl/intel-secl/v3/pkg/cms/version.Version=$(VERSION) -X github.com/intel-secl/intel-secl/v3/pkg/cms/version.GitHash=$(GITCOMMIT)" -o cms
+	cd cmd/cms && env GOOS=linux GOSUMDB=off GOPROXY=direct go build -ldflags "-X github.com/intel-secl/intel-secl/v3/pkg/cms/version.BuildDate=$(BUILDDATE) -X github.com/intel-secl/intel-secl/v3/pkg/cms/version.Version=$(VERSION) -X github.com/intel-secl/intel-secl/v3/pkg/cms/version.GitHash=$(GITCOMMIT)" -o cms
 
 cms-installer: cms
 	mkdir -p installer
@@ -53,7 +53,7 @@ hvs-installer: hvs
 	rm -rf installer
 
 aas:
-	cd cmd/authservice && env GOOS=linux GOSUMDB=off GOPROXY=direct go build -ldflags "-X github.com/intel-secl/intel-secl/v3/pkg/authservice/version.BuildDate=$(BUILDDATE) -X github.com/intel-secl/intel-secl/v3/pkg/authservice/version.Version=$(VERSION) -X github.com/intel-secl/intel-secl/v3/pkg/authservice/version.GitHash=$(GITCOMMIT)" -o authservice
+	cd cmd/authservice && GOOS=linux GOSUMDB=off GOPROXY=direct go build -ldflags "-X github.com/intel-secl/intel-secl/v3/pkg/aas/version.BuildDate=$(BUILDDATE) -X github.com/intel-secl/intel-secl/v3/pkg/aas/version.Version=$(VERSION) -X github.com/intel-secl/intel-secl/v3/pkg/aas/version.GitHash=$(GITCOMMIT)" -o authservice
 
 aas-manager:
 	cd build/linux/aas/aas-manager && env GOOS=linux GOSUMDB=off GOPROXY=direct go build -o populate-users
