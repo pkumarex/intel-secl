@@ -5,39 +5,6 @@
 - Retrieves attestation details at configured interval from the Host Verification service.
 - Pushes attestation details to configured orchestrators e.g OpenStack/Kubernetes
 
-## System Requirements
-- RHEL 8.1
-- Epel 8 Repo
-- Proxy settings if applicable
-
-## Software requirements
-- git
-- makeself
-- `go` version >= `go1.12.1` & <= `go1.14.1`
-
-# Step By Step Build Instructions
-
-## Install required shell commands
-Please make sure that you have the right `http proxy` settings if you are behind a proxy
-```shell
-export HTTP_PROXY=http://<proxy>:<port>
-export HTTPS_PROXY=https://<proxy>:<port>
-```
-
-### Install tools from `yum`
-```shell
-sudo yum install -y git wget makeself
-```
-
-### Install `go` version >= `go1.12.1` & <= `go1.14.1`
-The `Integration Hub` requires Go version 1.12.1 that has support for `go modules`. The build was validated with the latest version 1.14.1 of `go`. It is recommended that you use 1.14.1 version of `go`. More recent versions may introduce compatibility issues. You can use the following to install `go`.
-```shell
-wget https://dl.google.com/go/go1.14.1.linux-amd64.tar.gz
-tar -xzf go1.14.1.linux-amd64.tar.gz
-sudo mv go /usr/local
-export GOROOT=/usr/local/go
-export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-```
 
 ## Build Integration Hub
 - Git clone the Mono-Repo which includes Integration Hub

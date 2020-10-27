@@ -34,6 +34,12 @@ type TLS struct {
 	commandName      string
 }
 
+const tlsEnvHelpPrompt = "Following environment variables are required for tls setup:"
+
+var tlsEnvHelp = map[string]string{
+	"SAN_LIST":"TLS SAN list",
+}
+
 func outboundHost() (string, error) {
 	log.Trace("tasks/tls:outboundHost() Entering")
 	defer log.Trace("tasks/tls:outboundHost() Leaving")
@@ -163,7 +169,7 @@ func (ts TLS) Validate() error {
 }
 
 func (ts TLS) PrintHelp(w io.Writer) {
-	setup.PrintEnvHelp(w, rootCAEnvHelpPrompt, ts.envPrefix, svrEnvHelp)
+	setup.PrintEnvHelp(w, tlsEnvHelpPrompt, ts.envPrefix, tlsEnvHelp)
 	fmt.Fprintln(w, "")
 }
 

@@ -3,39 +3,9 @@
 `Auth Service` is a web service whose purpose is to authenticate and authorize other services
 
 ## Key features
-- Provides hosts management on `Auth Agents`
-- Aggregates threat reports from `Auth Agents`
+
 - RESTful APIs for easy and versatile access to above features
 - Group based authentication for access control over RESTful APIs
-
-## System Requirements
-- RHEL 8.1
-- Epel 8 Repo
-- Proxy settings if applicable
-
-## Software requirements
-- git
-- makeself
-- `go` version >= `go1.13.0` & <= `go1.14.4``
-
-# Step By Step Build Instructions
-
-## Install required shell commands
-
-### Install tools from `yum`
-```shell
-sudo yum install -y git wget makeself
-```
-
-### Install `go` version >= `go1.13.0` & <= `go1.14.4`
-The `Auth Service` requires Go version 1.13.0 that has support for `go modules`. The build was validated with the latest version go1.14.4 of `go`. It is recommended that you use go1.14.1 version of `go`. You can use the following to install `go`.
-```shell
-wget https://dl.google.com/go/go1.14.4.linux-amd64.tar.gz
-tar -xzf go1.14.4inux-amd64.tar.gz
-sudo mv go /usr/local
-export GOROOT=/usr/local/go
-export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-```
 
 ## Build Auth service
 
@@ -43,9 +13,9 @@ export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
 - Run scripts to build the auth service
 
 ```shell
-git clone https://github.com/intel-secl/authservice.git
-cd authservice
-make installer
+git clone https://gitlab.devtools.intel.com/sst/isecl/intel-secl.git
+cd intel-secl
+make aas-installer
 ```
 
 # Third Party Dependencies
@@ -73,6 +43,3 @@ make installer
 | github.com/lib/pq            | v1.0.0                             |
 
 *Note: All dependencies are listed in go.mod*
-
-# Links
-https://01.org/intel-secl/tdt

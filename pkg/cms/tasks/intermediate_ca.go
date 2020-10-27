@@ -125,7 +125,7 @@ func (ca IntermediateCa) Validate() error {
 }
 
 func (ca IntermediateCa) PrintHelp(w io.Writer) {
-	setup.PrintEnvHelp(w, rootCAEnvHelpPrompt, ca.envPrefix, svrEnvHelp)
+	setup.PrintEnvHelp(w, rootCAEnvHelpPrompt, ca.envPrefix, rootCAEnvHelp)
 	fmt.Fprintln(w, "")
 }
 

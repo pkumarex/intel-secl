@@ -28,6 +28,14 @@ type CmsAuthToken struct {
 	commandName   string
 }
 
+const authTokenEnvHelpPrompt = "Following environment variables are required for authToken setup:"
+
+var authTokenEnvHelp = map[string]string{
+	"AAS_JWT_CN":  "Common Name for JWT Signing Certificate used in Authentication and Authorization Service",
+	"AAS_TLS_CN":  "Common Name for TLS Signing Certificate used in  Authentication and Authorization Service",
+	"AAS_TLS_SAN": "TLS SAN list for Authentication and Authorization Service",
+}
+
 func createCmsAuthToken(at CmsAuthToken) (err error) {
 	log.Trace("tasks/authtoken:createCmsAuthToken() Entering")
 	defer log.Trace("tasks/authtoken:createCmsAuthToken() Leaving")
@@ -95,7 +103,7 @@ func (at CmsAuthToken) Validate() error {
 }
 
 func (at CmsAuthToken) PrintHelp(w io.Writer) {
-	setup.PrintEnvHelp(w, rootCAEnvHelpPrompt, at.envPrefix, svrEnvHelp)
+	setup.PrintEnvHelp(w, authTokenEnvHelpPrompt, at.envPrefix, authTokenEnvHelp)
 	fmt.Fprintln(w, "")
 }
 

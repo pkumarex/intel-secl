@@ -5,38 +5,6 @@
 - Provides and retains encryption/decryption keys for virtual machine images / docker images
 - The Key Broker Service connects to a back-end 3rd Party KMIP-compliant key management service, like OpenStack Barbican, for key creation and vaulting services
 
-## System Requirements
-- RHEL 8.1
-- Epel 8 Repo
-- Proxy settings if applicable
-
-## Software requirements
-- git
-- makeself
-- libssl-dev
-- `go` version >= `go1.12.1` & <= `go1.14.1`
-
-# Step By Step Build Instructions
-## Install required shell commands
-Please make sure that you have the right `http proxy` settings if you are behind a proxy
-```shell
-export HTTP_PROXY=http://<proxy>:<port>
-export HTTPS_PROXY=https://<proxy>:<port>
-```
-### Install tools from `yum`
-```shell
-$ sudo yum install -y wget git makeself libssl-dev
-```
-
-### Install `go` version >= `go1.12.1` & <= `go1.14.1`
-The `KBS` requires Go version 1.12.1 that has support for `go modules`. The build was validated with the latest version go1.14.1 of `go`. It is recommended that you use go1.14.1 version of `go`. You can use the following to install `go`.
-```shell
-wget https://dl.google.com/go/go1.14.1.linux-amd64.tar.gz
-tar -xzf go1.14.1.linux-amd64.tar.gz
-sudo mv go /usr/local
-export GOROOT=/usr/local/go
-export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-```
 
 ## Build Key Broker Service
 

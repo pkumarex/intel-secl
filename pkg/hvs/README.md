@@ -7,47 +7,15 @@
 - Provides trust status evaluation of platforms against good known values
 - RESTful APIs for easy and versatile access to above features
 
-## System Requirements
-- RHEL 8.1
-- Epel 8 Repo
-- Proxy settings if applicable
-
-## Software requirements
-- git
-- makeself
-- `go` version >= `go1.13.0` & <= `go1.14.4``
-
-# Step By Step Build Instructions
-## Install required shell commands
-Please make sure that you have the right `http proxy` settings if you are behind a proxy
-```shell
-export HTTP_PROXY=http://<proxy>:<port>
-export HTTPS_PROXY=https://<proxy>:<port>
-```
-### Install tools from `yum`
-```shell
-$ sudo yum install -y wget git makeself
-```
-
-### Install `go` version >= `go1.13.0` & <= `go1.14.4`
-The `HVS` requires Go version  > 1.12.1 that has support for `go modules`. The build was validated with the latest version go1.14.4 of `go`. It is recommended that you use go1.14.4 version of `go`. You can use the following to install `go`.
-```shell
-wget https://dl.google.com/go/go1.14.4.linux-amd64.tar.gz
-tar -xzf go1.14.4.linux-amd64.tar.gz
-sudo mv go /usr/local
-export GOROOT=/usr/local/go
-export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-```
-
 ## Build HVS
 
 - Git clone the `HVS`
 - Run scripts to build the `HVS`
 
 ```shell
-$ git clone https://github.com/intel-secl/hvs.git
-$ cd hvs
-$ make installer
+git clone https://gitlab.devtools.intel.com/sst/isecl/intel-secl.git
+cd intel-secl
+make hvs-installer
 ```
 
 # Links

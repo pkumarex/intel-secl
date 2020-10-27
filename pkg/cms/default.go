@@ -72,7 +72,7 @@ func defaultConfig() *config.Configuration {
 
 func loadAlias() {
 	alias := map[string]string{
-		"aas-base-url":               "AAS_API_URL",
+		"server-port":                "CMS_PORT",
 		"server-read-timeout":        "CMS_SERVER_READ_TIMEOUT",
 		"server-read-header-timeout": "CMS_SERVER_READ_HEADER_TIMEOUT",
 		"server-write-timeout":       "CMS_SERVER_WRITE_TIMEOUT",

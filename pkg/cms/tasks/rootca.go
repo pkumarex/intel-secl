@@ -33,8 +33,12 @@ type RootCa struct {
 
 const rootCAEnvHelpPrompt = "Following environment variables are required for root_ca setup:"
 
-var svrEnvHelp = map[string]string{
-	"SERVER_PORT": "The port on which to listen",
+var rootCAEnvHelp = map[string]string{
+	"CMS_CA_CERT_VALIDITY": "CA Validity",
+	"CMS_CA_ORGANIZATION":  "CA Organization",
+	"CMS_CA_LOCALITY":      "CA Locality",
+	"CMS_CA_PROVINCE":      "CA Province",
+	"CMS_CA_COUNTRY":       "CA Country",
 }
 
 func GetCACertDefaultTemplate(cfg *config.CACertConfig, cn string, parent string) (x509.Certificate, error) {
@@ -143,7 +147,7 @@ func (ca RootCa) Validate() error {
 }
 
 func (ca RootCa) PrintHelp(w io.Writer) {
-	setup.PrintEnvHelp(w, rootCAEnvHelpPrompt, ca.envPrefix, svrEnvHelp)
+	setup.PrintEnvHelp(w, rootCAEnvHelpPrompt, ca.envPrefix, rootCAEnvHelp)
 	fmt.Fprintln(w, "")
 }
 

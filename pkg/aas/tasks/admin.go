@@ -21,11 +21,18 @@ import (
 
 type Admin struct {
 	config.AASConfig
-	ServiceConfigPtr   *config.AASConfig
-	DatabaseFactory func() (domain.AASDatabase, error)
-	ConsoleWriter   io.Writer
-	envPrefix         string
-	commandName       string
+	ServiceConfigPtr *config.AASConfig
+	DatabaseFactory  func() (domain.AASDatabase, error)
+	ConsoleWriter    io.Writer
+	envPrefix        string
+	commandName      string
+}
+
+const adminEnvHelpPrompt = "Following environment variables are required for admin setup:"
+
+var adminEnvHelp = map[string]string{
+	"AAS_ADMIN_USERNAME": "Authentication and Authorization Service Admin Username",
+	"AAS_ADMIN_PASSWORD": "Authentication and Authorization Service Admin Password",
 }
 
 var defaultLog = commLog.GetDefaultLogger()
@@ -79,6 +86,6 @@ func (a Admin) SetName(n, e string) {
 }
 
 func (a Admin) PrintHelp(w io.Writer) {
-	//TODO : Add help
+	setup.PrintEnvHelp(w, adminEnvHelpPrompt, a.envPrefix, adminEnvHelp)
 	fmt.Fprintln(w, "")
 }

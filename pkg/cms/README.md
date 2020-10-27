@@ -7,44 +7,15 @@
 - Sign rest of the certificates in ecosystem by Root CA
 - RESTful APIs for easy and versatile access to above features
 
-## System Requirements
-- RHEL 8.1
-- Epel 8 Repo
-- Proxy settings if applicable
-
-## Software requirements
-- git
-- makeself
-- `go` version >= `go1.13.0` & <= `go1.14.4`
-
-# Step By Step Build Instructions
-
-## Install required shell commands
-
-### Install tools from `yum`
-```shell
-sudo yum install -y git wget makeself
-```
-
-### Install `go` version >= `go1.13.0` & <= `go1.14.4`
-The `Certificate Management Service` requires Go version 1.12.1 that has support for `go modules`. The build was validated with the version go1.14.4 of `go`. It is recommended that you use go1.14.4 version of `go`. You can use the following to install `go`.
-```shell
-wget https://dl.google.com/go/go1.14.4.linux-amd64.tar.gz
-tar -xzf go1.14.4.linux-amd64.tar.gz
-sudo mv go /usr/local
-export GOROOT=/usr/local/go
-export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
-```
-
 ## Build Certificate Management service
 
 - Git clone the Certificate Management service
 - Run scripts to build the Certificate Management service
 
 ```shell
-git clone https://github.com/intel-secl/cms.git
-cd cms
-make installer
+git clone https://gitlab.devtools.intel.com/sst/isecl/intel-secl.git
+cd intel-secl
+make cms-installer
 ```
 
 ### Deploy
@@ -94,5 +65,3 @@ OR
 
 *Note: All dependencies are listed in go.mod*
 
-# Links
-https://01.org/intel-secl/cms
