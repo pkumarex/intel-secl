@@ -79,6 +79,7 @@ func loadAlias() {
 		"server-idle-timeout":        "CMS_SERVER_IDLE_TIMEOUT",
 		"server-max-header-bytes":    "CMS_SERVER_MAX_HEADER_BYTES",
 		"log-enable-stdout":          "CMS_ENABLE_CONSOLE_LOG",
+		"aas-base-url":               "AAS_API_URL",
 	}
 	for k, v := range alias {
 		if env := os.Getenv(v); env != "" {
