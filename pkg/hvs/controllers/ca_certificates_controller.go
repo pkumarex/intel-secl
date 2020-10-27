@@ -16,6 +16,7 @@ import (
 	commLogMsg "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log/message"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/pkg/errors"
+        "github.com/spf13/viper"
 	"net/http"
 )
 
@@ -202,8 +203,21 @@ func ReadCertificate(certType string, certStore *models.CertificatesStore) (*hvs
 			"'%s' certificates"+certType)
 	}
 
-	if len(certCollection.CaCerts) > 0 {
-                return certCollection.CaCerts[0], nil
+        if len(certCollection.CaCerts) > 0 {
+		if certType == models.CaCertTypesEndorsementCa.String() {
+			cert, err := certStore.RetrieveCertificate(certType, viper.GetString("endorsement-ca-common-name"))
+			if err != nil || cert == nil {
+				defaultLog.Errorf("Error while retrieving certificate and key for certType %s", models.CaCertTypesEndorsementCa.String())
+				return nil, err
+			}
+			hvsCert := hvs.CaCertificate{
+				Name:        cert.Subject.CommonName,
+                                Type:        models.CaCertTypesEndorsementCa.String(),
+				Certificate: cert.Raw,
+			}
+			return &hvsCert, nil
+		}
+		return certCollection.CaCerts[0], nil
 	}
 	return nil, errors.Wrap(err, "controllers/ca_certificates_controller:ReadCertificate() Certificate not found")
 }
