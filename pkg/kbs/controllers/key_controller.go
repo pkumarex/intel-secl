@@ -9,6 +9,7 @@ import (
 	"crypto/rsa"
 	"crypto/sha256"
 	"crypto/sha512"
+	"encoding/base64"
 	"encoding/json"
 	"encoding/xml"
 	"hash"
@@ -252,7 +253,7 @@ func (kc KeyController) Transfer(responseWriter http.ResponseWriter, request *ht
 
 	transferKeyResponse := kbs.KeyTransferAttributes{
 		KeyId:   id,
-		KeyData: string(wrappedKey.([]byte)),
+		KeyData: base64.StdEncoding.EncodeToString(wrappedKey.([]byte)),
 	}
 
 	secLog.WithField("Id", id).Infof("controllers/key_controller:Transfer() %s: Key transferred using Envelope key by: %s", commLogMsg.PrivilegeModified, request.RemoteAddr)

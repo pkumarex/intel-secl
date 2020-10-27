@@ -53,13 +53,13 @@ type KeyTransferAttributes struct {
 	Policy       struct {
 		Link struct {
 			KeyTransfer struct {
-				Href   string `json:"href"`
-				Method string `json:"method"`
-			} `json:"key-transfer"`
+				Href   string `json:"href,omitempty"`
+				Method string `json:"method,omitempty"`
+			} `json:"key-transfer,omitempty"`
 			KeyUsage struct {
-				Href   string `json:"href"`
-				Method string `json:"method"`
-			} `json:"key-usage"`
-		} `json:"link"`
-	} `json:"policy"`
+				Href   string `json:"href,omitempty"`
+				Method string `json:"method,omitempty"`
+			} `json:"key-usage,omitempty"`
+		} `json:"link,omitempty"`
+	} `json:"policy,omitempty"`
 }
