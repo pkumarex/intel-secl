@@ -53,20 +53,39 @@ type Metadata struct {
 
 // Host holds details of registered hosts pushed to K8s endpoint
 type Host struct {
-	Updated           *time.Time        `json:"updatedTime,omitempty"`
-	AssetTags         map[string]string `json:"assetTags,omitempty"`
-	HardwareFeatures  map[string]string `json:"hardwareFeatures,omitempty"`
-	Trust             map[string]string `json:"trust,omitempty"`
-	HostName          string            `json:"hostName"`
-	SignedTrustReport string            `json:"signedTrustReport,omitempty"`
-	Trusted           *bool             `json:"trusted,omitempty"`
-	ValidTo           time.Time         `json:"validTo,omitempty"`
-	HostID            string            `json:"host-id,omitempty"`
-	SgxSupported      string            `json:"sgx-supported,omitempty"`
-	SgxEnabled        string            `json:"sgx-enabled,omitempty"`
-	FlcEnabled        string            `json:"flc-enabled,omitempty"`
-	EpcSize           string            `json:"epc-size,omitempty"`
-	TcbUpToDate       string            `json:"tcbUpToDate,omitempty"`
+	Updated              *time.Time        `json:"updatedTime,omitempty"`
+	AssetTags            map[string]string `json:"assetTags,omitempty"`
+	HardwareFeatures     map[string]string `json:"hardwareFeatures,omitempty"`
+	Trust                map[string]string `json:"trust,omitempty"`
+	HostName             string            `json:"hostName"`
+	HvsSignedTrustReport string            `json:"hvsSignedTrustReport,omitempty"`
+	SgxSignedTrustReport string            `json:"sgxSignedTrustReport,omitempty"`
+	Trusted              *bool             `json:"trusted,omitempty"`
+	HvsTrustValidTo      *time.Time        `json:"hvsTrustValidTo,omitempty"`
+	SgxTrustValidTo      *time.Time        `json:"sgxTrustValidTo,omitempty"`
+	HostID               string            `json:"host-id,omitempty"`
+	SgxSupported         string            `json:"sgxSupported,omitempty"`
+	SgxEnabled           string            `json:"sgxEnabled,omitempty"`
+	FlcEnabled           string            `json:"flcEnabled,omitempty"`
+	EpcSize              string            `json:"epcSize,omitempty"`
+	TcbUpToDate          string            `json:"tcbUpToDate,omitempty"`
+}
+
+type HvsHostTrustReport struct {
+	AssetTags        map[string]string `json:"assetTags,omitempty"`
+	HardwareFeatures map[string]string `json:"hardwareFeatures,omitempty"`
+	Trusted          *bool             `json:"trusted,omitempty"`
+	HvsTrustValidTo  time.Time         `json:"hvsTrustValidTo,omitempty"`
+	jwt.StandardClaims
+}
+
+type SgxHostTrustReport struct {
+	SgxSupported    string    `json:"sgxSupported,omitempty"`
+	SgxEnabled      string    `json:"sgxEnabled,omitempty"`
+	FlcEnabled      string    `json:"flcEnabled,omitempty"`
+	EpcSize         string    `json:"epcSize,omitempty"`
+	TcbUpToDate     string    `json:"tcbUpToDate,omitempty"`
+	SgxTrustValidTo time.Time `json:"sgxTrustValidTo,omitempty"`
 	jwt.StandardClaims
 }
 

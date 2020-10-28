@@ -186,7 +186,7 @@ func FilterHostReports(k8sDetails *KubernetesDetails, hostDetails *HostDetails, 
 }
 
 //GetSignedTrustReport Creates a Signed trust-report based on the host details
-func GetSignedTrustReport(hostList model.Host, k8sDetails *KubernetesDetails) (string, error) {
+func GetSignedTrustReport(hostList model.Host, k8sDetails *KubernetesDetails, attestationType string) (string, error) {
 	log.Trace("k8splugin/k8s_plugin:GetSignedTrustReport() Entering")
 	defer log.Trace("k8splugin/k8s_plugin:GetSignedTrustReport() Leaving")
 
@@ -197,19 +197,24 @@ func GetSignedTrustReport(hostList model.Host, k8sDetails *KubernetesDetails) (s
 	}
 	sha1Hash := base64.StdEncoding.EncodeToString(hash.Sum(nil))
 
-	token := jwt.NewWithClaims(jwt.SigningMethodRS384, model.Host{
-		HostName:         hostList.HostName,
-		AssetTags:        hostList.AssetTags,
-		HardwareFeatures: hostList.HardwareFeatures,
-		Trust:            hostList.Trust,
-		ValidTo:          hostList.ValidTo,
-		Trusted:          hostList.Trusted,
-		SgxSupported:     hostList.SgxSupported,
-		SgxEnabled:       hostList.SgxEnabled,
-		FlcEnabled:       hostList.FlcEnabled,
-		EpcSize:          hostList.EpcSize,
-		TcbUpToDate:      hostList.TcbUpToDate,
-	})
+	var token *jwt.Token
+	if attestationType == "HVS" {
+		token = jwt.NewWithClaims(jwt.SigningMethodRS384, model.HvsHostTrustReport{
+			AssetTags:        hostList.AssetTags,
+			HardwareFeatures: hostList.HardwareFeatures,
+			Trusted:          hostList.Trusted,
+			HvsTrustValidTo:  *hostList.HvsTrustValidTo,
+		})
+	} else if attestationType == "SGX" {
+		token = jwt.NewWithClaims(jwt.SigningMethodRS384, model.SgxHostTrustReport{
+			SgxSupported:    hostList.SgxSupported,
+			SgxEnabled:      hostList.SgxEnabled,
+			FlcEnabled:      hostList.FlcEnabled,
+			EpcSize:         hostList.EpcSize,
+			TcbUpToDate:     hostList.TcbUpToDate,
+			SgxTrustValidTo: *hostList.SgxTrustValidTo,
+		})
+	}
 
 	token.Header["kid"] = sha1Hash
 
@@ -296,29 +301,37 @@ func populateHostDetailsInCRD(k8sDetails *KubernetesDetails) ([]model.Host, erro
 
 		reportHostDetails := k8sDetails.HostDetailsMap[key]
 		var host model.Host
-
 		host.HostName = reportHostDetails.hostName
+		t := time.Now().UTC()
+		host.Updated = new(time.Time)
+		*host.Updated = t
 		if config.AttestationService.AttestationType == "HVS" {
 			host.AssetTags = reportHostDetails.AssetTags
 			host.HardwareFeatures = reportHostDetails.HardwareFeatures
-			host.Trust = reportHostDetails.Trust
-			host.Trusted = &reportHostDetails.trusted
-			t := time.Now().UTC()
-			host.Updated = &t
+			host.Trusted = new(bool)
+			*host.Trusted = reportHostDetails.trusted
+			host.HvsTrustValidTo = new(time.Time)
+			*host.HvsTrustValidTo = reportHostDetails.ValidTo
+			signedtrustReport, err := GetSignedTrustReport(host, k8sDetails, "HVS")
+			if err != nil {
+				return nil, errors.Wrap(err, "k8splugin/k8s_plugin:populateHostDetailsInCRD() : Error in Getting SignedTrustReport")
+			}
+			host.HvsSignedTrustReport = signedtrustReport
+
 		} else if config.AttestationService.AttestationType == "SGX" {
 			host.EpcSize = strings.Replace(reportHostDetails.EpcSize, " ", "", -1)
 			host.FlcEnabled = strconv.FormatBool(reportHostDetails.FlcEnabled)
 			host.SgxEnabled = strconv.FormatBool(reportHostDetails.SgxEnabled)
 			host.SgxSupported = strconv.FormatBool(reportHostDetails.SgxSupported)
 			host.TcbUpToDate = strconv.FormatBool(reportHostDetails.TcbUpToDate)
-		}  
-
-		host.ValidTo = reportHostDetails.ValidTo
-		signedtrustReport, err := GetSignedTrustReport(host, k8sDetails)
-		if err != nil {
-			return nil, errors.Wrap(err, "k8splugin/k8s_plugin:populateHostDetailsInCRD() : Error in Getting SignedTrustReport")
+			host.SgxTrustValidTo = new(time.Time)
+			*host.SgxTrustValidTo = reportHostDetails.ValidTo
+			signedtrustReport, err := GetSignedTrustReport(host, k8sDetails, "SGX")
+			if err != nil {
+				return nil, errors.Wrap(err, "k8splugin/k8s_plugin:populateHostDetailsInCRD() : Error in Getting SignedTrustReport")
+			}
+			host.SgxSignedTrustReport = signedtrustReport
 		}
-		host.SignedTrustReport = signedtrustReport
 
 		hostList = append(hostList, host)
 	}

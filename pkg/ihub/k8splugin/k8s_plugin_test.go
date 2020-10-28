@@ -395,7 +395,8 @@ func TestPostCRD(t *testing.T) {
 	}
 	trustStatus := true
 	host.Trusted = &trustStatus
-	host.ValidTo = time.Now().Add(time.Hour * 24)
+	host.HvsTrustValidTo = new(time.Time)
+	*host.HvsTrustValidTo = time.Now().Add(time.Hour * 24)
 	hostList = append(hostList, host)
 	crdResponse.Spec.HostList = hostList
 
@@ -491,6 +492,7 @@ func TestPostCRD(t *testing.T) {
 
 func TestGetSignedTrustReport(t *testing.T) {
 	trustStatus := true
+	validTo := time.Now().Add(time.Hour * 24)
 	h1 := model.Host{
 		HostName: "host1",
 		Trusted:  &trustStatus,
@@ -500,6 +502,7 @@ func TestGetSignedTrustReport(t *testing.T) {
 		Trust: map[string]string{
 			"TRUST_HOST_UNIQUE": "true",
 		},
+		HvsTrustValidTo: &validTo,
 	}
 	type args struct {
 		h model.Host
@@ -558,7 +561,7 @@ func TestGetSignedTrustReport(t *testing.T) {
 			kDetails.PublicKeyBytes = []byte("")
 		}
 		t.Run(tt.name, func(t *testing.T) {
-			_, err := GetSignedTrustReport(tt.args.h, &kDetails)
+			_, err := GetSignedTrustReport(tt.args.h, &kDetails, "HVS")
 			if (err != nil) != tt.wantErr {
 				t.Errorf("k8splugin/k8s_plugin_test:TestGetSignedTrustReport() error = %v, wantErr %v", err, tt.wantErr)
 				return
