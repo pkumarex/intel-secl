@@ -802,7 +802,11 @@ func (hc *HostController) RemoveFlavorgroup(w http.ResponseWriter, r *http.Reque
 	}
 
 	defaultLog.Debugf("Adding host %v to flavor-verify queue", hId)
-	err = hc.HTManager.VerifyHostsAsync([]uuid.UUID{hId}, false, false)
+	//Bug-12442 - Report gets updated only if trust cache fails flavorgroup requirements or if new data is fetched from host
+	//            In case of flavorgroup delete, trust cache could be valid for rest of flavorgroup so report might not get updated
+	//            which needs to now exclude report information from deleted flavorgroup. Hence, force to fetch data from host so
+	//            report will be updated. As this is not very frequent operation, it should be fine.
+	err = hc.HTManager.VerifyHostsAsync([]uuid.UUID{hId}, true, false)
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/host_controller:RemoveFlavorgroup() Host to Flavor Verify Queue addition failed")
 		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to add Host to Flavor Verify Queue"}
