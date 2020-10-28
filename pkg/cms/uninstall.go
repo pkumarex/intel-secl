@@ -102,7 +102,7 @@ func (a *App) uninstall(purge bool) error{
 		log.WithError(err).Error("error removing home dir")
 	}
 	fmt.Fprintln(a.consoleWriter(), "Certificate Management Service uninstalled")
-	a.stop()
+	go a.stop() // stop service in other thread to ignore it's response
 	return nil
 }
 

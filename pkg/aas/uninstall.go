@@ -98,7 +98,7 @@ func (a *App) uninstall(purge bool) error {
 		defaultLog.WithError(err).Error("error removing home dir")
 	}
 	fmt.Fprintln(a.consoleWriter(), "Auth Service uninstalled")
-	a.stop()
+	go a.stop() // stop service in other thread to ignore it's response
 	return nil
 }
 func removeService() {
