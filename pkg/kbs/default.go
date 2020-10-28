@@ -5,6 +5,8 @@
 package kbs
 
 import (
+	"os"
+
 	"github.com/intel-secl/intel-secl/v3/pkg/kbs/config"
 	"github.com/intel-secl/intel-secl/v3/pkg/kbs/constants"
 	commConfig "github.com/intel-secl/intel-secl/v3/pkg/lib/common/config"
@@ -38,6 +40,7 @@ func init() {
 }
 
 func defaultConfig() *config.Configuration {
+	loadAlias()
 	return &config.Configuration{
 		AASApiUrl:        viper.GetString("aas-base-url"),
 		CMSBaseURL:       viper.GetString("cms-base-url"),
@@ -80,5 +83,17 @@ func defaultConfig() *config.Configuration {
 			StmLabel: viper.GetString("skc-challenge-type"),
 			SQVSUrl:  viper.GetString("sqvs-url"),
 		},
+	}
+}
+
+func loadAlias() {
+	alias := map[string]string{
+		"tls-san-list":               "SAN_LIST",
+		"aas-base-url":               "AAS_API_URL",
+	}
+	for k, v := range alias {
+		if env := os.Getenv(v); env != "" {
+			viper.Set(k, env)
+		}
 	}
 }

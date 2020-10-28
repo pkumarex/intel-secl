@@ -82,6 +82,7 @@ func (app *App) setup(args []string) error {
 
 // App helper function for setting up the task runner
 func (app *App) setupTaskRunner() (*setup.Runner, error) {
+	loadAlias()
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	viper.AutomaticEnv()
 	if app.configuration() == nil {

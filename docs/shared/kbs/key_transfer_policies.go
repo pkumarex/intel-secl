@@ -114,8 +114,8 @@ type KeyTransferPolicyCollection struct {
 //        "sgx_config_id_anyof":["00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"],
 //        "tls_client_certificate_issuer_cn_anyof":["CMSCA", "CMS TLS Client CA"],
 //        "tls_client_certificate_san_allof":["nginx","USA"],
-//        "attestation_type_anyof":["SGX"]
-//        "created_at": "2020-06-09T01:05:47-0700",
+//        "attestation_type_anyof":["SGX"],
+//        "created_at": "2020-06-09T01:05:47-0700"
 //    }
 
 // ---
@@ -172,8 +172,8 @@ type KeyTransferPolicyCollection struct {
 //        "sgx_config_id_anyof":["00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"],
 //        "tls_client_certificate_issuer_cn_anyof":["CMSCA", "CMS TLS Client CA"],
 //        "tls_client_certificate_san_allof":["nginx","USA"],
-//        "attestation_type_anyof":["SGX"]
-//        "created_at": "2020-06-09T01:05:47-0700",
+//        "attestation_type_anyof":["SGX"],
+//        "created_at": "2020-06-09T01:05:47-0700"
 //    }
 
 // ---
@@ -251,7 +251,7 @@ type KeyTransferPolicyCollection struct {
 //            "sgx_config_id_anyof":["00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"],
 //            "tls_client_certificate_issuer_cn_anyof":["CMSCA", "CMS TLS Client CA"],
 //            "tls_client_certificate_san_allof":["nginx","USA"],
-//            "attestation_type_anyof":["SGX"]
-//            "created_at": "2020-06-09T01:05:47-0700",
+//            "attestation_type_anyof":["SGX"],
+//            "created_at": "2020-06-09T01:05:47-0700"
 //        }
 //    ]
