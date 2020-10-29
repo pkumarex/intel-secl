@@ -78,7 +78,7 @@ func (ca IntermediateCa) Run() error {
 	}
 
 	for _, interCa := range cas {
-		log.Infof("tasks/intermediate_ca:Run() Creating intermediate CA - %v", interCa)
+		fmt.Fprintln(ca.ConsoleWriter,"Creating intermediate CA ", interCa)
 		caAttr := constants.GetCaAttribs(interCa)
 		privKey, cert, err := createIntermediateCACert(ca.Config, caAttr.CommonName)
 		if err != nil {
