@@ -24,7 +24,7 @@ import (
 type ReportStore struct {
 	Store          *DataStore
 	AuditLogWriter domain.AuditLogWriter
-	dbLock sync.Mutex
+	dbLock         sync.Mutex
 }
 
 func NewReportStore(store *DataStore) *ReportStore {
@@ -220,15 +220,19 @@ func (r *ReportStore) Search(criteria *models.ReportFilterCriteria) ([]models.HV
 // 'expiration' between 'fromTime' and 'toTime'.
 func (r *ReportStore) FindHostIdsFromExpiredReports(fromTime time.Time, toTime time.Time) ([]uuid.UUID, error) {
 
-	// TODO: https://jira.devtools.intel.com/browse/ISECL-10985
-	query := "select h.id from host as h where exists (select t.host_id from (select row_number() over (partition by host_id order by expiration desc) rn, host_id from report where expiration > CAST(? AS TIMESTAMP) and expiration <= CAST(? AS TIMESTAMP)) as t where h.id=t.host_id and t.rn=1);"
-	rows, err := r.Store.Db.Raw(query, fromTime, toTime).Rows()
+	var tx *gorm.DB
+	tx = r.Store.Db.Table("host h").Select("h.id")
+	tx = tx.Joins("INNER JOIN report r on h.id = r.host_id")
+	tx = tx.Where("CAST(expiration AS TIMESTAMP) > CAST(? AS TIMESTAMP)", fromTime)
+	tx = tx.Where("CAST(expiration AS TIMESTAMP) <= CAST(? AS TIMESTAMP)", toTime)
+
+	rows, err := tx.Rows()
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/report_store:FindHostIdsFromExpiredReports() failed to retrieve records from db")
 	}
 	defer rows.Close()
 
-	hostIDs := []uuid.UUID{}
+	var hostIDs []uuid.UUID
 	for rows.Next() {
 		hostID := uuid.UUID{}
 		if err := rows.Scan(&hostID); err != nil {
