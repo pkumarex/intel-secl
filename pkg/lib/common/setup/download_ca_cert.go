@@ -123,7 +123,7 @@ func downloadRootCaCertificate(cmsBaseUrl string, dirPath string, trustedTlsCert
 		return errors.Wrap(reqErr, "CMS request failed to download CA Certificate")
 	}
 	if tlsCertDigest == "" || tlsCertDigest != trustedTlsCertDigest {
-		return errors.New("CMS TLS Certificate digest not match")
+		return errors.New("CMS TLS Certificate digest does not match")
 	}
 	tlsResp, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

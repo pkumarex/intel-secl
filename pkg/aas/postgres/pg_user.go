@@ -17,9 +17,6 @@ type PostgresUserStore struct {
 	db *gorm.DB
 }
 
-// declared in pg_database.go
-// var defaultLog = commLog.GetDefaultLogger()
-
 func (r *PostgresUserStore) Create(u types.User) (*types.User, error) {
 
 	defaultLog.Trace("user Create")
@@ -29,7 +26,6 @@ func (r *PostgresUserStore) Create(u types.User) (*types.User, error) {
 	if err == nil {
 		u.ID = uuid
 	} else {
-		// return &u, err
 		return &u, errors.Wrap(err, "user create: failed to get UUID")
 	}
 	err = r.db.Create(&u).Error
@@ -37,7 +33,6 @@ func (r *PostgresUserStore) Create(u types.User) (*types.User, error) {
 		return &u, errors.Wrap(err, "user create: failed")
 	}
 	return &u, nil
-	// return &u, err
 }
 
 func (r *PostgresUserStore) Retrieve(u types.User) (*types.User, error) {
@@ -47,7 +42,6 @@ func (r *PostgresUserStore) Retrieve(u types.User) (*types.User, error) {
 
 	err := r.db.Where(&u).First(&u).Error
 	if err != nil {
-		// return nil, err
 		return nil, errors.Wrap(err, "user retrieve: failed")
 	}
 	return &u, nil
@@ -63,7 +57,7 @@ func (r *PostgresUserStore) RetrieveAll(u types.User) (types.Users, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "user retrieve: failed")
 	}
-	// defaultLog.WithField("db users", users).Trace("RetrieveAll")
+
 	return users, nil
 }
 
@@ -82,7 +76,6 @@ func (r *PostgresUserStore) Delete(u types.User) error {
 	if err := r.db.Model(&u).Association("Roles").Clear().Error; err != nil {
 		return errors.Wrap(err, "user delete: failed to clear user-role mapping")
 	}
-	// return r.db.Delete(&u).Error
 	if err := r.db.Delete(&u).Error; err != nil {
 		return errors.Wrap(err, "user delete: failed to clear user-role mapping")
 	}
@@ -121,7 +114,6 @@ func (r *PostgresUserStore) GetPermissions(u types.User, rs *types.RoleSearch) (
 	defaultLog.Trace("user GetPermissions")
 	defer defaultLog.Trace("user GetPermissions done")
 
-	//var roleIds []string
 	type Result struct {
 		Service string
 		Context string
@@ -147,7 +139,6 @@ func (r *PostgresUserStore) GetPermissions(u types.User, rs *types.RoleSearch) (
 	query = query + ` ORDER BY service, context`
 
 	r.db.Raw(query).Scan(&res)
-	//r.db.Raw("Select service, name as context, context as rule from roles").Scan(&res)
 
 	if len(res) == 0 {
 		return nil, nil
@@ -174,7 +165,6 @@ func (r *PostgresUserStore) AddRoles(u types.User, roles types.Roles, mustAddAll
 	defaultLog.Trace("user AddRoles")
 	defer defaultLog.Trace("user AddRoles done")
 
-	// defaultLog.Trace("Adding role User:", u, "Roles:", roles)
 	if err := r.db.Model(&u).Association("Roles").Append(roles).Error; err != nil {
 		return errors.Wrap(err, "user add roles: failed")
 	}
@@ -209,7 +199,6 @@ func (r *PostgresUserStore) DeleteRole(u types.User, roleID string, svcFltr []st
 	// lets sanitize the list with roles that already exists in the database.
 	err := tx.Find(&role).Error
 	if err != nil {
-		// return fmt.Errorf("could not find role id:%s in database", roleID)
 		return errors.Wrapf(err, "user delete roles: could not find role id %s in database", roleID)
 	}
 	if err = r.db.Model(&u).Association("Roles").Delete(role).Error; err != nil {

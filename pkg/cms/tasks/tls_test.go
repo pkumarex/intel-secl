@@ -108,14 +108,15 @@ func TestTlsCertCreation(t *testing.T) {
 
 	ca := RootCa{
 		ConsoleWriter: os.Stdout,
-		Config:        &c.CACert,
+		CACertConfigPtr: &c.CACert,
+		CACertConfig:  c.CACert,
 	}
 
 	err := ca.Run()
 	assert.NoError(err)
 
 	//TODO: need to fix this test. New parameters.. need to pass in issuing CA cert and key
-	keyData, certData, err := createTLSCert( "intel.com", testGetRootCACert(), testGetPrivateRootkey())
+	keyData, certData, err := createTLSCert("intel.com", testGetRootCACert(), testGetPrivateRootkey())
 	assert.NoError(err)
 	_, err = x509.ParsePKCS8PrivateKey(keyData)
 	assert.NoError(err)
@@ -139,8 +140,9 @@ func TestTlsSetupTaskRun(t *testing.T) {
 	c.TlsSanList = "127.0.0.1,testHost"
 
 	ca := RootCa{
-		ConsoleWriter: os.Stdout,
-		Config:        &c.CACert,
+		ConsoleWriter:   os.Stdout,
+		CACertConfigPtr: &c.CACert,
+		CACertConfig:    c.CACert,
 	}
 
 	err := ca.Run()

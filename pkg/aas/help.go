@@ -14,14 +14,14 @@ const helpStr = `Usage:
 	authservice <command> [arguments]
 
 Available Commands:
-	-h|--help              Show this help message
-	setup <task>           Run setup task
-	start                  Start authservice
-	status                 Show the status of authservice
-	stop                   Stop authservice
-	tlscertsha384          Show the SHA384 digest of the certificate used for TLS
-	uninstall [--purge]    Uninstall authservice. --purge option needs to be applied to remove configuration and data files
-	-v|--version           Show the version of authservice
+	-h|--help | help                 Show this help message
+	setup <task>                     Run setup task
+	start                            Start authservice
+	status                           Show the status of authservice
+	stop                             Stop authservice
+	tlscertsha384                    Show the SHA384 digest of the certificate used for TLS
+	uninstall [--purge]              Uninstall authservice. --purge option needs to be applied to remove configuration and data files
+	-v|--version | version           Show the version of authservice
 
 	Setup command usage:       authservice setup [task] [--arguments=<argument_value>] [--force]
 	Available Tasks for setup:

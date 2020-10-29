@@ -6,11 +6,10 @@ LOG_PATH=/var/log/$COMPONENT_NAME/
 CONFIG_PATH=/etc/$COMPONENT_NAME/
 CERTS_PATH=$CONFIG_PATH/certs
 CERTDIR_TOKENSIGN=$CERTS_PATH/tokensign
-CERTDIR_TRUSTEDJWTCERTS=$CERTS_PATH/trustedjwt
 CERTDIR_TRUSTEDJWTCAS=$CERTS_PATH/trustedca
 
 if [ ! -f $CONFIG_PATH/.setup_done ]; then
-  for directory in $LOG_PATH $CONFIG_PATH $CERTS_PATH $CERTDIR_TOKENSIGN $CERTDIR_TRUSTEDJWTCERTS $CERTDIR_TRUSTEDJWTCAS; do
+  for directory in $LOG_PATH $CONFIG_PATH $CERTS_PATH $CERTDIR_TOKENSIGN $CERTDIR_TRUSTEDJWTCAS; do
     mkdir -p $directory
     if [ $? -ne 0 ]; then
       echo "Cannot create directory: $directory"

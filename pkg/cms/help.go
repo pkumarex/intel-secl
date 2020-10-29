@@ -15,14 +15,14 @@ Usage:
     cms <command> [arguments]
 
 Available Commands:
-    -h|--help            Show this help message
-    setup [task]         Run setup task
-    start                Start cms
-    status               Show the status of cms
-    stop                 Stop cms
-    tlscertsha384        Show the SHA384 digest of the certificate used for TLS
-    uninstall [--purge]  Uninstall cms. --purge option needs to be applied to remove configuration and data files
-    -v|--version         Show the version of cms
+    -h|--help | help               Show this help message
+    setup [task]                   Run setup task
+    start                          Start cms
+    status                         Show the status of cms
+    stop                           Stop cms
+    tlscertsha384                  Show the SHA384 digest of the certificate used for TLS
+    uninstall [--purge]            Uninstall cms. --purge option needs to be applied to remove configuration and data files
+    -v|--version | version         Show the version of cms
 
 Usage of cms setup:
 	cms setup <task> [--help] [--force] [-f <answer-file>]

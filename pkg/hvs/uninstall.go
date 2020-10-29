@@ -104,8 +104,11 @@ func (a *App) uninstall(purge bool) error {
 	if err != nil {
 		defaultLog.WithError(err).Error("error removing home dir")
 	}
+	err = a.stop()
+	if err != nil {
+		defaultLog.WithError(err).Error("error stopping service")
+	}
 	fmt.Fprintln(a.consoleWriter(), "HVS Service uninstalled")
-	go a.stop() // stop service in other thread to ignore it's response
 	return nil
 }
 

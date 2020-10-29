@@ -198,7 +198,12 @@ func (app *App) stop() error {
 	if err != nil {
 		return err
 	}
-	return syscall.Exec(systemctl, []string{"systemctl", "stop", "kbs"}, os.Environ())
+	//syscall does not return execution to the caller but replaces the current (Go) process with the process called, hence used exec
+	cmd := exec.Command(systemctl, "stop", "kbs")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Env = os.Environ()
+	return cmd.Run()
 }
 
 func (app *App) status() error {

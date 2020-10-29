@@ -47,8 +47,9 @@ func TestRootCASetupTaskRun(t *testing.T) {
 	c, _ := config.Load()
 
 	ca := RootCa{
-		ConsoleWriter: os.Stdout,
-		Config:        &c.CACert,
+		ConsoleWriter:   os.Stdout,
+		CACertConfigPtr: &c.CACert,
+		CACertConfig:    c.CACert,
 	}
 
 	err := ca.Run()

@@ -207,7 +207,12 @@ func (a *App) stop() error {
 	if err != nil {
 		return errors.Wrap(err, "app:stop() Could not locate systemctl to stop application service")
 	}
-	return syscall.Exec(systemctl, []string{"systemctl", "stop", "cms"}, os.Environ())
+	//syscall does not return execution to the caller but replaces the current (Go) process with the process called, hence used exec
+	cmd := exec.Command(systemctl, "stop", "cms")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Env = os.Environ()
+	return cmd.Run()
 }
 
 func (a *App) status() error {

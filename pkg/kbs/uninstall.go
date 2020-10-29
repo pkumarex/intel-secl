@@ -101,7 +101,10 @@ func (app *App) uninstall(purge bool) error {
 	if err != nil {
 		defaultLog.WithError(err).Error("Error removing home dir")
 	}
+	err = app.stop()
+	if err != nil {
+		defaultLog.WithError(err).Error("error stopping service")
+	}
 	fmt.Fprintln(app.consoleWriter(), "KBS Service uninstalled")
-	go app.stop() // stop service in other thread to ignore it's response
 	return nil
 }

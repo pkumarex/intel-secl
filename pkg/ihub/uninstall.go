@@ -97,8 +97,11 @@ func (app *App) uninstall(purge bool) {
 	if err != nil {
 		log.WithError(err).Error("Error removing home dir")
 	}
+	err = app.stop()
+	if err != nil {
+		log.WithError(err).Error("error stopping service")
+	}
 	fmt.Fprintln(app.consoleWriter(), "Integration Hub uninstalled")
-	go app.stop() // stop service in other thread to ignore it's response
 }
 
 func removeService() {

@@ -6,6 +6,7 @@ package cms
 
 import (
 	"fmt"
+	"github.com/intel-secl/intel-secl/v3/pkg/cms/config"
 	"os/user"
 	"strconv"
 	"strings"
@@ -112,8 +113,15 @@ func (a *App) setupTaskRunner() (*setup.Runner, error) {
 		DefaultPort:   constants.DefaultPort,
 	})
 	runner.AddTask("root_ca", "", &tasks.RootCa{
-		ConsoleWriter: a.consoleWriter(),
-		Config:        &a.Config.CACert,
+		ConsoleWriter:   a.consoleWriter(),
+		CACertConfigPtr: &a.Config.CACert,
+		CACertConfig: config.CACertConfig{
+			Validity:     viper.GetInt("cms-ca-cert-validity"),
+			Organization: viper.GetString("cms-ca-organization"),
+			Locality:     viper.GetString("cms-ca-locality"),
+			Province:     viper.GetString("cms-ca-province"),
+			Country:      viper.GetString("cms-ca-country"),
+		},
 	})
 	runner.AddTask("intermediate_ca", "", &tasks.IntermediateCa{
 		ConsoleWriter: a.consoleWriter(),

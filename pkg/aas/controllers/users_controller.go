@@ -17,10 +17,10 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/validation"
 	aasModel "github.com/intel-secl/intel-secl/v3/pkg/model/aas"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"strconv"
-
-	"golang.org/x/crypto/bcrypt"
+	"strings"
 
 	"github.com/gorilla/mux"
 
@@ -545,14 +545,21 @@ func (controller UsersController) DeleteUserRole(w http.ResponseWriter, r *http.
 	u, err := controller.Database.UserStore().Retrieve(types.User{ID: id})
 	if err != nil {
 		defaultLog.WithError(err).WithField("id", id).Info("failed to retrieve user")
-		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "failed to retrieve user"}
+		if strings.Contains(err.Error(), commErr.RecordNotFound) {
+			return nil, http.StatusNotFound, &commErr.ResourceError{Message: "User not found"}
+		} else {
+			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "failed to retrieve user"}
+		}
 	}
 
 	err = controller.Database.UserStore().DeleteRole(*u, rid, svcFltr)
 	if err != nil {
 		defaultLog.WithError(err).WithField("id", id).WithField("rid", rid).Info("failed to delete role from user")
-		w.WriteHeader(http.StatusNoContent)
-		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "failed to delete role from user"}
+		if strings.Contains(err.Error(), commErr.RecordNotFound) {
+			return nil, http.StatusNotFound, &commErr.ResourceError{Message: "Role to be deleted not found"}
+		} else {
+			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "failed to delete role from user"}
+		}
 	}
 	secLog.WithField("user", *u).Infof("%s: User roles deleted by: %s", commLogMsg.AuthorizedAccess, r.RemoteAddr)
 	return nil, http.StatusNoContent, nil

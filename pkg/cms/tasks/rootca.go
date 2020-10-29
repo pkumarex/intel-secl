@@ -25,20 +25,21 @@ import (
 var log = clog.GetDefaultLogger()
 
 type RootCa struct {
-	ConsoleWriter io.Writer
-	Config        *config.CACertConfig
-	envPrefix     string
-	commandName   string
+	ConsoleWriter   io.Writer
+	CACertConfigPtr *config.CACertConfig
+	config.CACertConfig
+	envPrefix       string
+	commandName     string
 }
 
 const rootCAEnvHelpPrompt = "Following environment variables are required for root_ca setup:"
 
 var rootCAEnvHelp = map[string]string{
-	"CMS_CA_CERT_VALIDITY": "CA Validity",
-	"CMS_CA_ORGANIZATION":  "CA Organization",
-	"CMS_CA_LOCALITY":      "CA Locality",
-	"CMS_CA_PROVINCE":      "CA Province",
-	"CMS_CA_COUNTRY":       "CA Country",
+	"CMS_CA_CERT_VALIDITY": "CA Certificate Validity",
+	"CMS_CA_ORGANIZATION":  "CA Certificate Organization",
+	"CMS_CA_LOCALITY":      "CA Certificate Locality",
+	"CMS_CA_PROVINCE":      "CA Certificate Province",
+	"CMS_CA_COUNTRY":       "CA Certificate Country",
 }
 
 func GetCACertDefaultTemplate(cfg *config.CACertConfig, cn string, parent string) (x509.Certificate, error) {
@@ -104,12 +105,37 @@ func createRootCACert(cfg *config.CACertConfig) (privKey crypto.PrivateKey, cert
 	return
 }
 
+func (ca RootCa) updateConfig() error {
+	log.Trace("tasks/rootca:updateConfig() Entering")
+	defer log.Trace("tasks/rootca:updateConfig() Leaving")
+
+	if ca.CACertConfigPtr == nil {
+		return errors.New("tasks/rootca:updateConfig() Pointer to CA cert configuration structure can not be nil")
+	}
+
+	if ca.CACertConfig.Validity > 0 {
+		ca.CACertConfigPtr.Validity = ca.CACertConfig.Validity
+	}
+
+	ca.CACertConfigPtr.Organization = ca.CACertConfig.Organization
+	ca.CACertConfigPtr.Locality = ca.CACertConfig.Locality
+	ca.CACertConfigPtr.Province = ca.CACertConfig.Province
+	ca.CACertConfigPtr.Country = ca.CACertConfig.Country
+
+	return nil
+}
+
 func (ca RootCa) Run() error {
 	log.Trace("tasks/rootca:Run() Entering")
 	defer log.Trace("tasks/rootca:Run() Leaving")
 
 	fmt.Fprintln(ca.ConsoleWriter, "Running Root CA setup...")
-	privKey, cert, err := createRootCACert(ca.Config)
+
+	err := ca.updateConfig()
+	if err != nil{
+		return err
+	}
+	privKey, cert, err := createRootCACert(&ca.CACertConfig)
 	if err != nil {
 		return errors.Wrap(err, "tasks/rootca:Run() Could not create root certificate")
 	}
