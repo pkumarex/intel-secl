@@ -90,6 +90,13 @@ func validateSamlSignature(samlString string, samlCertBytes []byte) bool {
 	ctx := dsig.NewDefaultValidationContext(&dsig.MemoryX509CertificateStore{
 		Roots: []*x509.Certificate{x509Cert},
 	})
+
+	// check if saml signature and value attributes exist
+	if doc.Root().SelectElement("Signature") == nil || doc.Root().SelectElement("Signature").SelectElement("SignatureValue") == nil {
+		log.Error("Signature and Signature value in SAML cannot be nil")
+		return false
+	}
+
 	etreeElement, err := ctx.Validate(doc.Root())
 	if err != nil || etreeElement == nil {
 		log.WithError(err).Error("saml/saml-verifier:validateSamlSignature() Error verifying SAML signature ")

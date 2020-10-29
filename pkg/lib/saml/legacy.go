@@ -184,6 +184,12 @@ func ValidateLegacySamlAssertion(sa SamlAssertion, root *x509.Certificate) (*etr
 	ctx := dsig.NewDefaultValidationContext(&dsig.MemoryX509CertificateStore{
 		Roots: []*x509.Certificate{root},
 	})
+
+	// check if saml signature and value attributes exist
+	if doc.Root().SelectElement("Signature") == nil || doc.Root().SelectElement("Signature").SelectElement("SignatureValue") == nil {
+		return nil, errors.New("Signature and Signature value in SAML cannot be nil")
+	}
+
 	validated, err := ctx.Validate(doc.Root())
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to validate XML document")

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Version="2.0" ID="94a134ab-01e6-4013-ba60-42b6ff1d1b81" IssueInstant="2020-10-29T03:38:59.369Z">
+    <saml:Issuer>http://idp.test.com/metadata.php</saml:Issuer>
+    <saml:Subject>
+        <saml:NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified">http://idp.test.com/metadata.php</saml:NameID>
+        <saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:sender-vouches">
+            <saml:SubjectConfirmationData NotOnOrAfter="2020-10-29T03:40:39.369Z" NotBefore="2020-10-29T03:38:59.369Z" />
+            <saml:NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:unspecified">Intel Security Libraries</saml:NameID>
+        </saml:SubjectConfirmation>
+    </saml:Subject>
+    <saml:Conditions NotBefore="2020-10-29T03:38:59.369Z" NotOnOrAfter="2020-10-29T03:40:39.369Z" />
+    <saml:AttributeStatement>
+        <saml:Attribute Name="IssuerServiceName" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xsi:type="xs:string">test-idp</saml:AttributeValue>
+        </saml:Attribute>
+        <saml:Attribute Name="test-field-1" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xsi:type="xs:string">test-val-1</saml:AttributeValue>
+        </saml:Attribute>
+        <saml:Attribute Name="test-field-2" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xsi:type="xs:string">test-val-2</saml:AttributeValue>
+        </saml:Attribute>
+        <saml:Attribute Name="test-field-3" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xsi:type="xs:string">test-val-3</saml:AttributeValue>
+        </saml:Attribute>
+        <saml:Attribute Name="test-field-4" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xsi:type="xs:string">test-val-4</saml:AttributeValue>
+        </saml:Attribute>
+        <saml:Attribute Name="test-field-5" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:basic">
+            <saml:AttributeValue xsi:type="xs:string">test-val-5</saml:AttributeValue>
+        </saml:Attribute>
+    </saml:AttributeStatement>
+</saml:Assertion>
