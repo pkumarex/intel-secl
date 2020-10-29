@@ -19,6 +19,8 @@ import (
 	"os"
 )
 
+const intermediateCAEnvHelpPrompt = "Following environment variables are required for intermediate_ca setup:"
+
 type IntermediateCa struct {
 	ConsoleWriter io.Writer
 	Config        *config.CACertConfig
@@ -125,7 +127,7 @@ func (ca IntermediateCa) Validate() error {
 }
 
 func (ca IntermediateCa) PrintHelp(w io.Writer) {
-	setup.PrintEnvHelp(w, rootCAEnvHelpPrompt, ca.envPrefix, rootCAEnvHelp)
+	setup.PrintEnvHelp(w, intermediateCAEnvHelpPrompt, ca.envPrefix, rootCAEnvHelp)	
 	fmt.Fprintln(w, "")
 }
 
