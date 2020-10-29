@@ -317,17 +317,16 @@ func (r *ReportStore) Delete(reportId uuid.UUID) error {
 func buildReportSearchQuery(tx *gorm.DB, hostHardwareID, hostID uuid.UUID, hostName, hostState string, fromDate, toDate time.Time, latestPerHost bool, limit int) *gorm.DB {
 	defaultLog.Trace("postgres/report_store:buildReportSearchQuery() Entering")
 	defer defaultLog.Trace("postgres/report_store:buildReportSearchQuery() Leaving")
-
 	if tx == nil {
 		return nil
 	}
 	if latestPerHost {
 		entity := "auj"
-		txSubQuery := tx.Table("audit_log_entry auj").Select("entity_id, max(auj.created) AS max_date ")
+		txSubQuery := tx.Table("audit_log_entry auj").Select("data -> 'Columns' -> 1 ->> 'Value' AS host_id, max(auj.created) AS max_date ")
 		txSubQuery = buildReportSearchQueryWithCriteria(txSubQuery, hostHardwareID, hostID, entity, hostName, hostState, fromDate, toDate)
-		txSubQuery = txSubQuery.Group("entity_id")
+		txSubQuery = txSubQuery.Group("host_id")
 		subQuery := txSubQuery.SubQuery()
-		tx = tx.Table("audit_log_entry au").Select("au.*").Joins("INNER JOIN ? a ON a.entity_id = au.entity_id AND a.max_date = au.created", subQuery)
+		tx = tx.Table("audit_log_entry au").Select("au.*").Joins("INNER JOIN ? a ON a.host_id = au.data -> 'Columns' -> 1 ->> 'Value' AND a.max_date = au.created", subQuery)
 	} else {
 		entity := "au"
 		tx = tx.Table("audit_log_entry au").Select("au.*")
@@ -342,11 +341,11 @@ func buildReportSearchQueryWithCriteria(tx *gorm.DB, hostHardwareID, hostID uuid
 	defer defaultLog.Trace("postgres/report_store:buildReportSearchQueryWithCriteria() Leaving")
 
 	if hostState != "" {
-		tx = tx.Joins("INNER JOIN host_status hs on CAST(hs.host_id AS VARCHAR) = " + entity + ".data -> 'columns' -> 1 ->> 'value'")
+		tx = tx.Joins("INNER JOIN host_status hs on CAST(hs.host_id AS VARCHAR) = " + entity + ".data -> 'Columns' -> 1 ->> 'Value'")
 	}
 
 	if hostName != "" || hostHardwareID != uuid.Nil {
-		tx = tx.Joins("INNER JOIN host h on CAST(h.id AS VARCHAR) = " + entity + ".data -> 'columns' -> 1 ->> 'value'")
+		tx = tx.Joins("INNER JOIN host h on CAST(h.id AS VARCHAR) = " + entity + ".data -> 'Columns' -> 1 ->> 'Value'")
 	}
 
 	//TODO rename after testing
@@ -361,7 +360,7 @@ func buildReportSearchQueryWithCriteria(tx *gorm.DB, hostHardwareID, hostID uuid
 	}
 
 	if hostID != uuid.Nil {
-		tx = tx.Where(entity+".data -> 'columns' -> 1 ->> 'value' = ?", hostID.String())
+		tx = tx.Where(entity+".data -> 'Columns' -> 1 ->> 'Value' = ?", hostID.String())
 	}
 
 	if hostState != "" {
