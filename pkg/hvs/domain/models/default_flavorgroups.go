@@ -16,3 +16,12 @@ const (
 func (dfg FlavorGroups) String() string {
 	return string(dfg)
 }
+
+func GetDefaultFlavorGroups() map[FlavorGroups]bool {
+	return map[FlavorGroups]bool{FlavorGroupsAutomatic : true, FlavorGroupsHostUnique : true, FlavorGroupsPlatformSoftware : true, FlavorGroupsWorkloadSoftware : true}
+}
+
+func IsDefaultFlavorgroup(flavorGroupName string) bool {
+	_, isDefaultFlavorgroup := GetDefaultFlavorGroups()[FlavorGroups(flavorGroupName)]
+	return isDefaultFlavorgroup
+}

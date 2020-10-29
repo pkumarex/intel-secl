@@ -155,6 +155,12 @@ func (controller FlavorgroupController) Delete(w http.ResponseWriter, r *http.Re
 	}
 	//TODO: Check if the flavor group is linked to any host
 
+	if models.IsDefaultFlavorgroup(delFlavorGroup.Name){
+		secLog.Error("controllers/flavorgroup_controller:Delete() attempt to delete default FlavorGroup")
+		errorMsg := delFlavorGroup.Name + " is a system generated default flavorgroup which is protected and cannot be deleted"
+		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: errorMsg}
+	}
+
 	if err := controller.FlavorGroupStore.Delete(id); err != nil {
 		defaultLog.WithError(err).WithField("id", id).Info(
 			"controllers/flavorgroup_controller:Delete() failed to delete FlavorGroup")
