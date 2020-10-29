@@ -25,8 +25,8 @@ Available Commands:
 
 	Setup command usage:       authservice setup [task] [--arguments=<argument_value>] [--force]
 	Available Tasks for setup:
-	    all                   Runs all setup tasks
-		download_ca_cert      Download CMS root CA certificate
+		all                   Runs all setup tasks
+		download-ca-cert      Download CMS root CA certificate
 		download-cert-tls     Download CA certificate from CMS for tls
 		jwt                   Create jwt signing key and jwt certificate signed by CMS
 		server                Setup http server on given port
