@@ -73,7 +73,7 @@ func (sc *SessionController) Create(responseWriter http.ResponseWriter, request 
 	}
 	responseAttributes, err := session.VerifyQuote(sessionRequest.Quote, sc.config, sc.trustedCaCertDir)
 	if err != nil || responseAttributes == nil {
-		secLog.Error("controllers/session_controller:Create() Remote attestation for new session failed")
+		secLog.WithError(err).Error("controllers/session_controller:Create() Remote attestation for new session failed")
 		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: "Remote attestation for new session failed"}
 	}
 

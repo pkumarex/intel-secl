@@ -19,12 +19,12 @@ type KeyTransferPolicyAttributes struct {
 	SGXEnclaveIssuerProductIDAnyof         []int16   `json:"sgx_enclave_issuer_product_id_anyof"`
 	SGXEnclaveIssuerExtendedProductIDAnyof []string  `json:"sgx_enclave_issuer_extended_product_id_anyof,omitempty"`
 	SGXEnclaveMeasurementAnyof             []string  `json:"sgx_enclave_measurement_anyof,omitempty"`
-	SGXConfigIDSVN                         int16     `json:"sgx_config_id_svn,omitempty"`
+	SGXConfigIDSVN                         int16     `json:"sgx_config_id_svn"`
 	SGXEnclaveSVNMinimum                   int16     `json:"sgx_enclave_svn_minimum,omitempty"`
 	SGXConfigIDAnyof                       []string  `json:"sgx_config_id_anyof,omitempty"`
 	TLSClientCertificateIssuerCNAnyof      []string  `json:"tls_client_certificate_issuer_cn_anyof,omitempty"`
-	TLSClientCertificateSANAnyof           []string  `json:"tls_client_certificate_san_anyof,omitempty"`
-	TLSClientCertificateSANAllof           []string  `json:"tls_client_certificate_san_allof,omitempty"`
+	TLSClientCertificateSANAnyof           []string  `json:"client_permissions_anyof,omitempty"`
+	TLSClientCertificateSANAllof           []string  `json:"client_permissions_allof,omitempty"`
 	AttestationTypeAnyof                   []string  `json:"attestation_type_anyof,omitempty"`
 	SGXEnforceTCBUptoDate                  bool      `json:"sgx_enforce_tcb_up_to_date,omitempty"`
 }

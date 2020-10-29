@@ -67,7 +67,6 @@ func (kc *SKCController) TransferApplicationKey(responseWriter http.ResponseWrit
 	}
 
 	keyInfo.IssuerCommonName = request.TLS.PeerCertificates[0].Issuer.CommonName
-
 	userCommonName := request.TLS.PeerCertificates[0].Subject.CommonName
 
 	err = keyInfo.SetUserContext(userCommonName, kc.config, kc.trustedCaCertDir)

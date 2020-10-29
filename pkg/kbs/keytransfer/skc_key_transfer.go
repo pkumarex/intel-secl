@@ -358,8 +358,8 @@ func (keyInfo *KeyDetails) IsValidSession() bool {
 					keyInfo.validateSgxEnclaveIssuerExtProdId(attributes.EnclaveIssuerExtendedProductID) &&
 					keyInfo.validateSgxEnclaveMeasurement(attributes.EnclaveMeasurement) &&
 					keyInfo.validateSgxConfigId(attributes.ConfigID) &&
-					keyInfo.validateSgxIsvSvn(attributes.IsvSvn) {
-					//TODO:(keyInfo.StoredKey.SGXConfigIDSVN == attributes.ConfigSvn) {
+					keyInfo.validateSgxIsvSvn(attributes.IsvSvn) &&
+					keyInfo.validateSgxConfigIdSvn(attributes.ConfigSvn) {
 					keyInfo.ActiveSessionID = sessionID
 					defaultLog.Debug("keytransfer/skc_key_transfer:IsValidSession() All sgx attributes in stm attestation report match key transfer policy")
 					return true
@@ -512,13 +512,32 @@ func (keyInfo KeyDetails) validateSgxIsvSvn(stmSgxIsvSvn string) bool {
 
 	stmSgxsvn, err := strconv.Atoi(stmSgxIsvSvn)
 	if err != nil {
-		defaultLog.Error("keytransfer/skc_key_transfer:validateSgxIsvSvn() Error in converting converting isvSvn")
+		defaultLog.Error("keytransfer/skc_key_transfer:validateSgxIsvSvn() Error in converting isvSvn to integer")
 		return false
 
 	}
 	a1 := int16(stmSgxsvn)
 	if a1 == keyInfo.TransferPolicyAttributes.SGXEnclaveSVNMinimum {
 		defaultLog.Debug("keytransfer/skc_key_transfer:validateSgxIsvSvn() stmSgxIsvSvn matches with the key transfer policy")
+		return true
+	}
+	return false
+}
+
+// validateSgxConfigIdSvn- Function to Validate configIdSvn
+func (keyInfo KeyDetails) validateSgxConfigIdSvn(stmSgxConfigSvn string) bool {
+	defaultLog.Trace("keytransfer/skc_key_transfer:validateSgxConfigIdSvn() Entering")
+	defer defaultLog.Trace("keytransfer/skc_key_transfer:validateSgxConfigIdSvn() Leaving")
+
+	stmSgxConfigIdSvn, err := strconv.Atoi(stmSgxConfigSvn)
+	if err != nil {
+		defaultLog.Error("keytransfer/skc_key_transfer:validateSgxConfigIdSvn() Error in converting stmSgxConfigIdSvn to integer")
+		return false
+
+	}
+	a1 := int16(stmSgxConfigIdSvn)
+	if a1 == keyInfo.TransferPolicyAttributes.SGXConfigIDSVN {
+		defaultLog.Debug("keytransfer/skc_key_transfer:validateSgxConfigIdSvn() stmSgxConfigIdSvn matches with the key transfer policy")
 		return true
 	}
 	return false

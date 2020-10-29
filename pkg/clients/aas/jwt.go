@@ -136,6 +136,7 @@ func (c *jwtClient) fetchToken(userCred *types.UserCred) ([]byte, error) {
 		return nil, err
 	}
 	req, _ := http.NewRequest("POST", jwtUrl, buf)
+	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/jwt")
 
 	if c.HTTPClient == nil {

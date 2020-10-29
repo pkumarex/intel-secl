@@ -37,6 +37,7 @@ const (
 	tpmIdentityCertsDir    = "./resources/tpm-identity/"
 	validSamlReportPath    = "./resources/saml_report.xml"
 	invalidSamlReportPath  = "./resources/invalid_saml_report.xml"
+	endpointUrl            = "https://localhost:9443/kbs/v1"
 )
 
 var _ = Describe("KeyController", func() {
@@ -72,7 +73,6 @@ var _ = Describe("KeyController", func() {
 		}
 
 		keyManager := &keymanager.DirectoryManager{}
-		endpointUrl := "https://localhost:9443/kbs/v1"
 		remoteManager = keymanager.NewRemoteManager(keyStore, keyManager, endpointUrl)
 		keyController = controllers.NewKeyController(remoteManager, policyStore, keyControllerConfig)
 	})
