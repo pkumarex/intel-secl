@@ -122,6 +122,7 @@ func TestLegacyInvalidSamlSig(t *testing.T) {
 
 	// validate legacy saml assertion
 	_, err = ValidateLegacySamlAssertion(assertion, c)
+	t.Log(err)
 	assert.NotNil(t, err)
 	assert.Error(t, err)
 }
