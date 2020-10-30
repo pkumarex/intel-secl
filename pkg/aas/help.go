@@ -19,15 +19,22 @@ Available Commands:
 	start                            Start authservice
 	status                           Show the status of authservice
 	stop                             Stop authservice
-	tlscertsha384                    Show the SHA384 digest of the certificate used for TLS
 	uninstall [--purge]              Uninstall authservice. --purge option needs to be applied to remove configuration and data files
 	-v|--version | version           Show the version of authservice
 
-	Setup command usage:       authservice setup [task] [--arguments=<argument_value>] [--force]
+Usage of authservice setup:
+	authservice setup [task] [--help] [--force] [-f <answer-file>]
+		--help                      show help message for setup task
+		--force                     existing configuration will be overwritten if this flag is set
+		-f|--file <answer-file>     the answer file with required arguments
+
 	Available Tasks for setup:
 		all                   Runs all setup tasks
 		download-ca-cert      Download CMS root CA certificate
 		download-cert-tls     Download CA certificate from CMS for tls
+		database              Setup authservice database
+		admin                 Add authservice admin username and password to database and assign respective 
+		                      roles to the user
 		jwt                   Create jwt signing key and jwt certificate signed by CMS
 		server                Setup http server on given port
 `
