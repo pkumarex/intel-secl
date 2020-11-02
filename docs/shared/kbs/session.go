@@ -35,7 +35,6 @@ type SessionResponseAttributes struct {
 //    | challenge_type     | String to identify Security Technology Module(STM) label, e.g. "SGX" or "SW". |
 //    | challenge          | Base64-encoded unique ID shared by KBS. |
 //    | quote              | Base64-encoded string containing SGX attributes and public key certificate. Quote can be retrieved by printing it in the KBS/SQVS logs. |
-//    | certificate_chain  | Empty string. |
 //
 // security:
 //  - bearerAuth: []
@@ -86,8 +85,7 @@ type SessionResponseAttributes struct {
 //  {
 //      "challenge_type": "SGX",
 //      "challenge": "MTRjZmNlZDEtMDNlZS00YTY4LThiNTAtNmQ0NTY0MjNiMDc4",
-//      "quote": "AQAAAAAAAAB7EwAAAQAAAAEAAAADAAAAAAEAANwGAAAtLS0tLUJFR0lOI....",
-//      "certificate_chain": ""
+//      "quote": "AQAAAAAAAAB7EwAAAQAAAAEAAAADAAAAAAEAANwGAAAtLS0tLUJFR0lOI...."
 //  }
 // x-sample-call-output: |
 //  {

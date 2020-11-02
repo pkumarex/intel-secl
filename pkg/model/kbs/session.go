@@ -67,5 +67,4 @@ type SessionManagementAttributes struct {
 	ChallengeType    string `json:"challenge_type"`
 	Challenge        string `json:"challenge"`
 	Quote            string `json:"quote"`
-	CertificateChain string `json:"certificate_chain,omitempty"`
 }
