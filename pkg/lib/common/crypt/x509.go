@@ -459,8 +459,8 @@ func SavePemCertChain(certFilePath string, certs ...[]byte) error {
 
 func GetCertPool(certs []x509.Certificate) *x509.CertPool{
 	certPool := x509.NewCertPool()
-	for _, cert := range certs {
-		certPool.AddCert(&cert)
+	for i, _ := range certs {
+		certPool.AddCert(&certs[i])
 	}
 	return certPool
 }

@@ -63,11 +63,8 @@ func GetCertPool(trustedCACerts []x509.Certificate) *x509.CertPool{
 	if rootCAs == nil {
 		rootCAs = x509.NewCertPool()
 	}
-	for _, rootCA := range trustedCACerts {
-		//This is needed since we provide reference to AddCert(). Otherwise it would append the
-		//same address to the cert pool and the last cert appended will be the only one available
-		tempStoreCA := rootCA
-		rootCAs.AddCert(&tempStoreCA)
+	for i, _ := range trustedCACerts {
+		rootCAs.AddCert(&trustedCACerts[i])
 	}
 	return rootCAs
 }
