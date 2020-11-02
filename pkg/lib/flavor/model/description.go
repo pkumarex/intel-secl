@@ -27,6 +27,6 @@ type Description struct {
 	// swagger:strfmt uuid
 	HardwareUUID    *uuid.UUID `json:"hardware_uuid,omitempty"`
 	Comment         string     `json:"comment,omitempty"`
-	TbootInstalled  bool       `json:"tboot_installed,string"`
+	TbootInstalled  *bool      `json:"tboot_installed,string,omitempty"`
 	DigestAlgorithm string     `json:"digest_algorithm,omitempty"`
 }
