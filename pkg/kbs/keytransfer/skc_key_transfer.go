@@ -328,7 +328,7 @@ func (keyInfo KeyDetails) doesCertcontextListMatchKeyTransferPolicy() bool {
 	return false
 }
 
-func (keyInfo *KeyDetails) IsValidSession() bool {
+func (keyInfo *KeyDetails) IsValidSession() (validSession, validSGXAttributes bool) {
 	defaultLog.Trace("keytransfer/skc_key_transfer:IsValidSession() entering")
 	defer defaultLog.Trace("keytransfer/skc_key_transfer:IsValidSession() leaving")
 
@@ -350,30 +350,32 @@ func (keyInfo *KeyDetails) IsValidSession() bool {
 				attributes := keyInfo.SessionResponseMap[sessionID]
 				if keyInfo.TransferPolicyAttributes.SGXEnforceTCBUptoDate && attributes.TCBLevel == constants.TCBLevelOutOfDate {
 					defaultLog.Debug("keytransfer/skc_key_transfer:IsValidSession() Platform TCB Status is Out of Date")
-					return false
+					return true, false
 				}
 
 				if keyInfo.validateSgxEnclaveIssuer(attributes.EnclaveIssuer) &&
 					keyInfo.validateSgxEnclaveIssuerProdId(attributes.EnclaveIssuerProductID) &&
 					keyInfo.validateSgxEnclaveIssuerExtProdId(attributes.EnclaveIssuerExtendedProductID) &&
-					keyInfo.validateSgxEnclaveMeasurement(attributes.EnclaveMeasurement) &&
+					///TODO: This will be done in 3.3
+					//keyInfo.validateSgxEnclaveMeasurement(attributes.EnclaveMeasurement) &&
 					keyInfo.validateSgxConfigId(attributes.ConfigID) &&
 					keyInfo.validateSgxIsvSvn(attributes.IsvSvn) &&
 					keyInfo.validateSgxConfigIdSvn(attributes.ConfigSvn) {
 					keyInfo.ActiveSessionID = sessionID
 					defaultLog.Debug("keytransfer/skc_key_transfer:IsValidSession() All sgx attributes in stm attestation report match key transfer policy")
-					return true
+					return true, true
 				} else {
 					defaultLog.Debug("keytransfer/skc_key_transfer:IsValidSession() Sgx attribute validation failed")
+					return true, false
 				}
 
 			} else {
 				keyInfo.ActiveSessionID = sessionID
-				return true
+				return true, true
 			}
 		}
 	}
-	return false
+	return false, false
 }
 
 func (keyInfo *KeyDetails) BuildChallengeJsonRequest(cfg *config.Configuration) (kbs.ChallengeRequest, error) {

@@ -12,25 +12,32 @@ type KeyTransferSession struct {
 }
 
 type ChallengeRequest struct {
-	Challenge     string        `json:"challenge"`
-	ChallengeType string        `json:"challenge_type"`
+	Challenge     string        `json:"challenge,omitempty"`
+	ChallengeType string        `json:"challenge_type,omitempty"`
 	Faults        []Fault       `json:"faults"`
-	Link          ChallengeLink `json:"link"`
+	Link          ChallengeLink `json:"link,omitempty"`
 	Operation     string        `json:"operation"`
 	Status        string        `json:"status"`
 }
 
+type NotFoundResponse struct {
+	Faults    []Fault `json:"faults"`
+	Operation string  `json:"operation"`
+	Status    string  `json:"status"`
+}
+
 type Fault struct {
-	Type string `json:"type"`
+	Message string `json:"message,omitempty"`
+	Type    string `json:"type"`
 }
 
 type ChallengeLink struct {
-	ChallengeReply ChallengeReplyToNode `json:"challenge-replyto"`
+	ChallengeReply ChallengeReplyToNode `json:"challenge-replyto,omitempty"`
 }
 
 type ChallengeReplyToNode struct {
-	Href   string `json:"href"`
-	Method string `json:"method"`
+	Href   string `json:"href,omitempty"`
+	Method string `json:"method,omitempty"`
 }
 
 type QuoteVerifyAttributes struct {
