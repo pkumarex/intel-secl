@@ -238,7 +238,6 @@ func (svc *Service) VerifyHostsAsync(hostIds []uuid.UUID, fetchHostData, preferH
 			adds = append(adds, hid)
 		}
 	}
-
 	if err := svc.persistToStore(adds, updates, fetchHostData, preferHashMatch); err != nil {
 		return errors.Wrap(err, "hosttrust/manager:VerifyHostsAsync() persistRequest - error in Persisting to Store")
 	}
