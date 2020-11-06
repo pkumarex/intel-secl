@@ -73,7 +73,8 @@ func (a *App) startServer() error {
 	certStore := utils.LoadCertificates(a.loadCertPathStore())
 
 	// Initialize Host trust manager
-	hostTrustManager := initHostTrustManager(c, dataStore, certStore, alw)
+	fgs := postgres.NewFlavorGroupStore(dataStore)
+	hostTrustManager := initHostTrustManager(c, dataStore, fgs, certStore, alw)
 	go hostTrustManager.ProcessQueue()
 
 	// create an instance of the HRRS and start it...
@@ -98,7 +99,7 @@ func (a *App) startServer() error {
 	vcenterClusterSyncer.Run()
 
 	// Initialize routes
-	routes := router.InitRoutes(c, dataStore, certStore, hostTrustManager, hostControllerConfig)
+	routes := router.InitRoutes(c, dataStore, fgs, certStore, hostTrustManager, hostControllerConfig)
 
 	defaultLog.Info("Starting server")
 	tlsConfig := &tls.Config{
@@ -179,7 +180,7 @@ func getDecodedDek(cfg *config.Configuration) []byte {
 	return dek
 }
 
-func initHostTrustManager(cfg *config.Configuration, dataStore *postgres.DataStore, certStore *models.CertificatesStore, alw domain.AuditLogWriter) domain.HostTrustManager {
+func initHostTrustManager(cfg *config.Configuration, dataStore *postgres.DataStore, fgs *postgres.FlavorGroupStore, certStore *models.CertificatesStore, alw domain.AuditLogWriter) domain.HostTrustManager {
 	defaultLog.Trace("server:InitHostTrustManager() Entering")
 	defer defaultLog.Trace("server:InitHostTrustManager() Leaving")
 
@@ -187,7 +188,6 @@ func initHostTrustManager(cfg *config.Configuration, dataStore *postgres.DataSto
 	hs := postgres.NewHostStore(dataStore)
 	hc := postgres.NewHostCredentialStore(dataStore, getDecodedDek(cfg))
 	fs := postgres.NewFlavorStore(dataStore)
-	fgs := postgres.NewFlavorGroupStore(dataStore)
 	qs := postgres.NewDBQueueStore(dataStore)
 	hss := postgres.NewHostStatusStore(dataStore)
 	hss.AuditLogWriter = alw

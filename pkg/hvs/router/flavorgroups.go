@@ -15,11 +15,10 @@ import (
 )
 
 // SetFlavorGroupRoutes registers routes for flavorgroups
-func SetFlavorGroupRoutes(router *mux.Router, store *postgres.DataStore, hostTrustManager domain.HostTrustManager) *mux.Router {
+func SetFlavorGroupRoutes(router *mux.Router, store *postgres.DataStore, flavorgroupStore *postgres.FlavorGroupStore, hostTrustManager domain.HostTrustManager) *mux.Router {
 	defaultLog.Trace("router/flavorgroups:SetFlavorGroupRoutes() Entering")
 	defer defaultLog.Trace("router/flavorgroups:SetFlavorGroupRoutes() Leaving")
 
-	flavorgroupStore := postgres.NewFlavorGroupStore(store)
 	flavorStore := postgres.NewFlavorStore(store)
 	hostStore := postgres.NewHostStore(store)
 	flavorgroupController := controllers.FlavorgroupController{

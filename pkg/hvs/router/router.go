@@ -33,7 +33,7 @@ type Router struct {
 }
 
 // InitRoutes registers all routes for the application.
-func InitRoutes(cfg *config.Configuration, dataStore *postgres.DataStore, certStore *models.CertificatesStore, hostTrustManager domain.HostTrustManager, hostControllerConfig domain.HostControllerConfig) *mux.Router {
+func InitRoutes(cfg *config.Configuration, dataStore *postgres.DataStore, fgs *postgres.FlavorGroupStore, certStore *models.CertificatesStore, hostTrustManager domain.HostTrustManager, hostControllerConfig domain.HostControllerConfig) *mux.Router {
 	defaultLog.Trace("router/router:InitRoutes() Entering")
 	defer defaultLog.Trace("router/router:InitRoutes() Leaving")
 
@@ -42,12 +42,12 @@ func InitRoutes(cfg *config.Configuration, dataStore *postgres.DataStore, certSt
 
 	// ISECL-8715 - Prevent potential open redirects to external URLs
 	router.SkipClean(true)
-	defineSubRoutes(router, constants.OldServiceName, cfg, dataStore, certStore, hostTrustManager, hostControllerConfig)
-	defineSubRoutes(router, strings.ToLower(constants.ServiceName), cfg, dataStore, certStore, hostTrustManager, hostControllerConfig)
+	defineSubRoutes(router, constants.OldServiceName, cfg, dataStore, fgs, certStore, hostTrustManager, hostControllerConfig)
+	defineSubRoutes(router, strings.ToLower(constants.ServiceName), cfg, dataStore, fgs, certStore, hostTrustManager, hostControllerConfig)
 	return router
 }
 
-func defineSubRoutes(router *mux.Router, service string, cfg *config.Configuration, dataStore *postgres.DataStore,
+func defineSubRoutes(router *mux.Router, service string, cfg *config.Configuration, dataStore *postgres.DataStore, fgs *postgres.FlavorGroupStore,
 	certStore *models.CertificatesStore, hostTrustManager domain.HostTrustManager, hostControllerConfig domain.HostControllerConfig) {
 	defaultLog.Trace("router/router:defineSubRoutes() Entering")
 	defer defaultLog.Trace("router/router:defineSubRoutes() Leaving")
@@ -64,8 +64,8 @@ func defineSubRoutes(router *mux.Router, service string, cfg *config.Configurati
 	subRouter.Use(cmw.NewTokenAuth(constants.TrustedJWTSigningCertsDir,
 		constants.TrustedRootCACertsDir, cfgRouter.fnGetJwtCerts,
 		cacheTime))
-	subRouter = SetFlavorGroupRoutes(subRouter, dataStore, hostTrustManager)
-	subRouter = SetFlavorRoutes(subRouter, dataStore, certStore, hostTrustManager, hostControllerConfig)
+	subRouter = SetFlavorGroupRoutes(subRouter, dataStore, fgs, hostTrustManager)
+	subRouter = SetFlavorRoutes(subRouter, dataStore, fgs, certStore, hostTrustManager, hostControllerConfig)
 	subRouter = SetTpmEndorsementRoutes(subRouter, dataStore)
 	subRouter = SetCertifyAiksRoutes(subRouter, dataStore, certStore, cfg.AikCertValidity)
 	subRouter = SetHostStatusRoutes(subRouter, dataStore)
@@ -73,11 +73,11 @@ func defineSubRoutes(router *mux.Router, service string, cfg *config.Configurati
 	subRouter = SetHostRoutes(subRouter, dataStore, hostTrustManager, hostControllerConfig)
 	subRouter = SetReportRoutes(subRouter, dataStore, hostTrustManager)
 	subRouter = SetCreateCaCertificatesRoutes(subRouter, certStore)
-	subRouter = SetTagCertificateRoutes(subRouter, cfg, certStore, hostTrustManager, dataStore)
+	subRouter = SetTagCertificateRoutes(subRouter, cfg, fgs, certStore, hostTrustManager, dataStore)
 	subRouter = SetESXiClusterRoutes(subRouter, dataStore, hostTrustManager, hostControllerConfig)
 	subRouter = SetDeploySoftwareManifestRoute(subRouter, dataStore, hostTrustManager, hostControllerConfig)
 	subRouter = SetManifestsRoute(subRouter, dataStore)
-	subRouter = SetFlavorFromAppManifestRoute(subRouter, dataStore, certStore, hostTrustManager, hostControllerConfig)
+	subRouter = SetFlavorFromAppManifestRoute(subRouter, dataStore, fgs, certStore, hostTrustManager, hostControllerConfig)
 }
 
 // Fetch JWT certificate from AAS

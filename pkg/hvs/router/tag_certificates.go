@@ -24,7 +24,7 @@ const (
 )
 
 // SetTagCertificateRoutes registers routes for tag-certificates API
-func SetTagCertificateRoutes(router *mux.Router, cfg *config.Configuration, certStore *models.CertificatesStore, hostTrustManager domain.HostTrustManager, store *postgres.DataStore) *mux.Router {
+func SetTagCertificateRoutes(router *mux.Router, cfg *config.Configuration, flavorGroupStore *postgres.FlavorGroupStore, certStore *models.CertificatesStore, hostTrustManager domain.HostTrustManager, store *postgres.DataStore) *mux.Router {
 	defaultLog.Trace("router/tag_certificates:SetTagCertificateRoutes() Entering")
 	defer defaultLog.Trace("router/tag_certificates:SetTagCertificateRoutes() Leaving")
 
@@ -41,7 +41,6 @@ func SetTagCertificateRoutes(router *mux.Router, cfg *config.Configuration, cert
 	tagCertificateStore := postgres.NewTagCertificateStore(store)
 	hostStore := postgres.NewHostStore(store)
 	flavorStore := postgres.NewFlavorStore(store)
-	flavorGroupStore := postgres.NewFlavorGroupStore(store)
 
 	// initialize the user credentials for AAS connections
 	tcConfig := domain.TagCertControllerConfig{
