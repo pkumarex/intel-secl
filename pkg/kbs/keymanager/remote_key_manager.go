@@ -6,6 +6,7 @@ package keymanager
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/kbs/domain"
@@ -123,6 +124,9 @@ func (rm *RemoteManager) TransferKey(keyId uuid.UUID) ([]byte, error) {
 func (rm *RemoteManager) getTransferLink(keyId uuid.UUID) string {
 	defaultLog.Trace("keymanager/remote_key_manager:getTransferLink() Entering")
 	defer defaultLog.Trace("keymanager/remote_key_manager:getTransferLink() Leaving")
-
-	return fmt.Sprintf("%s/keys/%s/transfer", rm.endpointURL, keyId.String())
+	if strings.HasSuffix(rm.endpointURL, "/") {
+		return fmt.Sprintf("%skeys/%s/transfer", rm.endpointURL, keyId.String())
+	} else {
+		return fmt.Sprintf("%s/keys/%s/transfer", rm.endpointURL, keyId.String())
+	}
 }
