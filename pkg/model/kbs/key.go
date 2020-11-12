@@ -56,10 +56,6 @@ type KeyTransferAttributes struct {
 				Href   string `json:"href,omitempty"`
 				Method string `json:"method,omitempty"`
 			} `json:"key-transfer,omitempty"`
-			KeyUsage struct {
-				Href   string `json:"href,omitempty"`
-				Method string `json:"method,omitempty"`
-			} `json:"key-usage,omitempty"`
 		} `json:"link,omitempty"`
 	} `json:"policy,omitempty"`
 }

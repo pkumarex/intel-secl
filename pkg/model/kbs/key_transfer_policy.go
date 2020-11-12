@@ -19,7 +19,7 @@ type KeyTransferPolicyAttributes struct {
 	SGXEnclaveIssuerProductIDAnyof         []int16   `json:"sgx_enclave_issuer_product_id_anyof"`
 	SGXEnclaveIssuerExtendedProductIDAnyof []string  `json:"sgx_enclave_issuer_extended_product_id_anyof,omitempty"`
 	SGXEnclaveMeasurementAnyof             []string  `json:"sgx_enclave_measurement_anyof,omitempty"`
-	SGXConfigIDSVN                         int16     `json:"sgx_config_id_svn"`
+	SGXConfigIDSVN                         int16     `json:"sgx_config_id_svn,omitempty"`
 	SGXEnclaveSVNMinimum                   int16     `json:"sgx_enclave_svn_minimum,omitempty"`
 	SGXConfigIDAnyof                       []string  `json:"sgx_config_id_anyof,omitempty"`
 	TLSClientCertificateIssuerCNAnyof      []string  `json:"tls_client_certificate_issuer_cn_anyof,omitempty"`
