@@ -192,7 +192,6 @@ func checkAndvalidateSwQuote(sessionRequest kbs.SessionManagementAttributes) (bo
 		return false, errors.New("using existing challenge for establishing new session")
 	}
 
-	defaultLog.Debug(decodedQuote)
 	if quoteType == "SW" {
 		return true, nil
 	}
