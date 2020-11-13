@@ -89,7 +89,7 @@ var _ = Describe("SKCKeyTransferController", func() {
 				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
-				Expect(w.Code).To(Equal(http.StatusCreated))
+				Expect(w.Code).To(Equal(http.StatusBadRequest))
 			})
 			It("Should transfer an existing Key", func() {
 				router.Handle("/keys/{id}/dhsm2-transfer", kbsRoutes.ErrorHandler(kbsRoutes.JsonResponseHandler(skcController.TransferApplicationKey))).Methods("GET")
