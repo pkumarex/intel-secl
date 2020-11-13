@@ -101,7 +101,7 @@ var _ = Describe("SKCKeyTransferController", func() {
 				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
-				Expect(w.Code).To(Equal(http.StatusOK))
+				Expect(w.Code).To(Equal(http.StatusNotFound))
 			})
 		})
 		Context("Provide a Transfer request without Accept-Challenge Header", func() {
