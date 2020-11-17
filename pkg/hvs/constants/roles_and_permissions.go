@@ -29,16 +29,21 @@ const (
 	HostDelete   = "hosts:delete"
 	HostSearch   = "hosts:search"
 
+	//FlavorTemplate Permissions.
+	FlavorTemplateCreate   = "flavor-template:create"
+	FlavorTemplateRetrieve = "flavor-template:retrieve"
+	FlavorTemplateDelete   = "flavor-template:delete"
+
 	FlavorCreate   = "flavors:create"
 	FlavorRetrieve = "flavors:retrieve"
 	FlavorSearch   = "flavors:search"
 	FlavorDelete   = "flavors:delete"
 
-	TagFlavorCreate = "tag_flavors:create"
+	TagFlavorCreate        = "tag_flavors:create"
 	HostUniqueFlavorCreate = "host_unique_flavors:create"
 
-	SoftwareFlavorCreate   = "software_flavors:create"
-	SoftwareFlavorDeploy   = "software_flavors:deploy"
+	SoftwareFlavorCreate = "software_flavors:create"
+	SoftwareFlavorDeploy = "software_flavors:deploy"
 
 	ESXiClusterCreate   = "esxi_clusters:create"
 	ESXiClusterRetrieve = "esxi_clusters:retrieve"
