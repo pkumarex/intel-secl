@@ -221,7 +221,7 @@ type SignedFlavorCollection struct {
 //                        "id": "ee7c7d49-1e80-4198-8c9f-04319b8a3db9",
 //                        "description": {
 //                            "flavor_part": "OS",
-//                            "source": "computepurley144.fm.intel.com",
+//                            "source": "127.0.0.1",
 //                            "label": "INTEL_RedHatEnterprise_8.1_Virsh_4.5.0_05-27-2020_02-57-56",
 //                            "os_name": "RedHatEnterprise",
 //                            "os_version": "8.1",
@@ -279,7 +279,7 @@ type SignedFlavorCollection struct {
 //                        "id": "b98df5dd-ec68-4115-944f-99e9a022b0ed",
 //                        "description": {
 //                            "flavor_part": "HOST_UNIQUE",
-//                            "source": "computepurley144.fm.intel.com",
+//                            "source": "127.0.0.1",
 //                            "label": "INTEL_00B61DA0-5ADA-E811-906E-00163566263E_05-27-2020_02-57-56",
 //                            "bios_name": "Intel Corporation",
 //                            "bios_version": "SE5C620.86B.00.01.6016.032720190737",
