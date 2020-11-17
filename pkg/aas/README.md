@@ -13,7 +13,7 @@
 - Run scripts to build the auth service
 
 ```shell
-git clone https://gitlab.devtools.intel.com/sst/isecl/intel-secl.git
+git clone https://github.com/intel-secl/intel-secl.git
 cd intel-secl
 make aas-installer
 ```
