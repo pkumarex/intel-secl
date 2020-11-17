@@ -6,10 +6,11 @@ package postgres
 
 import (
 	"fmt"
-	commConfig "github.com/intel-secl/intel-secl/v3/pkg/lib/common/config"
 	"io/ioutil"
 	"strings"
 	"time"
+
+	commConfig "github.com/intel-secl/intel-secl/v3/pkg/lib/common/config"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/constants"
@@ -143,7 +144,7 @@ func (ds *DataStore) Migrate() {
 
 	ds.Db.AutoMigrate(flavorGroup{}, host{}, flavor{}, trustCache{}, hostuniqueFlavor{}, flavorgroupFlavor{}, hostStatus{}, esxiCluster{},
 		esxiClusterHost{}, tagCertificate{}, tpmEndorsement{}, report{}, hostCredential{}, hostFlavorgroup{}, auditLogEntry{},
-		queue{})
+		queue{}, FlavorTemplate{}, flavorgroupFlavortemplate{})
 }
 
 func (ds *DataStore) Close() {

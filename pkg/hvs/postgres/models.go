@@ -6,10 +6,12 @@ package postgres
 
 import (
 	"encoding/json"
-	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"time"
 
+	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
+
 	"database/sql/driver"
+
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
@@ -23,6 +25,7 @@ type (
 	PGHostManifest          types.HostManifest
 	PGHostStatusInformation hvs.HostStatusInformation
 	PGFlavorContent         hvs.Flavor
+	PGFlavorTemplateContent models.FlavorTemplateContent
 
 	flavorGroup struct {
 		ID                    uuid.UUID             `json:"id" gorm:"primary_key;type:uuid"`
@@ -65,6 +68,18 @@ type (
 	hostuniqueFlavor struct {
 		HostId   uuid.UUID `gorm:"type:uuid REFERENCES host(Id) ON UPDATE CASCADE ON DELETE CASCADE;not null;unique_index:idx_hostunique_flavor"`
 		FlavorId uuid.UUID `gorm:"type:uuid REFERENCES flavor(Id) ON UPDATE CASCADE ON DELETE CASCADE;not null;unique_index:idx_hostunique_flavor"`
+	}
+
+	//FlavorTemplate - To maintain all values keep together inorder to maintain flavor template.
+	FlavorTemplate struct {
+		ID      uuid.UUID               `json:"id" gorm:"primary_key;type:uuid"`
+		Content PGFlavorTemplateContent `json:"template-content" sql:"type:JSONB"`
+		Deleted bool                    `json:"deleted" gorm:"type:bool"`
+	}
+	//Flavortemplate Flavorgroup
+	flavorgroupFlavortemplate struct {
+		FlavorgroupID    uuid.UUID `gorm:"type:uuid REFERENCES flavor_group(Id) ON UPDATE CASCADE ON DELETE CASCADE;not null;unique_index:idx_flavor_flavorgroup"`
+		FlavorTemplateID uuid.UUID `gorm:"type:uuid REFERENCES flavor_template(Id) ON UPDATE CASCADE ON DELETE CASCADE;not null;unique_index:idx_flavor_flavorgroup"`
 	}
 
 	hostCredential struct {
@@ -230,6 +245,17 @@ func (fl PGFlavorContent) Value() (driver.Value, error) {
 }
 
 func (fl *PGFlavorContent) Scan(value interface{}) error {
+	b, ok := value.([]byte)
+	if !ok {
+		return errors.New("postgres/models:PGFlavorContent_Scan() - type assertion to []byte failed")
+	}
+	return json.Unmarshal(b, &fl)
+}
+func (fl PGFlavorTemplateContent) Value() (driver.Value, error) {
+	return json.Marshal(fl)
+}
+
+func (fl *PGFlavorTemplateContent) Scan(value interface{}) error {
 	b, ok := value.([]byte)
 	if !ok {
 		return errors.New("postgres/models:PGFlavorContent_Scan() - type assertion to []byte failed")
