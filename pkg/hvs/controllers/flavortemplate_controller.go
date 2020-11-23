@@ -13,10 +13,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
-	dm "github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/constants"
 	commErr "github.com/intel-secl/intel-secl/v3/pkg/lib/common/err"
 	commLogMsg "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log/message"
+	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/pkg/errors"
 )
 
@@ -76,8 +76,8 @@ func (ftc FlavorTemplateCreationController) Retrieve(w http.ResponseWriter, r *h
 	if err != nil {
 		if strings.Contains(err.Error(), commErr.RowsNotFound) {
 			secLog.WithError(err).WithField("id", templateID).Info(
-				"controllers/flavortemplate_controller:Retrieve() FlavorTeamplate with given ID is deleted")
-			return nil, http.StatusNotFound, &commErr.ResourceError{Message: "FlavorTeamplate with given ID is deleted"}
+				"controllers/flavortemplate_controller:Retrieve() FlavorTeamplate with given ID is not found")
+			return nil, http.StatusNotFound, &commErr.ResourceError{Message: "FlavorTeamplate with given ID is not found"}
 		} else {
 			secLog.WithError(err).WithField("id", templateID).Info(
 				"controllers/flavortemplate_controller:Retrieve() failed to retrieve FlavorTeamplate")
@@ -144,12 +144,12 @@ func (ftc FlavorTemplateCreationController) Delete(w http.ResponseWriter, r *htt
 
 }
 
-func getFlavorTemplateCreateReq(r *http.Request) (dm.FlavorTemplate, error) {
+func getFlavorTemplateCreateReq(r *http.Request) (hvs.FlavorTemplate, error) {
 
 	defaultLog.Trace("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Leaving")
 
-	var CreateFlavorTemplateReq dm.FlavorTemplate
+	var CreateFlavorTemplateReq hvs.FlavorTemplate
 	if r.Header.Get("Content-Type") != constants.HTTPMediaTypeJson {
 		secLog.Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Invalid Content-Type")
 		return CreateFlavorTemplateReq, errors.New("Invalid Content-Type")
@@ -166,20 +166,20 @@ func getFlavorTemplateCreateReq(r *http.Request) (dm.FlavorTemplate, error) {
 
 	err := dec.Decode(&CreateFlavorTemplateReq)
 	if err != nil {
-		secLog.WithError(err).Errorf("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() %s :  Failed to decode request body as Flavor", commLogMsg.InvalidInputBadEncoding)
+		secLog.WithError(err).Errorf("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() %s :  Failed to decode request body as Flavor template", commLogMsg.InvalidInputBadEncoding)
 		return CreateFlavorTemplateReq, errors.New("Unable to decode JSON request body")
 	}
 
-	if CreateFlavorTemplateReq.ID != uuid.Nil {
-		secLog.WithError(err).Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Invalid flavor template request given ID should be NIL")
-		return CreateFlavorTemplateReq, errors.New("Invalid flavor template requested")
-	}
+	// if CreateFlavorTemplateReq.ID.String() != "" {
+	// 	secLog.WithError(err).Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Invalid flavor template request given ID should be NIL")
+	// 	return CreateFlavorTemplateReq, errors.New("Invalid flavor template requested")
+	// }
 
-	defaultLog.Debug("Validating create flavor request")
+	defaultLog.Debug("Validating create flavor template request")
 	err = validateFlavorTemplateCreateRequest(CreateFlavorTemplateReq)
 	if err != nil {
 		secLog.WithError(err).Errorf("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() %s Invalid flavor template create criteria", commLogMsg.InvalidInputBadParam)
-		return CreateFlavorTemplateReq, errors.New("Invalid flavor create criteria")
+		return CreateFlavorTemplateReq, errors.New("Invalid flavor template create criteria")
 	}
 
 	//Initiate flavor part creation and once done store.
@@ -187,7 +187,7 @@ func getFlavorTemplateCreateReq(r *http.Request) (dm.FlavorTemplate, error) {
 	return CreateFlavorTemplateReq, nil
 }
 
-func validateFlavorTemplateCreateRequest(dm.FlavorTemplate) error {
+func validateFlavorTemplateCreateRequest(hvs.FlavorTemplate) error {
 	defaultLog.Trace("controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Leaving")
 	//Add template validation.
