@@ -72,14 +72,9 @@ type (
 
 	//FlavorTemplate - To maintain all values keep together inorder to maintain flavor template.
 	FlavorTemplate struct {
-		ID      uuid.UUID               `json:"id" gorm:"primary_key;type:uuid"`
-		Content PGFlavorTemplateContent `json:"template-content" sql:"type:JSONB"`
-		Deleted bool                    `json:"deleted" gorm:"type:bool"`
-	}
-	//Flavortemplate Flavorgroup
-	flavorgroupFlavortemplate struct {
-		FlavorgroupID    uuid.UUID `gorm:"type:uuid REFERENCES flavor_group(Id) ON UPDATE CASCADE ON DELETE CASCADE;not null;unique_index:idx_flavor_flavorgroup"`
-		FlavorTemplateID uuid.UUID `gorm:"type:uuid REFERENCES flavor_template(Id) ON UPDATE CASCADE ON DELETE CASCADE;not null;unique_index:idx_flavor_flavorgroup"`
+		ID      uuid.UUID               `gorm:"column:id;not null;primary_key;type:uuid"`
+		Content PGFlavorTemplateContent `gorm:"column:content" sql:"type:JSONB NOT NULL"`
+		Deleted bool                    `gorm:"column:deleted;not null;type:bool"`
 	}
 
 	hostCredential struct {
