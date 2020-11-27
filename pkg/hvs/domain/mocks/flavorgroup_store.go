@@ -31,6 +31,10 @@ func (store *MockFlavorgroupStore) Delete(id uuid.UUID) error {
 	return errors.New(commErr.RowsNotFound)
 }
 
+// Hosts exist for Flavorgroup
+func (store *MockFlavorgroupStore) HasAssociatedHosts(uuid.UUID) (bool, error) {
+	return false, nil
+}
 // Retrieve returns FlavorGroup
 func (store *MockFlavorgroupStore) Retrieve(id uuid.UUID) (*hvs.FlavorGroup, error) {
 	if _, ok := store.FlavorgroupStore[id]; ok {

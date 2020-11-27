@@ -115,6 +115,22 @@ func (f *FlavorGroupStore) Delete(flavorGroupId uuid.UUID) error {
 	return nil
 }
 
+func (f *FlavorGroupStore) HasAssociatedHosts(fgId uuid.UUID) (bool, error) {
+	defaultLog.Trace("postgres/flavorgroup_store:HasAssociatedHosts() Entering")
+	defer defaultLog.Trace("postgres/flavorgroup_store:HasAssociatedHosts() Leaving")
+
+	count := 0
+	tx := f.Store.Db.Model(&hostFlavorgroup{}).Where("flavorgroup_id = ?", fgId).Count(&count)
+	if tx == nil {
+		return false, errors.New("postgres/flavorgroup_store:HasAssociatedHosts() Unexpected Error. Could not get" +
+			"hosts associated with flavorgroup.")
+	} else if count > 0 {
+		return true, nil
+	}
+
+	return false, nil
+}
+
 // helper function to build the query object for a FlavorGroup search.
 func buildFlavorGroupSearchQuery(tx *gorm.DB, fgFilter *models.FlavorGroupFilterCriteria) *gorm.DB {
 	defaultLog.Trace("postgres/flavorgroup_store:buildFlavorGroupSearchQuery() Entering")
