@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Check OS and VERSION
+OS=$(cat /etc/os-release | grep ^ID= | cut -d'=' -f2)
+temp="${OS%\"}"
+temp="${temp#\"}"
+OS="$temp"
+
 # read from environment variables file if it exists
 if [ -f ./iseclpgdb.env ]; then
     echo "Reading Database Installation variables from $(pwd)/iseclpgdb.env"
@@ -51,12 +57,18 @@ if [ -z $SAVE_DB_INSTALL_LOG ] ; then
 	log_file=~/isecl_pgdb_install.log
 fi
 
-# download postgres repo
-yum install postgresql11 postgresql11-server postgresql11-contrib postgresql11-libs -y &>> $log_file
+# Install postgresql
+if [ "$OS" == "rhel" ]
+then
+   yum install postgresql11 postgresql11-server postgresql11-contrib postgresql11-libs -y &>> $log_file
+elif [ "$OS" == "ubuntu" ]
+then
+   apt-get -y install postgresql-11
+fi
 
 if [ $? -ne 0 ] ; then
-	echo "yum installation fail"
-	exit 1
+        echo "PostgreSQL-11 installation failed"
+        exit 1
 fi
 
 echo "Initializing postgres database ..."
@@ -81,7 +93,13 @@ if [ ! -f $PGDATA/pg_hba.conf ] ; then
 	mkdir -p /usr/local/pgsql/data
     chown -R postgres:postgres /usr/local/pgsql
 
-	sudo -u postgres /usr/pgsql-11/bin/pg_ctl initdb -D $PGDATA &>> $log_file
+if [ "$OS" == "rhel" ]
+then
+    sudo -u postgres /usr/pgsql-11/bin/pg_ctl initdb -D $PGDATA &>> $log_file
+elif [ "$OS" == "ubuntu" ]
+then
+    sudo -u postgres /usr/lib/postgresql/11/bin/pg_ctl initdb -D $PGDATA &>> $log_file
+fi
 
     # make certificate and key files for TLS
     openssl req -new -x509 -days $ISECL_PGDB_CERT_VALIDITY_DAYS -newkey rsa:4096 \
@@ -130,7 +148,13 @@ fi
 echo "Setting up systemctl for postgres database ..."
 
 # setup systemd startup for postgresql
+if [ "$OS" == "rhel" ]
+then
 pg_systemd=/usr/lib/systemd/system/postgresql-11.service
+elif [ "$OS" == "ubuntu" ]
+then
+pg_systemd=/lib/systemd/system/postgresql-11.service
+fi
 rm -rf $pg_systemd
 echo "[Unit]" >> $pg_systemd
 echo "Description=PostgreSQL database server" >> $pg_systemd
@@ -146,9 +170,17 @@ echo "Environment=PGDATA=${PGDATA}" >> $pg_systemd
 echo "OOMScoreAdjust=-1000" >> $pg_systemd
 echo "Environment=PG_OOM_ADJUST_FILE=/proc/self/oom_score_adj" >> $pg_systemd
 echo "Environment=PG_OOM_ADJUST_VALUE=0" >> $pg_systemd
+if [ "$OS" == "rhel" ]
+then
 echo "ExecStart=/usr/pgsql-11/bin/pg_ctl start -D ${PGDATA} -l ${PGDATA}/pg_log" >> $pg_systemd
 echo "ExecStop=/usr/pgsql-11/bin/pg_ctl stop -D ${PGDATA}" >> $pg_systemd
 echo "ExecReload=/usr/pgsql-11/bin/pg_ctl reload -D ${PGDATA}" >> $pg_systemd
+elif [ "$OS" == "ubuntu" ]
+then
+echo "ExecStart=/usr/lib/postgresql/11/bin/pg_ctl start -D ${PGDATA} -l ${PGDATA}/pg_log" >> $pg_systemd
+echo "ExecStop=/usr/lib/postgresql/11/bin/pg_ctl stop -D ${PGDATA}" >> $pg_systemd
+echo "ExecReload=/usr/lib/postgresql/11/bin/pg_ctl reload -D ${PGDATA}" >> $pg_systemd
+fi
 echo "" >> $pg_systemd
 echo "TimeoutSec=300" >> $pg_systemd
 echo "" >> $pg_systemd

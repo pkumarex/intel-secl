@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Check OS and VERSION
+OS=$(cat /etc/os-release | grep ^ID= | cut -d'=' -f2)
+temp="${OS%\"}"
+temp="${temp#\"}"
+OS="$temp"
+
 # READ .env file
 echo PWD IS $(pwd)
 if [ -f ~/cms.env ]; then
@@ -80,9 +86,15 @@ systemctl daemon-reload
 auto_install() {
   local component=${1}
   local cprefix=${2}
-  local yum_packages=$(eval "echo \$${cprefix}_YUM_PACKAGES")
+  local packages=$(eval "echo \$${cprefix}_PACKAGES")
   # detect available package management tools. start with the less likely ones to differentiate.
-  yum -y install $yum_packages
+if [ "$OS" == "rhel" ]
+then
+  yum -y install $packages
+elif [ "$OS" == "ubuntu" ]
+then
+  apt -y install $packages
+fi
 }
 
 
@@ -100,7 +112,7 @@ logRotate_detect() {
 }
 
 logRotate_install() {
-  LOGROTATE_YUM_PACKAGES="logrotate"
+  LOGROTATE_PACKAGES="logrotate"
   if [ "$(whoami)" == "root" ]; then
     auto_install "Log Rotate" "LOGROTATE"
     if [ $? -ne 0 ]; then echo_failure "Failed to install logrotate"; exit -1; fi
