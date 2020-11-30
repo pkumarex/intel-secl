@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Check OS and VERSION
+# Check OS
 OS=$(cat /etc/os-release | grep ^ID= | cut -d'=' -f2)
 temp="${OS%\"}"
 temp="${temp#\"}"
@@ -63,7 +63,7 @@ then
    yum install postgresql11 postgresql11-server postgresql11-contrib postgresql11-libs -y &>> $log_file
 elif [ "$OS" == "ubuntu" ]
 then
-   apt-get -y install postgresql-11
+   apt-get -y install postgresql-11 &>> $log_file
 fi
 
 if [ $? -ne 0 ] ; then
