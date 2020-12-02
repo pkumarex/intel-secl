@@ -48,6 +48,7 @@ hvs-installer: hvs
 	cp build/linux/hvs/EndorsementCA-external.pem installer/EndorsementCA-external.pem
 	cp build/linux/hvs/hvs.service installer/hvs.service
 	cp build/linux/hvs/install.sh installer/install.sh && chmod +x installer/install.sh
+	cp -r pkg/hvs/domain/schema/ installer/schema
 	cp cmd/hvs/hvs installer/hvs
 	makeself installer deployments/installer/hvs-$(VERSION).bin "HVS $(VERSION)" ./install.sh
 	rm -rf installer
