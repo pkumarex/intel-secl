@@ -8,20 +8,20 @@ import (
 	"github.com/google/uuid"
 )
 
-//Meta - To store all meta data about host.
 type Meta struct {
-	FlavorPart   string     `json:"flavor_part,omitempty"`
-	Source       string     `json:"source,omitempty"`
-	Label        string     `json:"label,omitempty"`
-	Vendot       string     `json:"vendor,omitempty"`
-	IPAddress    string     `json:"ip_address,omitempty"`
-	BiosName     string     `json:"bios_name,omitempty"`
-	BiosVersion  string     `json:"bios_version,omitempty"`
-	OsName       string     `json:"os_name,omitempty"`
-	OsVersion    string     `json:"os_version,omitempty"`
-	VmmName      string     `json:"vmm_name,omitempty"`
-	VmmVersion   string     `json:"vmm_version,omitempty"`
-	TpmVersion   string     `json:"tpm_version,omitempty"`
+	FlavorPart  string `json:"flavor_part,omitempty"`
+	Source      string `json:"source,omitempty"`
+	Label       string `json:"label,omitempty"`
+	Vendor      string `json:"vendor,omitempty"`
+	IPAddress   string `json:"ip_address,omitempty"`
+	BiosName    string `json:"bios_name,omitempty"`
+	BiosVersion string `json:"bios_version,omitempty"`
+	OsName      string `json:"os_name,omitempty"`
+	OsVersion   string `json:"os_version,omitempty"`
+	VmmName     string `json:"vmm_name,omitempty"`
+	VmmVersion  string `json:"vmm_version,omitempty"`
+	TpmVersion  string `json:"tpm_version,omitempty"`
+	// swagger: strfmt uuid
 	HardwareUUID *uuid.UUID `json:"hardware_uuid,omitempty"`
 	Comment      string     `json:"comment,omitempty"`
 
@@ -43,26 +43,20 @@ type EventLogEquals struct {
 	ExculdingTags []string `json:"excluding_tags"`
 }
 
-// //EventLogEquals - To store Event Log need be included with specified PCR.
-// type EventLogIncludes struct {
-// 	PCR         PCR      `json:"pcr"`
-// 	IncludeTags []string `json:"include_tags,omitempty"`
-// }
-
 type PcrRules []struct {
 	Pcr              PCR             `json:"pcr"`
-	PcrMatches       *bool           `json:"pcr_matches"`
+	PcrMatches       bool            `json:"pcr_matches"`
 	EventlogEquals   *EventLogEquals `json:"eventlog_equals,omitempty"`
 	EventlogIncludes *[]string       `json:"eventlog_includes"`
 }
 
-//Flavor - To store flavor with meta, event-log-equals and event-log-includes.
+// swagger:parameters FlavorPart
 type FlavorPart struct {
 	Meta     *Meta    `json:"meta,omitempty"`
 	PcrRules PcrRules `json:"pcr_rules"`
 }
 
-//FlavorParts - To store possible flavor part requested.
+// swagger:parameters FlavorParts
 type FlavorParts struct {
 	Platform   *FlavorPart `json:"PLATFORM,omitempty"`
 	OS         *FlavorPart `json:"OS,omitempty"`
@@ -71,8 +65,8 @@ type FlavorParts struct {
 	AssetTag   *FlavorPart `json:"ASSET_TAG,omitempty"`
 }
 
-//FlavorTemplate - To maintain all values keep together inorder to maintain flavor template.
 type FlavorTemplate struct {
+	// swagger: strfmt uuid
 	ID          uuid.UUID   `json:"id" gorm:"primary_key;type:uuid"`
 	Label       string      `json:"label"`
 	Condition   []string    `json:"condition" sql:"type:text[]"`

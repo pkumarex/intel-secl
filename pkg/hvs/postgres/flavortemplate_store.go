@@ -5,6 +5,8 @@
 package postgres
 
 import (
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
 	commErr "github.com/intel-secl/intel-secl/v3/pkg/lib/common/err"
@@ -110,30 +112,32 @@ func (ft *FlavorTemplateStore) Delete(templateID uuid.UUID) error {
 
 	err := ft.Store.Db.Model(FlavorTemplate{}).Where(&FlavorTemplate{ID: templateID}).Update(&FlavorTemplate{Deleted: true}).Error
 	if err != nil {
-		return errors.Wrap(err, "postgres/flavortemplate_store:Delete() - Could not Delete record ")
+		return errors.Wrapf(err, "postgres/flavortemplate_store:Delete() - Could not Delete record ", templateID)
 	}
 
 	return nil
 }
 
-// // AddFlavorTemplates creates a FlavorGroup-Flavor link
-// func (f *FlavorGroupStore) AddFlavorTemplates(fgId uuid.UUID, ftId uuid.UUID) (uuid.UUID, error) {
-// 	defaultLog.Trace("postgres/flavorgroup_store:AddFlavorTemplates() Entering")
-// 	defer defaultLog.Trace("postgres/flavorgroup_store:AddFlavorTemplates() Leaving")
+func (ft *FlavorTemplateStore) Recover(recoverTemplates []string) error {
+	defaultLog.Trace("postgres/flavortemplate_store:Recover() Entering")
+	defer defaultLog.Trace("postgres/flavortemplate_store:Recover() Leaving")
 
-// 	if fgId == uuid.Nil || ftId == uuid.Nil {
-// 		return uuid.Nil, errors.New("postgres/flavorgroup_store:AddFlavorTemplates() ")
-// 	}
+	templates, err := ft.Search(true)
+	if err != nil {
+		return errors.Wrapf(err, "postgres/flavortemplate_store:Recover() - Could not recover all records")
+	}
 
-// 	fgftlink := flavorgroupFlavortemplate{
-// 		FlavorgroupID:    fgId,
-// 		FlavorTemplateID: ftId,
-// 	}
+	for _, template := range templates {
+		for _, recover := range recoverTemplates {
+			if strings.EqualFold(recover, template.Label) {
+				defaultLog.Debugf("postgres/flavortemplate_store:Recover() Recover default template ID ", template.ID)
+				err := ft.Store.Db.Model(FlavorTemplate{}).Update("deleted", false).Where(&FlavorTemplate{ID: template.ID}).Error
+				if err != nil {
+					return errors.Wrapf(err, "postgres/flavortemplate_store:Recover() - Could not recover record ", template.ID)
+				}
+			}
+		}
+	}
 
-// 	err := f.Store.Db.Model(flavorgroupFlavortemplate{}).Create(&fgftlink).Error
-// 	if err != nil {
-// 		return uuid.Nil, errors.Wrap(err, "postgres/flavorgroup_store:AddFlavorTemplates() failed to create flavorgroup-flavor association")
-// 	}
-
-// 	return ftId, nil
-// }
+	return nil
+}

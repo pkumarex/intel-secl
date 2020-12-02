@@ -36,6 +36,7 @@ Available Tasks for setup:
 	server                          Setup http server on given port
 	database                        Setup hvs database
 	create-default-flavorgroup      Create default flavor groups in database
+	create-default-template         Create default flavor templates in database
 	create-dek                      Create data encryption key for HVS
 	download-ca-cert                Download CMS root CA certificate
 	download-cert-tls               Download CA certificate from CMS for tls
