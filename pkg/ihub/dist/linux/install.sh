@@ -58,7 +58,6 @@ for directory in $BIN_PATH $LOG_PATH $CONFIG_PATH $CERTS_PATH $CERTDIR_TRUSTEDJW
     fi
     chown -R $SERVICE_USERNAME:$SERVICE_USERNAME $directory
     chmod 700 $directory
-    chmod g+s $directory
 done
 
 cp $COMPONENT_NAME $BIN_PATH/ && chown $SERVICE_USERNAME:$SERVICE_USERNAME $BIN_PATH/*
@@ -66,8 +65,7 @@ chmod 700 $BIN_PATH/*
 ln -sfT $BIN_PATH/$COMPONENT_NAME /usr/bin/$COMPONENT_NAME
 
 # make log files world readable
-chmod 755 $LOG_PATH
-chmod g+s $LOG_PATH
+chmod 744 $LOG_PATH
 
 # Install systemd script
 cp $SERVICE_USERNAME.service $PRODUCT_HOME && chown $SERVICE_USERNAME:$SERVICE_USERNAME $PRODUCT_HOME/$SERVICE_USERNAME.service && chown $SERVICE_USERNAME:$SERVICE_USERNAME $PRODUCT_HOME

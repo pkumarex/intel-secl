@@ -40,7 +40,7 @@ func WritePidFile(path string, pid int) error {
 	defer log.Trace("config/pid:WritePidFile() Leaving")
 
 	log.WithField("pid", pid).Debug("config/pid:WritePidFile() Writing pid file")
-	pidFile, err := os.Create(path)
+	pidFile, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		return errors.Wrap(err, "config/pid:WritePidFile() Failed to write pid file")
 	}

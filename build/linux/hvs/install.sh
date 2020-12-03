@@ -35,12 +35,10 @@ for directory in $BIN_PATH $LOG_PATH $CONFIG_PATH $CERTS_PATH $CERTDIR_TRUSTEDJW
   fi
   chown -R $SERVICE_USERNAME:$SERVICE_USERNAME $directory
   chmod 700 $directory
-  chmod g+s $directory
 done
 
 chown -R $SERVICE_USERNAME:$SERVICE_USERNAME $CONFIG_PATH
 chmod -R 700 $CONFIG_PATH
-chmod -R g+s $CONFIG_PATH
 
 cp $COMPONENT_NAME $BIN_PATH/ && chown $SERVICE_USERNAME:$SERVICE_USERNAME $BIN_PATH/*
 chmod 700 $BIN_PATH/*
@@ -50,8 +48,7 @@ ln -sfT $BIN_PATH/$COMPONENT_NAME /usr/bin/$COMPONENT_NAME
 cp EndorsementCA-external.pem $CERTDIR_ENDORSEMENTCA/ && chown $SERVICE_USERNAME:$SERVICE_USERNAME $CERTDIR_ENDORSEMENTCA/EndorsementCA-external.pem
 
 # make log files world readable
-chmod 755 $LOG_PATH
-chmod g+s $LOG_PATH
+chmod 744 $LOG_PATH
 
 # Install systemd script
 cp ${COMPONENT_NAME}.service $PRODUCT_HOME && chown $SERVICE_USERNAME:$SERVICE_USERNAME $PRODUCT_HOME/${COMPONENT_NAME}.service && chown $SERVICE_USERNAME:$SERVICE_USERNAME $PRODUCT_HOME

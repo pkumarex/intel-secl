@@ -54,25 +54,20 @@ mkdir -p $DB_SCRIPT_PATH && chown cms:cms $DB_SCRIPT_PATH/
 # Create configuration directory in /etc
 mkdir -p $CONFIG_PATH && chown cms:cms $CONFIG_PATH
 chmod 700 $CONFIG_PATH
-chmod g+s $CONFIG_PATH
 
 # Create jwt certs directory in config
 mkdir -p $CONFIG_PATH/jwt && chown cms:cms $CONFIG_PATH/jwt
 chmod 700 $CONFIG_PATH/jwt
-chmod g+s $CONFIG_PATH/jwt
 
 mkdir -p $CONFIG_PATH/root-ca && chown cms:cms $CONFIG_PATH/root-ca
 chmod 700 $CONFIG_PATH/root-ca
-chmod g+s $CONFIG_PATH/root-ca
 
 mkdir -p $CONFIG_PATH/intermediate-ca && chown cms:cms $CONFIG_PATH/intermediate-ca
 chmod 700 $CONFIG_PATH/intermediate-ca
-chmod g+s $CONFIG_PATH/intermediate-ca
 
 # Create logging dir in /var/log
 mkdir -p $LOG_PATH && chown cms:cms $LOG_PATH
 chmod 700 $LOG_PATH
-chmod g+s $LOG_PATH
 
 # Install systemd script
 cp cms.service $PRODUCT_HOME && chown cms:cms $PRODUCT_HOME/cms.service && chown cms:cms $PRODUCT_HOME

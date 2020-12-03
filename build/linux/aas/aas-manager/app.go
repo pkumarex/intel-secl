@@ -5,19 +5,18 @@ SPDX-License-Identifier: BSD-3-Clause
 package main
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/intel-secl/intel-secl/v3/pkg/clients"
 	claas "github.com/intel-secl/intel-secl/v3/pkg/clients/aas"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/aas"
+	"github.com/joho/godotenv"
 	"io"
-	"math/rand"
+	"math/big"
 	"os"
 	"strings"
-	"time"
-
-	"github.com/joho/godotenv"
 )
 
 const (
@@ -102,9 +101,13 @@ func RandomString(n int) string {
 	var letter = []rune("~=+%^*/()[]{}/!@#$?|abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 
 	b := make([]rune, n)
-	rand.Seed(time.Now().UnixNano())
 	for i := range b {
-		b[i] = letter[rand.Intn(len(letter))]
+		randRange, err := rand.Int(rand.Reader, big.NewInt(int64(len(letter))))
+		if err != nil {
+			fmt.Errorf("Error getting a random index for a character to create random string")
+			return ""
+		}
+		b[i] = letter[randRange.Int64()]
 	}
 	return string(b)
 }

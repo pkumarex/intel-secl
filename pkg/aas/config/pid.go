@@ -34,7 +34,7 @@ func CheckPidFile(path string) (pid int, err error) {
 // creating it if it doesnt exist
 func WritePidFile(path string, pid int) error {
 	log.WithField("pid", pid).Debug("writing pid file")
-	pidFile, err := os.Create(path)
+	pidFile, err := os.OpenFile(path, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		return fmt.Errorf("failed to write pid file: %v", err)
 	}

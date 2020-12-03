@@ -61,7 +61,6 @@ for directory in $BIN_PATH $LIB_PATH $LOG_PATH $CONFIG_PATH $CERTS_PATH $CERTDIR
     fi
     chown -R $SERVICE_USERNAME:$SERVICE_USERNAME $directory
     chmod 700 $directory
-    chmod g+s $directory
 done
 
 cp $COMPONENT_NAME $BIN_PATH/ && chown $SERVICE_USERNAME:$SERVICE_USERNAME $BIN_PATH/*
@@ -74,8 +73,7 @@ ln -sfT $LIB_PATH/libkmip.so.0.2 $LIB_PATH/libkmip.so
 ln -sfT $LIB_PATH/libkmip.so.0.2 $LIB_PATH/libkmip.so.0
 
 # make log files world readable
-chmod 755 $LOG_PATH
-chmod g+s $LOG_PATH
+chmod 744 LOG_PATH
 
 # Install systemd script
 cp $COMPONENT_NAME.service $PRODUCT_HOME && chown $SERVICE_USERNAME:$SERVICE_USERNAME $PRODUCT_HOME/$COMPONENT_NAME.service && chown $SERVICE_USERNAME:$SERVICE_USERNAME $PRODUCT_HOME

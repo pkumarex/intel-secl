@@ -62,7 +62,8 @@ func (certifyHostAiksController *CertifyHostAiksController) StoreEkCerts(identit
 	defaultLog.Trace("controllers/certify_host_aiks_controller:StoreEkCerts() Entering")
 	defer defaultLog.Trace("controllers/certify_host_aiks_controller:StoreEkCerts() Leaving")
 
-	if _, err := os.Stat(certifyHostAiksController.AikRequestsDirPath); os.IsNotExist(err) {
+	fInfo, err := os.Stat(certifyHostAiksController.AikRequestsDirPath)
+	if os.IsNotExist(err) || fInfo.Mode().Perm() != 0700 {
 		errDir := os.MkdirAll(certifyHostAiksController.AikRequestsDirPath, 0700)
 		if errDir != nil {
 			return errors.Wrapf(err, "controllers/certify_host_aiks_controller:StoreEkCerts() could not create directory %s", certifyHostAiksController.AikRequestsDirPath)
@@ -72,17 +73,32 @@ func (certifyHostAiksController *CertifyHostAiksController) StoreEkCerts(identit
 	idReqFileName := hex.EncodeToString(identityRequestChallenge)
 	defaultLog.Debugf("controllers/certify_host_aiks_controller:StoreEkCerts() idReqFileName: %s", idReqFileName)
 	optionsFileName := idReqFileName + ".opt"
-	err := ioutil.WriteFile(certifyHostAiksController.AikRequestsDirPath+idReqFileName, identityChallengePayload.IdentityRequest.AikModulus, 0400)
+	// add validation to check if the file exists with permission 0400
+	fInfoAikMod, err := os.Stat(certifyHostAiksController.AikRequestsDirPath+idReqFileName)
+	if fInfoAikMod != nil && fInfoAikMod.Mode().Perm() != 0400 {
+		return errors.Errorf("Invalid file permission on %s", certifyHostAiksController.AikRequestsDirPath+idReqFileName)
+	}
+	err = ioutil.WriteFile(certifyHostAiksController.AikRequestsDirPath+idReqFileName, identityChallengePayload.IdentityRequest.AikModulus, 0400)
 	if err != nil {
 		return err
 	}
 
+	// add validation to check if the file exists with permission 0400
+	fInfoAik, err := os.Stat(certifyHostAiksController.AikRequestsDirPath+optionsFileName)
+	if fInfoAik != nil && fInfoAik.Mode().Perm() != 0400 {
+		return errors.Errorf("Invalid file permission on %s", certifyHostAiksController.AikRequestsDirPath+optionsFileName)
+	}
 	err = ioutil.WriteFile(certifyHostAiksController.AikRequestsDirPath+optionsFileName, identityChallengePayload.IdentityRequest.AikName, 0400)
 	if err != nil {
 		return err
 	}
 
 	ekcertFilename := idReqFileName + ".ekcert"
+	// add validation to check if the file exists with permission 0400
+	fInfoEkCert, err := os.Stat(certifyHostAiksController.AikRequestsDirPath+ekcertFilename)
+	if fInfoEkCert != nil && fInfoEkCert.Mode().Perm() != 0400 {
+		return errors.Errorf("Invalid file permission on %s", certifyHostAiksController.AikRequestsDirPath+ekcertFilename)
+	}
 	err = ioutil.WriteFile(certifyHostAiksController.AikRequestsDirPath+ekcertFilename, ekCertBytes, 0400)
 	if err != nil {
 		return err

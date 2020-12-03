@@ -40,7 +40,7 @@ func TestLoadConfiguration(t *testing.T) {
 
 			dir, _ := ioutil.TempDir("", "")
 			if tt.configFile != "" {
-				f, _ := os.Create(dir + "/" + tt.configFile)
+				f, _ := os.OpenFile(dir + "/" + tt.configFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 				f.WriteString("pollintervalminutes: 5\n")
 				defer os.Remove(f.Name())
 			}

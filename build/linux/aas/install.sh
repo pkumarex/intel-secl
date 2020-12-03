@@ -58,8 +58,6 @@ for directory in $BIN_PATH $DB_SCRIPT_PATH $LOG_PATH $CONFIG_PATH $CERTS_PATH $C
   fi
   chown -R $SERVICE_USERNAME:$SERVICE_USERNAME $directory
   chmod 700 $directory
-  chmod g+s $directory
-
 done
 
 
@@ -70,8 +68,7 @@ ln -sfT $BIN_PATH/$COMPONENT_NAME /usr/bin/$COMPONENT_NAME
 cp db_rotation.sql $DB_SCRIPT_PATH/ && chown $SERVICE_USERNAME:$SERVICE_USERNAME $DB_SCRIPT_PATH/*
 
 # make log files world readable
-chmod 755 $LOG_PATH
-chmod g+s $LOG_PATH
+chmod 744 $LOG_PATH
 
 # Install systemd script
 cp authservice.service $PRODUCT_HOME && chown $SERVICE_USERNAME:$SERVICE_USERNAME $PRODUCT_HOME/authservice.service && chown $SERVICE_USERNAME:$SERVICE_USERNAME $PRODUCT_HOME

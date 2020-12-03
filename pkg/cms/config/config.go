@@ -43,7 +43,7 @@ func init() {
 }
 
 func (c *Configuration) Save(filename string) error {
-	configFile, err := os.Create(filename)
+	configFile, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		return errors.Wrap(err, "Failed to create config file")
 	}

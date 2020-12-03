@@ -6,7 +6,8 @@
 package auditlog
 
 import (
-	"math/rand"
+	"crypto/rand"
+	"math/big"
 	"testing"
 
 	"github.com/google/uuid"
@@ -148,7 +149,13 @@ func testWorkers(w domain.AuditLogWriter, t *testing.T) (hs []*hvs.HostStatus, r
 	// add to audit log in parallel
 	for i := 0; i < hostStatTestCnt; i++ {
 		go func(idx int) {
-			op := ops[rand.Intn(len(ops))]
+			randRange, err := rand.Int(rand.Reader, big.NewInt(4))
+			if err != nil {
+				t.Error("failed to get random number")
+				t.Error(err)
+				return
+			}
+			op := ops[randRange.Int64()]
 			e, err := w.CreateEntry(op, hs[idx], hs[idx])
 			if err != nil {
 				t.Error("create entry failed")
@@ -163,7 +170,13 @@ func testWorkers(w domain.AuditLogWriter, t *testing.T) (hs []*hvs.HostStatus, r
 
 	for i := 0; i < ReportTestCnt; i++ {
 		go func(idx int) {
-			op := ops[rand.Intn(len(ops))]
+			randRange, err := rand.Int(rand.Reader, big.NewInt(4))
+			if err != nil {
+				t.Error("failed to get random number")
+				t.Error(err)
+				return
+			}
+			op := ops[randRange.Int64()]
 			e, err := w.CreateEntry(op, r[idx], r[idx])
 			if err != nil {
 				t.Error("create entry failed")

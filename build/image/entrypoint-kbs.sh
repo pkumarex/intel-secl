@@ -23,7 +23,6 @@ if [ ! -f $CONFIG_PATH/.setup_done ]; then
     fi
     chown -R $COMPONENT_NAME:$COMPONENT_NAME $directory
     chmod 700 $directory
-    chmod g+s $directory
   done
   mv /tmp/libkmip.so.0.2 $LIB_PATH/
   chown $COMPONENT_NAME:$COMPONENT_NAME $LIB_PATH/*
