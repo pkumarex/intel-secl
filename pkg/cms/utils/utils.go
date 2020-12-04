@@ -5,23 +5,16 @@
 package utils
 
 import (
-	"encoding/json"
 	"github.com/intel-secl/intel-secl/v3/pkg/cms/constants"
 	"github.com/pkg/errors"
 	"io/ioutil"
 	"math/big"
-	"net/http"
 	"os"
 	"strings"
 )
 
 func Message(status bool, message string) map[string]interface{} {
 	return map[string]interface{}{"status": status, "message": message}
-}
-
-func Respond(w http.ResponseWriter, data map[string]interface{}) {
-	w.Header().Add("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(data)
 }
 
 func GetNextSerialNumber() (*big.Int, error) {
@@ -55,9 +48,12 @@ func ReadSerialNumber() (*big.Int, error) {
 
 func WriteSerialNumber(serialNumber *big.Int) error {
 	err := ioutil.WriteFile(constants.SerialNumberPath, serialNumber.Bytes(), 0660)
-	os.Chmod(constants.SerialNumberPath, 0660)
 	if err != nil {
 		return errors.Wrap(err, "utils/utils:WriteSerialNumber() Failed to write serial-number to file")
+	}
+	err = os.Chmod(constants.SerialNumberPath, 0660)
+	if err != nil {
+		return errors.Wrap(err, "utils/utils:WriteSerialNumber() Failed to update file permissions")
 	}
 	return nil
 }

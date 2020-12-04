@@ -57,9 +57,15 @@ func (a *App) setup(args []string) error {
 	// print help and return if applicable
 	if len(args) > 2 && args[2] == "--help" {
 		if cmd == "all" {
-			runner.PrintAllHelp()
+			err = runner.PrintAllHelp()
+			if err != nil {
+				return errors.Wrap(err, "Error writing to console")
+			}
 		} else {
-			runner.PrintHelp(cmd)
+			err = runner.PrintHelp(cmd)
+			if err != nil {
+				return errors.Wrap(err, "Error writing to console")
+			}
 		}
 		return nil
 	}
@@ -69,7 +75,10 @@ func (a *App) setup(args []string) error {
 			fmt.Fprintln(a.errorWriter(), "Error(s) encountered when running all setup commands:")
 			for errCmd, failErr := range errCmds {
 				fmt.Fprintln(a.errorWriter(), errCmd+": "+failErr.Error())
-				runner.PrintHelp(errCmd)
+				err = runner.PrintHelp(errCmd)
+				if err != nil {
+					return errors.Wrap(err, "Error writing to console")
+				}
 			}
 			return errors.New("Failed to run all tasks")
 		}
@@ -77,7 +86,10 @@ func (a *App) setup(args []string) error {
 	} else {
 		if err = runner.Run(cmd, force); err != nil {
 			fmt.Fprintln(a.errorWriter(), cmd+": "+err.Error())
-			runner.PrintHelp(cmd)
+			err = runner.PrintHelp(cmd)
+			if err != nil {
+				return errors.Wrap(err, "Error writing to console")
+			}
 			return errors.New("Failed to run setup task " + cmd)
 		}
 	}

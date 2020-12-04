@@ -48,7 +48,12 @@ func outboundHost() (string, error) {
 	if err != nil {
 		return os.Hostname()
 	}
-	defer conn.Close()
+	defer func() {
+		derr := conn.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing connection")
+		}
+	}()
 
 	return (conn.LocalAddr().(*net.UDPAddr)).IP.String(), nil
 }

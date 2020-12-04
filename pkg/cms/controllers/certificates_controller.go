@@ -36,13 +36,19 @@ func (controller CertificatesController) GetCertificates(httpWriter http.Respons
 
 	if httpRequest.Header.Get("Content-Type") != "application/x-pem-file" {
 		httpWriter.WriteHeader(http.StatusNotAcceptable)
-		httpWriter.Write([]byte("Content type not supported"))
+		_, err := httpWriter.Write([]byte("Content type not supported"))
+		if err != nil {
+			log.WithError(err).Errorf("resource/certificates:GetCertificates() Failed to write response")
+		}
 		return
 	}
 
 	if httpRequest.Header.Get("Accept") != "application/x-pem-file" {
 		httpWriter.WriteHeader(http.StatusNotAcceptable)
-		httpWriter.Write([]byte("Accept type not supported"))
+		_, err := httpWriter.Write([]byte("Accept type not supported"))
+		if err != nil {
+			log.WithError(err).Errorf("resource/certificates:GetCertificates() Failed to write response")
+		}
 		return
 	}
 
@@ -50,7 +56,10 @@ func (controller CertificatesController) GetCertificates(httpWriter http.Respons
 	if err != nil {
 		slog.WithError(err).Warn("resource/certificates:GetCertificates() Failed to read roles and permissions")
 		httpWriter.WriteHeader(http.StatusInternalServerError)
-		httpWriter.Write([]byte("Could not get user roles from http context"))
+		_, err = httpWriter.Write([]byte("Could not get user roles from http context"))
+		if err != nil {
+			log.WithError(err).Errorf("resource/certificates:GetCertificates() Failed to write response")
+		}
 		return
 	}
 
@@ -69,7 +78,10 @@ func (controller CertificatesController) GetCertificates(httpWriter http.Respons
 	if certType == "" {
 		slog.Warning(commLogMsg.InvalidInputBadParam)
 		log.Error("resource/certificates:GetCertificates() Query parameter certType missing")
-		httpWriter.Write([]byte("Query parameter certType missing"))
+		_, err = httpWriter.Write([]byte("Query parameter certType missing"))
+		if err != nil {
+			log.WithError(err).Errorf("resource/certificates:GetCertificates() Failed to write response")
+		}
 		httpWriter.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -77,7 +89,10 @@ func (controller CertificatesController) GetCertificates(httpWriter http.Respons
 	if validateErr := v.ValidateStrings(certTypeVal); validateErr != nil {
 		slog.Warning(commLogMsg.InvalidInputBadParam)
 		log.Error("resource/certificates:GetCertificates() Query parameter certType is in invalid format")
-		httpWriter.Write([]byte("Query parameter certType is in invalid format"))
+		_, err = httpWriter.Write([]byte("Query parameter certType is in invalid format"))
+		if err != nil {
+			log.WithError(err).Errorf("resource/certificates:GetCertificates() Failed to write response")
+		}
 		httpWriter.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -86,7 +101,10 @@ func (controller CertificatesController) GetCertificates(httpWriter http.Respons
 	if err != nil {
 		slog.Warning(commLogMsg.InvalidInputBadParam)
 		log.WithError(err).Error("resource/certificates:GetCertificates() Could not read http request body")
-		httpWriter.Write([]byte("Cannot read http request body"))
+		_, err = httpWriter.Write([]byte("Cannot read http request body"))
+		if err != nil {
+			log.WithError(err).Errorf("resource/certificates:GetCertificates() Failed to write response")
+		}
 		httpWriter.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -96,7 +114,10 @@ func (controller CertificatesController) GetCertificates(httpWriter http.Respons
 		slog.Warning(commLogMsg.InvalidInputBadEncoding)
 		log.WithError(err).Error("resource/certificates:GetCertificates() Failed to decode pem block containing certificate")
 		httpWriter.WriteHeader(http.StatusBadRequest)
-		httpWriter.Write([]byte("Failed to decode pem"))
+		_, err = httpWriter.Write([]byte("Failed to decode pem"))
+		if err != nil {
+			log.WithError(err).Errorf("resource/certificates:GetCertificates() Failed to write response")
+		}
 		return
 	}
 
@@ -105,7 +126,10 @@ func (controller CertificatesController) GetCertificates(httpWriter http.Respons
 		slog.Warning(commLogMsg.InvalidInputBadParam)
 		log.WithError(err).Error("resource/certificates:GetCertificates() Invalid CSR provided")
 		httpWriter.WriteHeader(http.StatusBadRequest)
-		httpWriter.Write([]byte("Invalid CSR provided"))
+		_, err = httpWriter.Write([]byte("Invalid CSR provided"))
+		if err != nil {
+			log.WithError(err).Errorf("resource/certificates:GetCertificates() Failed to write response")
+		}
 		return
 	}
 	err = clientCSR.CheckSignature()
@@ -113,7 +137,10 @@ func (controller CertificatesController) GetCertificates(httpWriter http.Respons
 		slog.Warning(commLogMsg.InvalidInputBadParam)
 		log.WithError(err).Error("resource/certificates:GetCertificates() CSR signature does not match")
 		httpWriter.WriteHeader(http.StatusBadRequest)
-		httpWriter.Write([]byte("Invalid CSR provided"))
+		_, err = httpWriter.Write([]byte("Invalid CSR provided"))
+		if err != nil {
+			log.WithError(err).Errorf("resource/certificates:GetCertificates() Failed to write response")
+		}
 		return
 	}
 
@@ -122,7 +149,10 @@ func (controller CertificatesController) GetCertificates(httpWriter http.Respons
 		slog.Warning(commLogMsg.InvalidInputBadParam)
 		log.WithError(err).Error("resource/certificates:GetCertificates() Invalid CSR provided")
 		httpWriter.WriteHeader(http.StatusBadRequest)
-		httpWriter.Write([]byte("Invalid CSR provided"))
+		_, err = httpWriter.Write([]byte("Invalid CSR provided"))
+		if err != nil {
+			log.WithError(err).Errorf("resource/certificates:GetCertificates() Failed to write response")
+		}
 		return
 	}
 	log.Debug("resource/certificates:GetCertificates() Received valid CSR")
@@ -131,7 +161,10 @@ func (controller CertificatesController) GetCertificates(httpWriter http.Respons
 	if err != nil {
 		log.WithError(err).Error("resource/certificates:GetCertificates() Failed to read next Serial Number")
 		httpWriter.WriteHeader(http.StatusInternalServerError)
-		httpWriter.Write([]byte("Failed to read next Serial Number"))
+		_, err = httpWriter.Write([]byte("Failed to read next Serial Number"))
+		if err != nil {
+			log.WithError(err).Errorf("resource/certificates:GetCertificates() Failed to write response")
+		}
 		return
 	}
 
@@ -173,7 +206,10 @@ func (controller CertificatesController) GetCertificates(httpWriter http.Respons
 	} else {
 		log.Errorf("Invalid certType provided")
 		httpWriter.WriteHeader(http.StatusBadRequest)
-		httpWriter.Write([]byte("Invalid certType provided"))
+		_, err = httpWriter.Write([]byte("Invalid certType provided"))
+		if err != nil {
+			log.WithError(err).Errorf("resource/certificates:GetCertificates() Failed to write response")
+		}
 		return
 	}
 	caAttr := constants.GetCaAttribs(issuingCa)
@@ -182,22 +218,44 @@ func (controller CertificatesController) GetCertificates(httpWriter http.Respons
 	if err != nil {
 		log.WithError(err).Error("resource/certificates:GetCertificates() Could not load Issuing CA")
 		httpWriter.WriteHeader(http.StatusInternalServerError)
-		httpWriter.Write([]byte("Cannot load Issuing CA"))
+		_, err = httpWriter.Write([]byte("Cannot load Issuing CA"))
+		if err != nil {
+			log.WithError(err).Errorf("resource/certificates:GetCertificates() Failed to write response")
+		}
 	}
 
 	certificate, err := x509.CreateCertificate(rand.Reader, &clientCRTTemplate, caCert, clientCSR.PublicKey, caPrivKey)
 	if err != nil {
 		log.WithError(err).Error("resource/certificates:GetCertificates() Cannot create certificate from CSR")
 		httpWriter.WriteHeader(http.StatusInternalServerError)
-		httpWriter.Write([]byte("Cannot create certificate"))
+		_, err = httpWriter.Write([]byte("Cannot create certificate"))
+		if err != nil {
+			log.WithError(err).Errorf("resource/certificates:GetCertificates() Failed to write response")
+		}
 	}
 
 	httpWriter.Header().Add("Content-Type", "application/x-pem-file")
 	httpWriter.WriteHeader(http.StatusOK)
 	// encode the certificate first
-	pem.Encode(httpWriter, &pem.Block{Type: "CERTIFICATE", Bytes: certificate})
+	err = pem.Encode(httpWriter, &pem.Block{Type: "CERTIFICATE", Bytes: certificate})
+	if err != nil {
+		log.WithError(err).Errorf("resource/certificates:GetCertificates() Failed to encode certificate")
+		httpWriter.WriteHeader(http.StatusInternalServerError)
+		_, err = httpWriter.Write([]byte("Cannot encode issued certificate"))
+		if err != nil {
+			log.WithError(err).Errorf("resource/certificates:GetCertificates() Failed to write response")
+		}
+	}
 	// include the issuing CA as well since clients would need the entire chain minus the root.
-	pem.Encode(httpWriter, &pem.Block{Type: "CERTIFICATE", Bytes: caCert.Raw})
+	err = pem.Encode(httpWriter, &pem.Block{Type: "CERTIFICATE", Bytes: caCert.Raw})
+	if err != nil {
+		log.WithError(err).Errorf("resource/certificates:GetCertificates() Failed to encode certificate")
+		httpWriter.WriteHeader(http.StatusInternalServerError)
+		_, err = httpWriter.Write([]byte("Cannot encode Issuing CA"))
+		if err != nil {
+			log.WithError(err).Errorf("resource/certificates:GetCertificates() Failed to write response")
+		}
+	}
 	log.Infof("resource/certificates:GetCertificates() Issued certificate for requested CSR with CN - %v", clientCSR.Subject.String())
 	return
 }
