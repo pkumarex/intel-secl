@@ -8,6 +8,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
+	log "github.com/sirupsen/logrus"
 	"io"
 
 	"os"
@@ -67,7 +68,12 @@ func (signingKey CreateSigningKey) Run() error {
 	if err != nil {
 		return errors.Wrap(err, "tasks/create_signing_keypair:Run() Error while creating a new public key")
 	}
-	defer publicKeyFile.Close()
+	defer func() {
+		derr := publicKeyFile.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing file")
+		}
+	}()
 
 	err = pem.Encode(publicKeyFile, publicKeyInPem)
 	if err != nil {

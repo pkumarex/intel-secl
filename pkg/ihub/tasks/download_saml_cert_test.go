@@ -5,6 +5,7 @@
 package tasks
 
 import (
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -19,7 +20,12 @@ import (
 func TestDownloadSamlCertValidate(t *testing.T) {
 
 	server, port := testutility.MockServer(t)
-	defer server.Close()
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			t.Errorf("Error closing mock server: %v",derr)
+		}
+	}()
 	time.Sleep(1 * time.Second)
 	c1 := testutility.SetupMockK8sConfiguration(t, port)
 	c2 := testutility.SetupMockK8sConfiguration(t, port)
@@ -30,8 +36,12 @@ func TestDownloadSamlCertValidate(t *testing.T) {
 	if err != nil {
 		t.Log("tasks/download_saml_cert_test:TestDownloadSamlCertValidate() : Unable to read file", err)
 	}
-	defer os.Remove(temp.Name())
-
+	defer func() {
+		derr := os.Remove(temp.Name())
+		if derr != nil {
+			log.WithError(derr).Error("Error removing file")
+		}
+	}()
 	tests := []struct {
 		name    string
 		d       DownloadSamlCert
@@ -64,15 +74,24 @@ func TestDownloadSamlCertValidate(t *testing.T) {
 
 func TestDownloadSamlCertRun(t *testing.T) {
 	server, port := testutility.MockServer(t)
-	defer server.Close()
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			t.Errorf("Error closing mock server: %v",derr)
+		}
+	}()
 	time.Sleep(1 * time.Second)
 
 	tempSamlFile, err := ioutil.TempFile("", "samlCert.pem")
 	if err != nil {
 		t.Errorf("tasks/download_saml_cert_test:TestDownloadSamlCertRun() unable to create samlecert.pem temp file %v", err)
 	}
-	defer os.Remove(tempSamlFile.Name())
-
+	defer func() {
+		derr := os.Remove(tempSamlFile.Name())
+		if derr != nil {
+			t.Errorf("Error removing file : %v", derr)
+		}
+	}()
 	tests := []struct {
 		name    string
 		d       DownloadSamlCert

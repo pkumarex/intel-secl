@@ -48,14 +48,25 @@ func (app *App) setup(args []string) error {
 	if err != nil {
 		return err
 	}
-	defer app.Config.SaveConfiguration(constants.DefaultConfigFilePath)
+	defer func() {
+		derr := app.Config.SaveConfiguration(constants.DefaultConfigFilePath)
+		if derr != nil {
+			log.WithError(derr).Error("Error closing response")
+		}
+	}()
 	cmd := args[1]
 	// print help and return if applicable
 	if len(args) > 2 && args[2] == "--help" {
 		if cmd == "all" {
-			runner.PrintAllHelp()
+			err = runner.PrintAllHelp()
+			if err != nil {
+				fmt.Fprintln(app.errorWriter(), "Error(s) encountered when printing help")
+			}
 		} else {
-			runner.PrintHelp(cmd)
+			err = runner.PrintHelp(cmd)
+			if err != nil {
+				fmt.Fprintln(app.errorWriter(), "Error(s) encountered when printing help")
+			}
 		}
 		return nil
 	}
@@ -65,7 +76,10 @@ func (app *App) setup(args []string) error {
 			fmt.Fprintln(app.errorWriter(), "Error(s) encountered when running all setup commands:")
 			for errCmd, failErr := range errCmds {
 				fmt.Fprintln(app.errorWriter(), errCmd+": "+failErr.Error())
-				runner.PrintHelp(errCmd)
+				err = runner.PrintHelp(errCmd)
+				if err != nil {
+					fmt.Fprintln(app.errorWriter(), "Error(s) encountered when printing help")
+				}
 			}
 			return errors.New("Failed to run all tasks")
 		}
@@ -73,7 +87,10 @@ func (app *App) setup(args []string) error {
 	} else {
 		if err = runner.Run(cmd, force); err != nil {
 			fmt.Fprintln(app.errorWriter(), cmd+": "+err.Error())
-			runner.PrintHelp(cmd)
+			err = runner.PrintHelp(cmd)
+			if err != nil {
+				fmt.Fprintln(app.errorWriter(), "Error(s) encountered when printing help")
+			}
 			return errors.New("Failed to run setup task " + cmd)
 		}
 	}

@@ -7,6 +7,7 @@ package testutility
 import (
 	"encoding/json"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -82,13 +83,19 @@ func MockServer(t *testing.T) (*http.Server, string) {
 	r.HandleFunc("/aas/token", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
-		w.Write([]byte(AASToken))
+		_, err := w.Write([]byte(AASToken))
+		if err != nil {
+			t.Log("test/test_utility:mockServer(): Unable to write data")
+		}
 	}).Methods("POST")
 
 	r.HandleFunc("/mtwilson/v2/invalid/reports", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
-		w.Write(nil)
+		_, err := w.Write(nil)
+		if err != nil {
+			t.Log("test/test_utility:mockServer(): Unable to write data")
+		}
 	}).Methods("GET")
 
 	r.HandleFunc("/mtwilson/v2/reports", func(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +105,10 @@ func MockServer(t *testing.T) (*http.Server, string) {
 		if err != nil {
 			t.Log("test/test_utility:mockServer(): Unable to read file", err)
 		}
-		w.Write(samlReport)
+		_, err = w.Write(samlReport)
+		if err != nil {
+			t.Log("test/test_utility:mockServer(): Unable to write data")
+		}
 	}).Methods("GET")
 
 	r.HandleFunc("/mtwilson/v2/ca-certificates", func(w http.ResponseWriter, r *http.Request) {
@@ -108,7 +118,10 @@ func MockServer(t *testing.T) (*http.Server, string) {
 		if err != nil {
 			t.Log("test/test_utility:mockServer(): Unable to read file", err)
 		}
-		w.Write(samlCertificate)
+		_, err = w.Write(samlCertificate)
+		if err != nil {
+			t.Log("test/test_utility:mockServer(): Unable to write data")
+		}
 	}).Methods("GET")
 
 	//K8s URLs
@@ -119,7 +132,10 @@ func MockServer(t *testing.T) (*http.Server, string) {
 		if err != nil {
 			t.Log("mockServer() : Unable to read file", err)
 		}
-		w.Write(customCRD)
+		_, err = w.Write(customCRD)
+		if err != nil {
+			t.Log("test/test_utility:mockServer(): Unable to write data")
+		}
 	}).Methods("GET")
 
 	//K8s URLs
@@ -127,7 +143,10 @@ func MockServer(t *testing.T) (*http.Server, string) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
 		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte(""))
+		_, err := w.Write([]byte(""))
+		if err != nil {
+			t.Log("test/test_utility:mockServer(): Unable to write data")
+		}
 	}).Methods("GET")
 
 	r.HandleFunc("/apis/crd.isecl.intel.com/v1beta1/namespaces/default/hostattributes/custom-isecl", func(w http.ResponseWriter, r *http.Request) {
@@ -147,7 +166,10 @@ func MockServer(t *testing.T) (*http.Server, string) {
 		if err != nil {
 			t.Log("mockServer() : Unable to read file", err)
 		}
-		w.Write(listOfNodes)
+		_, err = w.Write(listOfNodes)
+		if err != nil {
+			t.Log("test/test_utility:mockServer(): Unable to write data")
+		}
 	}).Methods("GET")
 
 	r.HandleFunc("/apis", func(w http.ResponseWriter, r *http.Request) {
@@ -157,13 +179,19 @@ func MockServer(t *testing.T) (*http.Server, string) {
 		if err != nil {
 			t.Log("mockServer() : Unable to read file", err)
 		}
-		w.Write([]byte(customCRD))
+		_, err = w.Write(customCRD)
+		if err != nil {
+			t.Log("test/test_utility:mockServer(): Unable to write data")
+		}
 	}).Methods("GET")
 
 	//Openstack Listeners
 	r.HandleFunc("/v3/auth/tokens", func(w http.ResponseWriter, r *http.Request) {
 		var auth openstackClient.Authorization
-		json.NewDecoder(r.Body).Decode(&auth)
+		err := json.NewDecoder(r.Body).Decode(&auth)
+		if err != nil {
+			t.Log("test/test_utility:mockServer(): Unable to decode auth")
+		}
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
 		if OpenstackUserName == auth.Auth.Identity.Password.User.Name && OpenstackPassword == auth.Auth.Identity.Password.User.Password {
@@ -172,11 +200,17 @@ func MockServer(t *testing.T) (*http.Server, string) {
 			if err != nil {
 				t.Log("mockServer() : Unable to read file", err)
 			}
-			w.Write(authenticationResponse)
+			_, err = w.Write(authenticationResponse)
+			if err != nil {
+				t.Log("test/test_utility:mockServer(): Unable to write data")
+			}
 			w.WriteHeader(201)
 		} else {
 			w.Header().Set("X-Subject-Token", "")
-			w.Write([]byte(""))
+			_, err := w.Write([]byte(""))
+			if err != nil {
+				t.Log("test/test_utility:mockServer(): Unable to write data")
+			}
 			w.WriteHeader(401)
 		}
 	}).Methods("POST")
@@ -189,7 +223,10 @@ func MockServer(t *testing.T) (*http.Server, string) {
 			if err != nil {
 				t.Log("mockServer() : Unable to read file", err)
 			}
-			w.Write(openstackResources)
+			_, err = w.Write(openstackResources)
+			if err != nil {
+				t.Log("test/test_utility:mockServer(): Unable to write data")
+			}
 			w.WriteHeader(200)
 		} else {
 			w.WriteHeader(401)
@@ -204,7 +241,10 @@ func MockServer(t *testing.T) (*http.Server, string) {
 			if err != nil {
 				t.Log("mockServer() : Unable to read file", err)
 			}
-			w.Write(resourceTraits)
+			_, err = w.Write(resourceTraits)
+			if err != nil {
+				t.Log("test/test_utility:mockServer(): Unable to write data")
+			}
 			w.WriteHeader(200)
 		} else {
 			w.WriteHeader(401)
@@ -219,7 +259,10 @@ func MockServer(t *testing.T) (*http.Server, string) {
 			if err != nil {
 				t.Log("mockServer() : Unable to read file", err)
 			}
-			w.Write(resourceTraits)
+			_, err = w.Write(resourceTraits)
+			if err != nil {
+				t.Log("test/test_utility:mockServer(): Unable to write data")
+			}
 			w.WriteHeader(200)
 		} else {
 			w.WriteHeader(401)
@@ -234,7 +277,10 @@ func MockServer(t *testing.T) (*http.Server, string) {
 			if err != nil {
 				t.Log("mockServer() : Unable to read file", err)
 			}
-			w.Write(allTraits)
+			_, err = w.Write(allTraits)
+			if err != nil {
+				t.Log("test/test_utility:mockServer(): Unable to write data")
+			}
 			w.WriteHeader(200)
 		} else {
 			w.WriteHeader(401)
@@ -249,7 +295,10 @@ func MockServer(t *testing.T) (*http.Server, string) {
 		if err != nil {
 			t.Log("test/test_utility:mockServer(): Unable to read file", err)
 		}
-		w.Write(SGXPlatformData)
+		_, err = w.Write(SGXPlatformData)
+		if err != nil {
+			t.Log("test/test_utility:mockServer(): Unable to write data")
+		}
 	}).Methods("GET")
 
 	r.HandleFunc("/sgx-hvs/v1/platform-data?HostName=worker-node1", func(w http.ResponseWriter, r *http.Request) {
@@ -260,7 +309,10 @@ func MockServer(t *testing.T) (*http.Server, string) {
 		if err != nil {
 			t.Log("test/test_utility:mockServer(): Unable to read file", err)
 		}
-		w.Write(SGXPlatformData)
+		_, err = w.Write(SGXPlatformData)
+		if err != nil {
+			t.Log("test/test_utility:mockServer(): Unable to write data")
+		}
 	}).Methods("GET")
 
 	r.HandleFunc("/sgx-hvs/v1/noauth/version", func(w http.ResponseWriter, r *http.Request) {
@@ -299,7 +351,13 @@ func ServeController(t *testing.T, r http.Handler) (*http.Server, string) {
 func SetupMockK8sConfiguration(t *testing.T, port string) *config.Configuration {
 
 	temp, _ := ioutil.TempFile("", "config.yml")
-	defer os.Remove(temp.Name())
+	var err error
+	defer func() {
+		derr := os.Remove(temp.Name())
+		if derr != nil {
+			log.WithError(derr).Errorf("Error removing file")
+		}
+	}()
 	c, _ := config.LoadConfiguration()
 	c.AAS.URL = "http://localhost" + port + "/aas"
 	c.IHUB.Username = "admin@hub"
@@ -312,7 +370,10 @@ func SetupMockK8sConfiguration(t *testing.T, port string) *config.Configuration 
 	c.Endpoint.CertFile = K8scertFilePath
 	c.Endpoint.Token = K8sToken
 
-	c.SaveConfiguration(c.ConfigFile)
+	err = c.SaveConfiguration(c.ConfigFile)
+	if err != nil {
+		log.WithError(err).Errorf("Error saving configuration")
+	}
 
 	return c
 
@@ -322,7 +383,13 @@ func SetupMockK8sConfiguration(t *testing.T, port string) *config.Configuration 
 func SetupMockOpenStackConfiguration(t *testing.T, port string) *config.Configuration {
 
 	temp, _ := ioutil.TempFile("", "config.yml")
-	defer os.Remove(temp.Name())
+	var err error
+	defer func() {
+		derr := os.Remove(temp.Name())
+		if derr != nil {
+			log.WithError(derr).Errorf("Error removing file")
+		}
+	}()
 	c, _ := config.LoadConfiguration()
 	c.AAS.URL = "http://localhost" + port + "/aas"
 	c.IHUB.Username = "admin@hub"
@@ -333,8 +400,10 @@ func SetupMockOpenStackConfiguration(t *testing.T, port string) *config.Configur
 	c.Endpoint.UserName = OpenstackUserName
 	c.Endpoint.Password = OpenstackPassword
 
-	c.SaveConfiguration(c.ConfigFile)
-
+	err = c.SaveConfiguration(c.ConfigFile)
+	if err != nil {
+		log.WithError(err).Errorf("Error saving configuration")
+	}
 	return c
 
 }

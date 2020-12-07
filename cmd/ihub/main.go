@@ -70,8 +70,18 @@ func main() {
 			LogWriter: os.Stdout,
 		}
 	} else {
-		defer logFile.Close()
-		defer secLogFile.Close()
+		defer func() {
+			err = logFile.Close()
+			if err != nil {
+				fmt.Println("Failed close log file:", err.Error())
+			}
+		}()
+		defer func() {
+			err = secLogFile.Close()
+			if err != nil {
+				fmt.Println("Failed close log file:", err.Error())
+			}
+		}()
 		app = &ihub.App{
 			LogWriter:     logFile,
 			SecLogWriter:  secLogFile,

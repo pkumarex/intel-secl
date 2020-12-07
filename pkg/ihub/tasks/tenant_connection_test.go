@@ -21,7 +21,13 @@ func TestTenantConnectionRun(t *testing.T) {
 
 	server, portString := testutility.MockServer(t)
 	port := strings.Trim(portString, ":")
-	defer server.Close()
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			t.Errorf("Error closing mock server: %v",derr)
+		}
+	}()
+
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	viper.AutomaticEnv()
 
@@ -274,7 +280,12 @@ func TestTenantConnectionRun(t *testing.T) {
 			if err != nil {
 				t.Log("tasks/tenant_connection_test:TestTenantConnectionRun(): Error in Reading Config File")
 			}
-			defer os.Remove(temp.Name())
+			defer func() {
+				derr := os.Remove(temp.Name())
+				if derr != nil {
+					t.Errorf("Error removing file :%v", derr)
+				}
+			}()
 			conf, _ := config.LoadConfiguration()
 			tt.tenantConnection.TenantConfig = &conf.Endpoint
 
@@ -290,7 +301,12 @@ func TestTenantConnectionRun(t *testing.T) {
 func TestTenantConnectionValidate(t *testing.T) {
 
 	server, portString := testutility.MockServer(t)
-	defer server.Close()
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			t.Errorf("Error closing mock server: %v",derr)
+		}
+	}()
 
 	k8sConfig := testutility.SetupMockK8sConfiguration(t, portString)
 
@@ -355,7 +371,12 @@ func TestTenantConnectionValidate(t *testing.T) {
 func TestTenantConnection_validateService(t *testing.T) {
 
 	server, portString := testutility.MockServer(t)
-	defer server.Close()
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			t.Errorf("Error closing mock server: %v",derr)
+		}
+	}()
 
 	openstackConfig := testutility.SetupMockOpenStackConfiguration(t, portString)
 	k8sConfig := testutility.SetupMockK8sConfiguration(t, portString)

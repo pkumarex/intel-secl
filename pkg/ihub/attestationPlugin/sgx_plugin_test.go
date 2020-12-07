@@ -16,7 +16,12 @@ import (
 
 func TestGetHostReportsSGX(t *testing.T) {
 	server, port := testutility.MockServer(t)
-	defer server.Close()
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			t.Errorf("Error closing mock server: %v",derr)
+		}
+	}()
 
 	output, err := ioutil.ReadFile("../../ihub/test/resources/sgx_platform_data.json")
 	if err != nil {
@@ -72,7 +77,12 @@ func TestGetHostReportsSGX(t *testing.T) {
 func TestGetSHVSVersion(t *testing.T) {
 
 	server, port := testutility.MockServer(t)
-	defer server.Close()
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			t.Errorf("Error closing mock server: %v",derr)
+		}
+	}()
 
 	type args struct {
 		config *config.Configuration
@@ -114,7 +124,12 @@ func TestGetSHVSVersion(t *testing.T) {
 
 func Test_initializeSKCClient(t *testing.T) {
 	server, port := testutility.MockServer(t)
-	defer server.Close()
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			t.Errorf("Error closing mock server: %v",derr)
+		}
+	}()
 
 	type args struct {
 		con           *config.Configuration

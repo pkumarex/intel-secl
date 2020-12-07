@@ -6,6 +6,7 @@ package config
 
 import (
 	"github.com/intel-secl/intel-secl/v3/pkg/ihub/constants"
+	log "github.com/sirupsen/logrus"
 	"os"
 
 	commConfig "github.com/intel-secl/intel-secl/v3/pkg/lib/common/config"
@@ -70,7 +71,12 @@ func (c *Configuration) SaveConfiguration(filename string) error {
 	if err != nil {
 		return errors.Wrap(err, "Failed to create config file")
 	}
-	defer configFile.Close()
+	defer func() {
+		derr := configFile.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing file")
+		}
+	}()
 	err = yaml.NewEncoder(configFile).Encode(c)
 	if err != nil {
 		return errors.Wrap(err, "Failed to encode config structure")

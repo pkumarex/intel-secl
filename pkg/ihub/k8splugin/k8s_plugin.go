@@ -96,7 +96,12 @@ func GetHosts(k8sDetails *KubernetesDetails) error {
 		return errors.Wrap(err, "k8splugin/k8s_plugin:GetHosts() : Error in getting the Hosts from kubernetes")
 	}
 
-	defer res.Body.Close()
+	defer func() {
+		derr := res.Body.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing response")
+		}
+	}()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return errors.Wrap(err, "k8splugin/k8s_plugin:GetHosts() : Error in Reading the Response")
@@ -251,7 +256,12 @@ func UpdateCRD(k8sDetails *KubernetesDetails) error {
 	}
 	var crdResponse model.CRD
 	if res.StatusCode == http.StatusOK {
-		defer res.Body.Close()
+		defer func() {
+			derr := res.Body.Close()
+			if derr != nil {
+				log.WithError(derr).Error("Error closing response")
+			}
+		}()
 		body, err := ioutil.ReadAll(res.Body)
 		if err != nil {
 			return errors.Wrap(err, "k8splugin/k8s_plugin:UpdateCRD() : Error in Reading Response body")
@@ -371,7 +381,12 @@ func PutCRD(k8sDetails *KubernetesDetails, crd *model.CRD) error {
 		return errors.Wrap(err, "k8splugin/k8s_plugin:PutCRD() Error in creating CRD")
 	}
 
-	defer res.Body.Close()
+	defer func() {
+		derr := res.Body.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing response")
+		}
+	}()
 
 	return nil
 }

@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	log "github.com/sirupsen/logrus"
 	"reflect"
 	"time"
 
@@ -65,7 +66,7 @@ func NewFakeKeyTransferPolicyStore() *MockKeyTransferPolicyStore {
 	store := &MockKeyTransferPolicyStore{}
 	store.KeyTransferPolicyStore = make(map[uuid.UUID]*kbs.KeyTransferPolicyAttributes)
 
-	store.Create(&kbs.KeyTransferPolicyAttributes{
+	_, err := store.Create(&kbs.KeyTransferPolicyAttributes{
 		ID:                                uuid.MustParse("ee37c360-7eae-4250-a677-6ee12adce8e2"),
 		CreatedAt:                         time.Now().UTC(),
 		SGXEnclaveIssuerAnyof:             []string{"cd171c56941c6ce49690b455f691d9c8a04c2e43e0a4d30f752fa5285c7ee57f"},
@@ -78,8 +79,11 @@ func NewFakeKeyTransferPolicyStore() *MockKeyTransferPolicyStore {
 		AttestationTypeAnyof:              []string{"SGX"},
 		TLSClientCertificateSANAllof:      []string{"nginx","USA"},
 	})
+	if err != nil {
+		log.WithError(err).Errorf("Error creating key transfer properties")
+	}
 
-	store.Create(&kbs.KeyTransferPolicyAttributes{
+	_, err = store.Create(&kbs.KeyTransferPolicyAttributes{
 		ID:                                uuid.MustParse("73755fda-c910-46be-821f-e8ddeab189e9"),
 		CreatedAt:                         time.Now().UTC(),
 		SGXEnclaveIssuerAnyof:             []string{"cd171c56941c6ce49690b455f691d9c8a04c2e43e0a4d30f752fa5285c7ee57f"},
@@ -92,6 +96,9 @@ func NewFakeKeyTransferPolicyStore() *MockKeyTransferPolicyStore {
 		AttestationTypeAnyof:              []string{"SGX"},
 		TLSClientCertificateSANAllof:      []string{"nginx","USA"},
 	})
+	if err != nil {
+		log.WithError(err).Errorf("Error creating key transfer properties")
+	}
 
 	return store
 }

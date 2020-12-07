@@ -70,7 +70,12 @@ func GetHostsFromOpenstack(openstackDetails *OpenstackDetails) error {
 	if err != nil {
 		return errors.Wrap(err, "openstackplugin/openstack_plugin:GetHostsFromOpenstack()  Error in getting the list of hosts from Openstack")
 	}
-	defer res.Body.Close()
+	defer func() {
+		derr := res.Body.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing response")
+		}
+	}()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return errors.Wrap(err, "openstackplugin/openstack_plugin:GetHostsFromOpenstack()  Error in reading the host details body")
@@ -275,7 +280,12 @@ func getTraitsForResource(hostDetails *HostDetails, openstackDetails *OpenstackD
 	if err != nil {
 		return errors.Wrap(err, "openstackplugin/openstack_plugin:getTraitsForResource() : Error in getting traits for the Resources")
 	}
-	defer res.Body.Close()
+	defer func() {
+		derr := res.Body.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing response")
+		}
+	}()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return errors.Wrap(err, "openstackplugin/openstack_plugin:getTraitsForResource() Error in reading response while getting traits for the Resources")
@@ -423,7 +433,12 @@ func getAllCustomTraits(openstackDetails *OpenstackDetails) error {
 		return errors.Wrap(err, "openstackplugin/openstack_plugin:getAllCustomTraits() : Error in retrieving all the custom triats in Openstack")
 	}
 
-	defer res.Body.Close()
+	defer func() {
+		derr := res.Body.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing response")
+		}
+	}()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return errors.Wrap(err, "openstackplugin/openstack_plugin:getAllCustomTraits() : Error in reading the Openstack custom traits")
@@ -476,7 +491,12 @@ func deleteNonAssociatedTraits(openstackDetails *OpenstackDetails) error {
 		if err != nil {
 			return errors.Wrap(err, "openstackplugin/openstack_plugin:deleteNonAssociatedTraits() : Error in deleting the non associated traits")
 		}
-		defer res.Body.Close()
+		defer func() {
+			derr := res.Body.Close()
+			if derr != nil {
+				log.WithError(derr).Error("Error closing response")
+			}
+		}()
 		log.Debug("openstackplugin/openstack_plugin:deleteNonAssociatedTraits() checking the delete status of non associated traits")
 		if res.StatusCode == http.StatusConflict {
 			log.Debug("openstackplugin/openstack_plugin:deleteNonAssociatedTraits() The trait " + trait + " is in use by a resource provider.Hence, Skipping the delete.")

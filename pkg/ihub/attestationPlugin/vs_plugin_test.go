@@ -35,7 +35,12 @@ func TestGetHostReports(t *testing.T) {
 	samlReport := &saml.Saml{}
 	err = xml.Unmarshal(report, samlReport)
 
-	defer server.Close()
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			t.Errorf("Error closing mock server: %v",derr)
+		}
+	}()
 	type args struct {
 		h string
 		c *config.Configuration
@@ -150,7 +155,12 @@ func TestGetCaCerts(t *testing.T) {
 
 	server, portString := testutility.MockServer(t)
 
-	defer server.Close()
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			t.Errorf("Error closing mock server: %v",derr)
+		}
+	}()
 
 	type args struct {
 		domain        string
@@ -255,8 +265,12 @@ func Test_initializeCert(t *testing.T) {
 
 func Test_initializeClient(t *testing.T) {
 	server, portString := testutility.MockServer(t)
-	defer server.Close()
-
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			t.Errorf("Error closing mock server: %v",derr)
+		}
+	}()
 	type args struct {
 		con           *config.Configuration
 		certDirectory string

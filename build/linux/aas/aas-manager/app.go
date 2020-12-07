@@ -13,6 +13,7 @@ import (
 	claas "github.com/intel-secl/intel-secl/v3/pkg/clients/aas"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/aas"
 	"github.com/joho/godotenv"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"math/big"
 	"os"
@@ -104,7 +105,7 @@ func RandomString(n int) string {
 	for i := range b {
 		randRange, err := rand.Int(rand.Reader, big.NewInt(int64(len(letter))))
 		if err != nil {
-			fmt.Errorf("Error getting a random index for a character to create random string")
+			log.WithError(err).Error("Error getting a random index for a character to create random string")
 			return ""
 		}
 		b[i] = letter[randRange.Int64()]
@@ -352,7 +353,12 @@ func (a *App) LoadUserAndRolesJson(file string) (*AasUsersAndRolesSetup, error) 
 	if err != nil {
 		return nil, fmt.Errorf("cannot read user role files %s : ", file)
 	}
-	defer f.Close()
+	defer func() {
+		derr := f.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing file")
+		}
+	}()
 
 	dec := json.NewDecoder(f)
 	dec.DisallowUnknownFields()

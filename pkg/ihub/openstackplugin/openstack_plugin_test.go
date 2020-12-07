@@ -29,7 +29,12 @@ func TestGetHostsFromOpenStack(t *testing.T) {
 
 	server, port := testutility.MockServer(t)
 
-	defer server.Close()
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			t.Errorf("Error closing mock server: %v",derr)
+		}
+	}()
 
 	configuration := config.Configuration{}
 	openstackIP := "localhost"
@@ -98,7 +103,12 @@ func TestGetHostsFromOpenStack(t *testing.T) {
 func mockGetHostReports(h string, c *config.Configuration, t *testing.T) (*saml.Saml, error) {
 	server, port := testutility.MockServer(t)
 
-	defer server.Close()
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			t.Errorf("Error closing mock server: %v",derr)
+		}
+	}()
 
 	url := "http://localhost" + port + "/mtwilson/v2/reports?latestPerHost=true&hostName=%s"
 	method := "GET"
@@ -123,7 +133,12 @@ func mockGetHostReports(h string, c *config.Configuration, t *testing.T) (*saml.
 		return nil, errors.Wrap(err, "openstackplugin/openstack_plugin_test:mockGetHostReports() Error in invoking calls")
 	}
 
-	defer res.Body.Close()
+	defer func() {
+		derr := res.Body.Close()
+		if derr != nil {
+			t.Errorf("Error closing response: %v", derr)
+		}
+	}()
 	body, err := ioutil.ReadAll(res.Body)
 
 	samlReport := &saml.Saml{}
@@ -135,7 +150,12 @@ func mockGetHostReports(h string, c *config.Configuration, t *testing.T) (*saml.
 func TestOpenstackPluginInit(t *testing.T) {
 	server, port := testutility.MockServer(t)
 
-	defer server.Close()
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			t.Errorf("Error closing mock server: %v",derr)
+		}
+	}()
 
 	tests := []struct {
 		name          string
@@ -227,7 +247,12 @@ func TestOpenstackPluginInit(t *testing.T) {
 func Test_deleteNonAssociatedTraits(t *testing.T) {
 
 	server, port := testutility.MockServer(t)
-	defer server.Close()
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			t.Errorf("Error closing mock server: %v",derr)
+		}
+	}()
 
 	openstackIP := "localhost"
 

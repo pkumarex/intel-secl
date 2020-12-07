@@ -19,15 +19,10 @@ type VersionController struct {
 }
 
 //GetVersion : Function to get version of kbs
-func (vc VersionController) GetVersion() http.HandlerFunc {
+func (controller VersionController) GetVersion(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	defaultLog.Trace("controllers/version_controller:GetVersion() Entering")
 	defer defaultLog.Trace("controllers/version_controller:GetVersion() Leaving")
-
-	return http.HandlerFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
-
-		verStr := fmt.Sprintf("%s-%s", version.Version, version.GitHash)
-		responseWriter.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
-		responseWriter.WriteHeader(http.StatusOK)
-		responseWriter.Write([]byte(verStr))
-	})
+	verStr := fmt.Sprintf("%s-%s", version.Version, version.GitHash)
+	w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
+	return verStr, http.StatusOK, nil
 }
