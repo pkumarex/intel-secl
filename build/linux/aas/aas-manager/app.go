@@ -605,12 +605,23 @@ func (a *App) Setup(args []string) error {
 		fmt.Println("\n\nWrting Output to json file - ", jsonOut)
 		outFile, err := os.OpenFile(jsonOut, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0)
 		if err != nil {
-			fmt.Errorf("could not open output json file - %s for writing", jsonOut)
+			fmt.Println("could not open output json file - %s for writing" + jsonOut)
 		}
-		defer outFile.Close()
+		defer func() {
+			derr := outFile.Close()
+			if derr != nil {
+				fmt.Println("Error closing file" + derr.Error())
+			}
+		}()
 		enc := json.NewEncoder(outFile)
 		enc.SetIndent("", "    ")
-		enc.Encode(as)
+		err = enc.Encode(as)
+		if err != nil {
+			err = fmt.Errorf("could not encode data - %s", err.Error())
+			if err != nil {
+				fmt.Println("\n Error printing errors")
+			}
+		}
 	}
 	return nil
 

@@ -88,8 +88,10 @@ func (db *Database) Run() error {
 	if err != nil {
 		return errors.Wrap(err, "Failed to connect database")
 	}
-	dataStore.Migrate()
-
+	err = dataStore.Migrate()
+	if err != nil {
+		return errors.Wrap(err, "Failed to migrate database")
+	}
 	return nil
 }
 
@@ -165,7 +167,6 @@ func (db *Database) Validate() error {
 	if _, err := postgres.New(pgConfig(db.DBConfigPtr)); err != nil {
 		return errors.Wrap(err, "Failed to connect database")
 	}
-	return nil
 	return nil
 }
 

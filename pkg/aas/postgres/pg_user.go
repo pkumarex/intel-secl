@@ -18,7 +18,6 @@ type PostgresUserStore struct {
 }
 
 func (r *PostgresUserStore) Create(u types.User) (*types.User, error) {
-
 	defaultLog.Trace("user Create")
 	defer defaultLog.Trace("user Create done")
 
@@ -36,7 +35,6 @@ func (r *PostgresUserStore) Create(u types.User) (*types.User, error) {
 }
 
 func (r *PostgresUserStore) Retrieve(u types.User) (*types.User, error) {
-
 	defaultLog.Trace("user Retrieve")
 	defer defaultLog.Trace("user Retrieve done")
 
@@ -48,7 +46,6 @@ func (r *PostgresUserStore) Retrieve(u types.User) (*types.User, error) {
 }
 
 func (r *PostgresUserStore) RetrieveAll(u types.User) (types.Users, error) {
-
 	defaultLog.Trace("user RetrieveAll")
 	defer defaultLog.Trace("user RetrieveAll done")
 
@@ -70,7 +67,6 @@ func (r *PostgresUserStore) Update(u types.User) error {
 }
 
 func (r *PostgresUserStore) Delete(u types.User) error {
-
 	defaultLog.Trace("user Delete")
 	defer defaultLog.Trace("user Delete done")
 	if err := r.db.Model(&u).Association("Roles").Clear().Error; err != nil {
@@ -83,7 +79,6 @@ func (r *PostgresUserStore) Delete(u types.User) error {
 }
 
 func (r *PostgresUserStore) GetRoles(u types.User, rs *types.RoleSearch, includeID bool) (userRoles []types.Role, err error) {
-
 	defaultLog.Trace("user GetRoles")
 	defer defaultLog.Trace("user GetRoles done")
 
@@ -110,7 +105,6 @@ func (r *PostgresUserStore) GetRoles(u types.User, rs *types.RoleSearch, include
 // for now
 
 func (r *PostgresUserStore) GetPermissions(u types.User, rs *types.RoleSearch) (userPerms []ct.PermissionInfo, err error) {
-
 	defaultLog.Trace("user GetPermissions")
 	defer defaultLog.Trace("user GetPermissions done")
 
@@ -161,7 +155,6 @@ func (r *PostgresUserStore) GetPermissions(u types.User, rs *types.RoleSearch) (
 }
 
 func (r *PostgresUserStore) AddRoles(u types.User, roles types.Roles, mustAddAllRoles bool) error {
-
 	defaultLog.Trace("user AddRoles")
 	defer defaultLog.Trace("user AddRoles done")
 
@@ -186,7 +179,6 @@ func (r *PostgresUserStore) GetUserRoleByID(u types.User, roleID string) (types.
 }
 
 func (r *PostgresUserStore) DeleteRole(u types.User, roleID string, svcFltr []string) error {
-
 	defaultLog.Trace("user DeleteRole")
 	defer defaultLog.Trace("user DeleteRole done")
 
