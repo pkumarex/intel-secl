@@ -174,7 +174,10 @@ func (v *Verifier) validateCachedFlavors(hostId uuid.UUID,
 		}
 	}
 	// remove cache entries for flavors that could not be verified
-	_ = v.HostStore.RemoveTrustCacheFlavors(hostId, trustCachesToDelete)
+	err := v.HostStore.RemoveTrustCacheFlavors(hostId, trustCachesToDelete)
+	if err != nil {
+		return hostTrustCache{}, errors.Wrap(err, "could not remove trust cache flavors")
+	}
 	htc.trustReport = collectiveReport
 	return htc, nil
 }

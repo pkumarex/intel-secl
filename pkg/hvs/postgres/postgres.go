@@ -151,6 +151,9 @@ func (ds *DataStore) Close() {
 	defer defaultLog.Trace("postgres/postgres:Close() Leaving")
 
 	if ds.Db != nil {
-		ds.Db.Close()
+		err := ds.Db.Close()
+		if err != nil {
+			defaultLog.WithError(err).Errorf("Error closing DB connection")
+		}
 	}
 }

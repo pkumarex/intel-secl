@@ -422,7 +422,10 @@ func (store *MockFlavorStore) Search(criteria *models.FlavorVerificationFC) ([]h
 			f, _ := store.Retrieve(fId)
 			if f != nil {
 				var flvrPart cf.FlavorPart
-				(&flvrPart).Parse(f.Flavor.Meta.Description.FlavorPart)
+				err := (&flvrPart).Parse(f.Flavor.Meta.Description.FlavorPart)
+				if err != nil {
+					defaultLog.WithError(err).Errorf("Error parsing Flavor part")
+				}
 				if f, _ := store.Retrieve(fId); flavorPartsWithLatestMap[flvrPart] == true {
 					sfs = append(sfs, *f)
 				}
@@ -443,64 +446,6 @@ func (store *MockFlavorStore) Create(sf *hvs.SignedFlavor) (*hvs.SignedFlavor, e
 	return sf, nil
 }
 
-/*
-func (store *MockFlavorStore) GetFlavorTypesInFlavorgroup(flvGrpId uuid.UUID, flvParts []cf.FlavorPart) (map[cf.FlavorPart]bool, error) {
-	flavorTypesInFlavorGroup := make(map[cf.FlavorPart]bool)
-
-	if flvParts == nil || len(flvParts) == 0 {
-		flvParts = cf.GetFlavorTypes()
-	}
-	for _, flvrPart := range flvParts {
-		if store.flavorgroupContainsFlavorType(flvrPart, flvGrpId) {
-			flavorTypesInFlavorGroup[flvrPart] = true
-		}
-	}
-
-	return flavorTypesInFlavorGroup, nil
-}
-
-
-func (store *MockFlavorStore) flavorgroupContainsFlavorType(flvrPart cf.FlavorPart, fgId uuid.UUID) bool {
-	fgStore := store.FlavorgroupStore
-	flvrMap := make(map[uuid.UUID]hvs.SignedFlavor)
-
-	//Get flavors for given flavor part and store it in flvrMap
-	for _, flvr := range store.flavorStore {
-		if flvr.Flavor.Meta.Description.FlavorPart == flvrPart.String() {
-			flvrMap[flvr.Flavor.Meta.ID] = flvr
-		}
-	}
-
-	if len(flvrMap) == 0 {
-		return false
-	}
-
-	found := false
-	//if flavorgroup is found for given flavorgroup id then search through matchpolicies for given flavorpart
-	//if found then get the flavor id and check flavor id exists in flvrMap as key, if key exists then return true.
-	if _, ok := fgStore[fgId]; ok {
-		policies := fgStore[fgId].MatchPolicies
-		for _, policy := range policies {
-			if policy.FlavorPart == flvrPart {
-				found = true
-				break
-			}
-		}
-
-		if found {
-			if flvrIds, ok := store.FlavorFlavorGroupStore[fgId]; ok {
-				for _, fId := range flvrIds {
-					if _, ok := flvrMap[fId]; ok {
-						return true
-					}
-				}
-			}
-		}
-	}
-
-	return false
-}
-*/
 
 // NewMockFlavorStore provides one dummy data for Flavors
 func NewMockFlavorStore() *MockFlavorStore {
@@ -511,7 +456,10 @@ func NewMockFlavorStore() *MockFlavorStore {
 	fmt.Println("error: ", err)
 
 	// add to store
-	store.Create(&sf)
+	_, err = store.Create(&sf)
+	if err != nil {
+		defaultLog.WithError(err).Errorf("Error creating Flavor")
+	}
 	return store
 }
 
@@ -521,9 +469,15 @@ func NewFakeFlavorStoreWithAllFlavors(flavorFilePath string) *MockFlavorStore {
 
 	flavorsJSON, _ := ioutil.ReadFile(flavorFilePath)
 
-	json.Unmarshal(flavorsJSON, &signedFlavors)
+	err := json.Unmarshal(flavorsJSON, &signedFlavors)
+	if err != nil {
+		defaultLog.WithError(err).Errorf("Error unmarshalling flavor")
+	}
 	for _, flvr := range signedFlavors {
-		store.Create(&flvr)
+		_, err = store.Create(&flvr)
+		if err != nil {
+			defaultLog.WithError(err).Errorf("Error creating Flavor")
+		}
 	}
 	return store
 }

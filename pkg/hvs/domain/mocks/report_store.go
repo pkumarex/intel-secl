@@ -140,10 +140,13 @@ func NewMockReportStore() *MockReportStore {
 	saml1text, _ := ioutil.ReadFile("../domain/mocks/resources/saml_report")
 	trustReportBytes, _ := ioutil.ReadFile("../domain/mocks/resources/trust_report.json")
 	var trustReport hvs.TrustReport
-	json.Unmarshal(trustReportBytes, &trustReport)
+	err := json.Unmarshal(trustReportBytes, &trustReport)
+	if err != nil {
+		defaultLog.WithError(err).Errorf("Error unmarshalling trust report")
+	}
 	created, _ := time.Parse(constants.ParamDateTimeFormat, "2020-06-21 07:18:00.57")
 	expiration, _ := time.Parse(constants.ParamDateTimeFormat, "2020-06-22 07:18:00.57")
-	store.Create(&models.HVSReport{
+	_, err = store.Create(&models.HVSReport{
 		ID:          uuid.MustParse("15701f03-7b1d-49f9-ac62-6b9b0728bdb3"),
 		HostID:      uuid.MustParse("ee37c360-7eae-4250-a677-6ee12adce8e2"),
 		CreatedAt:   created,
@@ -151,8 +154,11 @@ func NewMockReportStore() *MockReportStore {
 		Saml:        string(saml1text),
 		TrustReport: trustReport,
 	})
+	if err != nil {
+		defaultLog.WithError(err).Errorf("Error creating Trust Report")
+	}
 
-	store.Create(&models.HVSReport{
+	_, err = store.Create(&models.HVSReport{
 		ID:          uuid.MustParse("15701f03-7b1d-49f9-ac62-6b9b0728bdb4"),
 		HostID:      uuid.MustParse("e57e5ea0-d465-461e-882d-1600090caa0d"),
 		CreatedAt:   created,
@@ -160,7 +166,9 @@ func NewMockReportStore() *MockReportStore {
 		Saml:        string(saml1text),
 		TrustReport: trustReport,
 	})
-
+	if err != nil {
+		defaultLog.WithError(err).Errorf("Error creating Trust Report")
+	}
 	return store
 }
 

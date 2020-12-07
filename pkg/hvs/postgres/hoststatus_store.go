@@ -92,7 +92,12 @@ func (hss *HostStatusStore) Search(hsFilter *models.HostStatusFilterCriteria) ([
 		if err != nil {
 			return nil, errors.Wrap(err, "postgres/hoststatus_store:Search() failed to retrieve records from db")
 		}
-		defer rows.Close()
+		defer func() {
+			derr := rows.Close()
+			if derr != nil {
+				defaultLog.WithError(derr).Error("Error closing rows")
+			}
+		}()
 
 		for rows.Next() {
 			var result hvs.HostStatus
@@ -112,7 +117,12 @@ func (hss *HostStatusStore) Search(hsFilter *models.HostStatusFilterCriteria) ([
 		if err != nil {
 			return nil, errors.Wrap(err, "postgres/hoststatus_store:Search() failed to retrieve records from db")
 		}
-		defer rows.Close()
+		defer func() {
+			derr := rows.Close()
+			if derr != nil {
+				defaultLog.WithError(derr).Error("Error closing rows")
+			}
+		}()
 
 		for rows.Next() {
 			result := models.AuditLogEntry{}
@@ -213,7 +223,12 @@ func (hss *HostStatusStore) FindHostIdsByKeyValue(key, value string) ([]uuid.UUI
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/hoststatus_store:FindHostIdsByKeyValue() failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	var ids []uuid.UUID
 	for rows.Next() {

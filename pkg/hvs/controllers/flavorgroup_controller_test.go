@@ -38,16 +38,16 @@ var _ = Describe("FlavorgroupController", func() {
 		flavorStore = mocks2.NewMockFlavorStore()
 		hostStore = mocks2.NewMockHostStore()
 
-		flavorgroupStore.AddFlavors(uuid.MustParse("e57e5ea0-d465-461e-882d-1600090caa0d"),
+		_, err := flavorgroupStore.AddFlavors(uuid.MustParse("e57e5ea0-d465-461e-882d-1600090caa0d"),
 			[]uuid.UUID{
 				uuid.MustParse("c36b5412-8c02-4e08-8a74-8bfa40425cf3"),
 			})
-
-		flavorgroupStore.AddFlavors(uuid.MustParse("ee37c360-7eae-4250-a677-6ee12adce8e2"),
+		Expect(err).NotTo(HaveOccurred())
+		_, err = flavorgroupStore.AddFlavors(uuid.MustParse("ee37c360-7eae-4250-a677-6ee12adce8e2"),
 			[]uuid.UUID{
 				uuid.MustParse("c36b5412-8c02-4e08-8a74-8bfa40425cf3"),
 			})
-
+		Expect(err).NotTo(HaveOccurred())
 		flavorgroupController = &controllers.FlavorgroupController{
 			FlavorGroupStore: flavorgroupStore,
 			FlavorStore:      flavorStore,
@@ -70,7 +70,8 @@ var _ = Describe("FlavorgroupController", func() {
 
 
 				var fgCollection *hvs.FlavorgroupCollection
-				json.Unmarshal(w.Body.Bytes(), &fgCollection)
+				err = json.Unmarshal(w.Body.Bytes(), &fgCollection)
+				Expect(err).NotTo(HaveOccurred())
 				Expect(len(fgCollection.Flavorgroups)).To(Equal(2))
 			})
 		})
@@ -85,7 +86,8 @@ var _ = Describe("FlavorgroupController", func() {
 				Expect(w.Code).To(Equal(200))
 
 				var fgCollection *hvs.FlavorgroupCollection
-				json.Unmarshal(w.Body.Bytes(), &fgCollection)
+				err = json.Unmarshal(w.Body.Bytes(), &fgCollection)
+				Expect(err).NotTo(HaveOccurred())
 				Expect(len(fgCollection.Flavorgroups)).To(Equal(1))
 			})
 		})
@@ -100,7 +102,8 @@ var _ = Describe("FlavorgroupController", func() {
 				Expect(w.Code).To(Equal(200))
 
 				var fgCollection *hvs.FlavorgroupCollection
-				json.Unmarshal(w.Body.Bytes(), &fgCollection)
+				err = json.Unmarshal(w.Body.Bytes(), &fgCollection)
+				Expect(err).NotTo(HaveOccurred())
 				Expect(len(fgCollection.Flavorgroups)).To(Equal(2))
 			})
 		})
@@ -115,7 +118,8 @@ var _ = Describe("FlavorgroupController", func() {
 				Expect(w.Code).To(Equal(200))
 
 				var fgCollection *hvs.FlavorgroupCollection
-				json.Unmarshal(w.Body.Bytes(), &fgCollection)
+				err = json.Unmarshal(w.Body.Bytes(), &fgCollection)
+				Expect(err).NotTo(HaveOccurred())
 				Expect(len(fgCollection.Flavorgroups)).To(Equal(2))
 			})
 		})
@@ -211,9 +215,9 @@ var _ = Describe("FlavorgroupController", func() {
 					"/flavorgroups",
 					strings.NewReader(flavorgroupJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(201))
@@ -243,9 +247,9 @@ var _ = Describe("FlavorgroupController", func() {
 					"/flavorgroups",
 					strings.NewReader(flavorgroupJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(400))
@@ -262,9 +266,9 @@ var _ = Describe("FlavorgroupController", func() {
 				"/flavorgroups",
 				strings.NewReader(flavorgroupJson),
 			)
+			Expect(err).NotTo(HaveOccurred())
 			req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 			req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-			Expect(err).NotTo(HaveOccurred())
 			w = httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 			Expect(w.Code).To(Equal(400))
@@ -290,9 +294,9 @@ var _ = Describe("FlavorgroupController", func() {
 				"/flavorgroups",
 				strings.NewReader(flavorgroupJson),
 			)
+			Expect(err).NotTo(HaveOccurred())
 			req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 			req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-			Expect(err).NotTo(HaveOccurred())
 			w = httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 			Expect(w.Code).To(Equal(400))
@@ -314,9 +318,9 @@ var _ = Describe("FlavorgroupController", func() {
 				"/flavorgroups",
 				strings.NewReader(flavorgroupJson),
 			)
+			Expect(err).NotTo(HaveOccurred())
 			req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 			req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-			Expect(err).NotTo(HaveOccurred())
 			w = httptest.NewRecorder()
 			router.ServeHTTP(w, req)
 			Expect(w.Code).To(Equal(400))
@@ -343,8 +347,9 @@ var _ = Describe("FlavorgroupController", func() {
 							}`
 
 				flavorGroup := hvs.FlavorGroup{}
-				json.Unmarshal([]byte(flavorgroupJson), &flavorGroup)
-				err := controllers.ValidateFlavorGroup(flavorGroup)
+				err := json.Unmarshal([]byte(flavorgroupJson), &flavorGroup)
+				Expect(err).NotTo(HaveOccurred())
+				err = controllers.ValidateFlavorGroup(flavorGroup)
 				Ω(err).ShouldNot(HaveOccurred())
 			})
 		})
@@ -366,9 +371,10 @@ var _ = Describe("FlavorgroupController", func() {
 							}`
 
 				flavorGroup := hvs.FlavorGroup{}
-				json.Unmarshal([]byte(flavorgroupJson), &flavorGroup)
+				err := json.Unmarshal([]byte(flavorgroupJson), &flavorGroup)
+				Expect(err).NotTo(HaveOccurred())
 				flavorGroup.Name = ""
-				err := controllers.ValidateFlavorGroup(flavorGroup)
+				err = controllers.ValidateFlavorGroup(flavorGroup)
 				Ω(err).Should(HaveOccurred())
 
 				flavorGroup.Name = "####"
@@ -415,9 +421,11 @@ var _ = Describe("FlavorgroupController", func() {
 		Context("Create FlavorGroup-Flavor link with valid FlavorGroup ID and valid Flavor ID", func() {
 			BeforeEach(func() {
 				// add unlinked flavor here
-				sf1, _ := flavorStore.Retrieve(uuid.MustParse("c36b5412-8c02-4e08-8a74-8bfa40425cf3"))
+				sf1, err := flavorStore.Retrieve(uuid.MustParse("c36b5412-8c02-4e08-8a74-8bfa40425cf3"))
+				Expect(err).NotTo(HaveOccurred())
 				sf1.Flavor.Meta.ID = uuid.MustParse("f452b331-87f7-4274-a3d2-e31a471d159e")
-				flavorStore.Create(sf1)
+				_, err = flavorStore.Create(sf1)
+				Expect(err).NotTo(HaveOccurred())
 			})
 			It("Should create FlavorGroupFlavor link in store and return 201 response code", func() {
 				router.Handle("/flavorgroups/{fgID:"+validation.UUIDReg+"}/flavors", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorgroupController.AddFlavor))).Methods("POST")
@@ -430,9 +438,9 @@ var _ = Describe("FlavorgroupController", func() {
 					"/flavorgroups/ee37c360-7eae-4250-a677-6ee12adce8e2/flavors",
 					strings.NewReader(flavorJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusCreated))
@@ -451,9 +459,9 @@ var _ = Describe("FlavorgroupController", func() {
 					"/flavorgroups/ee37c360-7eae-4250-a677-6ee12adce8e2/flavors",
 					strings.NewReader(flavorJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -469,9 +477,9 @@ var _ = Describe("FlavorgroupController", func() {
 					"/flavorgroups/ee37c360-7eae-4250-a677-6ee12adce8e2/flavors",
 					nil,
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -490,9 +498,9 @@ var _ = Describe("FlavorgroupController", func() {
 					"/flavorgroups/invalid-7eae-4250-a677-6ee12adce8e2/flavors",
 					strings.NewReader(flavorJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusNotFound))
@@ -511,9 +519,9 @@ var _ = Describe("FlavorgroupController", func() {
 					"/flavorgroups/9c41f744-cf17-4c53-8d49-888ebb6af99f/flavors",
 					strings.NewReader(flavorJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusNotFound))
@@ -532,9 +540,9 @@ var _ = Describe("FlavorgroupController", func() {
 					"/flavorgroups/9c41f744-cf17-4c53-8d49-888ebb6af99f/flavors",
 					strings.NewReader(flavorJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -553,9 +561,9 @@ var _ = Describe("FlavorgroupController", func() {
 					"/flavorgroups/ee37c360-7eae-4250-a677-6ee12adce8e2/flavors",
 					strings.NewReader(flavorJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -573,9 +581,9 @@ var _ = Describe("FlavorgroupController", func() {
 					"/flavorgroups/ee37c360-7eae-4250-a677-6ee12adce8e2/flavors",
 					strings.NewReader(flavorJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -591,9 +599,9 @@ var _ = Describe("FlavorgroupController", func() {
 					"/flavorgroups/ee37c360-7eae-4250-a677-6ee12adce8e2/flavors",
 					strings.NewReader(flavorJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -682,8 +690,8 @@ var _ = Describe("FlavorgroupController", func() {
 					"/flavorgroups/0ae3f0a1-afe6-4efc-98de-c4e346441b94/flavors",
 					nil,
 				)
-				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusNotFound))
@@ -702,8 +710,8 @@ var _ = Describe("FlavorgroupController", func() {
 					"/flavorgroups/ee37c360-7eae-4250-a677-6ee12adce8e2/flavors/c36b5412-8c02-4e08-8a74-8bfa40425cf3",
 					nil,
 				)
-				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusOK))
@@ -718,8 +726,8 @@ var _ = Describe("FlavorgroupController", func() {
 					"/flavorgroups/9c41f744-cf17-4c53-8d49-888ebb6af99f/flavors/c36b5412-8c02-4e08-8a74-8bfa40425cf3",
 					nil,
 				)
-				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusNotFound))

@@ -89,7 +89,12 @@ func (f *FlavorStore) Search(flavorFilter *models.FlavorVerificationFC) ([]hvs.S
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/flavor_store:Search() failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	signedFlavors := []hvs.SignedFlavor{}
 

@@ -116,7 +116,12 @@ func (hs *HostStore) Search(criteria *models.HostFilterCriteria) ([]*hvs.Host, e
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/host_store:Search() failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	hosts := []*hvs.Host{}
 	for rows.Next() {
@@ -217,7 +222,12 @@ func (hs *HostStore) SearchFlavorgroups(hId uuid.UUID) ([]uuid.UUID, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/host_store:SearchFlavorgroups() failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	var fgIds []uuid.UUID
 	for rows.Next() {
@@ -292,7 +302,12 @@ func (hs *HostStore) RetrieveTrustCacheFlavors(hId, fgId uuid.UUID) ([]uuid.UUID
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/host_store:RetrieveTrustCacheFlavors() failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	flavorIds := []uuid.UUID{}
 	for rows.Next() {

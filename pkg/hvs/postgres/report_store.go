@@ -169,7 +169,12 @@ func (r *ReportStore) Search(criteria *models.ReportFilterCriteria) ([]models.HV
 		if err != nil {
 			return nil, errors.Wrap(err, "postgres/report_store:Search() failed to retrieve records from db")
 		}
-		defer rows.Close()
+		defer func() {
+			derr := rows.Close()
+			if derr != nil {
+				defaultLog.WithError(derr).Error("Error closing rows")
+			}
+		}()
 
 		var reports []models.HVSReport
 
@@ -194,7 +199,12 @@ func (r *ReportStore) Search(criteria *models.ReportFilterCriteria) ([]models.HV
 		if err != nil {
 			return nil, errors.Wrap(err, "postgres/report_store:Search() failed to retrieve records from db")
 		}
-		defer rows.Close()
+		defer func() {
+			derr := rows.Close()
+			if derr != nil {
+				defaultLog.WithError(derr).Error("Error closing rows")
+			}
+		}()
 
 		var reports []models.HVSReport
 		for rows.Next() {
@@ -230,7 +240,12 @@ func (r *ReportStore) FindHostIdsFromExpiredReports(fromTime time.Time, toTime t
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/report_store:FindHostIdsFromExpiredReports() failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	var hostIDs []uuid.UUID
 	for rows.Next() {

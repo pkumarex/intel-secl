@@ -181,7 +181,7 @@ func NewFakeFlavorgroupStore() *MockFlavorgroupStore {
 		FlavorgroupFlavorStore: make(map[uuid.UUID][]uuid.UUID),
 	}
 
-	store.Create(&hvs.FlavorGroup{
+	_, err := store.Create(&hvs.FlavorGroup{
 		ID:   uuid.MustParse("ee37c360-7eae-4250-a677-6ee12adce8e2"),
 		Name: "hvs_flavorgroup_test1",
 		MatchPolicies: []hvs.FlavorMatchPolicy{
@@ -208,8 +208,10 @@ func NewFakeFlavorgroupStore() *MockFlavorgroupStore {
 			},
 		},
 	})
-
-	store.Create(&hvs.FlavorGroup{
+	if err != nil {
+		defaultLog.WithError(err).Error("Error creating Flavorgroup")
+	}
+	_, err = store.Create(&hvs.FlavorGroup{
 		ID:   uuid.MustParse("e57e5ea0-d465-461e-882d-1600090caa0d"),
 		Name: "hvs_flavorgroup_test2",
 		MatchPolicies: []hvs.FlavorMatchPolicy{
@@ -222,6 +224,8 @@ func NewFakeFlavorgroupStore() *MockFlavorgroupStore {
 			},
 		},
 	})
-
+	if err != nil {
+		defaultLog.WithError(err).Error("Error creating Flavorgroup")
+	}
 	return store
 }

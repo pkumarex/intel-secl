@@ -66,7 +66,12 @@ func (tcs *TagCertificateStore) Search(tcFilter *models.TagCertificateFilterCrit
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/tagcertificate_store:Search() failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	for rows.Next() {
 		hvsTC := hvs.TagCertificate{}

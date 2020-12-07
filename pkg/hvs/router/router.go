@@ -33,7 +33,7 @@ type Router struct {
 }
 
 // InitRoutes registers all routes for the application.
-func InitRoutes(cfg *config.Configuration, dataStore *postgres.DataStore, fgs *postgres.FlavorGroupStore, certStore *models.CertificatesStore, hostTrustManager domain.HostTrustManager, hostControllerConfig domain.HostControllerConfig) *mux.Router {
+func InitRoutes(cfg *config.Configuration, dataStore *postgres.DataStore, fgs *postgres.FlavorGroupStore, certStore *models.CertificatesStore, hostTrustManager domain.HostTrustManager, hostControllerConfig domain.HostControllerConfig) (*mux.Router, error) {
 	defaultLog.Trace("router/router:InitRoutes() Entering")
 	defer defaultLog.Trace("router/router:InitRoutes() Leaving")
 
@@ -42,13 +42,18 @@ func InitRoutes(cfg *config.Configuration, dataStore *postgres.DataStore, fgs *p
 
 	// ISECL-8715 - Prevent potential open redirects to external URLs
 	router.SkipClean(true)
-	defineSubRoutes(router, constants.OldServiceName, cfg, dataStore, fgs, certStore, hostTrustManager, hostControllerConfig)
-	defineSubRoutes(router, strings.ToLower(constants.ServiceName), cfg, dataStore, fgs, certStore, hostTrustManager, hostControllerConfig)
-	return router
+	err := defineSubRoutes(router, constants.OldServiceName, cfg, dataStore, fgs, certStore, hostTrustManager, hostControllerConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "Could not define sub routes")
+	}
+	err = defineSubRoutes(router, strings.ToLower(constants.ServiceName), cfg, dataStore, fgs, certStore, hostTrustManager, hostControllerConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "Could not define sub routes")
+	}
+	return router, nil
 }
 
-func defineSubRoutes(router *mux.Router, service string, cfg *config.Configuration, dataStore *postgres.DataStore, fgs *postgres.FlavorGroupStore,
-	certStore *models.CertificatesStore, hostTrustManager domain.HostTrustManager, hostControllerConfig domain.HostControllerConfig) {
+func defineSubRoutes(router *mux.Router, service string, cfg *config.Configuration, dataStore *postgres.DataStore, fgs *postgres.FlavorGroupStore, certStore *models.CertificatesStore, hostTrustManager domain.HostTrustManager, hostControllerConfig domain.HostControllerConfig) error {
 	defaultLog.Trace("router/router:defineSubRoutes() Entering")
 	defer defaultLog.Trace("router/router:defineSubRoutes() Leaving")
 
@@ -59,8 +64,10 @@ func defineSubRoutes(router *mux.Router, service string, cfg *config.Configurati
 
 	subRouter = router.PathPrefix(serviceApi).Subrouter()
 	cfgRouter := Router{cfg: cfg}
-	var cacheTime, _ = time.ParseDuration(constants.JWTCertsCacheTime)
-
+	var cacheTime, err = time.ParseDuration(constants.JWTCertsCacheTime)
+	if err != nil {
+		return errors.Wrap(err, "Could not parse JWT Certificate cache time")
+	}
 	subRouter.Use(cmw.NewTokenAuth(constants.TrustedJWTSigningCertsDir,
 		constants.TrustedRootCACertsDir, cfgRouter.fnGetJwtCerts,
 		cacheTime))
@@ -78,6 +85,7 @@ func defineSubRoutes(router *mux.Router, service string, cfg *config.Configurati
 	subRouter = SetDeploySoftwareManifestRoute(subRouter, dataStore, hostTrustManager, hostControllerConfig)
 	subRouter = SetManifestsRoute(subRouter, dataStore)
 	subRouter = SetFlavorFromAppManifestRoute(subRouter, dataStore, fgs, certStore, hostTrustManager, hostControllerConfig)
+	return nil
 }
 
 // Fetch JWT certificate from AAS
@@ -102,7 +110,10 @@ func (r *Router) fnGetJwtCerts() error {
 	}
 
 	// Get the SystemCertPool, continue with an empty pool on error
-	rootCAs, _ := x509.SystemCertPool()
+	rootCAs, err := x509.SystemCertPool()
+	if err != nil {
+		return errors.Wrap(err, "router/router:fnGetJwtCerts() Failed defining certificate pool")
+	}
 	if rootCAs == nil {
 		rootCAs = x509.NewCertPool()
 	}
@@ -124,8 +135,17 @@ func (r *Router) fnGetJwtCerts() error {
 	if err != nil {
 		return errors.Wrap(err, "router/router:fnGetJwtCerts() Could not retrieve jwt certificate")
 	}
-	defer res.Body.Close()
-	body, _ := ioutil.ReadAll(res.Body)
+	defer func() {
+		derr := res.Body.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing response body")
+		}
+	}()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return errors.Wrap(err, "router/router:fnGetJwtCerts() Failed read response")
+	}
 	err = crypt.SavePemCertWithShortSha1FileName(body, constants.TrustedJWTSigningCertsDir)
 	if err != nil {
 		return errors.Wrap(err, "router/router:fnGetJwtCerts() Could not store Certificate")

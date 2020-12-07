@@ -98,7 +98,12 @@ func (t *TpmEndorsementStore) Search(teFilter *models.TpmEndorsementFilterCriter
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/tpm_endorsement_store:Search() failed to retrieve tpm_endorsements from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	var tpmEndorsementCollection hvs.TpmEndorsementCollection
 

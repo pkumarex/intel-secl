@@ -45,11 +45,26 @@ var (
 )
 
 func init() {
-	json.Unmarshal([]byte(HostStatus1), &hs1)
-	json.Unmarshal([]byte(HostStatus2), &hs2)
-	json.Unmarshal([]byte(HostStatus3), &hs3)
-	json.Unmarshal([]byte(HostStatus4), &hs4)
-	json.Unmarshal([]byte(HostStatus5), &hs5)
+	err := json.Unmarshal([]byte(HostStatus1), &hs1)
+	if err != nil {
+		defaultLog.WithError(err).Errorf("Error creating unmarshalling data")
+	}
+	err = json.Unmarshal([]byte(HostStatus2), &hs2)
+	if err != nil {
+		defaultLog.WithError(err).Errorf("Error creating unmarshalling data")
+	}
+	err = json.Unmarshal([]byte(HostStatus3), &hs3)
+	if err != nil {
+		defaultLog.WithError(err).Errorf("Error creating unmarshalling data")
+	}
+	err = json.Unmarshal([]byte(HostStatus4), &hs4)
+	if err != nil {
+		defaultLog.WithError(err).Errorf("Error creating unmarshalling data")
+	}
+	err = json.Unmarshal([]byte(HostStatus5), &hs5)
+	if err != nil {
+		defaultLog.WithError(err).Errorf("Error creating unmarshalling data")
+	}
 	hsi1, _ = json.Marshal(hs1.HostStatusInformation)
 	hsm1, _ = json.Marshal(hs1.HostManifest)
 	hsi2, _ = json.Marshal(hs2.HostStatusInformation)

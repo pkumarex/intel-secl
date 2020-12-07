@@ -85,7 +85,10 @@ func (a *App) startServer() error {
 		return errors.Wrap(err, "An error occurred while initializing HRRS")
 	}
 
-	reportRefresher.Run()
+	err = reportRefresher.Run()
+	if err != nil {
+		return errors.Wrap(err, "An error occurred while initializing Report Refresher")
+	}
 
 	// Initialize Host controller config
 	hostControllerConfig := initHostControllerConfig(c, certStore)
@@ -96,10 +99,16 @@ func (a *App) startServer() error {
 		return errors.Wrap(err, "An error occurred while initializing VCSS")
 	}
 
-	vcenterClusterSyncer.Run()
+	err = vcenterClusterSyncer.Run()
+	if err != nil {
+		return errors.Wrap(err, "An error occurred while initializing vCenter Cluster Syncer")
+	}
 
 	// Initialize routes
-	routes := router.InitRoutes(c, dataStore, fgs, certStore, hostTrustManager, hostControllerConfig)
+	routes, err := router.InitRoutes(c, dataStore, fgs, certStore, hostTrustManager, hostControllerConfig)
+	if err != nil {
+		return errors.Wrap(err, "An error occurred while initializing routes")
+	}
 
 	defaultLog.Info("Starting server")
 	tlsConfig := &tls.Config{
@@ -142,7 +151,10 @@ func (a *App) startServer() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	reportRefresher.Stop()
+	err = reportRefresher.Stop()
+	if err != nil {
+		return errors.Wrap(err, "An error occurred while stopping Report Refresher")
+	}
 
 	if err := h.Shutdown(ctx); err != nil {
 		defaultLog.WithError(err).Info("Failed to gracefully shutdown webserver")

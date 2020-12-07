@@ -6,6 +6,7 @@
 package auditlog
 
 import (
+	log "github.com/sirupsen/logrus"
 	"sync"
 
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
@@ -57,12 +58,18 @@ func (alp *auditLogDB) startCreateRoutine() error {
 		for {
 			select {
 			case e := <-alp.logQueue:
-				alp.store.Create(e)
+				_, err := alp.store.Create(e)
+				if err != nil {
+					log.WithError(err).Errorf("failed to create audit log routine")
+				}
 			case <-alp.stopChan:
 				// clean existing queue and return
 				for len(alp.logQueue) > 0 {
 					e := <-alp.logQueue
-					alp.store.Create(e)
+					_, err := alp.store.Create(e)
+					if err != nil {
+						log.WithError(err).Errorf("failed to create audit log routine")
+					}
 				}
 				alp.doneChan <- struct{}{}
 				return

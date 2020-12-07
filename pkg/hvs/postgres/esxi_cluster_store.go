@@ -86,7 +86,12 @@ func (e *ESXiClusterStore) Search(ecFilter *models.ESXiClusterFilterCriteria) ([
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/esxi_cluster_store:Search() Failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	clusters := []hvs.ESXiCluster{}
 	for rows.Next() {
@@ -164,7 +169,12 @@ func (e *ESXiClusterStore) SearchHosts(ecId uuid.UUID) ([]string, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/esxi_cluster_store:SearchHosts() Failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	hostNames := []string{}
 	var name string

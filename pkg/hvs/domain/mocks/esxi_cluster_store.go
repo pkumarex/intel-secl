@@ -93,12 +93,22 @@ func NewFakeESXiClusterStore() *MockESXiClusterStore {
 
 	// unmarshal the fixed ESXi cluster
 	var ec1, ec2 hvs.ESXiCluster
-	json.Unmarshal([]byte(esxiCluster1), &ec1)
-	json.Unmarshal([]byte(esxiCluster2), &ec2)
-
+	err := json.Unmarshal([]byte(esxiCluster1), &ec1)
+	if err != nil {
+		defaultLog.WithError(err).Errorf("Error creating Flavor")
+	}
+	err = json.Unmarshal([]byte(esxiCluster2), &ec2)
+	if err != nil {
+		defaultLog.WithError(err).Errorf("Error creating Flavor")
+	}
 	// add to store
-	store.Create(&ec1)
-	store.Create(&ec2)
-
+	_, err =store.Create(&ec1)
+	if err != nil {
+		defaultLog.WithError(err).Errorf("Error creating ESXI cluster")
+	}
+	_, err = store.Create(&ec2)
+	if err != nil {
+		defaultLog.WithError(err).Errorf("Error creating ESXI cluster")
+	}
 	return store
 }

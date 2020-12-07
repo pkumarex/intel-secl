@@ -74,7 +74,12 @@ func (qr *QueueStore) Search(qf *models.QueueFilterCriteria) ([]*models.Queue, e
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/queue_store:RetrieveAll() failed to retrieve queues from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 	result := []*models.Queue{}
 
 	for rows.Next() {

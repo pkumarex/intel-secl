@@ -118,6 +118,9 @@ func (certifyHostKeysController *CertifyHostKeysController) generateCertificate(
 	}
 
 	certifyKey20, err := privacyca.NewCertifyKey(regKeyInfo)
+	if err != nil {
+		return nil, errors.Wrap(err, "controllers/certify_host_keys_controller:generateCertificate() Could not certify AIK"), http.StatusInternalServerError
+	}
 
 	if !certifyKey20.IsTpmGeneratedKey(){
 		return nil, errors.New("controllers/certify_host_keys_controller:generateCertificate() Not a valid tpm generated key"), http.StatusBadRequest
@@ -173,7 +176,11 @@ func (certifyHostKeysController *CertifyHostKeysController) isAikCertifiedByPriv
 	rsaPublicKey := pubKey.(*rsa.PublicKey)
 
 	h := sha256.New()
-	h.Write(aikCert.RawTBSCertificate)
+	_, err = h.Write(aikCert.RawTBSCertificate)
+	if err != nil {
+		defaultLog.WithError(err).Errorf("controllers/certify_host_keys_controller:isAikCertifiedByPrivacyCA() Could not write certificate")
+		return false
+	}
 	digest := h.Sum(nil)
 	err = rsa.VerifyPKCS1v15(rsaPublicKey, crypto.SHA256, digest, aikCert.Signature)
 	if err != nil {

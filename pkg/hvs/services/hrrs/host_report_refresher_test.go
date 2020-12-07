@@ -6,6 +6,7 @@
 package hrrs
 
 import (
+	log "github.com/sirupsen/logrus"
 	"testing"
 	"time"
 
@@ -68,12 +69,14 @@ func TestHostReportRefresher(t *testing.T) {
 	// in the report store.
 	refresher, err := NewHostReportRefresher(cfg, reportStore, hostTrustManager)
 	assert.NoError(t, err)
-	refresher.Run()
+	err = refresher.Run()
+	assert.NoError(t, err)
 
 	time.Sleep(tenSeconds)
 
 	t.Log("stopping")
-	refresher.Stop()
+	err = refresher.Stop()
+	assert.NoError(t, err)
 
 	// make sure both hosts have updated reports with future expiration dates
 	hostsToCheck := []uuid.UUID{host1UUID, host2UUID}
@@ -122,7 +125,11 @@ func (htm MockHostTrustManager) VerifyHostsAsync(hostIDs []uuid.UUID, fetchHostD
 		}
 
 		for _, reportToDelete := range reportsToDelete {
-			htm.reportStore.Delete(reportToDelete.ID)
+			err = htm.reportStore.Delete(reportToDelete.ID)
+			if err != nil {
+				// as this is mock, do not return err
+				log.WithError(err).Errorf("There was an error deleting the report")
+			}
 		}
 
 		trustReport := models.HVSReport{

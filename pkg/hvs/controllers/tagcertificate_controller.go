@@ -216,8 +216,12 @@ func (controller TagCertificateController) Delete(w http.ResponseWriter, r *http
 	defaultLog.Trace("controllers/tagcertificate_controller:Delete() Entering")
 	defer defaultLog.Trace("controllers/tagcertificate_controller:Delete() Leaving")
 
-	id, _ := uuid.Parse(mux.Vars(r)["id"])
-
+	id, err := uuid.Parse(mux.Vars(r)["id"])
+	if err != nil {
+		secLog.WithError(err).WithField("id", id).Info(
+			"controllers/tagcertificate_controller:Delete() Could not parse given ID")
+		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: "Could not parse given ID"}
+	}
 	delTagCert, err := controller.Store.Retrieve(id)
 	if err != nil {
 		if strings.Contains(err.Error(), commErr.RowsNotFound) {

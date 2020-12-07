@@ -160,6 +160,7 @@ func TestHostTrustManagerNewService(t *testing.T) {
 func TestVerifier_Verify_UntrustedHost(t *testing.T) {
 	SetupManagerTests()
 	report, err := v.Verify(hostId, &hostManifest, false)
+	assert.NoError(t, err)
 	fmt.Println(report.TrustReport.Trusted)
 	assert.Equal(t, report.TrustReport.Trusted, false)
 	fmt.Println(report.Saml)
@@ -186,7 +187,8 @@ func TestHostTrustManagerShutdown(t *testing.T) {
 	assert.NoError(t, ht.VerifyHostsAsync([]uuid.UUID{hwUuid}, true, false), "Async calls pre-shutdown should not return error")
 
 	// call shutdown signal
-	service.Shutdown()
+	err = service.Shutdown()
+	assert.NoError(t, err)
 
 	// check if the service has been shutdown
 	assert.Error(t, ht.VerifyHostsAsync([]uuid.UUID{hwUuid}, true, false), "Service post shutdown should return error")

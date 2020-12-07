@@ -143,7 +143,10 @@ func (a *App) eraseData() error {
 	}
 	for _, t := range tablesToDrop {
 		sqlCmd := "DROP TABLE IF EXISTS " + t + " CASCADE;"
-		dataStore.ExecuteSql(&sqlCmd)
+		err = dataStore.ExecuteSql(&sqlCmd)
+		if err != nil {
+			return errors.Wrap(err,"Failed to execute query")
+		}
 	}
 	dataStore.Migrate()
 	// create default flavor group
