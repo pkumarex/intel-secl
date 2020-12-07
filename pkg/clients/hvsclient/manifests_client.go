@@ -49,14 +49,17 @@ func (client *manifestsClientImpl) getManifestXml(params map[string]string) ([]b
 	log.Trace("hvsclient/manifests_client:getManifestXml() Entering")
 	defer log.Trace("hvsclient/manifests_client:getManifestXml() Leaving")
 
-	url, err := url.Parse(client.cfg.BaseURL)
+	parsedUrl, err := url.Parse(client.cfg.BaseURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "hvsclient/manifests_client:getManifestXml() error parsing base url")
 	}
 
-	url.Path = path.Join(url.Path, "manifests")
+	parsedUrl.Path = path.Join(parsedUrl.Path, "manifests")
 
-	request, _ := http.NewRequest("GET", url.String(), nil)
+	request, err := http.NewRequest("GET", parsedUrl.String(), nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "hvsclient/manifests_client:getManifestXml() error creating request")
+	}
 	request.Header.Set("Authorization", "Bearer "+client.cfg.BearerToken)
 	request.Header.Set("Accept", "application/xml")
 
@@ -73,13 +76,18 @@ func (client *manifestsClientImpl) getManifestXml(params map[string]string) ([]b
 	response, err := client.httpClient.Do(request)
 	if err != nil {
 		secLog.Warn(message.BadConnection)
-		return nil, errors.Wrapf(err, "hvsclient/manifests_client:getManifestXml() Error while sending request to %s", url)
+		return nil, errors.Wrapf(err, "hvsclient/manifests_client:getManifestXml() Error while sending request to %s", parsedUrl)
 	}
 
-	defer response.Body.Close()
+	defer func() {
+		derr := response.Body.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing response body")
+		}
+	}()
 
 	if response.StatusCode != http.StatusOK {
-		return nil, errors.Errorf("hvsclient/manifests_client:getManifestXml() Request made to %s returned status %d", url, response.StatusCode)
+		return nil, errors.Errorf("hvsclient/manifests_client:getManifestXml() Request made to %s returned status %d", parsedUrl, response.StatusCode)
 	}
 
 	xml, err := ioutil.ReadAll(response.Body)

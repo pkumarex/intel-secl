@@ -16,7 +16,7 @@ import (
 type CertifyKey interface{
 	IsCertifiedKeySignatureValid(aikCert *x509.Certificate) (bool, error)
 	ValidateNameDigest() error
-	ValidatePublicKey() bool
+	ValidatePublicKey() (bool, error)
 	CertifyKey(caCert *x509.Certificate, rsaPubKey *rsa.PublicKey, caKey *rsa.PrivateKey, cn string) ([]byte, error)
 	GetPublicKeyFromModulus() (*rsa.PublicKey, error)
 	IsTpmGeneratedKey() bool

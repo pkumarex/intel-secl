@@ -143,7 +143,8 @@ func (certifyHostKeysController *CertifyHostKeysController) generateCertificate(
 	defaultLog.Info("controllers/certify_host_keys_controller:generateCertificate() TpmCertifyKeySignature is validated successfully")
 
 	//In TPM 2.0 need to validate TPM name given to each key
-	if !certifyKey20.ValidatePublicKey(){
+	isKeyValid, err := certifyKey20.ValidatePublicKey()
+	if !isKeyValid || err != nil {
 		return nil, errors.New("Binding Public Key digest does not match digest in the TCG binding certificate"), http.StatusBadRequest
 	}
 	defaultLog.Info("controllers/certify_host_keys_controller:generateCertificate() Validated TpmPublicKeyModulus successfully")

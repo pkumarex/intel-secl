@@ -85,8 +85,14 @@ func MakeCredential(ekPubKey crypto.PublicKey, symmetricAlgorithm string, symKey
 			}
 
 			identityBuf := new(bytes.Buffer)
-			binary.Write(identityBuf, binary.BigEndian, []byte(consts.IDENTITY))
-			binary.Write(identityBuf, binary.BigEndian, byte(0))
+			err = binary.Write(identityBuf, binary.BigEndian, []byte(consts.IDENTITY))
+			if err != nil {
+				return types.Tpm2Credential{}, errors.Wrapf(err, "privacyca/tpm2utils/utils:MakeCredential() Failed to write identity")
+			}
+			err = binary.Write(identityBuf, binary.BigEndian, byte(0))
+			if err != nil {
+				return types.Tpm2Credential{}, errors.Wrapf(err, "privacyca/tpm2utils/utils:MakeCredential() Failed to write bytes")
+			}
 
 			switch nameAlgorithm {
 			case crypto.SHA256:
@@ -94,8 +100,14 @@ func MakeCredential(ekPubKey crypto.PublicKey, symmetricAlgorithm string, symKey
 				if err != nil {
 					return types.Tpm2Credential{}, err
 				}
-				binary.Write(encryptedSecretByteBuffer, binary.BigEndian, uint16(len(encryptedSecret)))
-				binary.Write(encryptedSecretByteBuffer, binary.BigEndian, encryptedSecret)
+				err = binary.Write(encryptedSecretByteBuffer, binary.BigEndian, uint16(len(encryptedSecret)))
+				if err != nil {
+					return types.Tpm2Credential{}, errors.Wrapf(err, "privacyca/tpm2utils/utils:MakeCredential() Failed to write secret size")
+				}
+				err = binary.Write(encryptedSecretByteBuffer, binary.BigEndian, encryptedSecret)
+				if err != nil {
+					return types.Tpm2Credential{}, errors.Wrapf(err, "privacyca/tpm2utils/utils:MakeCredential() Failed to write secret")
+				}
 				break
 			default:
 				return types.Tpm2Credential{}, errors.Errorf("privacyca/tpm2utils/utils:MakeCredential() Hashing Algorithm %s is not currently supported", crypt.GetHashingAlgorithmName(nameAlgorithm))
@@ -112,8 +124,14 @@ func MakeCredential(ekPubKey crypto.PublicKey, symmetricAlgorithm string, symKey
 		return types.Tpm2Credential{}, err
 	}
 	credentialBuf := new(bytes.Buffer)
-	binary.Write(credentialBuf, binary.BigEndian, int16(len(credential)))
-	binary.Write(credentialBuf, binary.BigEndian, credential)
+	err = binary.Write(credentialBuf, binary.BigEndian, int16(len(credential)))
+	if err != nil {
+		return types.Tpm2Credential{}, errors.Wrapf(err, "privacyca/tpm2utils/utils:MakeCredential() Failed to write credential size")
+	}
+	err = binary.Write(credentialBuf, binary.BigEndian, credential)
+	if err != nil {
+		return types.Tpm2Credential{}, errors.Wrapf(err, "privacyca/tpm2utils/utils:MakeCredential() Failed to write credential")
+	}
 	credentialBytes := credentialBuf.Bytes()
 	iv := make([]byte, aes.BlockSize)
 
@@ -134,19 +152,37 @@ func MakeCredential(ekPubKey crypto.PublicKey, symmetricAlgorithm string, symKey
 	//Calculate hmac sha256 digest of encryptedCredential and aikName
 	mac := hmac.New(sha256.New, hmacKey)
 	integrityBuf := new(bytes.Buffer)
-	binary.Write(integrityBuf, binary.BigEndian, encryptedCredential)
-	binary.Write(integrityBuf, binary.BigEndian, aikName)
-	mac.Write(integrityBuf.Bytes())
-	integrity := mac.Sum(nil)
+	err = binary.Write(integrityBuf, binary.BigEndian, encryptedCredential)
+	if err != nil {
+		return types.Tpm2Credential{}, errors.Wrapf(err, "privacyca/tpm2utils/utils:MakeCredential() Failed to write credential")
+	}
+	err = binary.Write(integrityBuf, binary.BigEndian, aikName)
+	if err != nil {
+		return types.Tpm2Credential{}, errors.Wrapf(err, "privacyca/tpm2utils/utils:MakeCredential() Failed to write aik name")
+	}
+	_, err = mac.Write(integrityBuf.Bytes())
 	if err != nil {
 		return types.Tpm2Credential{}, errors.Wrap(err, "privacyca/tpm2utils/utils:MakeCredential() Error while generating hmac hash")
 	}
+	integrity := mac.Sum(nil)
 
 	credentialBlob := new(bytes.Buffer)
-	binary.Write(credentialBlob, binary.BigEndian, int16(consts.SHORT_BYTES+len(integrity)+len(encryptedCredential)))
-	binary.Write(credentialBlob, binary.BigEndian, int16(len(integrity)))
-	binary.Write(credentialBlob, binary.BigEndian, integrity)
-	binary.Write(credentialBlob, binary.BigEndian, encryptedCredential)
+	err = binary.Write(credentialBlob, binary.BigEndian, int16(consts.SHORT_BYTES+len(integrity)+len(encryptedCredential)))
+	if err != nil {
+		return types.Tpm2Credential{}, errors.Wrapf(err, "privacyca/tpm2utils/utils:MakeCredential() Failed to write total length")
+	}
+	err = binary.Write(credentialBlob, binary.BigEndian, int16(len(integrity)))
+	if err != nil {
+		return types.Tpm2Credential{}, errors.Wrapf(err, "privacyca/tpm2utils/utils:MakeCredential() Failed to write integrity length")
+	}
+	err = binary.Write(credentialBlob, binary.BigEndian, integrity)
+	if err != nil {
+		return types.Tpm2Credential{}, errors.Wrapf(err, "privacyca/tpm2utils/utils:MakeCredential() Failed to write integrity")
+	}
+	err = binary.Write(credentialBlob, binary.BigEndian, encryptedCredential)
+	if err != nil {
+		return types.Tpm2Credential{}, errors.Wrapf(err, "privacyca/tpm2utils/utils:MakeCredential() Failed to write credential")
+	}
 
 	headerBlob := make([]byte, 8)
 	binary.BigEndian.PutUint32(headerBlob, 0xBADCC0DE)
@@ -191,21 +227,45 @@ func KDFa(hashAlg crypto.Hash, key []byte, label string, contextU, contextV []by
 		counter = counter + 1
 		mac := hmac.New(sha256.New, key)
 		b := new(bytes.Buffer)
-		binary.Write(b, binary.BigEndian, int32(counter))
+		err := binary.Write(b, binary.BigEndian, int32(counter))
+		if err != nil {
+			return nil, errors.Wrapf(err, "privacyca/tpm2utils/utils:KDFa() Failed to write couter")
+		}
 
-		binary.Write(b, binary.BigEndian, labelBuf)
+		err = binary.Write(b, binary.BigEndian, labelBuf)
+		if err != nil {
+			return nil, errors.Wrapf(err, "privacyca/tpm2utils/utils:KDFa() Failed to write label buffer")
+		}
 
-		binary.Write(b, binary.BigEndian, byte(0x00))
+		err = binary.Write(b, binary.BigEndian, byte(0x00))
+		if err != nil {
+			return nil, errors.Wrapf(err, "privacyca/tpm2utils/utils:KDFa() Failed to write bytes")
+		}
 
 		if len(contextU) > 0 {
-			binary.Write(b, binary.BigEndian, contextU)
+			err = binary.Write(b, binary.BigEndian, contextU)
+			if err != nil {
+				return nil, errors.Wrapf(err, "privacyca/tpm2utils/utils:KDFa() Failed to write contextU")
+			}
+
 		}
 		if len(contextV) > 0 {
-			binary.Write(b, binary.BigEndian, contextV)
-		}
-		binary.Write(b, binary.BigEndian, int32(sizeInBits))
+			err = binary.Write(b, binary.BigEndian, contextV)
+			if err != nil {
+				return nil, errors.Wrapf(err, "privacyca/tpm2utils/utils:KDFa() Failed to write contextV")
+			}
 
-		mac.Write(b.Bytes())
+		}
+		err = binary.Write(b, binary.BigEndian, int32(sizeInBits))
+		if err != nil {
+			return nil, errors.Wrapf(err, "privacyca/tpm2utils/utils:KDFa() Failed to write bytes size")
+		}
+
+		_, err = mac.Write(b.Bytes())
+		if err != nil {
+			return nil, errors.Wrapf(err, "privacyca/tpm2utils/utils:KDFa() Failed to write bytes")
+		}
+
 		hmacHashValBytes := mac.Sum(nil)
 		outBuf = hmacHashValBytes[curPos : curPos+hashLen]
 		curPos += hashLen

@@ -11,6 +11,7 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -98,7 +99,11 @@ func (dc *DownloadCert) Run() error {
 			printToWriter(dc.ConsoleWriter, dc.commandName, "Failed to save certificate")
 			return errors.Wrap(err, "Could not store Certificate")
 		}
-		os.Chmod(dc.CertFile, 0644)
+		err = os.Chmod(dc.CertFile, 0644)
+		if err != nil {
+			printToWriter(dc.ConsoleWriter, dc.commandName, "Failed to change file permission")
+			return errors.Wrap(err, "Could not change file permission")
+		}
 	} else if fi.Mode().IsDir() {
 		err = crypt.SavePemCertWithShortSha1FileName(cert, dc.CertFile)
 		if err != nil {
@@ -181,7 +186,12 @@ func getCertificateFromCMS(certType string, keyAlg string, keyLen int, cmsBaseUr
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "Failed to perform HTTP request to CMS")
 	}
-	defer resp.Body.Close()
+	defer func() {
+		derr := resp.Body.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing response")
+		}
+	}()
 	if resp.StatusCode != http.StatusOK {
 		text, _ := ioutil.ReadAll(resp.Body)
 		reqErr := fmt.Errorf("Status %d: %s", resp.StatusCode, string(text))

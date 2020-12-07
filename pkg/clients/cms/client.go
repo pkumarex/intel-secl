@@ -48,7 +48,10 @@ func (c *Client) GetRootCA() (string, error) {
 		return "", ErrFailToGetRootCA
 	}
 	resBuf := new(bytes.Buffer)
-	resBuf.ReadFrom(rsp.Body)
+	_, err = resBuf.ReadFrom(rsp.Body)
+	if err != nil {
+		return "", err
+	}
 	resStr := resBuf.String()
 	return resStr, nil
 }
@@ -73,7 +76,10 @@ func (c *Client) PostCSR(csr []byte) (string, error) {
 		return "", ErrSignCSRFailed
 	}
 	resBuf := new(bytes.Buffer)
-	resBuf.ReadFrom(rsp.Body)
+	_, err = resBuf.ReadFrom(rsp.Body)
+	if err != nil {
+		return "", err
+	}
 	resStr := resBuf.String()
 	return resStr, nil
 }

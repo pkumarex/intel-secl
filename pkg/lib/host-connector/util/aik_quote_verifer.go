@@ -157,10 +157,13 @@ func VerifyQuoteAndGetPCRManifest(decodedEventLog string, verificationNonce []by
 	secLog.Debugf("util/aik_quote_verifier:VerifyQuoteAndGetPCRManifest() TPMT signature : %v", tpmtSignature)
 
 	hash := sha256.New()
-	hash.Write(quoteInfo)
+	_, err := hash.Write(quoteInfo)
+	if err != nil {
+		return types.PcrManifest{}, errors.Wrap(err,"Error writing quote information")
+	}
 	quoteDigest := hash.Sum(nil)
 	secLog.Debugf("util/aik_quote_verifier:VerifyQuoteAndGetPCRManifest() Quote signature : %v", quoteDigest)
-	err := rsa.VerifyPKCS1v15(aikCertificate.PublicKey.(*rsa.PublicKey), crypto.SHA256, quoteDigest, tpmtSignature)
+	err = rsa.VerifyPKCS1v15(aikCertificate.PublicKey.(*rsa.PublicKey), crypto.SHA256, quoteDigest, tpmtSignature)
 	if err != nil {
 		return types.PcrManifest{}, errors.Wrap(err, "util/aik_quote_verifier:VerifyQuoteAndGetPCRManifest() "+
 			"Error verifying quote digest")
@@ -220,7 +223,10 @@ func VerifyQuoteAndGetPCRManifest(decodedEventLog string, verificationNonce []by
 	}
 	secLog.Debugf("util/aik_quote_verifier:VerifyQuoteAndGetPCRManifest() PCR concat is : %s", pcrConcat)
 	hash = sha256.New()
-	hash.Write(pcrConcat)
+	_, err = hash.Write(pcrConcat)
+	if err != nil {
+		return types.PcrManifest{}, errors.Wrap(err,"Error writing pcr hash")
+	}
 	quoteDigest = hash.Sum(nil)
 
 	if !bytes.EqualFold(quoteDigest, tpm2bDigest) {
@@ -243,7 +249,10 @@ func GetVerificationNonce(nonce []byte, quoteResponse taModel.TpmQuoteResponse) 
 	log.Trace("util/aik_quote_verifier:GetVerificationNonce() Entering")
 	defer log.Trace("util/aik_quote_verifier:GetVerificationNonce() Leaving")
 	hash := sha1.New()
-	hash.Write(nonce)
+	_, err := hash.Write(nonce)
+	if err != nil {
+		return "", err
+	}
 	taNonce := hash.Sum(nil)
 
 	if quoteResponse.IsTagProvisioned {
@@ -257,8 +266,14 @@ func GetVerificationNonce(nonce []byte, quoteResponse taModel.TpmQuoteResponse) 
 		}
 
 		hash = sha1.New()
-		hash.Write(taNonce)
-		hash.Write(tagBytes)
+		_, err = hash.Write(taNonce)
+		if err != nil {
+			return "", err
+		}
+		_, err = hash.Write(tagBytes)
+		if err != nil {
+			return "", err
+		}
 		taNonce = hash.Sum(nil)
 	}
 	log.Debug("util/aik_quote_verifier:GetVerificationNonce() Verification Nonce generated")

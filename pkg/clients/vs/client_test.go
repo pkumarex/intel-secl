@@ -47,7 +47,6 @@ func mockServer(t *testing.T) (*http.Server, string) {
 }
 
 func serveController(t *testing.T, handler http.Handler) (*http.Server, string) {
-
 	//Listener Implementations
 	listener, err := net.Listen("tcp", ":0")
 	if err != nil {
@@ -70,10 +69,13 @@ func serveController(t *testing.T, handler http.Handler) (*http.Server, string) 
 }
 
 func TestClient_GetCaCerts(t *testing.T) {
-
 	server, portString := mockServer(t)
-	defer server.Close()
-
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing server")
+		}
+	}()
 	aasUrl, _ := url.Parse("http://localhost" + portString + "/aas")
 	baseURL, _ := url.Parse("http://localhost" + portString + "/mtwilson/v2")
 
@@ -113,9 +115,13 @@ func TestClient_GetCaCerts(t *testing.T) {
 }
 
 func TestClient_GetSamlReports(t *testing.T) {
-
 	server, portString := mockServer(t)
-	defer server.Close()
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing server")
+		}
+	}()
 
 	aasUrl, _ := url.Parse("http://localhost" + portString + "/aas")
 	baseURL, _ := url.Parse("http://localhost" + portString + "/mtwilson/v2")

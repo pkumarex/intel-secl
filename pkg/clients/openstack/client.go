@@ -104,7 +104,6 @@ func NewOpenstackClient(authRL *url.URL, apiURL *url.URL, userName string, passw
 }
 
 func (openstackClient *Client) validateOpenstackDetails() error {
-
 	log.Trace("openstack/client:validateOpenstackDetails() Entering")
 	defer log.Trace("openstack/client:validateOpenstackDetails() Leaving")
 
@@ -127,11 +126,10 @@ func (openstackClient *Client) validateOpenstackDetails() error {
 
 //updateOpenstackToken Update the Openstack token
 func (openstackClient *Client) updateOpenstackToken() error {
-
 	log.Trace("openstack/client:updateOpenstackToken() Entering")
 	defer log.Trace("openstack/client:updateOpenstackToken() Leaving")
 
-	url := openstackClient.AuthURL
+	authURL := openstackClient.AuthURL
 	method := "POST"
 	domain := "default"
 
@@ -229,7 +227,7 @@ func (openstackClient *Client) updateOpenstackToken() error {
 
 	payload := bytes.NewReader(jsonValue)
 
-	req, err := http.NewRequest(method, url.String(), payload)
+	req, err := http.NewRequest(method, authURL.String(), payload)
 
 	if err != nil {
 		return errors.Wrap(err, "openstack/client:updateOpenstackToken() Error in creating new request")
@@ -241,7 +239,12 @@ func (openstackClient *Client) updateOpenstackToken() error {
 	if err != nil {
 		return errors.Wrap(err, "openstack/client:updateOpenstackToken() Error in retrieving the Openstack token")
 	}
-	defer res.Body.Close()
+	defer func() {
+		derr := res.Body.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing response body")
+		}
+	}()
 
 	log.Debug("openstack/client:updateOpenstackToken() The HTTPClient response is received successfully ")
 	token := res.Header.Get("X-Subject-Token")
@@ -256,7 +259,6 @@ func (openstackClient *Client) updateOpenstackToken() error {
 
 //SendRequest API for sending Requests to openstack
 func (openstackClient *Client) SendRequest(reqParams *RequestParams) (*http.Response, error) {
-
 	log.Trace("openstack/client:SendRequest() Entering")
 	defer log.Trace("openstack/client:SendRequest() Leaving")
 
@@ -305,7 +307,6 @@ func (openstackClient *Client) SendRequest(reqParams *RequestParams) (*http.Resp
 }
 
 func (openstackClient *Client) getOpenstackHTTPClient() (*http.Client, error) {
-
 	log.Trace("openstack/client:getOpenstackHTTPClient() Entering")
 	defer log.Trace("openstack/client:getOpenstackHTTPClient() Leaving")
 

@@ -25,10 +25,21 @@ var defaultLogger *log.Entry
 var securityLogger *log.Entry
 
 func init() {
-	setup.AddLogger(DefaultLoggerName, "name", log.StandardLogger())
-	setup.AddLogger(SecurityLoggerName, "name", log.New())
+	err := setup.AddLogger(DefaultLoggerName, "name", log.StandardLogger())
+	if err != nil {
+		log.WithError(err).Error("failed to add logger")
+	}
 
-	setup.AddLogger(unknownLoggerName, "package", log.StandardLogger())
+	err = setup.AddLogger(SecurityLoggerName, "name", log.New())
+	if err != nil {
+		log.WithError(err).Error("failed to add logger")
+	}
+
+	err = setup.AddLogger(unknownLoggerName, "package", log.StandardLogger())
+	if err != nil {
+		log.WithError(err).Error("failed to add logger")
+	}
+
 }
 
 func AddLogger(name string, l *log.Logger) error {
@@ -40,7 +51,11 @@ func AddLoggerByPackageName() (*log.Entry, string) {
 	runtime.Callers(2, pc)
 	f := runtime.FuncForPC(pc[0])
 	pkgName := strings.Split(f.Name(), ".")[0]
-	setup.AddLogger(pkgName, "package", log.StandardLogger())
+	err := setup.AddLogger(pkgName, "package", log.StandardLogger())
+	if err != nil {
+		log.WithError(err).Error("failed to add logger")
+	}
+
 	return setup.GetLogger(pkgName), pkgName
 }
 

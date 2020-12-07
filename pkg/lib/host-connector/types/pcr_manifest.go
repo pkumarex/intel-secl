@@ -339,8 +339,14 @@ func (eventLogEntry *EventLogEntry) Replay() (string, error) {
 			return "", errors.Wrapf(err, "Failed to decode event log %d using hex string '%s'", i, eventLog.Value)
 		}
 
-		hash.Write(cumulativeHash)
-		hash.Write(eventHash)
+		_, err = hash.Write(cumulativeHash)
+		if err != nil {
+			return  "", errors.Wrap(err,"Error writing cumulative hash")
+		}
+		_, err = hash.Write(eventHash)
+		if err != nil {
+			return "", errors.Wrap(err,"Error writing event hash")
+		}
 		cumulativeHash = hash.Sum(nil)
 	}
 

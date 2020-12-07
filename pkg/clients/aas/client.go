@@ -296,6 +296,9 @@ func (c *Client) UpdateUser(userID string, user types.UserCreate) error {
 		return errors.New("aaClient.UpdateUser: HTTPClient should not be null")
 	}
 	rsp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
 	if rsp.StatusCode != http.StatusOK {
 		ErrHTTPUpdateUser.RetCode = rsp.StatusCode
 		return ErrHTTPUpdateUser
@@ -321,6 +324,9 @@ func (c *Client) AddRoleToUser(userID string, r types.RoleIDs) error {
 		return errors.New("aaClient.AddRoleToUser: HTTPClient should not be null")
 	}
 	rsp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
 	if rsp.StatusCode != http.StatusCreated {
 		ErrHTTPAddRoleToUser.RetCode = rsp.StatusCode
 		return ErrHTTPAddRoleToUser

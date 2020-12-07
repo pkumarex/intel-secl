@@ -6,6 +6,7 @@ package setup
 
 import (
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"io"
 )
 
@@ -62,7 +63,10 @@ func (r *Runner) AddTask(name, envPrefix string, t Task) {
 // calls Task.Run() regarding less if the task hac been done previously.
 func (r *Runner) RunAll(force bool) error {
 	for _, taskName := range r.order {
-		r.Run(taskName, force)
+		err := r.Run(taskName, force)
+		if len(r.failedCommands) != 0 {
+			log.WithError(err).Errorf("Failed to run task : %s", taskName)
+		}
 	}
 	if len(r.failedCommands) != 0 {
 		return errors.New("Failed to run all tasks")

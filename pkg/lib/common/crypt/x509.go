@@ -347,7 +347,12 @@ func SavePrivateKeyAsPKCS8(keyDer []byte, filePath string) error {
 	if err != nil {
 		return errors.Wrapf(err, "crypt/x509:SavePrivateKeyAsPKCS8() Error while changing file permission for file : %s", filePath)
 	}
-	defer keyOut.Close()
+	defer func() {
+		derr := keyOut.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing file")
+		}
+	}()
 
 	if err := pem.Encode(keyOut, &pem.Block{Type: "PRIVATE KEY", Bytes: keyDer}); err != nil {
 		return fmt.Errorf("could not pem encode the private key: %v", err)
@@ -408,11 +413,15 @@ func SavePemCertWithShortSha1FileName(certPem []byte, dir string) error {
 	if err != nil {
 		return fmt.Errorf("could not open file for saving certificate with short sha1 filename - error :: %v", err)
 	}
-	os.Chmod(filePath, 0640)
-
-	defer certOut.Close()
+	defer func() {
+		derr := certOut.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing file")
+		}
+	}()
+	err = os.Chmod(filePath, 0640)
 	if err != nil {
-		return fmt.Errorf("could not open file for writing certificate filepath:%s : %v", filePath, err)
+		return fmt.Errorf("could not change file permissions: %s", filePath)
 	}
 
 	// let us decode and encode the block.. this is to make sure that there
@@ -420,7 +429,10 @@ func SavePemCertWithShortSha1FileName(certPem []byte, dir string) error {
 	// the header
 
 	for block, rest := pem.Decode(certPem); block != nil && block.Type == "CERTIFICATE"; block, rest = pem.Decode(rest) {
-		pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: block.Bytes}); 
+		err = pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: block.Bytes});
+		if err != nil {
+			return fmt.Errorf("could not encode certificate")
+		}
 	}
 
 	return nil
@@ -431,9 +443,17 @@ func SavePemCert(cert []byte, certFilePath string) (err error) {
 	if err != nil {
 		return fmt.Errorf("could not open file for writing: %v", err)
 	}
-	defer certOut.Close()
+	defer func() {
+		derr := certOut.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing file")
+		}
+	}()
+	err = os.Chmod(certFilePath, 0640)
+	if err != nil {
+		return fmt.Errorf("could not change file permissions: %s", certFilePath)
+	}
 
-	os.Chmod(certFilePath, 0640)
 	if err := pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: cert}); err != nil {
 		return fmt.Errorf("could not pem encode cert: %v", err)
 	}
@@ -446,9 +466,18 @@ func SavePemCertChain(certFilePath string, certs ...[]byte) error {
 	if err != nil {
 		return fmt.Errorf("could not open file for writing: %v", err)
 	}
-	defer certOut.Close()
+	defer func() {
+		derr := certOut.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing file")
+		}
+	}()
 
-	os.Chmod(certFilePath, 0640)
+	err = os.Chmod(certFilePath, 0640)
+	if err != nil {
+		return fmt.Errorf("could not change file permissions: %s", certFilePath)
+	}
+
 	for _, cert := range certs {
 		if err := pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: cert}); err != nil {
 			return fmt.Errorf("could not pem encode cert: %v", err)

@@ -9,6 +9,7 @@ import (
 	"crypto/tls"
 	"encoding/pem"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -74,7 +75,12 @@ func isDirEmpty(name string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	defer f.Close()
+	defer func() {
+		derr := f.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing file")
+		}
+	}()
 
 	_, err = f.Readdirnames(1)
 	if err == io.EOF {
@@ -87,12 +93,12 @@ func downloadRootCaCertificate(cmsBaseUrl string, dirPath string, trustedTlsCert
 	if !strings.HasSuffix(cmsBaseUrl, "/") {
 		cmsBaseUrl = cmsBaseUrl + "/"
 	}
-	url, err := url.Parse(cmsBaseUrl)
+	parsedUrl, err := url.Parse(cmsBaseUrl)
 	if err != nil {
 		return errors.Wrap(err, "Failed to parse CMS URL")
 	}
-	certificates, _ := url.Parse("ca-certificates")
-	endpoint := url.ResolveReference(certificates)
+	certificates, _ := parsedUrl.Parse("ca-certificates")
+	endpoint := parsedUrl.ResolveReference(certificates)
 	req, err := http.NewRequest("GET", endpoint.String(), nil)
 	if err != nil {
 		return errors.Wrap(err, "Failed to instantiate http request to CMS")
@@ -109,7 +115,12 @@ func downloadRootCaCertificate(cmsBaseUrl string, dirPath string, trustedTlsCert
 	if err != nil {
 		return errors.Wrap(err, "Failed to perform HTTP request to CMS")
 	}
-	defer resp.Body.Close()
+	defer func() {
+		derr := resp.Body.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing response")
+		}
+	}()
 	// PEM encode the certificate (this is a standard TLS encoding)
 	pemBlock := pem.Block{Type: "CERTIFICATE", Bytes: resp.TLS.PeerCertificates[0].Raw}
 	certPEM := pem.EncodeToMemory(&pemBlock)

@@ -54,7 +54,10 @@ func (privacycatpm2 *PrivacyCATpm2) ProcessIdentityRequest(request model.Identit
 		return model.IdentityProofRequest{}, errors.Wrap(err, "privacyca/privacyca_tpm2:ProcessIdentityRequest() Error while performing EncryptSym")
 	}
 	encryptedIdentityChallengeBlob := new(bytes.Buffer)
-	binary.Write(encryptedIdentityChallengeBlob, binary.BigEndian, encryptedIdentityChallenge)
+	err = binary.Write(encryptedIdentityChallengeBlob, binary.BigEndian, encryptedIdentityChallenge)
+	if err != nil{
+		return model.IdentityProofRequest{}, errors.Wrap(err,"privacyca/privacyca_tpm2:ProcessIdentityRequest() Error writing identity challenge")
+	}
 	credential, err := tpm2utils.MakeCredential(pubEk, consts.TPM2AlgorithmSymmetricAES, consts.SymmetricKeyBits128, crypto.SHA256, key, request.AikName)
 	if err != nil {
 		return model.IdentityProofRequest{}, errors.Errorf("privacyca/privacyca_tpm2:ProcessIdentityRequest() Error while performing MakeCredential %+v", err)

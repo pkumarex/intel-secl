@@ -40,7 +40,10 @@ func (certifyKey20 *CertifyKey20) IsCertifiedKeySignatureValid(aikCert *x509.Cer
 	tpmCertifyKeySignatureBytes := certifyKey20.RegKeyInfo.TpmCertifyKeySignature
 
 	var tpm2CertifyKey Tpm2CertifiedKey
-	tpm2CertifyKey.PopulateTpmCertifyKey20(certifyKey20.RegKeyInfo.TpmCertifyKey)
+	err := tpm2CertifyKey.PopulateTpmCertifyKey20(certifyKey20.RegKeyInfo.TpmCertifyKey)
+	if err != nil {
+		return false, errors.New("tpm2utils/certify_key_tpm2:IsCertifiedKeySignatureValid() Error populating TPM Certify Key")
+	}
 
 	hashAlg,_, err := tpm2CertifyKey.GetTpmtHashAlgDigest()
 	if err != nil {
@@ -61,7 +64,10 @@ func (certifyKey20 *CertifyKey20) IsCertifiedKeySignatureValid(aikCert *x509.Cer
 	}
 
 	h := sha256.New()
-	h.Write(tpmCertifyKeyBytes)
+	_, err = h.Write(tpmCertifyKeyBytes)
+	if err != nil{
+		return false, errors.Wrap(err, "tpm2utils/certify_key_tpm2:IsCertifiedKeySignatureValid() Error writing key")
+	}
 	computedDigest := h.Sum(nil)
 	err = rsa.VerifyPKCS1v15(aikRsaPubKey, crypto.SHA256, computedDigest, signedSignatureBytes)
 	if err != nil {
@@ -81,7 +87,10 @@ func (certifyKey20 *CertifyKey20) ValidateNameDigest() error {
 	endPadding, _ := hex.DecodeString(constants.Tpm2NameDigestSuffixPadding)
 
 	var tpmCertifyKey20 Tpm2CertifiedKey
-	tpmCertifyKey20.PopulateTpmCertifyKey20(tcgCertificate)
+	err := tpmCertifyKey20.PopulateTpmCertifyKey20(tcgCertificate)
+	if err != nil {
+		return errors.Wrap(err,"tpm2utils/certify_key_tpm2:ValidateNameDigest() Error populating TPM Certify Key")
+	}
 	_, digest, err := tpmCertifyKey20.GetTpmtHashAlgDigest()
 	if err != nil{
 		return errors.Wrap(err, "tpm2utils/certify_key_tpm2:ValidateNameDigest() Error while extracting digest from tpm certified key")
@@ -94,19 +103,21 @@ func (certifyKey20 *CertifyKey20) ValidateNameDigest() error {
 	return nil
 }
 
-func (certifyKey20 *CertifyKey20) ValidatePublicKey()bool{
+func (certifyKey20 *CertifyKey20) ValidatePublicKey() (bool, error) {
 	defaultLog.Trace("tpm2utils/certify_key_tpm2:ValidatePublicKey() Entering")
 	defer defaultLog.Trace("tpm2utils/certify_key_tpm2:ValidatePublicKey() Leaving")
 
 	pubKeyMod := certifyKey20.RegKeyInfo.PublicKeyModulus
 	tpmCertifiedKey := certifyKey20.RegKeyInfo.TpmCertifyKey
 	var tpmCertifyKey20 Tpm2CertifiedKey
-	tpmCertifyKey20.PopulateTpmCertifyKey20(tpmCertifiedKey)
-
+	err := tpmCertifyKey20.PopulateTpmCertifyKey20(tpmCertifiedKey)
+	if err != nil {
+		return false, errors.Wrap(err, "tpm2utils/certify_key_tpm2:ValidatePublicKey() Error populating TPM Certify Key")
+	}
 	//Get the public key digest from attestation info
 	hashAlg, digest, err := tpmCertifyKey20.GetTpmtHashAlgDigest()
 	if err != nil{
-		defaultLog.WithError(err).Error("tpm2utils/certify_key_tpm2:ValidatePublicKey() Error while extracting digest from tpm certified key")
+		return false, errors.Wrap(err, "tpm2utils/certify_key_tpm2:ValidatePublicKey() Error while extracting digest from tpm certified key")
 	}
 	//remove first two bytes that represent the public area size
 	publicKeyInfoBuffer := pubKeyMod[2:]
@@ -114,18 +125,17 @@ func (certifyKey20 *CertifyKey20) ValidatePublicKey()bool{
 	case constants.TPM_ALG_ID_SHA256:
 		publicKeyInfoBufferDigest := sha256.Sum256(publicKeyInfoBuffer)
 		if equal(publicKeyInfoBufferDigest[:], digest) {
-			return true
+			return true, nil
 		}
 	case constants.TPM_ALG_ID_SHA384:
 		publicKeyInfoBufferDigest := sha512.Sum384(publicKeyInfoBuffer)
 		if equal(publicKeyInfoBufferDigest[:], digest) {
-			return true
+			return true, nil
 		}
 	default:
-		defaultLog.Errorf("tpm2utils/certify_key_tpm2:ValidatePublicKey() Hash algorithm:%d not supported", hashAlg)
-		return false
+		return false, errors.Wrapf(err, "tpm2utils/certify_key_tpm2:ValidatePublicKey() Hash algorithm:%d not supported", hashAlg)
 	}
-	return false
+	return false, nil
 }
 
 func equal(a, b []byte) bool {
@@ -213,7 +223,11 @@ func (certifyKey20 *CertifyKey20) IsTpmGeneratedKey() bool{
 	defer defaultLog.Trace("tpm2utils/certify_key_tpm2:IsTpmGeneratedKey() Leaving")
 
 	var tpmCertifyKey20 Tpm2CertifiedKey
-	tpmCertifyKey20.PopulateTpmCertifyKey20(certifyKey20.RegKeyInfo.TpmCertifyKey)
+	err := tpmCertifyKey20.PopulateTpmCertifyKey20(certifyKey20.RegKeyInfo.TpmCertifyKey)
+	if err != nil {
+		secLog.WithError(err).Errorf("tpm2utils/certify_key_tpm2:IsTpmGeneratedKey() Coulld not populate Key")
+		return false
+	}
 	if tpmCertifyKey20.Magic != constants.Tpm2CertifiedKeyMagic {
 		secLog.Warnf("tpm2utils/certify_key_tpm2:IsTpmGeneratedKey() Invalid structure, it wasn't created by the TPM, got %s, expecting %s", tpmCertifyKey20.Magic, constants.Tpm2CertifiedKeyMagic)
 		return false

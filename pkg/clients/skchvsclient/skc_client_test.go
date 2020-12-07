@@ -14,10 +14,13 @@ import (
 )
 
 func TestClientGetSGXPlatformData(t *testing.T) {
-
 	server, port := testutility.MockServer(t)
-	defer server.Close()
-
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing server")
+		}
+	}()
 	aasUrl, _ := url.Parse("http://localhost" + port + "/aas")
 	baseURL, _ := url.Parse("http://localhost" + port + "/sgx-hvs/v1")
 
@@ -61,9 +64,13 @@ func TestClientGetSGXPlatformData(t *testing.T) {
 }
 
 func TestClientGetSHVSVersion(t *testing.T) {
-
 	server, port := testutility.MockServer(t)
-	defer server.Close()
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing server")
+		}
+	}()
 
 	aasUrl, _ := url.Parse("http://localhost" + port + "/aas")
 	baseURL, _ := url.Parse("http://localhost" + port + "/sgx-hvs/v1")

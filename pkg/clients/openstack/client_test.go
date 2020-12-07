@@ -30,7 +30,12 @@ var emptyUrl *url.URL
 
 func TestNewOpenstackClient(t *testing.T) {
 	httpServer, portString := mockOpenstackServer(t)
-	defer httpServer.Close()
+	defer func() {
+		derr := httpServer.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing server")
+		}
+	}()
 
 	type args struct {
 		authRL   string
@@ -107,10 +112,14 @@ func TestNewOpenstackClient(t *testing.T) {
 
 func TestSendRequest(t *testing.T) {
 	h, portString := mockOpenstackServer(t)
-	defer h.Close()
-	var err error
+	defer func() {
+		derr := h.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing server")
+		}
+	}()
 
-	authUrl, err = url.Parse("http://localhost" + portString + "/v3/auth/tokens")
+	authUrl, err := url.Parse("http://localhost" + portString + "/v3/auth/tokens")
 	if err != nil {
 		t.Errorf("openstack/client_test:TestSendRequest(): unable to parse the auth url,error = %v", err)
 		return
@@ -207,11 +216,14 @@ func TestSendRequest(t *testing.T) {
 func TestUpdateOpenstackToken(t *testing.T) {
 
 	h, portString := mockOpenstackServer(t)
-	defer h.Close()
+	defer func() {
+		derr := h.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing server")
+		}
+	}()
 
-	var err error
-
-	authUrl, err = url.Parse("http://localhost" + portString + "/v3/auth/tokens")
+	authUrl, err := url.Parse("http://localhost" + portString + "/v3/auth/tokens")
 	if err != nil {
 		t.Errorf("openstack/client_test:TestUpdateOpenstackToken(): unable to parse the auth url,error = %v", err)
 		return
@@ -281,10 +293,14 @@ func TestUpdateOpenstackToken(t *testing.T) {
 func TestGetOpenstackHTTPClient(t *testing.T) {
 
 	h, portString := mockOpenstackServer(t)
-	defer h.Close()
-	var err error
+	defer func() {
+		derr := h.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing server")
+		}
+	}()
 
-	authUrl, err = url.Parse("http://localhost" + portString + "/v3/auth/tokens")
+	authUrl, err := url.Parse("http://localhost" + portString + "/v3/auth/tokens")
 	if err != nil {
 		t.Errorf("openstack/client_test:TestUpdateOpenstackToken(): unable to parse the auth url,error = %v", err)
 		return

@@ -119,7 +119,13 @@ func TestNewK8sClient(t *testing.T) {
 
 func TestSendRequest(t *testing.T) {
 	server, portString := mockServer(t)
-	defer server.Close()
+	var err error
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing server")
+		}
+	}()
 
 	urlPath := "http://localhost" + portString + "/test"
 	parsedUrl, err := url.Parse(urlPath)

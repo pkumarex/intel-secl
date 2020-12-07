@@ -7,6 +7,7 @@ package serialize
 
 import (
 	"encoding/json"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
 )
@@ -18,7 +19,12 @@ func SaveToJsonFile(path string, obj interface{}) error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() {
+		derr := file.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing file")
+		}
+	}()
 	return json.NewEncoder(file).Encode(obj)
 }
 
