@@ -271,7 +271,7 @@ func TestUpdateCRD(t *testing.T) {
 			if tt.args.httpMethodType == "POST" {
 				tt.args.k.Config.Endpoint.CRDName = "custom-isecl-not-found"
 			} else if tt.args.httpMethodType == "PUT" {
-				tt.args.k.Config.Endpoint.CRDName = "custom-isecl2"
+				tt.args.k.Config.Endpoint.CRDName = "custom-isecl"
 			}
 
 			log.Info(tt.args.k.Config.Endpoint.CRDName)
@@ -654,6 +654,7 @@ func TestPutCRD(t *testing.T) {
 							URL:      "http://localhost" + port + "/",
 							Token:    k8sToken,
 							CertFile: "k8sCert.pem",
+							CRDName: "custom-isecl",
 						},
 					},
 				},

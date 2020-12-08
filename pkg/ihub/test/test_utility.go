@@ -149,12 +149,12 @@ func MockServer(t *testing.T) (*http.Server, string) {
 		}
 	}).Methods("GET")
 
-	r.HandleFunc("/apis/crd.isecl.intel.com/v1beta1/namespaces/default/hostattributes/custom-isecl", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/apis/crd.isecl.intel.com/v1beta1/namespaces/default/hostattributes/custom-isecl-not-found", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
 	}).Methods("POST")
 
-	r.HandleFunc("/apis/crd.isecl.intel.com/v1beta1/namespaces/default/hostattributes/custom-isecl", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/apis/crd.isecl.intel.com/v1beta1/namespaces/default/hostattributes/custom-isecl2", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
 	}).Methods("PUT")
