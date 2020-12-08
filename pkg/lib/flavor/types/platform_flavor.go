@@ -25,4 +25,8 @@ type PlatformFlavor interface {
 	// GetFlavorPartRaw extracts the details of the flavor part requested by the
 	// caller from the host report used during the creation of the PlatformFlavor instance
 	GetFlavorPartRaw(common.FlavorPart) ([]cm.Flavor, error)
+
+	// GetFlavorPartRaw extracts the details of the flavor part requested by the
+	// caller from the host report used during the creation of the PlatformFlavor instance
+	GetFlavorPartRawFC(common.FlavorPart) ([]cm.FlavorFC, error)
 }

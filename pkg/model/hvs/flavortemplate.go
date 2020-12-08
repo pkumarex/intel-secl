@@ -40,7 +40,7 @@ type PCR struct {
 
 //EventLogEquals - To store event log need be equal with specified PCR.
 type EventLogEquals struct {
-	ExculdingTags []string `json:"excluding_tags"`
+	ExculdingTags *[]string `json:"excluding_tags,omitempty"`
 }
 
 // //EventLogEquals - To store Event Log need be included with specified PCR.
@@ -49,17 +49,17 @@ type EventLogEquals struct {
 // 	IncludeTags []string `json:"include_tags,omitempty"`
 // }
 
-type PcrRules []struct {
+type PcrRules struct {
 	Pcr              PCR             `json:"pcr"`
-	PcrMatches       *bool           `json:"pcr_matches"`
+	PcrMatches       *bool           `json:"pcr_matches,omitempty"`
 	EventlogEquals   *EventLogEquals `json:"eventlog_equals,omitempty"`
-	EventlogIncludes *[]string       `json:"eventlog_includes"`
+	EventlogIncludes *[]string       `json:"eventlog_includes,omitempty"`
 }
 
 //Flavor - To store flavor with meta, event-log-equals and event-log-includes.
 type FlavorPart struct {
-	Meta     *Meta    `json:"meta,omitempty"`
-	PcrRules PcrRules `json:"pcr_rules"`
+	Meta     *Meta      `json:"meta,omitempty"`
+	PcrRules []PcrRules `json:"pcr_rules"`
 }
 
 //FlavorParts - To store possible flavor part requested.
@@ -73,8 +73,20 @@ type FlavorParts struct {
 
 //FlavorTemplate - To maintain all values keep together inorder to maintain flavor template.
 type FlavorTemplate struct {
+	// swagger:strfmt uuid
 	ID          uuid.UUID   `json:"id" gorm:"primary_key;type:uuid"`
 	Label       string      `json:"label"`
 	Condition   []string    `json:"condition" sql:"type:text[]"`
-	FlavorParts FlavorParts `json:"flavor-parts,omitempty" sql:"type:JSONB"`
+	FlavorParts FlavorParts `json:"flavor_parts,omitempty" sql:"type:JSONB"`
+}
+
+type PcrListRules struct {
+	PcrMatches  bool
+	PcrEquals   PcrEquals
+	PcrIncludes map[string]bool
+}
+
+type PcrEquals struct {
+	IsPcrEquals   bool
+	ExcludingTags map[string]bool
 }

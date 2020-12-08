@@ -6,15 +6,18 @@ package types
 
 import (
 	"encoding/xml"
+	"fmt"
+	"strings"
+
 	cf "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
 	cm "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/util"
 	hcConstants "github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/constants"
 	hcTypes "github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
+	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
-	"strings"
 )
 
 /**
@@ -24,10 +27,13 @@ import (
 
 // LinuxPlatformFlavor is used to generate various Flavors for a Intel-based Linux host
 type LinuxPlatformFlavor struct {
-	HostManifest   *hcTypes.HostManifest        `json:"host_manifest"`
-	HostInfo       *taModel.HostInfo            `json:"host_info"`
-	TagCertificate *cm.X509AttributeCertificate `json:"tag_certificate"`
+	HostManifest    *hcTypes.HostManifestFC      `json:"host_manifest"`
+	HostInfo        *taModel.HostInfo            `json:"host_info"`
+	TagCertificate  *cm.X509AttributeCertificate `json:"tag_certificate"`
+	FlavorTemplates *[]hvs.FlavorTemplate
 }
+
+//var pcrList_mod map[hvs.PCR]pcrListRules
 
 var (
 	// This is a map of platform specific modules.
@@ -70,20 +76,42 @@ var pfutil util.PlatformFlavorUtil
 var sfutil util.SoftwareFlavorUtil
 
 // NewLinuxPlatformFlavor returns an instance of LinuxPlatformFlavor
-func NewLinuxPlatformFlavor(hostReport *hcTypes.HostManifest, tagCertificate *cm.X509AttributeCertificate) PlatformFlavor {
+func NewLinuxPlatformFlavor(hostReport *hcTypes.HostManifestFC, tagCertificate *cm.X509AttributeCertificate, flavorTemplates *[]hvs.FlavorTemplate) PlatformFlavor {
 	log.Trace("flavor/types/linux_platform_flavor:NewLinuxPlatformFlavor() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:NewLinuxPlatformFlavor() Leaving")
 
 	return LinuxPlatformFlavor{
-		HostManifest:   hostReport,
-		HostInfo:       &hostReport.HostInfo,
-		TagCertificate: tagCertificate,
+		HostManifest:    hostReport,
+		HostInfo:        &hostReport.HostInfo,
+		TagCertificate:  tagCertificate,
+		FlavorTemplates: flavorTemplates,
 	}
 }
 
 // GetFlavorPartRaw extracts the details of the flavor part requested by the
 // caller from the host report used during the creation of the PlatformFlavor instance
 func (rhelpf LinuxPlatformFlavor) GetFlavorPartRaw(name cf.FlavorPart) ([]cm.Flavor, error) {
+	log.Trace("flavor/types/linux_platform_flavor:GetFlavorPartRaw() Entering")
+	defer log.Trace("flavor/types/linux_platform_flavor:GetFlavorPartRaw() Leaving")
+
+	// switch name {
+	// case cf.FlavorPartPlatform:
+	// 	return rhelpf.getPlatformFlavor()
+	// case cf.FlavorPartOs:
+	// 	return rhelpf.getOsFlavor()
+	// case cf.FlavorPartAssetTag:
+	// 	return rhelpf.getAssetTagFlavor()
+	// case cf.FlavorPartHostUnique:
+	// 	return rhelpf.getHostUniqueFlavor()
+	// case cf.FlavorPartSoftware:
+	// 	return rhelpf.getDefaultSoftwareFlavor()
+	// }
+	return nil, cf.UNKNOWN_FLAVOR_PART()
+}
+
+// GetFlavorPartRaw extracts the details of the flavor part requested by the
+// caller from the host report used during the creation of the PlatformFlavor instance
+func (rhelpf LinuxPlatformFlavor) GetFlavorPartRawFC(name cf.FlavorPart) ([]cm.FlavorFC, error) {
 	log.Trace("flavor/types/linux_platform_flavor:GetFlavorPartRaw() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:GetFlavorPartRaw() Leaving")
 
@@ -110,80 +138,95 @@ func (rhelpf LinuxPlatformFlavor) GetFlavorPartNames() ([]cf.FlavorPart, error) 
 	flavorPartList := []cf.FlavorPart{cf.FlavorPartPlatform, cf.FlavorPartOs, cf.FlavorPartHostUnique, cf.FlavorPartSoftware}
 
 	// For each of the flavor parts, check what PCRs are required and if those required PCRs are present in the host report.
-	for i := 0; i < len(flavorPartList); i++ {
-		flavorPart := flavorPartList[i]
-		pcrList := rhelpf.getPcrList(flavorPart)
-		pcrExists := pfutil.PcrExists(rhelpf.HostManifest.PcrManifest, pcrList)
-		if !pcrExists {
-			// remove the non-existent FlavorPart from list
-			flavorPartList = append(flavorPartList[:i], flavorPartList[i+1:]...)
+	/*	for i := 0; i < len(flavorPartList); i++ {
+			flavorPart := flavorPartList[i]
+			pcrList,_ := rhelpf.getPcrList(flavorPart, nil) // To do update this method -AMIs
+			pcrExists := pfutil.PcrExists(rhelpf.HostManifest.PcrManifest, pcrList)
+			if !pcrExists {
+				// remove the non-existent FlavorPart from list
+				flavorPartList = append(flavorPartList[:i], flavorPartList[i+1:]...)
+			}
 		}
-	}
 
-	// Check if the AssetTag flavor part is present by checking if tagCertificate is present
-	if rhelpf.TagCertificate != nil {
-		flavorPartList = append(flavorPartList, cf.FlavorPartAssetTag)
-	}
+		// Check if the AssetTag flavor part is present by checking if tagCertificate is present
+		if rhelpf.TagCertificate != nil {
+			flavorPartList = append(flavorPartList, cf.FlavorPartAssetTag)
+		} */
 	return flavorPartList, nil
 }
 
 // GetPcrList Helper function to calculate the list of PCRs for the flavor part specified based
 // on the version of the TPM hardware.
-func (rhelpf LinuxPlatformFlavor) getPcrList(flavorPart cf.FlavorPart) []int {
+func (rhelpf LinuxPlatformFlavor) getPcrList(flavorPart cf.FlavorPart, flavorTemplates *[]hvs.FlavorTemplate) ([]int, map[hvs.PCR]hvs.PcrListRules) {
 	log.Trace("flavor/types/linux_platform_flavor:getPcrList() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:getPcrList() Leaving")
 
 	var pcrSet = make(map[int]bool)
 	var pcrs []int
-	var isTboot bool
+	//var isTboot bool
 
-	hostInfo := *rhelpf.HostInfo
+	//hostInfo := *rhelpf.HostInfo
 
-	isTboot = hostInfo.TbootInstalled
+	log.Debug("flavor/types/linux_platform_flavor:getPcrList() Entering", flavorTemplates)
+	log.Debug("flavor/types/linux_platform_flavor:getPcrList() flavorPart ", flavorPart)
 
-	switch flavorPart {
-	case cf.FlavorPartPlatform:
-		pcrSet[0] = true
-		// check if CBNT is supported
-		if isCbntMeasureProfile(hostInfo.HardwareFeatures.CBNT) {
-			log.Debug("flavor/types/linux_platform_flavor:getPcrList() PlatformFlavor - platform supports CBNT")
-			pcrSet[7] = true
-		}
+	//isTboot = hostInfo.TbootInstalled
+	pcrlistAndRules := make(map[hvs.PCR]hvs.PcrListRules)
+	for _, flavorTemplate := range *flavorTemplates {
+		log.Debug("flavor/types/linux_platform_flavor:getPcrList() flavorTemplate ", flavorTemplate)
+		switch flavorPart {
+		case cf.FlavorPartPlatform:
+			log.Debug("flavor/types/linux_platform_flavor:getPcrList() flavorPart ", flavorPart)
+			log.Debug("flavor/types/linux_platform_flavor:getPcrList() flavorPart in template ", flavorTemplate.FlavorParts.Platform)
+			pcrlistAndRules = getPCRListAndRules(flavorTemplate.FlavorParts.Platform, pcrlistAndRules)
+			/*pcrSet[0] = true
+			// check if CBNT is supported
+			if isCbntMeasureProfile(hostInfo.HardwareFeatures.CBNT) {
+				log.Debug("flavor/types/linux_platform_flavor:getPcrList() PlatformFlavor - platform supports CBNT")
+				pcrSet[7] = true
+			}
 
-		// check if SUEFI is supported
-		if hostInfo.HardwareFeatures.SUEFI != nil {
-			if hostInfo.HardwareFeatures.SUEFI.Enabled {
-				for _, pcrx := range suefiPcrList {
-					log.Debug("flavor/types/linux_platform_flavor:getPcrList() PlatformFlavor - platform supports SUEFI")
-					pcrSet[pcrx] = true
+			// check if SUEFI is supported
+			if hostInfo.HardwareFeatures.SUEFI != nil {
+				if hostInfo.HardwareFeatures.SUEFI.Enabled {
+					for _, pcrx := range suefiPcrList {
+						log.Debug("flavor/types/linux_platform_flavor:getPcrList() PlatformFlavor - platform supports SUEFI")
+						pcrSet[pcrx] = true
+					}
 				}
 			}
-		}
 
-		// check if TBOOT is installed
-		if isTboot {
-			for _, pcrx := range tbootPcrList {
-				log.Debug("flavor/types/linux_platform_flavor:getPcrList() PlatformFlavor - TBOOT is installed")
-				pcrSet[pcrx] = true
-			}
-		}
-	case cf.FlavorPartOs:
-		// check if TBOOT is installed
-		if isTboot {
-			log.Debug("flavor/types/linux_platform_flavor:getPcrList() OSFlavor - TBOOT is installed")
-			pcrSet[17] = true
-		}
+			// check if TBOOT is installed
+			if isTboot {
+				for _, pcrx := range tbootPcrList {
+					log.Debug("flavor/types/linux_platform_flavor:getPcrList() PlatformFlavor - TBOOT is installed")
+					pcrSet[pcrx] = true
+				}
+			}*/
+		case cf.FlavorPartOs:
+			// check if TBOOT is installed
+			/*if isTboot {
+				log.Debug("flavor/types/linux_platform_flavor:getPcrList() OSFlavor - TBOOT is installed")
+				pcrSet[17] = true
+			}*/
+			log.Debug("flavor/types/linux_platform_flavor:getPcrList() OS flavorPart ", flavorPart)
+			log.Debug("flavor/types/linux_platform_flavor:getPcrList() OS flavorPart in template ", flavorTemplate.FlavorParts.OS)
+			pcrlistAndRules = getPCRListAndRules(flavorTemplate.FlavorParts.OS, pcrlistAndRules)
+			log.Debug("flavor/types/linux_platform_flavor:getPcrList() OS flavorPart pcrlistAndRules ", pcrlistAndRules)
 
-	case cf.FlavorPartHostUnique:
-		// check if TBOOT is installed
-		if isTboot {
-			for _, pcrx := range tbootPcrList {
-				log.Debug("flavor/types/linux_platform_flavor:getPcrList() HostUniqueFlavor - TBOOT is installed")
-				pcrSet[pcrx] = true
-			}
+		case cf.FlavorPartHostUnique:
+			// check if TBOOT is installed
+			/*if isTboot {
+				for _, pcrx := range tbootPcrList {
+					log.Debug("flavor/types/linux_platform_flavor:getPcrList() HostUniqueFlavor - TBOOT is installed")
+					pcrSet[pcrx] = true
+				}
+			}*/
+			pcrlistAndRules = getPCRListAndRules(flavorTemplate.FlavorParts.HostUnique, pcrlistAndRules)
+		case cf.FlavorPartSoftware:
+			pcrSet[15] = true
+			break
 		}
-	case cf.FlavorPartSoftware:
-		pcrSet[15] = true
 	}
 
 	// convert set back to list
@@ -191,7 +234,72 @@ func (rhelpf LinuxPlatformFlavor) getPcrList(flavorPart cf.FlavorPart) []int {
 		pcrs = append(pcrs, k)
 	}
 	log.Debugf("flavor/types/linux_platform_flavor:getPcrList() PCRList %v", pcrs)
-	return pcrs
+	return pcrs, pcrlistAndRules
+}
+
+func getPCRListAndRules(flavorPart *hvs.FlavorPart, pcrList map[hvs.PCR]hvs.PcrListRules) map[hvs.PCR]hvs.PcrListRules {
+	log.Trace("flavor/types/linux_platform_flavor:getPCRListAndRules() Entering")
+	defer log.Trace("flavor/types/linux_platform_flavor:getPCRListAndRules() Leaving")
+
+	log.Debug("flavor/types/linux_platform_flavor:getPCRListAndRules() flavorPart ", flavorPart)
+	log.Debug("flavor/types/linux_platform_flavor:getPCRListAndRules() pcrList ", pcrList)
+
+	if flavorPart == nil {
+		return pcrList
+	}
+
+	if pcrList == nil {
+		pcrList = make(map[hvs.PCR]hvs.PcrListRules)
+	}
+
+	for i, pcrRule := range flavorPart.PcrRules {
+		log.Debug("flavor/types/linux_platform_flavor:getPCRListAndRules() pcrRule ", pcrRule, i)
+		var rulesList hvs.PcrListRules
+
+		log.Debug("flavor/types/linux_platform_flavor:getPCRListAndRules() pcrList[pcrRule.Pcr] ", pcrList[pcrRule.Pcr])
+		if rules, ok := pcrList[pcrRule.Pcr]; ok {
+			log.Debug("flavor/types/linux_platform_flavor:getPCRListAndRules() rules ", rules)
+			rulesList = rules
+		}
+		log.Debug("flavor/types/linux_platform_flavor:getPCRListAndRules() rulesListist ", rulesList)
+		if pcrRule.PcrMatches != nil && *pcrRule.PcrMatches {
+			rulesList.PcrMatches = true
+		}
+
+		log.Debug("flavor/types/linux_platform_flavor:getPCRListAndRules() rulesList.PcrMatches ", rulesList.PcrMatches)
+
+		if pcrRule.EventlogEquals != nil {
+
+			rulesList.PcrEquals.IsPcrEquals = true
+
+			if pcrRule.EventlogEquals.ExculdingTags != nil {
+				rulesList.PcrEquals.ExcludingTags = make(map[string]bool)
+				for _, tags := range *pcrRule.EventlogEquals.ExculdingTags {
+					if _, ok := rulesList.PcrEquals.ExcludingTags[tags]; !ok {
+						rulesList.PcrEquals.ExcludingTags[tags] = false
+					}
+				}
+			}
+		}
+		log.Debug("flavor/types/linux_platform_flavor:getPCRListAndRules() rulesList.PcrEquals.ExcludingTags[tags] ", rulesList.PcrEquals.ExcludingTags)
+
+		if pcrRule.EventlogIncludes != nil {
+			rulesList.PcrIncludes = make(map[string]bool)
+			log.Debug("flavor/types/linux_platform_flavor:getPCRListAndRules()  pcrRule.EventlogIncludes ", pcrRule.EventlogIncludes)
+			for _, tags := range *pcrRule.EventlogIncludes {
+				log.Debug("flavor/types/linux_platform_flavor:getPCRListAndRules()  tag -> ", tags)
+				if _, ok := rulesList.PcrIncludes[tags]; !ok {
+					log.Debug("flavor/types/linux_platform_flavor:getPCRListAndRules()  rulesList.PcrIncludes[tags] -> ", rulesList.PcrIncludes[tags])
+					rulesList.PcrIncludes[tags] = true
+				}
+				log.Debug("flavor/types/linux_platform_flavor:getPCRListAndRules()  ok -> ")
+			}
+		}
+		log.Debug("flavor/types/linux_platform_flavor:getPCRListAndRules() rulesList.PcrIncludes ", rulesList.PcrIncludes)
+		pcrList[pcrRule.Pcr] = rulesList
+	}
+	log.Debug("flavor/types/linux_platform_flavor:getPCRListAndRules() pcrList ended ", pcrList)
+	return pcrList
 }
 
 func isCbntMeasureProfile(cbnt *taModel.CBNT) bool {
@@ -228,17 +336,16 @@ func (rhelpf LinuxPlatformFlavor) eventLogRequired(flavorPartName cf.FlavorPart)
 
 // getPlatformFlavor returns a json document having all the good known PCR values and
 // corresponding event logs that can be used for evaluating the PLATFORM trust of a host
-func (rhelpf LinuxPlatformFlavor) getPlatformFlavor() ([]cm.Flavor, error) {
+func (rhelpf LinuxPlatformFlavor) getPlatformFlavor() ([]cm.FlavorFC, error) {
 	log.Trace("flavor/types/linux_platform_flavor:getPlatformFlavor() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:getPlatformFlavor() Leaving")
 
 	var errorMessage = "Error during creation of PLATFORM flavor"
-	var platformPcrs = rhelpf.getPcrList(cf.FlavorPartPlatform)
+	_, platformPcrs := rhelpf.getPcrList(cf.FlavorPartPlatform, rhelpf.FlavorTemplates)
 	var includeEventLog = rhelpf.eventLogRequired(cf.FlavorPartPlatform)
-	var allPcrDetails = pfutil.GetPcrDetails(
-		rhelpf.HostManifest.PcrManifest, platformPcrs, includeEventLog)
-	var filteredPcrDetails = pfutil.IncludeModulesToEventLog(
-		allPcrDetails, platformModules)
+	var allPcrDetails = rhelpf.GetPcrDetails(rhelpf.HostManifest.PcrManifest, platformPcrs, includeEventLog)
+	// var filteredPcrDetails = pfutil.IncludeModulesToEventLog(
+	// 	allPcrDetails, platformModules)
 
 	newMeta, err := pfutil.GetMetaSectionDetails(rhelpf.HostInfo, rhelpf.TagCertificate, "", cf.FlavorPartPlatform,
 		hcConstants.VendorIntel)
@@ -260,27 +367,27 @@ func (rhelpf LinuxPlatformFlavor) getPlatformFlavor() ([]cm.Flavor, error) {
 	log.Debugf("flavor/types/linux_platform_flavor:getPlatformFlavor() New Hardware Section: %v", *newHW)
 
 	// Assemble the Platform Flavor
-	platformFlavor := cm.NewFlavor(newMeta, newBios, newHW, filteredPcrDetails, nil, nil)
+	platformFlavor := cm.NewFlavorFC(newMeta, newBios, newHW, allPcrDetails, nil, nil)
 
 	log.Debugf("flavor/types/linux_platform_flavor:getPlatformFlavor()  New PlatformFlavor: %v", platformFlavor)
 
-	return []cm.Flavor{*platformFlavor}, nil
+	return []cm.FlavorFC{*platformFlavor}, nil
 }
 
 // getOsFlavor Returns a json document having all the good known PCR values and
 // corresponding event logs that can be used for evaluating the OS Trust of a host
-func (rhelpf LinuxPlatformFlavor) getOsFlavor() ([]cm.Flavor, error) {
+func (rhelpf LinuxPlatformFlavor) getOsFlavor() ([]cm.FlavorFC, error) {
 	log.Trace("flavor/types/linux_platform_flavor:getOsFlavor() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:getOsFlavor() Leaving")
 
 	var errorMessage = "Error during creation of OS flavor"
 	var err error
-	var osPcrs = rhelpf.getPcrList(cf.FlavorPartOs)
+	_, osPcrs := rhelpf.getPcrList(cf.FlavorPartOs, rhelpf.FlavorTemplates)
 	var includeEventLog = rhelpf.eventLogRequired(cf.FlavorPartOs)
-	var allPcrDetails = pfutil.GetPcrDetails(
+	var allPcrDetails = rhelpf.GetPcrDetails(
 		rhelpf.HostManifest.PcrManifest, osPcrs, includeEventLog)
-	var filteredPcrDetails = pfutil.IncludeModulesToEventLog(
-		allPcrDetails, osModules)
+	// var filteredPcrDetails = pfutil.IncludeModulesToEventLog(
+	// 	allPcrDetails, osModules)
 
 	newMeta, err := pfutil.GetMetaSectionDetails(rhelpf.HostInfo, rhelpf.TagCertificate, "", cf.FlavorPartOs,
 		hcConstants.VendorIntel)
@@ -296,28 +403,28 @@ func (rhelpf LinuxPlatformFlavor) getOsFlavor() ([]cm.Flavor, error) {
 	log.Debugf("flavor/types/linux_platform_flavor:getOsFlavor() New Bios Section: %v", *newBios)
 
 	// Assemble the OS Flavor
-	osFlavor := cm.NewFlavor(newMeta, newBios, nil, filteredPcrDetails, nil, nil)
+	osFlavor := cm.NewFlavorFC(newMeta, newBios, nil, allPcrDetails, nil, nil)
 
 	log.Debugf("flavor/types/linux_platform_flavor:getOSFlavor()  New OS Flavor: %v", osFlavor)
 
-	return []cm.Flavor{*osFlavor}, nil
+	return []cm.FlavorFC{*osFlavor}, nil
 }
 
 // getHostUniqueFlavor Returns a json document having all the good known PCR values and corresponding event logs that
 // can be used for evaluating the unique part of the PCR configurations of a host. These include PCRs/modules getting
 // extended to PCRs that would vary from host to host.
-func (rhelpf LinuxPlatformFlavor) getHostUniqueFlavor() ([]cm.Flavor, error) {
+func (rhelpf LinuxPlatformFlavor) getHostUniqueFlavor() ([]cm.FlavorFC, error) {
 	log.Trace("flavor/types/linux_platform_flavor:getHostUniqueFlavor() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:getHostUniqueFlavor() Leaving")
 
 	var errorMessage = "Error during creation of HOST_UNIQUE flavor"
 	var err error
-	var hostUniquePcrs = rhelpf.getPcrList(cf.FlavorPartHostUnique)
+	_, hostUniquePcrs := rhelpf.getPcrList(cf.FlavorPartHostUnique, rhelpf.FlavorTemplates)
 	var includeEventLog = rhelpf.eventLogRequired(cf.FlavorPartHostUnique)
-	var allPcrDetails = pfutil.GetPcrDetails(
+	var allPcrDetails = rhelpf.GetPcrDetails(
 		rhelpf.HostManifest.PcrManifest, hostUniquePcrs, includeEventLog)
-	var filteredPcrDetails = pfutil.IncludeModulesToEventLog(
-		allPcrDetails, hostUniqueModules)
+	// var filteredPcrDetails = pfutil.IncludeModulesToEventLog(
+	// 	allPcrDetails, hostUniqueModules)
 
 	newMeta, err := pfutil.GetMetaSectionDetails(rhelpf.HostInfo, rhelpf.TagCertificate, "", cf.FlavorPartHostUnique,
 		hcConstants.VendorIntel)
@@ -333,16 +440,16 @@ func (rhelpf LinuxPlatformFlavor) getHostUniqueFlavor() ([]cm.Flavor, error) {
 	log.Debugf("flavor/types/linux_platform_flavor:getHostUniqueFlavor() New Bios Section: %v", *newBios)
 
 	// Assemble the Host Unique Flavor
-	hostUniqueFlavor := cm.NewFlavor(newMeta, newBios, nil, filteredPcrDetails, nil, nil)
+	hostUniqueFlavor := cm.NewFlavorFC(newMeta, newBios, nil, allPcrDetails, nil, nil)
 
 	log.Debugf("flavor/types/esx_platform_flavor:getHostUniqueFlavor() New PlatformFlavor: %v", hostUniqueFlavor)
 
-	return []cm.Flavor{*hostUniqueFlavor}, nil
+	return []cm.FlavorFC{*hostUniqueFlavor}, nil
 }
 
 // getAssetTagFlavor Retrieves the asset tag part of the flavor including the certificate and all the key-value pairs
 // that are part of the certificate.
-func (rhelpf LinuxPlatformFlavor) getAssetTagFlavor() ([]cm.Flavor, error) {
+func (rhelpf LinuxPlatformFlavor) getAssetTagFlavor() ([]cm.FlavorFC, error) {
 	log.Trace("flavor/types/linux_platform_flavor:getAssetTagFlavor() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:getAssetTagFlavor() Leaving")
 
@@ -376,38 +483,38 @@ func (rhelpf LinuxPlatformFlavor) getAssetTagFlavor() ([]cm.Flavor, error) {
 	log.Debugf("flavor/types/linux_platform_flavor:getAssetTagFlavor() New External Section: %v", *newExt)
 
 	// Assemble the Asset Tag Flavor
-	assetTagFlavor := cm.NewFlavor(newMeta, newBios, nil, nil, newExt, nil)
+	assetTagFlavor := cm.NewFlavorFC(newMeta, newBios, nil, nil, newExt, nil)
 
 	log.Debugf("flavor/types/esx_platform_flavor:getPlatformFlavor() New Asset Tag Flavor: %v", assetTagFlavor)
 
-	return []cm.Flavor{*assetTagFlavor}, nil
+	return []cm.FlavorFC{*assetTagFlavor}, nil
 }
 
 // getDefaultSoftwareFlavor Method to create a software flavor. This method would create a software flavor that would
 // include all the measurements provided from host.
-func (rhelpf LinuxPlatformFlavor) getDefaultSoftwareFlavor() ([]cm.Flavor, error) {
+func (rhelpf LinuxPlatformFlavor) getDefaultSoftwareFlavor() ([]cm.FlavorFC, error) {
 	log.Trace("flavor/types/linux_platform_flavor:getDefaultSoftwareFlavor() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:getDefaultSoftwareFlavor() Leaving")
 
-	var softwareFlavors []cm.Flavor
-	var errorMessage = cf.SOFTWARE_FLAVOR_CANNOT_BE_CREATED().Message
+	var softwareFlavors []cm.FlavorFC
+	// var errorMessage = cf.SOFTWARE_FLAVOR_CANNOT_BE_CREATED().Message
 
-	if rhelpf.HostManifest != nil && rhelpf.HostManifest.MeasurementXmls != nil {
-		measurementXmls, err := rhelpf.getDefaultMeasurement()
-		if err != nil {
-			return nil, errors.Wrapf(err, errorMessage)
-		}
+	// if rhelpf.HostManifest != nil && rhelpf.HostManifest.MeasurementXmls != nil {
+	// 	measurementXmls, err := rhelpf.getDefaultMeasurement()
+	// 	if err != nil {
+	// 		return nil, errors.Wrapf(err, errorMessage)
+	// 	}
 
-		for _, measurementXml := range measurementXmls {
-			var softwareFlavor = NewSoftwareFlavor(measurementXml)
-			swFlavor, err := softwareFlavor.GetSoftwareFlavor()
-			if err != nil {
-				return nil, err
-			}
-			softwareFlavors = append(softwareFlavors, *swFlavor)
-		}
-	}
-	log.Debugf("flavor/types/esx_platform_flavor:getDefaultSoftwareFlavor() New Software Flavor: %v", softwareFlavors)
+	// 	for _, measurementXml := range measurementXmls {
+	// 		var softwareFlavor = NewSoftwareFlavor(measurementXml)
+	// 		swFlavor, err := softwareFlavor.GetSoftwareFlavor()
+	// 		if err != nil {
+	// 			return nil, err
+	// 		}
+	// 		softwareFlavors = append(softwareFlavors, *swFlavor)
+	// 	}
+	// }
+	// log.Debugf("flavor/types/esx_platform_flavor:getDefaultSoftwareFlavor() New Software Flavor: %v", softwareFlavors)
 	return softwareFlavors, nil
 }
 
@@ -432,4 +539,145 @@ func (rhelpf LinuxPlatformFlavor) getDefaultMeasurement() ([]string, error) {
 		}
 	}
 	return measurementXmlCollection, nil
+}
+
+// GetPcrDetails extracts Pcr values and Event Logs from the HostManifest/PcrManifest and  returns
+// in a format suitable for inserting into the flavor
+func (rhelpf LinuxPlatformFlavor) GetPcrDetails(pcrManifest hcTypes.PcrManifestFC, pcrList map[hvs.PCR]hvs.PcrListRules, includeEventLog bool) []hcTypes.PCRS {
+	log.Trace("flavor/util/platform_flavor_util:GetPcrDetails() Entering")
+	defer log.Trace("flavor/util/platform_flavor_util:GetPcrDetails() Leaving")
+
+	var pcrCollection []hcTypes.PCRS
+
+	log.Trace("flavor/util/platform_flavor_util:GetPcrDetails() pcrLIST ", pcrList)
+	log.Trace("flavor/util/platform_flavor_util:GetPcrDetails() Len of pcrLIST ", len(pcrList))
+
+	// pull out the logs for the required PCRs from both banks
+	for pcr, rules := range pcrList {
+
+		log.Debug("pcr Index -> ", pcr.Index)
+		log.Debug("pcr Bank -> ", pcr.Bank)
+
+		pI := hcTypes.PcrIndex(pcr.Index)
+		var pcrInfo *hcTypes.Pcr
+		pcrInfo, _ = pcrManifest.GetPcrValue(hcTypes.SHAAlgorithm(pcr.Bank), pI)
+
+		log.Debug("pcrInfo Index-> ", pcrInfo.Index)
+
+		if pcrInfo != nil {
+
+			var currPcrEx hcTypes.PCRS
+
+			currPcrEx.PCR.Index = pcr.Index
+			currPcrEx.PCR.Bank = pcr.Bank
+			currPcrEx.Measurement = pcrInfo.Value
+			currPcrEx.PCRMatches = true
+
+			// Populate Value
+			// Event logs if allowed
+			if includeEventLog {
+				var eventLogEqualEvents []hcTypes.EventLogCreteria
+				manifestPcrEventLogs, err := pcrManifest.GetPcrEventLog(hcTypes.SHAAlgorithm(pcr.Bank), pI)
+
+				log.Debug("manifestPcrEventLogs -> ", manifestPcrEventLogs)
+				log.Debug("err -> ", err)
+
+				// check if returned logset from PCR is nil
+				if manifestPcrEventLogs != nil && err == nil {
+
+					log.Debug("manifestPcrEventLogs -> ", manifestPcrEventLogs)
+					log.Debug("err -> ", err)
+					log.Debug("currPcrEx -> ", currPcrEx)
+
+					// Convert EventLog to flavor format
+					for _, manifestEventLog := range *manifestPcrEventLogs {
+						//EventLogTags := make(map[string]bool)
+
+						// for _, tag := range manifestEventLog.Tags {
+						// 	EventLogTags[tag] = false
+						// }
+
+						// for includeTag := range rules.PcrIncludes {
+						// 	EventLogTags[includeTag] = true
+						// }
+
+						// for excludeTag := range rules.PcrEquals.ExcludingTags {
+						// 	EventLogTags[excludeTag] = false
+						// }
+
+						// for i := range EventLogTags {
+
+						// 	if EventLogTags[i] {
+						// 		currPcrEx.EventlogIncludes = append(currPcrEx.EventlogIncludes, manifestEventLog)
+						// 	} else if rules.PcrEquals.IsPcrEquals {
+						// 		var eventLogEqual hcTypes.EventLogEqual
+						// 		eventLogEqual.Events = append(eventLogEqual.Events, manifestEventLog)
+						// 		for excludeTag, _ := range rules.PcrEquals.ExcludingTags {
+						// 			if strings.EqualFold(i, excludeTag) {
+						// 				eventLogEqual.ExcludeTags = append(eventLogEqual.ExcludeTags, excludeTag)
+						// 			}
+						// 		}
+						// 		currPcrEx.EventlogEqual = append(currPcrEx.EventlogEqual, eventLogEqual)
+						// 	}
+						// }
+						// Test code
+						if len(manifestEventLog.Tags) == 0 {
+							if rules.PcrEquals.IsPcrEquals {
+								eventLogEqualEvents = append(eventLogEqualEvents, manifestEventLog)
+								//currPcrEx.EventlogEqual = append(currPcrEx.EventlogEqual, eventLogEqual)
+							}
+						}
+						for _, tag := range manifestEventLog.Tags {
+							if _, ok := rules.PcrIncludes[tag]; ok {
+								currPcrEx.EventlogIncludes = append(currPcrEx.EventlogIncludes, manifestEventLog)
+							} else if rules.PcrEquals.IsPcrEquals {
+								if _, ok := rules.PcrEquals.ExcludingTags[tag]; !ok {
+									eventLogEqualEvents = append(eventLogEqualEvents, manifestEventLog)
+								}
+							}
+						}
+					}
+					if rules.PcrEquals.IsPcrEquals {
+						var EventLogExcludes []string
+						for excludeTag, _ := range rules.PcrEquals.ExcludingTags {
+							EventLogExcludes = append(EventLogExcludes, excludeTag)
+						}
+						currPcrEx.EventlogEqual = &hcTypes.EventLogEqual{
+							Events:      eventLogEqualEvents,
+							ExcludeTags: EventLogExcludes,
+						}
+					}
+				}
+			}
+
+			pcrCollection = append(pcrCollection, currPcrEx)
+		}
+	}
+	// return map for flavor to use
+	return pcrCollection
+}
+
+func getEventLogEqualsIncludes(manifestEventLogTags map[string]bool, eventLogEquals, eventLogIncludes map[string]int) (EventLogTags map[string]bool) {
+
+	fmt.Println("flavor/util/platform_flavor_util:getEventLogEqualsIncludes() Entering")
+	defer fmt.Println("flavor/util/platform_flavor_util:getEventLogEqualsIncludes() Leaving")
+
+	EventLogTags = manifestEventLogTags
+
+	for tag := range manifestEventLogTags {
+
+		for equalTag, _ := range eventLogEquals {
+			if strings.EqualFold(tag, equalTag) {
+				EventLogTags[equalTag] = false
+			}
+		}
+
+		for includeTag, _ := range eventLogIncludes {
+			if strings.EqualFold(tag, includeTag) {
+				EventLogTags[includeTag] = true
+			}
+		}
+
+	}
+	return EventLogTags
 }
