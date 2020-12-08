@@ -7,6 +7,7 @@ package model
 import (
 	"crypto/sha512"
 	"encoding/json"
+
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
@@ -32,6 +33,18 @@ type Flavor struct {
 	Software *Software `json:"software,omitempty"`
 }
 
+type FlavorFC struct {
+	// Meta section is mandatory for all Flavor types
+	Meta Meta  `json:"meta"`
+	Bios *Bios `json:"bios,omitempty"`
+	// Hardware section is unique to Platform Flavor type
+	Hardware *Hardware    `json:"hardware,omitempty"`
+	Pcrs     []types.PCRS `json:"pcrs,omitempty"`
+	// External section is unique to AssetTag Flavor type
+	External *External `json:"external,omitempty"`
+	Software *Software `json:"software,omitempty"`
+}
+
 // NewFlavor returns a new instance of Flavor
 func NewFlavor(meta *Meta, bios *Bios, hardware *Hardware, pcrs map[crypt.DigestAlgorithm]map[types.PcrIndex]PcrEx, external *External, software *Software) *Flavor {
 	// Since maps are hard to marshal as JSON, let's try to convert the DigestAlgorithm and PcrIndex to strings
@@ -47,6 +60,19 @@ func NewFlavor(meta *Meta, bios *Bios, hardware *Hardware, pcrs map[crypt.Digest
 		Bios:     bios,
 		Hardware: hardware,
 		Pcrs:     pcrx,
+		External: external,
+		Software: software,
+	}
+}
+
+// NewFlavorFV returns a new instance of Flavor
+func NewFlavorFC(meta *Meta, bios *Bios, hardware *Hardware, Pcrs []types.PCRS, external *External, software *Software) *FlavorFC {
+
+	return &FlavorFC{
+		Meta:     *meta,
+		Bios:     bios,
+		Hardware: hardware,
+		Pcrs:     Pcrs,
 		External: external,
 		Software: software,
 	}
@@ -70,6 +96,26 @@ func (flavor *Flavor) GetPcrValue(bank types.SHAAlgorithm, index types.PcrIndex)
 // GetFlavorDigest Calculates the SHA384 hash of the Flavor's json data for use when
 // signing/verifying signed flavors.
 func (flavor *Flavor) getFlavorDigest() ([]byte, error) {
+	// account for a differences in properties set at runtime
+	tempFlavor := *flavor
+	tempFlavor.Meta.ID = uuid.Nil
+
+	flavorJSON, err := json.Marshal(tempFlavor)
+	if err != nil {
+		return nil, errors.Wrap(err, "An error occurred attempting to convert the flavor to json")
+	}
+
+	if flavorJSON == nil || len(flavorJSON) == 0 {
+		return nil, errors.New("The flavor json was not provided")
+	}
+
+	hashEntity := sha512.New384()
+	hashEntity.Write(flavorJSON)
+
+	return hashEntity.Sum(nil), nil
+}
+
+func (flavor *FlavorFC) getFlavorDigest() ([]byte, error) {
 	// account for a differences in properties set at runtime
 	tempFlavor := *flavor
 	tempFlavor.Meta.ID = uuid.Nil

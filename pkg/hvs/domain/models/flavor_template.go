@@ -9,5 +9,5 @@ import "github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 type FlavorTemplateContent struct {
 	Label       string          `json:"label"`
 	Condition   []string        `json:"condition" sql:"type:text[]"`
-	FlavorParts hvs.FlavorParts `json:"flavor-parts,omitempty" sql:"type:JSONB"`
+	FlavorParts hvs.FlavorParts `json:"flavor_parts,omitempty" sql:"type:JSONB"`
 }

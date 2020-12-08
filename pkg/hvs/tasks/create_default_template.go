@@ -27,23 +27,37 @@ type CreateDefaultTemplate struct {
 	TemplateStore *postgres.FlavorTemplateStore
 }
 
+var defaultFlavorTemplateNames = []string{
+	"default-uefi",
+	"default-pfr",
+	"default-bmc",
+}
+
 func (t *CreateDefaultTemplate) Run() error {
-	defaultTemplatesMap := make(map[string]string)
 	var templates []hvs.FlavorTemplate
 
 	ftStore, err := t.flavorTemplateStore()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to initialize flavor template store instance")
 	}
 
-	templates, err = getMissingTemplates(t.deleted)
+	if len(t.deleted) != 0 {
+		// Recover delete default template.
+		err := ftStore.Recover(t.deleted)
+		if err != nil {
+			return errors.Wrapf(err, "failed to recover default flavor template(s) ", t.deleted)
+		}
+		t.deleted = []string{}
+		return nil
+	}
+
+	templates, err = getTemplates()
 	if err != nil {
 		return err
 	}
 
 	for _, ft := range templates {
 		// create default flavortemplates ONLY if it does not exist already
-		defaultTemplatesMap[ft.Label] = ft.ID.String()
 		_, err := ftStore.Create(&ft)
 		if err != nil {
 			return errors.Wrap(err, "failed to create default flavor template with ID \""+ft.ID.String()+"\"")
@@ -56,30 +70,30 @@ func (t *CreateDefaultTemplate) Run() error {
 func (t *CreateDefaultTemplate) Validate() error {
 	ftStore, err := t.flavorTemplateStore()
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to initialize flavor template store instance")
 	}
 	var ftList []hvs.FlavorTemplate
-	availableTemplates := make(map[string]bool)
+	defaultFlavorTemplateMap := map[string]bool{}
 	t.deleted = []string{}
 
-	for _, template := range defaultFlavorTemplateNames {
-		availableTemplates[template] = false
+	for _, templateName := range defaultFlavorTemplateNames {
+		defaultFlavorTemplateMap[templateName] = false
 	}
 
 	ftList, err = ftStore.Search(false)
 	if err != nil {
 		return errors.Wrap(err, "Failed to validate "+t.commandName)
 	}
-	if ftList == nil {
+	if len(ftList) == 0 {
 		return errors.New("No active templates found in db")
 	}
 
 	for _, template := range ftList {
-		availableTemplates[template.Label] = true
+		defaultFlavorTemplateMap[template.Label] = true
 	}
 
 	for _, templateName := range defaultFlavorTemplateNames {
-		if !availableTemplates[templateName] {
+		if !defaultFlavorTemplateMap[templateName] {
 			t.deleted = append(t.deleted, templateName)
 		}
 	}
@@ -115,114 +129,122 @@ func (t *CreateDefaultTemplate) flavorTemplateStore() (*postgres.FlavorTemplateS
 	return t.TemplateStore, nil
 }
 
-func getMissingTemplates(unavailable []string) ([]hvs.FlavorTemplate, error) {
+func getTemplates() ([]hvs.FlavorTemplate, error) {
 	var ret []hvs.FlavorTemplate
-	templateMap := make(map[string]string)
 
-	for i, name := range defaultFlavorTemplateNames {
-		templateMap[name] = defaultFlavorTemplatesRaw[i]
-	}
-
-	if unavailable == nil {
-		for _, ftStr := range defaultFlavorTemplatesRaw {
-			var ft hvs.FlavorTemplate
-			err := json.Unmarshal([]byte(ftStr), &ft)
-			if err != nil {
-				return nil, err
-			}
-			ret = append(ret, ft)
-		}
-		return ret, nil
-	}
-
-	for _, required := range unavailable {
+	for _, ftStr := range defaultFlavorTemplatesRaw {
 		var ft hvs.FlavorTemplate
-		err := json.Unmarshal([]byte(templateMap[required]), &ft)
+		err := json.Unmarshal([]byte(ftStr), &ft)
 		if err != nil {
 			return nil, err
 		}
 		ret = append(ret, ft)
 	}
-
 	return ret, nil
-}
-
-var defaultFlavorTemplateNames = []string{
-	"default_uefi",
-	"default_pfr",
-	//"default_pfrr",
 }
 
 var defaultFlavorTemplatesRaw = []string{
 	`{
-	"label": "default_uefi",
-	"condition": [
-		"//meta/vendor='Linux'",
-		"//meta/tpm_version/='2.0'",
-		"//meta/uefi_enabled/='true' or //meta/suefi_enabled/='true'"
-	],
-	"flavor-parts": {
-		"PLATFORM": {
-			"meta": {
-				"vendor": "Linux",
-				"tpm_version": "2.0",
-				"uefi_enabled": true
-			},
-			"pcr_rules": [
-				{
-					"pcr": {
-						"index": 0,
-						"bank": "SHA256"
-					}
-				}
-			]
-		},
-		"OS": {
-			"meta": {
-				"vendor": "Linux",
-				"tpm_version": "2.0",
-				"uefi_enabled": true
-			},
-			"pcr_rules": [
-				{
-					"pcr": {
-						"index": 7,
-						"bank": "SHA256"
-					},
-					"eventlog_includes": [
-						"shim",
-						"db",
-						"kek",
-						"vmlinuz"
-					]
-				}
-			]
-		}
-	}
-}`,
+	 "label": "default-uefi",
+	 "condition": [
+		 "//host_info/vendor='Linux'",
+		 "//host_info/tpm_version='2.0'",
+		 "//host_info/uefi_enabled='true'",
+		 "//host_info/suefi_enabled='true'"
+	 ],
+	 "flavor_parts": {
+		 "PLATFORM": {
+			 "meta": {
+				 "vendor":"Linux",
+				 "tpm_version": "2.0",
+				 "uefi_enabled": true
+			 },
+			 "pcr_rules": [
+				 {
+					 "pcr": {
+						 "index": 0,
+						 "bank": "SHA256"
+					 },
+					 "pcr_matches": true,
+					 "eventlog_equals": { }
+				 }
+			 ]
+		 },
+		 "OS": {
+			 "meta": {
+				 "vendor":"Linux",
+				 "tpm_version": "2.0",
+				 "uefi_enabled": true
+			 },
+			 "pcr_rules": [
+				 {
+					 "pcr": {
+						 "index": 7,
+						 "bank": "SHA256"
+					 },
+					 "pcr_matches": true,
+					 "eventlog_includes": [
+						 "shim", "db", "kek", "vmlinuz"
+					 ]
+				 }
+			 ]
+		 }
+	 }
+ }`,
 	`{
-	"label": "default_pfr",
-	"condition": [
-		"//meta/vendor='Linux'",
-		"//meta/tpm_version/='2.0'" 
-	],
-	"flavor-parts": {
-		"PLATFORM": {
-			"meta": {
-				"vendor":"Linux",
-				"tpm_version": "2.0",
-				"uefi_enabled": true
-			},
-			"pcr_rules": [
-				{
-					"pcr": {
-						"index": 7,
-						"bank": "SHA256"
-					},
-					"eventlog_includes": ["Inte PFR"]
-				}
-			]
-		}
-	}
-}`,
+	 "label": "default-pfr",
+	 "condition": [
+		 "//host_info/vendor='Linux'",
+		 "//host_info/tpm_version='2.0'" 
+	 ],
+	 "flavor_parts": {
+		 "PLATFORM": {
+			 "meta": {
+				 "vendor":"Linux",
+				 "tpm_version": "2.0",
+				 "uefi_enabled": true
+			 },
+			 "pcr_rules": [
+				 {
+					 "pcr": {
+						 "index": 0,
+						 "bank": "SHA256"
+					 },
+					 "pcr_matches": true,
+					 "eventlog_includes": [
+						 "Intel PFR"
+					 ]
+				 }
+			 ]
+		 }
+	 }
+ }`,
+	`{
+	 "label": "default-bmc",
+	 "condition": [
+		 "//host_info/vendor='Linux'",
+		 "//host_info/tpm_version='2.0'" 
+	 ],
+	 "flavor_parts": {
+		 "PLATFORM": {
+			 "meta": {
+				 "vendor":"Linux",
+				 "tpm_version": "2.0",
+				 "uefi_enabled": true
+			 },
+			 "pcr_rules": [
+				 {
+					 "pcr": {
+						 "index": 0,
+						 "bank": "SHA256"
+					 },
+					 "pcr_matches": true,
+					 "eventlog_includes": [
+						 "Firmware Hash"
+					 ]
+				 }
+			 ]
+		 }
+	 }
+ }`,
 }
