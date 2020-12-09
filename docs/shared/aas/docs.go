@@ -1,14 +1,32 @@
-/*
- *  Copyright (C) 2020 Intel Corporation
- *  SPDX-License-Identifier: BSD-3-Clause
- */
+// Authentication and Authorization Service (AAS)
+//
+// The Authentication and Authorization Service (AAS) is a component responsible for generating and maintaining
+// user authentication and authorization information and issue the users with a JWT for accessing various ISECL
+// services.
+//
+//  License: Copyright (C) 2020 Intel Corporation. SPDX-License-Identifier: BSD-3-Clause
+//
+//  Version: 3
+//  Host: aas.com:8444
+//  BasePath: /aas
+//
+//  Schemes: https
+//
+//  SecurityDefinitions:
+//   bearerAuth:
+//     type: apiKey
+//     in: header
+//     name: Authorization
+//     description: Enter your bearer token in the format **Bearer &lt;token&gt;**
+//
+// swagger:meta
 package aas
 
 import "github.com/intel-secl/intel-secl/v3/pkg/model/aas"
 
 // UserCredInfo request payload
 // swagger:parameters UserCredInfo
-type UserCredInfo struct {
+type UserCred struct {
 	// in:body
 	Body aas.UserCred
 }
@@ -25,7 +43,7 @@ type UserCredInfo struct {
 // consumes:
 // - application/json
 // produces:
-// - text/plain
+// - application/jwt
 // parameters:
 // - name: request body
 //   required: true
@@ -146,7 +164,8 @@ type UserCredInfo struct {
 
 // swagger:operation GET /noauth/version Version getVersion
 // ---
-// description: Retrieves the version of Authservice.
+// description: |
+//   Retrieves the version of Authservice.
 //
 // produces:
 // - text/plain

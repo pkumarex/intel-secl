@@ -14,15 +14,15 @@ type RoleCreateInfo struct {
 }
 
 // RoleResponse response payload
-// swagger:response RoleResponse
+// swagger:parameters RoleResponse
 type RoleResponse struct {
 	// in:body
 	Body aas.RoleCreateResponse
 }
 
 type RolePermission struct {
-	ID string `json:"permission_id,omitempty" gorm:"primary_key;type:uuid"`
-        Rule string `json:"rule"`
+	ID   string `json:"permission_id,omitempty" gorm:"primary_key;type:uuid"`
+	Rule string `json:"rule"`
 }
 
 type RoleTypeInfo struct {
@@ -34,12 +34,11 @@ type RoleTypeInfo struct {
 type RolesResponse []RoleTypeInfo
 
 // RolesResponse response payload
-// swagger:response RolesResponse
+// swagger:parameters RolesResponse
 type SwaggRolesResponse struct {
 	// in:body
 	Body RolesResponse
 }
-
 
 // swagger:operation POST /roles Roles createRole
 // ---
@@ -190,4 +189,3 @@ type SwaggRolesResponse struct {
 //       "name": "CertApprover"
 //    }
 // ---
-

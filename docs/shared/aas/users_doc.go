@@ -14,7 +14,7 @@ type UserCreateInfo struct {
 }
 
 // UserResponse response payload
-// swagger:response UserResponse
+// swagger:parameters UserResponse
 type UserResponse struct {
 	// in:body
 	Body aas.UserCreateResponse
@@ -23,7 +23,7 @@ type UserResponse struct {
 type UsersResponse []aas.UserCreateResponse
 
 // UsersResponse response payload
-// swagger:response UsersResponse
+// swagger:parameters UsersResponse
 type SwaggUsersResponse struct {
 	// in:body
 	Body UsersResponse
@@ -32,7 +32,7 @@ type SwaggUsersResponse struct {
 type UserPermissions []aas.PermissionInfo
 
 // UserPermissions response payload
-// swagger:response UserPermissions
+// swagger:parameters UserPermissions
 type SwaggUserPermissions struct {
 	// in:body
 	Body UserPermissions
@@ -58,7 +58,7 @@ type UserRoleResponse struct  {
 }
 
 // UserRoleResponse response payload
-// swagger:response UserRoleResponse
+// swagger:parameters UserRoleResponse
 type SwaggUserRoleResponse struct {
 	// in:body
 	Body UserRoleResponse
@@ -67,7 +67,7 @@ type SwaggUserRoleResponse struct {
 type UserRolesResponse []UserRoleResponse
 
 // UserRolesResponse response payload
-// swagger:response UserRolesResponse
+// swagger:parameters UserRolesResponse
 type SwaggUserRolesResponse struct {
 	// in:body
 	Body UserRolesResponse

@@ -5,7 +5,7 @@
 //
 //  License: Copyright (C) 2020 Intel Corporation. SPDX-License-Identifier: BSD-3-Clause 
 //
-//  Version: 2.2
+//  Version: 3
 //  Host: cms.com:8445
 //  BasePath: /cms/v1
 //
