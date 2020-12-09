@@ -64,7 +64,7 @@ func (signingKey CreateSigningKey) Run() error {
 		Bytes: pubkeyBytes,
 	}
 
-	publicKeyFile, err := os.OpenFile(signingKey.PublicKeyLocation, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	publicKeyFile, err := os.OpenFile(signingKey.PublicKeyLocation, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0600)
 	if err != nil {
 		return errors.Wrap(err, "tasks/create_signing_keypair:Run() Error while creating a new public key")
 	}

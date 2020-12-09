@@ -73,7 +73,7 @@ ln -sfT $LIB_PATH/libkmip.so.0.2 $LIB_PATH/libkmip.so
 ln -sfT $LIB_PATH/libkmip.so.0.2 $LIB_PATH/libkmip.so.0
 
 # make log files world readable
-chmod 744 LOG_PATH
+chmod 644 LOG_PATH
 
 # Install systemd script
 cp $COMPONENT_NAME.service $PRODUCT_HOME && chown $SERVICE_USERNAME:$SERVICE_USERNAME $PRODUCT_HOME/$COMPONENT_NAME.service && chown $SERVICE_USERNAME:$SERVICE_USERNAME $PRODUCT_HOME

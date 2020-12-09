@@ -38,7 +38,7 @@ func Copy(src, dst string) error {
 		}
 	}()
 
-	out, err := os.OpenFile(dst, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	out, err := os.OpenFile(dst, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0600)
 	if err != nil {
 		return err
 	}

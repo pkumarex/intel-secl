@@ -67,7 +67,7 @@ func init() {
 
 //SaveConfiguration method used to save the configuration
 func (c *Configuration) SaveConfiguration(filename string) error {
-	configFile, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	configFile, err := os.OpenFile(filename, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0600)
 	if err != nil {
 		return errors.Wrap(err, "Failed to create config file")
 	}

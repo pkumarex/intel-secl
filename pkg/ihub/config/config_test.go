@@ -43,7 +43,7 @@ func TestLoadConfiguration(t *testing.T) {
 				f, err := os.Create(dir + "/" + tt.configFile)
 				if err != nil {
 					t.Log("config/config_test:TestLoadConfiguration() Error in creating temp file")
-				}
+			}
 				_, err = f.WriteString("pollintervalminutes: 5\n")
 				if err != nil {
 					t.Log("config/config_test:TestLoadConfiguration() Error in writing data")
