@@ -104,9 +104,11 @@ func downloadRootCaCertificate(cmsBaseUrl string, dirPath string, trustedTlsCert
 		return errors.Wrap(err, "Failed to instantiate http request to CMS")
 	}
 	req.Header.Set("Accept", "application/x-pem-file")
+	//InsecureSkipVerify is set to true as connection is validated manually
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
+				MinVersion: tls.VersionTLS12,
 				InsecureSkipVerify: true,
 			},
 		},

@@ -118,7 +118,9 @@ func mockGetHostReports(h string, c *config.Configuration, t *testing.T) (*saml.
 
 	url = fmt.Sprintf(url, strings.ToLower(h))
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		TLSClientConfig: &tls.Config{
+			MinVersion: tls.VersionTLS12,
+			InsecureSkipVerify: true}, // As this is test code
 	}
 	client := &http.Client{Transport: tr}
 

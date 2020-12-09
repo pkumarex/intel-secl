@@ -177,6 +177,7 @@ func getCertificateFromCMS(certType string, keyAlg string, keyLen int, cmsBaseUr
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
+				MinVersion: tls.VersionTLS12,
 				InsecureSkipVerify: false,
 				RootCAs:            rootCAs,
 			},
