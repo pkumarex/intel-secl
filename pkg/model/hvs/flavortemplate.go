@@ -32,13 +32,13 @@ type PcrRules struct {
 	EventlogIncludes *[]string       `json:"eventlog_includes,omitempty"`
 }
 
-//Flavor - To store flavor with meta, event-log-equals and event-log-includes.
+// swagger:parameters FlavorPart
 type FlavorPart struct {
 	Meta     map[string]interface{} `json:"meta,omitempty"`
 	PcrRules []PcrRules             `json:"pcr_rules"`
 }
 
-//FlavorParts - To store possible flavor part requested.
+// swagger:parameters FlavorParts
 type FlavorParts struct {
 	Platform   *FlavorPart `json:"PLATFORM,omitempty"`
 	OS         *FlavorPart `json:"OS,omitempty"`
@@ -47,7 +47,6 @@ type FlavorParts struct {
 	AssetTag   *FlavorPart `json:"ASSET_TAG,omitempty"`
 }
 
-//FlavorTemplate - To maintain all values keep together inorder to maintain flavor template.
 type FlavorTemplate struct {
 	// swagger:strfmt uuid
 	ID          uuid.UUID   `json:"id" gorm:"primary_key;type:uuid"`
