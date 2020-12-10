@@ -90,8 +90,8 @@ func (builder *ruleBuilderIntelTpm20) GetPlatformRules() ([]rules.Rule, error) {
 	//
 	// Add 'PcrEventLogIntegrity' rules...
 	//
-	tbootInstalled := builder.signedFlavor.Flavor.Meta.Description.TbootInstalled
-	if tbootInstalled != nil && *tbootInstalled {
+	tbootInstalled := builder.signedFlavor.Flavor.Meta.Description[flavormodel.TbootInstalled]
+	if tbootInstalled != nil && tbootInstalled.(bool) {
 		pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcrs, &builder.signedFlavor.Flavor, common.FlavorPartPlatform)
 		if err != nil {
 			return nil, err
@@ -157,8 +157,8 @@ func (builder *ruleBuilderIntelTpm20) GetOsRules() ([]rules.Rule, error) {
 	//
 	// Add 'PcrEventLogIntegrity' rules...
 	//
-	tbootInstalled := builder.signedFlavor.Flavor.Meta.Description.TbootInstalled
-	if tbootInstalled != nil && *tbootInstalled {
+	tbootInstalled := builder.signedFlavor.Flavor.Meta.Description[flavormodel.TbootInstalled]
+	if tbootInstalled != nil && tbootInstalled.(bool) {
 		pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcr17, &builder.signedFlavor.Flavor, common.FlavorPartOs)
 		if err != nil {
 			return nil, err
@@ -203,8 +203,8 @@ func (builder *ruleBuilderIntelTpm20) GetHostUniqueRules() ([]rules.Rule, error)
 	//
 	// Add 'PcrEventLogIntegrity' rules...
 	//
-	tbootInstalled := builder.signedFlavor.Flavor.Meta.Description.TbootInstalled
-	if tbootInstalled != nil && *tbootInstalled {
+	tbootInstalled := builder.signedFlavor.Flavor.Meta.Description[flavormodel.TbootInstalled]
+	if tbootInstalled != nil && tbootInstalled.(bool) {
 		pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcr17and18, &builder.signedFlavor.Flavor, common.FlavorPartHostUnique)
 		if err != nil {
 			return nil, err
@@ -244,11 +244,12 @@ func (builder *ruleBuilderIntelTpm20) GetSoftwareRules() ([]rules.Rule, error) {
 		return nil, errors.New("'Meta' was not present in the flavor")
 	}
 
-	if reflect.DeepEqual(meta.Description, flavormodel.Description{}) {
-		return nil, errors.New("'Description' was not present in the flavor")
-	}
+	//To-Do add comparsion for maps
+	// if reflect.DeepEqual(meta.Description, flavormodel.Description{}) {
+	// 	return nil, errors.New("'Description' was not present in the flavor")
+	// }
 
-	xmlMeasurementLogDigestEqualsRule, err := rules.NewXmlMeasurementLogDigestEquals(meta.Description.DigestAlgorithm, meta.ID)
+	xmlMeasurementLogDigestEqualsRule, err := rules.NewXmlMeasurementLogDigestEquals(meta.Description[flavormodel.DigestAlgorithm].(string), meta.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -273,7 +274,7 @@ func (builder *ruleBuilderIntelTpm20) GetSoftwareRules() ([]rules.Rule, error) {
 		return nil, errors.New("'Software' was not present in the flavor")
 	}
 
-	xmlMeasurementLogIntegrityRule, err := rules.NewXmlMeasurementLogIntegrity(meta.ID, meta.Description.Label, builder.signedFlavor.Flavor.Software.CumulativeHash)
+	xmlMeasurementLogIntegrityRule, err := rules.NewXmlMeasurementLogIntegrity(meta.ID, meta.Description[flavormodel.Label].(string), builder.signedFlavor.Flavor.Software.CumulativeHash)
 	results = append(results, xmlMeasurementLogIntegrityRule)
 
 	//

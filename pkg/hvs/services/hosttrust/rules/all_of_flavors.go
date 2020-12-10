@@ -60,8 +60,8 @@ func (aof *AllOfFlavors) AddFaults(report *hvs.TrustReport) (*hvs.TrustReport, e
 				report.AddResult(*result)
 				if !result.Trusted {
 					faultsExist = true
-					aofMissingFlavorParts[flavor.Flavor.Meta.Description.FlavorPart] = true
-					defaultLog.Infof("All of Flavor types missing for flavor id: %s and flavor part: %s", result.FlavorId, flavor.Flavor.Meta.Description.FlavorPart)
+					aofMissingFlavorParts[flavor.Flavor.Meta.Description[model.FlavorPart].(string)] = true
+					defaultLog.Infof("All of Flavor types missing for flavor id: %s and flavor part: %s", result.FlavorId, flavor.Flavor.Meta.Description[model.FlavorPart].(string))
 				}
 			}
 
