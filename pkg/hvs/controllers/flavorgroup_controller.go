@@ -6,6 +6,10 @@ package controllers
 
 import (
 	"encoding/json"
+	"net/http"
+	"strconv"
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
@@ -17,9 +21,6 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/validation"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/pkg/errors"
-	"net/http"
-	"strconv"
-	"strings"
 )
 
 type FlavorgroupController struct {
@@ -35,7 +36,7 @@ func (controller FlavorgroupController) Create(w http.ResponseWriter, r *http.Re
 	defaultLog.Trace("controllers/flavorgroup_controller:Create() Entering")
 	defer defaultLog.Trace("controllers/flavorgroup_controller:Create() Leaving")
 
-	if r.Header.Get("Content-Type") != consts.HTTPMediaTypeJson{
+	if r.Header.Get("Content-Type") != consts.HTTPMediaTypeJson {
 		return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: "Invalid Content-Type"}
 	}
 
@@ -155,7 +156,7 @@ func (controller FlavorgroupController) Delete(w http.ResponseWriter, r *http.Re
 	}
 	//TODO: Check if the flavor group is linked to any host
 
-	if models.IsDefaultFlavorgroup(delFlavorGroup.Name){
+	if models.IsDefaultFlavorgroup(delFlavorGroup.Name) {
 		secLog.Error("controllers/flavorgroup_controller:Delete() attempt to delete default FlavorGroup")
 		errorMsg := delFlavorGroup.Name + " is a system generated default flavorgroup which is protected and cannot be deleted"
 		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: errorMsg}
@@ -233,7 +234,7 @@ func (controller FlavorgroupController) AddFlavor(w http.ResponseWriter, r *http
 	defaultLog.Trace("controllers/flavorgroup_controller:AddFlavor() Entering")
 	defer defaultLog.Trace("controllers/flavorgroup_controller:AddFlavor() Leaving")
 
-	if r.Header.Get("Content-Type") != consts.HTTPMediaTypeJson{
+	if r.Header.Get("Content-Type") != consts.HTTPMediaTypeJson {
 		return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: "Invalid Content-Type"}
 	}
 
@@ -469,7 +470,7 @@ func (controller FlavorgroupController) getAssociatedFlavor(flavorgroupList []hv
 		}
 		flavorgroupList[index].FlavorIds = flavorIds
 		if includeFlavorContent {
-			signedFlavorList, err := controller.FlavorStore.Search(&models.FlavorVerificationFC{FlavorFC: models.FlavorFilterCriteria{Ids: flavorIds}})
+			signedFlavorList, err := controller.FlavorStore.SearchFC(&models.FlavorVerificationFC{FlavorFC: models.FlavorFilterCriteria{Ids: flavorIds}})
 			if err != nil {
 				return nil, errors.Wrap(err, "Error retrieving flavors "+
 					"linked to flavor group")

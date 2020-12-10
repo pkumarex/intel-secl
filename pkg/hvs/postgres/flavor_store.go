@@ -6,14 +6,15 @@ package postgres
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
 	fc "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
-	"strings"
-	"time"
 )
 
 type FlavorStore struct {
@@ -22,6 +23,33 @@ type FlavorStore struct {
 
 func NewFlavorStore(store *DataStore) *FlavorStore {
 	return &FlavorStore{store}
+}
+
+// create flavorsFC
+func (f *FlavorStore) CreateFC(signedFlavor *hvs.SignedFlavorFC) (*hvs.SignedFlavorFC, error) {
+	defaultLog.Trace("postgres/flavor_store:CreateFC() Entering")
+	defer defaultLog.Trace("postgres/flavor_store:CreateFC() Leaving")
+	if signedFlavor == nil || signedFlavor.Signature == "" || signedFlavor.Flavor.Meta.Description.Label == "" {
+		return nil, errors.New("postgres/flavor_store:CreateFC()- invalid input : must have content, signature and the label for the flavor")
+	}
+
+	if signedFlavor.Flavor.Meta.ID == uuid.Nil {
+		signedFlavor.Flavor.Meta.ID = uuid.New()
+	}
+
+	dbf := flavorfc{
+		ID:         signedFlavor.Flavor.Meta.ID,
+		Content:    PGFlavorContentFC(signedFlavor.Flavor),
+		CreatedAt:  time.Now(),
+		Label:      signedFlavor.Flavor.Meta.Description.Label,
+		FlavorPart: signedFlavor.Flavor.Meta.Description.FlavorPart,
+		Signature:  signedFlavor.Signature,
+	}
+
+	if err := f.Store.Db.Create(&dbf).Error; err != nil {
+		return nil, errors.Wrap(err, "postgres/flavor_store:Create() failed to create flavor")
+	}
+	return signedFlavor, nil
 }
 
 // create flavors
@@ -49,6 +77,58 @@ func (f *FlavorStore) Create(signedFlavor *hvs.SignedFlavor) (*hvs.SignedFlavor,
 		return nil, errors.Wrap(err, "postgres/flavor_store:Create() failed to create flavor")
 	}
 	return signedFlavor, nil
+}
+
+func (f *FlavorStore) SearchFC(flavorFilter *models.FlavorVerificationFC) ([]hvs.SignedFlavorFC, error) {
+	defaultLog.Trace("postgres/flavor_store:Search() Entering")
+	defer defaultLog.Trace("postgres/flavor_store:Search() Leaving")
+
+	var tx *gorm.DB
+	var err error
+
+	tx = f.Store.Db.Table("flavorfc f").Select("f.id, f.content, f.signature")
+	// build partial query with all the given flavor Id's
+	if len(flavorFilter.FlavorFC.Ids) > 0 {
+		var flavorIds []string
+		for _, fId := range flavorFilter.FlavorFC.Ids {
+			flavorIds = append(flavorIds, fId.String())
+		}
+		tx = tx.Where("f.id IN (?)", flavorFilter.FlavorFC.Ids)
+	}
+	// build partial query with the given key-value pair from falvor description
+	if flavorFilter.FlavorFC.Key != "" && flavorFilter.FlavorFC.Value != "" {
+		tx = tx.Where(convertToPgJsonqueryString("f.content", "meta.description."+flavorFilter.FlavorFC.Key)+" = ?", flavorFilter.FlavorFC.Value)
+	}
+	if flavorFilter.FlavorFC.FlavorgroupID.String() != "" ||
+		len(flavorFilter.FlavorFC.FlavorParts) >= 1 || len(flavorFilter.FlavorPartsWithLatest) >= 1 || flavorFilter.FlavorMeta != nil || len(flavorFilter.FlavorMeta) >= 1 {
+		if len(flavorFilter.FlavorFC.FlavorParts) >= 1 {
+			flavorFilter.FlavorPartsWithLatest = getFlavorPartsWithLatestMap(flavorFilter.FlavorFC.FlavorParts, flavorFilter.FlavorPartsWithLatest)
+		}
+		// add all flavor parts in list of flavor Parts
+		tx = f.buildMultipleFlavorPartQueryString(tx, flavorFilter.FlavorFC.FlavorgroupID, flavorFilter.FlavorMeta, flavorFilter.FlavorPartsWithLatest)
+	}
+
+	if tx == nil {
+		return nil, errors.New("postgres/flavor_store:Search() Unexpected Error. Could not build gorm query" +
+			" object in flavor Search function")
+	}
+
+	rows, err := tx.Rows()
+	if err != nil {
+		return nil, errors.Wrap(err, "postgres/flavor_store:Search() failed to retrieve records from db")
+	}
+	defer rows.Close()
+
+	signedFlavors := []hvs.SignedFlavorFC{}
+
+	for rows.Next() {
+		sf := hvs.SignedFlavorFC{}
+		if err := rows.Scan(&sf.Flavor.Meta.ID, (*PGFlavorContentFC)(&sf.Flavor), &sf.Signature); err != nil {
+			return nil, errors.Wrap(err, "postgres/flavor_store:Search() failed to scan record")
+		}
+		signedFlavors = append(signedFlavors, sf)
+	}
+	return signedFlavors, nil
 }
 
 func (f *FlavorStore) Search(flavorFilter *models.FlavorVerificationFC) ([]hvs.SignedFlavor, error) {
@@ -306,6 +386,35 @@ func (f *FlavorStore) Retrieve(flavorId uuid.UUID) (*hvs.SignedFlavor, error) {
 		return nil, errors.Wrap(err, "postgres/flavor_store:Retrieve() - Could not scan record ")
 	}
 	return &sf, nil
+}
+
+// retrieve flavors
+func (f *FlavorStore) RetrieveFC(flavorId uuid.UUID) (*hvs.SignedFlavorFC, error) {
+	defaultLog.Trace("postgres/flavor_store:RetrieveFC() Entering")
+	defer defaultLog.Trace("postgres/flavor_store:RetrieveFC() Leaving")
+
+	sf := hvs.SignedFlavorFC{}
+	row := f.Store.Db.Model(flavorfc{}).Select("content, signature").Where(&flavorfc{ID: flavorId}).Row()
+	if err := row.Scan((*PGFlavorContentFC)(&sf.Flavor), &sf.Signature); err != nil {
+		return nil, errors.Wrap(err, "postgres/flavor_store:Retrieve() - Could not scan record ")
+	}
+	defaultLog.Trace("postgres/flavor_store:RetrieveFC() ROW ", row)
+	defaultLog.Trace("postgres/flavor_store:RetrieveFC() table ", f.Store.Db.NewScope(sf).TableName())
+	return &sf, nil
+}
+
+// delete flavors
+func (f *FlavorStore) DeleteFC(flavorId uuid.UUID) error {
+	defaultLog.Trace("postgres/flavor_store:Delete() Entering")
+	defer defaultLog.Trace("postgres/flavor_store:Delete() Leaving")
+
+	dbFlavor := flavorfc{
+		ID: flavorId,
+	}
+	if err := f.Store.Db.Where(&dbFlavor).Delete(&dbFlavor).Error; err != nil {
+		return errors.Wrap(err, "postgres/flavor_store:Delete() failed to delete Flavor")
+	}
+	return nil
 }
 
 // delete flavors
