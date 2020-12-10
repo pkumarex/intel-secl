@@ -9,6 +9,11 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
+	"strings"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	consts "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants"
@@ -28,10 +33,6 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"net/http"
-	"net/url"
-	"strings"
-	"time"
 )
 
 // TagCertificateController contains logic for handling TagCertificate API requests
@@ -462,7 +463,7 @@ func (controller TagCertificateController) Deploy(w http.ResponseWriter, r *http
 	}
 
 	// Create AssetTag Flavor for the Host
-	fProvider, err := flavor.NewPlatformFlavorProvider(&hmanifest, newX509TC)
+	fProvider, err := flavor.NewPlatformFlavorProvider(&hmanifest, nil, newX509TC, nil)
 	if err != nil {
 		defaultLog.WithField("Certid", dtcReq.CertID).Errorf("controllers/tagcertificate_controller:Deploy() %s : Failed to initialize FlavorProvider %s", commLogMsg.AppRuntimeErr, err.Error())
 		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Tag Certificate Deploy failure"}

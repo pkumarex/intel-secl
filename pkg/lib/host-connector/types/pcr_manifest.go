@@ -13,11 +13,13 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"github.com/pkg/errors"
 	"hash"
 	"reflect"
 	"strconv"
 	"strings"
+
+	commLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -38,10 +40,40 @@ type EventLog struct {
 	Info       map[string]string `json:"info"`
 }
 
+type EventLogCreteria struct {
+	TypeID      string   `json:"type_id"`   //oneof-required
+	TypeName    string   `json:"type_name"` //oneof-required
+	Tags        []string `json:"tags,omitempty"`
+	Measurement string   `json:"measurement"` //required
+}
+
 type EventLogEntry struct {
 	PcrIndex  PcrIndex     `json:"pcr_index"`
 	EventLogs []EventLog   `json:"event_log"`
 	PcrBank   SHAAlgorithm `json:"pcr_bank"`
+}
+
+type EventLogEntryFC struct {
+	Pcr      PCR                `json:"pcr"`
+	TpmEvent []EventLogCreteria `json:"tpm_events"`
+}
+
+type PCR struct {
+	Index int    `json:"index"`
+	Bank  string `json:"bank"`
+}
+
+type PCRS struct {
+	PCR              PCR                `json:"pcr"`         //required
+	Measurement      string             `json:"measurement"` //required
+	PCRMatches       bool               `json:"pcr_matches,omitempty"`
+	EventlogEqual    *EventLogEqual     `json:"eventlog_equals,omitempty"`
+	EventlogIncludes []EventLogCreteria `json:"eventlog_includes,omitempty"`
+}
+
+type EventLogEqual struct {
+	Events      []EventLogCreteria `json:"events,omitempty"`
+	ExcludeTags []string           `json:"exclude_tags,omitempty"`
 }
 
 type PcrEventLogMap struct {
@@ -49,10 +81,20 @@ type PcrEventLogMap struct {
 	Sha256EventLogs []EventLogEntry `json:"SHA256"`
 }
 
+type PcrEventLogMapFC struct {
+	Sha1EventLogs   []EventLogEntryFC `json:"SHA1"`
+	Sha256EventLogs []EventLogEntryFC `json:"SHA256"`
+}
 type PcrManifest struct {
 	Sha1Pcrs       []Pcr          `json:"sha1pcrs"`
 	Sha256Pcrs     []Pcr          `json:"sha2pcrs"`
 	PcrEventLogMap PcrEventLogMap `json:"pcr_event_log_map"`
+}
+
+type PcrManifestFC struct {
+	Sha1Pcrs       []Pcr            `json:"sha1pcrs"`
+	Sha256Pcrs     []Pcr            `json:"sha2pcrs"`
+	PcrEventLogMap PcrEventLogMapFC `json:"pcr_event_log_map"`
 }
 
 type PcrIndex int
@@ -218,6 +260,33 @@ func (pcrManifest *PcrManifest) GetPcrValue(pcrBank SHAAlgorithm, pcrIndex PcrIn
 	return pcrValue, nil
 }
 
+func (pcrManifest *PcrManifestFC) GetPcrValue(pcrBank SHAAlgorithm, pcrIndex PcrIndex) (*Pcr, error) {
+	// TODO: Is this the right data model for the PcrManifest?  Two things...
+	// - Flavor API returns a map[bank]map[pcrindex]
+	// - Finding the PCR by bank/index is a linear search.
+	var pcrValue *Pcr
+
+	if pcrBank == SHA1 {
+		for _, pcr := range pcrManifest.Sha1Pcrs {
+			if pcr.Index == pcrIndex {
+				pcrValue = &pcr
+				break
+			}
+		}
+	} else if pcrBank == SHA256 {
+		for _, pcr := range pcrManifest.Sha256Pcrs {
+			if pcr.Index == pcrIndex {
+				pcrValue = &pcr
+				break
+			}
+		}
+	} else {
+		return nil, errors.Errorf("Unsupported sha algorithm %s", pcrBank)
+	}
+
+	return pcrValue, nil
+}
+
 // Utility function that uses GetPcrValue but also returns an error if
 // the Pcr was not found.
 func (pcrManifest *PcrManifest) GetRequiredPcrValue(bank SHAAlgorithm, pcrIndex PcrIndex) (*Pcr, error) {
@@ -267,9 +336,8 @@ func (pcrEventLogMap *PcrEventLogMap) GetEventLog(pcrBank SHAAlgorithm, pcrIndex
 	return eventLogEntry, nil
 }
 
-
 // Provided an EventLogEntry that contains an array of EventLogs, this function
-// will return a new EventLogEntry that contains the events that existed in 
+// will return a new EventLogEntry that contains the events that existed in
 // the original ('eventLogEntry') but not in 'eventsToSubtract'.  Returns an error
 // if the bank/index of 'eventLogEntry' and 'eventsToSubtract' do not match.
 // Note: 'eventLogEntry' and 'eventsToSubract' are not altered.
@@ -285,8 +353,8 @@ func (eventLogEntry *EventLogEntry) Subtract(eventsToSubtract *EventLogEntry) (*
 
 	// build a new EventLogEntry that will be populated by the event log entries
 	// in the source less those 'eventsToSubtract'.
-	difference := EventLogEntry {
-		PcrBank: eventLogEntry.PcrBank,
+	difference := EventLogEntry{
+		PcrBank:  eventLogEntry.PcrBank,
 		PcrIndex: eventLogEntry.PcrIndex,
 	}
 
@@ -304,7 +372,7 @@ func (eventLogEntry *EventLogEntry) Subtract(eventsToSubtract *EventLogEntry) (*
 	return &difference, nil
 }
 
-// Returns the string value of the "cumulative" hash of the 
+// Returns the string value of the "cumulative" hash of the
 // an event log.
 func (eventLogEntry *EventLogEntry) Replay() (string, error) {
 
@@ -322,7 +390,7 @@ func (eventLogEntry *EventLogEntry) Replay() (string, error) {
 		return "", errors.Errorf("Invalid sha algorithm '%s'", eventLogEntry.PcrBank)
 	}
 
-	for i, eventLog := range(eventLogEntry.EventLogs) {
+	for i, eventLog := range eventLogEntry.EventLogs {
 		var hash hash.Hash
 		if eventLogEntry.PcrBank == SHA1 {
 			hash = sha1.New()
@@ -370,6 +438,62 @@ func (pcrManifest *PcrManifest) GetPcrEventLog(pcrBank SHAAlgorithm, pcrIndex Pc
 	return nil, fmt.Errorf("invalid PcrIndex %d", pcrIndex)
 }
 
+var log = commLog.GetDefaultLogger()
+
+func (pcrManifest *PcrManifestFC) GetPcrEventLog(pcrBank SHAAlgorithm, pcrIndex PcrIndex) (*[]EventLogCreteria, error) {
+
+	log.Info("GetPcrEventLog pcrBank -> ", pcrBank)
+	log.Info("GetPcrEventLog pcrIndex -> ", pcrIndex)
+
+	pI := int(pcrIndex)
+	if pcrBank == "SHA1" {
+		for _, eventLogEntry := range pcrManifest.PcrEventLogMap.Sha1EventLogs {
+			if eventLogEntry.Pcr.Index == pI {
+				log.Info("GetPcrEventLog TpmEvent -> ", &eventLogEntry.TpmEvent)
+				return &eventLogEntry.TpmEvent, nil
+			}
+		}
+	} else if pcrBank == "SHA256" {
+		for _, eventLogEntry := range pcrManifest.PcrEventLogMap.Sha256EventLogs {
+			if eventLogEntry.Pcr.Index == pI {
+				log.Info("GetPcrEventLog TpmEvent -> ", &eventLogEntry.TpmEvent)
+				return &eventLogEntry.TpmEvent, nil
+			}
+		}
+	} else {
+		return nil, fmt.Errorf("unsupported sha algorithm %s", pcrBank)
+	}
+	return nil, fmt.Errorf("invalid PcrIndex %d", pcrIndex)
+}
+
+func (pcrManifest *PcrManifest) GetPcrValueForLinux(pcrBank string, pcrIndex int) (*Pcr, error) {
+	// TODO: Is this the right data model for the PcrManifest?  Two things...
+	// - Flavor API returns a map[bank]map[pcrindex]
+	// - Finding the PCR by bank/index is a linear search.
+	var pcrValue *Pcr
+	pcrIndexString := "pcr_" + strconv.Itoa(pcrIndex)
+
+	if pcrBank == "SHA1" {
+		for _, pcr := range pcrManifest.Sha1Pcrs {
+			if pcr.Index.String() == pcrIndexString {
+				pcrValue = &pcr
+				break
+			}
+		}
+	} else if pcrBank == "SHA256" {
+		for _, pcr := range pcrManifest.Sha256Pcrs {
+			if pcr.Index.String() == pcrIndexString {
+				pcrValue = &pcr
+				break
+			}
+		}
+	} else {
+		return nil, errors.Errorf("Unsupported sha algorithm %s", pcrBank)
+	}
+
+	return pcrValue, nil
+}
+
 // GetPcrBanks returns the list of banks currently supported by the PcrManifest
 func (pcrManifest *PcrManifest) GetPcrBanks() []SHAAlgorithm {
 	var bankList []SHAAlgorithm
@@ -382,4 +506,22 @@ func (pcrManifest *PcrManifest) GetPcrBanks() []SHAAlgorithm {
 		bankList = append(bankList, SHA256)
 	}
 	return bankList
+}
+
+// GetPcrBanks returns the list of banks currently supported by the PcrManifest
+func (pm *PcrManifestFC) GetPcrBanks() []SHAAlgorithm {
+	var bankList []SHAAlgorithm
+	// check if each known digest algorithm is present and return
+	if len(pm.Sha1Pcrs) > 0 {
+		bankList = append(bankList, SHA1)
+	}
+	// check if each known digest algorithm is present and return
+	if len(pm.Sha256Pcrs) > 0 {
+		bankList = append(bankList, SHA256)
+	}
+	return bankList
+}
+
+type c interface {
+	GetPcrBanks() []SHAAlgorithm
 }

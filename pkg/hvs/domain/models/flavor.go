@@ -6,6 +6,7 @@ package models
 
 import (
 	"encoding/json"
+
 	"github.com/google/uuid"
 	cf "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
@@ -19,7 +20,15 @@ type FlavorCreateRequest struct {
 	ConnectionString       string                     `json:"connection_string,omitempty"`
 	FlavorCollection       hvs.FlavorCollection       `json:"flavor_collection,omitempty"`
 	SignedFlavorCollection hvs.SignedFlavorCollection `json:"signed_flavor_collection,omitempty"`
-	FlavorgroupNames       []string                  `json:"flavorgroup_names,omitempty"`
+	FlavorgroupNames       []string                   `json:"flavorgroup_names,omitempty"`
+	FlavorParts            []cf.FlavorPart            `json:"partial_flavor_types,omitempty"`
+}
+
+type FlavorCreateRequestFC struct {
+	ConnectionString       string                     `json:"connection_string,omitempty"`
+	FlavorCollectionFC     hvs.FlavorCollectionFC     `json:"flavor_collection,omitempty"`
+	SignedFlavorCollection hvs.SignedFlavorCollection `json:"signed_flavor_collection,omitempty"`
+	FlavorgroupNames       []string                   `json:"flavorgroup_names,omitempty"`
 	FlavorParts            []cf.FlavorPart            `json:"partial_flavor_types,omitempty"`
 }
 

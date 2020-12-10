@@ -8,6 +8,9 @@ import (
 	"crypto/rsa"
 	"encoding/xml"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
 	commLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
@@ -19,8 +22,6 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
-	"strings"
-	"time"
 )
 
 var log = commLog.GetDefaultLogger()
@@ -53,44 +54,47 @@ func (pfutil PlatformFlavorUtil) GetMetaSectionDetails(hostDetails *taModel.Host
 	var vmmVersion string
 
 	// Set Description
-	var description cm.Description
+	var description = make(map[string]interface{})
+	log.Info("check point A")
 
 	if hostDetails != nil {
 		biosName = strings.TrimSpace(hostDetails.BiosName)
 		biosVersion = strings.TrimSpace(hostDetails.BiosVersion)
-		description.TbootInstalled = &hostDetails.TbootInstalled
+		description[cm.TbootInstalled] = &hostDetails.TbootInstalled
 		vmmName = strings.TrimSpace(hostDetails.VMMName)
 		vmmVersion = strings.TrimSpace(hostDetails.VMMVersion)
 		osName = strings.TrimSpace(hostDetails.OSName)
 		osVersion = strings.TrimSpace(hostDetails.OSVersion)
-		description.TpmVersion = strings.TrimSpace(hostDetails.HardwareFeatures.TPM.Meta.TPMVersion)
+		description[cm.TpmVersion] = strings.TrimSpace(hostDetails.HardwareFeatures.TPM.Meta.TPMVersion)
 	}
 
 	switch flavorPartName {
 	case common.FlavorPartPlatform:
 		var features = pfutil.getSupportedHardwareFeatures(hostDetails)
-		description.Label = pfutil.getLabelFromDetails(meta.Vendor.String(), biosName,
+		log.Info("check point B")
+		description[cm.Label] = pfutil.getLabelFromDetails(meta.Vendor.String(), biosName,
 			biosVersion, strings.Join(features, "_"), pfutil.getCurrentTimeStamp())
-		description.BiosName = biosName
-		description.BiosVersion = biosVersion
-		description.FlavorPart = flavorPartName.String()
+		log.Info("check point C")
+		description[cm.BiosName] = biosName
+		description[cm.BiosVersion] = biosVersion
+		description[cm.FlavorPart] = flavorPartName.String()
 		if hostDetails != nil && hostDetails.HostName != "" {
-			description.Source = strings.TrimSpace(hostDetails.HostName)
+			description[cm.Source] = strings.TrimSpace(hostDetails.HostName)
 		}
 	case common.FlavorPartOs:
-		description.Label = pfutil.getLabelFromDetails(meta.Vendor.String(), osName, osVersion,
+		description[cm.Label] = pfutil.getLabelFromDetails(meta.Vendor.String(), osName, osVersion,
 			vmmName, vmmVersion, pfutil.getCurrentTimeStamp())
-		description.OsName = osName
-		description.OsVersion = osVersion
-		description.FlavorPart = flavorPartName.String()
+		description[cm.OsName] = osName
+		description[cm.OsVersion] = osVersion
+		description[cm.FlavorPart] = flavorPartName.String()
 		if hostDetails != nil && hostDetails.HostName != "" {
-			description.Source = strings.TrimSpace(hostDetails.HostName)
+			description[cm.Source] = strings.TrimSpace(hostDetails.HostName)
 		}
 		if vmmName != "" {
-			description.VmmName = strings.TrimSpace(vmmName)
+			description[cm.VmmName] = strings.TrimSpace(vmmName)
 		}
 		if vmmVersion != "" {
-			description.VmmVersion = strings.TrimSpace(vmmVersion)
+			description[cm.VmmVersion] = strings.TrimSpace(vmmVersion)
 		}
 
 	case common.FlavorPartSoftware:
@@ -99,12 +103,12 @@ func (pfutil PlatformFlavorUtil) GetMetaSectionDetails(hostDetails *taModel.Host
 		if err != nil {
 			return nil, errors.Wrapf(err, "Failed to parse XML measurements in Software Flavor: %s", err.Error())
 		}
-		description.Label = measurements.Label
-		description.FlavorPart = flavorPartName.String()
+		description[cm.Label] = measurements.Label
+		description[cm.FlavorPart] = flavorPartName.String()
 		// set DigestAlgo to SHA384
 		switch strings.ToUpper(measurements.DigestAlg) {
 		case crypt.SHA384().Name:
-			description.DigestAlgorithm = crypt.SHA384().Name
+			description[cm.DigestAlgorithm] = crypt.SHA384().Name
 		default:
 			return nil, errors.Errorf("invalid Digest Algorithm in measurement XML")
 		}
@@ -116,44 +120,44 @@ func (pfutil PlatformFlavorUtil) GetMetaSectionDetails(hostDetails *taModel.Host
 		meta.Schema = pfutil.getSchema()
 
 	case common.FlavorPartAssetTag:
-		description.FlavorPart = flavorPartName.String()
+		description[cm.FlavorPart] = flavorPartName.String()
 		if hostDetails != nil {
 			hwuuid, err := uuid.Parse(hostDetails.HardwareUUID)
 			if err != nil {
 				return nil, errors.Wrapf(err, "Invalid Hardware UUID for %s FlavorPart", flavorPartName)
 			}
-			description.HardwareUUID = &hwuuid
+			description[cm.HardwareUUID] = &hwuuid
 
 			if hostDetails.HostName != "" {
-				description.Source = strings.TrimSpace(hostDetails.HostName)
+				description[cm.Source] = strings.TrimSpace(hostDetails.HostName)
 			}
 		} else if tagCertificate != nil {
 			hwuuid, err := uuid.Parse(tagCertificate.Subject)
 			if err != nil {
 				return nil, errors.Wrapf(err, "Invalid Hardware UUID for %s FlavorPart", flavorPartName)
 			} else {
-				description.HardwareUUID = &hwuuid
+				description[cm.HardwareUUID] = &hwuuid
 			}
 		}
-		description.Label = pfutil.getLabelFromDetails(meta.Vendor.String(), (*description.HardwareUUID).String(), pfutil.getCurrentTimeStamp())
+		description[cm.Label] = pfutil.getLabelFromDetails(meta.Vendor.String(), description[cm.HardwareUUID].(string), pfutil.getCurrentTimeStamp())
 
 	case common.FlavorPartHostUnique:
 		if hostDetails != nil {
 			if hostDetails.HostName != "" {
-				description.Source = strings.TrimSpace(hostDetails.HostName)
+				description[cm.Source] = strings.TrimSpace(hostDetails.HostName)
 			}
 			hwuuid, err := uuid.Parse(hostDetails.HardwareUUID)
 			if err != nil {
 				return nil, errors.Wrapf(err, "Invalid Hardware UUID for %s FlavorPart", flavorPartName)
 			}
-			description.HardwareUUID = &hwuuid
+			description[cm.HardwareUUID] = &hwuuid
 		}
-		description.BiosName = biosName
-		description.BiosVersion = biosVersion
-		description.OsName = osName
-		description.OsVersion = osVersion
-		description.FlavorPart = flavorPartName.String()
-		description.Label = pfutil.getLabelFromDetails(meta.Vendor.String(), (*description.HardwareUUID).String(), pfutil.getCurrentTimeStamp())
+		description[cm.BiosName] = biosName
+		description[cm.BiosVersion] = biosVersion
+		description[cm.OsName] = osName
+		description[cm.OsVersion] = osVersion
+		description[cm.FlavorPart] = flavorPartName.String()
+		description[cm.Label] = pfutil.getLabelFromDetails(meta.Vendor.String(), description[cm.HardwareUUID].(string), pfutil.getCurrentTimeStamp())
 	default:
 		return nil, errors.Errorf("Invalid FlavorPart %s", flavorPartName.String())
 	}
@@ -527,10 +531,44 @@ func (pfutil PlatformFlavorUtil) GetSignedFlavorList(flavors []cm.Flavor, flavor
 	return signedFlavors, nil
 }
 
+// GetSignedFlavorListFC performs a bulk signing of a list of flavor strings and returns a list of SignedFlavors
+func (pfutil PlatformFlavorUtil) GetSignedFlavorListFC(flavors []cm.FlavorFC, flavorSigningPrivateKey *rsa.PrivateKey) ([]hvs.SignedFlavorFC, error) {
+	log.Trace("flavor/util/platform_flavor_util:GetSignedFlavorListFC() Entering")
+	defer log.Trace("flavor/util/platform_flavor_util:GetSignedFlavorListFC() Leaving")
+
+	log.Debugf("Mahesh signed flavors -> ", flavors)
+	log.Debugf("Mahesh signed flavorSigningPrivateKey -> ", flavorSigningPrivateKey)
+
+	var signedFlavors []hvs.SignedFlavorFC
+
+	if flavors != nil {
+		// loop through and sign each flavor
+		for _, unsignedFlavor := range flavors {
+			var sf *hvs.SignedFlavorFC
+
+			log.Debugf("Mahesh GetSignedFlavorListFC unsignedFlavor -> ", unsignedFlavor)
+
+			sf, err := pfutil.GetSignedFlavorFC(&unsignedFlavor, flavorSigningPrivateKey)
+			if err != nil {
+				return nil, errors.Errorf("Error signing flavor collection: %s", err.Error())
+			}
+
+			log.Debugf("Mahesh GetSignedFlavorListFC sf -> ", sf)
+			signedFlavors = append(signedFlavors, *sf)
+		}
+	} else {
+		return nil, errors.Errorf("empty flavors list provided")
+	}
+	log.Debugf("Mahesh GetSignedFlavorListFC signedFlavors -> ", signedFlavors)
+	return signedFlavors, nil
+}
+
 // GetSignedFlavor is used to sign the flavor
 func (pfutil PlatformFlavorUtil) GetSignedFlavor(unsignedFlavor *hvs.Flavor, privateKey *rsa.PrivateKey) (*hvs.SignedFlavor, error) {
 	log.Trace("flavor/util/platform_flavor_util:GetSignedFlavor() Entering")
 	defer log.Trace("flavor/util/platform_flavor_util:GetSignedFlavor() Leaving")
+
+	log.Debugf("Mahesh GetSignedFlavor signedFlavors -> ", unsignedFlavor)
 
 	if unsignedFlavor == nil {
 		return nil, errors.New("GetSignedFlavor: Flavor content missing")
@@ -539,6 +577,25 @@ func (pfutil PlatformFlavorUtil) GetSignedFlavor(unsignedFlavor *hvs.Flavor, pri
 	signedFlavor, err := cm.NewSignedFlavor(unsignedFlavor, privateKey)
 	if err != nil {
 		return nil, errors.Wrap(err, "GetSignedFlavor: Error while marshalling signed flavor")
+	}
+
+	log.Debugf("Mahesh GetSignedFlavor signedFlavor -> ", signedFlavor)
+
+	return signedFlavor, nil
+}
+
+// GetSignedFlavor is used to sign the flavor
+func (pfutil PlatformFlavorUtil) GetSignedFlavorFC(unsignedFlavor *hvs.FlavorFC, privateKey *rsa.PrivateKey) (*hvs.SignedFlavorFC, error) {
+	log.Trace("flavor/util/platform_flavor_util:GetSignedFlavorFC() Entering")
+	defer log.Trace("flavor/util/platform_flavor_util:GetSignedFlavorFC() Leaving")
+
+	if unsignedFlavor == nil {
+		return nil, errors.New("GetSignedFlavorFC: Flavor content missing")
+	}
+
+	signedFlavor, err := cm.NewSignedFlavorFC(unsignedFlavor, privateKey)
+	if err != nil {
+		return nil, errors.Wrap(err, "GetSignedFlavorFC: Error while marshalling signed flavor")
 	}
 
 	return signedFlavor, nil

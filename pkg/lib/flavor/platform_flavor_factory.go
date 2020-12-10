@@ -6,6 +6,8 @@ package flavor
 
 import (
 	"crypto/x509"
+	"strings"
+
 	commLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
@@ -13,8 +15,8 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/types"
 	hcConstants "github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/constants"
 	hcTypes "github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
+	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/pkg/errors"
-	"strings"
 )
 
 /**
@@ -34,11 +36,13 @@ type FlavorProvider interface {
 // an appropriate platform flavor implementation, based on the target host.
 type PlatformFlavorProvider struct {
 	hostManifest         *hcTypes.HostManifest
+	hostManifestFC       *hcTypes.HostManifestFC
 	attributeCertificate *model.X509AttributeCertificate
+	FlavorTemplates      *[]hvs.FlavorTemplate
 }
 
 // NewPlatformFlavorProvider returns an instance of PlaformFlavorProvider
-func NewPlatformFlavorProvider(hostManifest *hcTypes.HostManifest, tagCertificate *x509.Certificate) (FlavorProvider, error) {
+func NewPlatformFlavorProvider(hostManifest *hcTypes.HostManifest, hostManifestFC *hcTypes.HostManifestFC, tagCertificate *x509.Certificate, flvrTemplates *[]hvs.FlavorTemplate) (FlavorProvider, error) {
 	log.Trace("flavor/platform_flavor_factory:NewPlatformFlavorProvider() Entering")
 	defer log.Trace("flavor/platform_flavor_factory:NewPlatformFlavorProvider() Leaving")
 
@@ -57,7 +61,9 @@ func NewPlatformFlavorProvider(hostManifest *hcTypes.HostManifest, tagCertificat
 
 	pfp = PlatformFlavorProvider{
 		hostManifest:         hostManifest,
+		hostManifestFC:       hostManifestFC,
 		attributeCertificate: tc,
+		FlavorTemplates:      flvrTemplates,
 	}
 	return pfp, nil
 }
@@ -71,18 +77,29 @@ func (pff PlatformFlavorProvider) GetPlatformFlavor() (*types.PlatformFlavor, er
 	var err error
 	var rp types.PlatformFlavor
 
-	if pff.hostManifest != nil {
-		switch strings.ToUpper(strings.TrimSpace(pff.hostManifest.HostInfo.OSName)) {
-		case constants.OsVMware:
-			rp = types.NewESXPlatformFlavor(pff.hostManifest, pff.attributeCertificate)
+	// if pff.hostManifest != nil {
+	// 	switch strings.ToUpper(strings.TrimSpace(pff.hostManifest.HostInfo.OSName)) {
+	// 	case constants.OsVMware:
+	// 		rp = types.NewESXPlatformFlavor(pff.hostManifest, pff.attributeCertificate)
+	// 	// Fallback to Linux
+	// 	default:
+	// 		rp = types.NewLinuxPlatformFlavor(pff.hostManifestFC, pff.attributeCertificate, pff.FlavorTemplates)
+	// 	}
+	// } else {
+	// 	err = errors.New("Error while retrieving PlaformFlavor - missing HostManifest")
+	// 	return nil, errors.Wrapf(err, common.INVALID_INPUT().Message)
+	// }
+
+	if pff.hostManifest != nil && strings.ToUpper(strings.TrimSpace(pff.hostManifest.HostInfo.OSName)) == constants.OsVMware {
+		rp = types.NewESXPlatformFlavor(pff.hostManifest, pff.attributeCertificate)
+	} else if pff.hostManifestFC != nil {
 		// Fallback to Linux
-		default:
-			rp = types.NewLinuxPlatformFlavor(pff.hostManifest, pff.attributeCertificate)
-		}
+		rp = types.NewLinuxPlatformFlavor(pff.hostManifestFC, pff.attributeCertificate, pff.FlavorTemplates)
 	} else {
 		err = errors.New("Error while retrieving PlaformFlavor - missing HostManifest")
 		return nil, errors.Wrapf(err, common.INVALID_INPUT().Message)
 	}
+
 	return &rp, err
 }
 

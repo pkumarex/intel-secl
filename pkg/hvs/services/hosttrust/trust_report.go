@@ -11,6 +11,7 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/services/hosttrust/rules"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/utils"
+	flavormodel "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	cf "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
@@ -162,7 +163,7 @@ func (v *Verifier) verifyFlavors(hostID uuid.UUID, flavors []hvs.SignedFlavor, h
 			// TODO
 			// check nil pointer for Meta, Description
 			// if these field are not changed to value type
-			flvPart := signedFlavor.Flavor.Meta.Description.FlavorPart
+			flvPart := signedFlavor.Flavor.Meta.Description[flavormodel.FlavorPart].(string)
 			if flvPart == flvMatchPolicy.FlavorPart.String() {
 
 				individualTrustReport, err := v.FlavorVerifier.Verify(hostData, &signedFlavor, v.SkipFlavorSignatureVerification)
