@@ -12,7 +12,6 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/verifier/rules"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/pkg/errors"
-	"reflect"
 )
 
 // A ruleBuilder creates flavor specific rules for a particular
@@ -59,11 +58,12 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 		return nil, "", errors.Wrap(err, "Could not retrieve rule builder")
 	}
 
-	if reflect.DeepEqual(factory.signedFlavor.Flavor.Meta.Description, flavormodel.Description{}) {
-		return nil, "", errors.New("The flavor's description cannot be nil")
-	}
+	//To-Do add comparsion for map
+	// if reflect.DeepEqual(factory.signedFlavor.Flavor.Meta.Description, flavormodel.Description{}) {
+	// 	return nil, "", errors.New("The flavor's description cannot be nil")
+	// }
 
-	err = (&flavorPart).Parse(factory.signedFlavor.Flavor.Meta.Description.FlavorPart)
+	err = (&flavorPart).Parse(factory.signedFlavor.Flavor.Meta.Description[flavormodel.FlavorPart].(string))
 	if err != nil {
 		return nil, "", errors.Wrap(err, "Could not retrieve flavor part name")
 	}
@@ -91,7 +91,7 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 	if !factory.skipSignedFlavorVerification {
 
 		var flavorPart common.FlavorPart
-		err := (&flavorPart).Parse(factory.signedFlavor.Flavor.Meta.Description.FlavorPart)
+		err := (&flavorPart).Parse(factory.signedFlavor.Flavor.Meta.Description[flavormodel.FlavorPart].(string))
 		if err != nil {
 			return nil, "", errors.Wrap(err, "Could not retrieve flavor part name")
 		}
@@ -134,7 +134,7 @@ func (factory *ruleFactory) getRuleBuilder() (ruleBuilder, error) {
 			return nil, errors.Wrap(err, "There was an error creating the Intel rule builder")
 		}
 	case constants.VendorVMware:
-		tpmVersionString := factory.signedFlavor.Flavor.Meta.Description.TpmVersion
+		tpmVersionString := factory.signedFlavor.Flavor.Meta.Description[flavormodel.FlavorPart].(string)
 		if len(tpmVersionString) == 0 {
 			tpmVersionString = factory.hostManifest.HostInfo.HardwareFeatures.TPM.Meta.TPMVersion
 		}

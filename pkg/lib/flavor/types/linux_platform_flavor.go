@@ -354,6 +354,14 @@ func (rhelpf LinuxPlatformFlavor) getPlatformFlavor() ([]cm.FlavorFC, error) {
 		return nil, errors.Wrap(err, errorMessage+" - failure in Meta section details")
 	}
 	log.Debugf("flavor/types/linux_platform_flavor:getPlatformFlavor() New Meta Section: %v", *newMeta)
+	log.Info("prems")
+	log.Info(newMeta)
+
+	newMeta = UpdateMetaSectionDetails(cf.FlavorPartPlatform, newMeta, rhelpf.FlavorTemplates)
+	if err != nil {
+		return nil, errors.Wrap(err, errorMessage+" - failure in Updating Meta section details")
+	}
+	log.Debugf("flavor/types/linux_platform_flavor:getPlatformFlavor() New Meta Section: %v", *newMeta)
 
 	newBios := pfutil.GetBiosSectionDetails(rhelpf.HostInfo)
 	if newBios == nil {
@@ -397,6 +405,13 @@ func (rhelpf LinuxPlatformFlavor) getOsFlavor() ([]cm.FlavorFC, error) {
 	}
 	log.Debugf("flavor/types/linux_platform_flavor:getOsFlavor() New Meta Section: %v", *newMeta)
 
+	log.Info("Check point 1")
+	newMeta = UpdateMetaSectionDetails(cf.FlavorPartOs, newMeta, rhelpf.FlavorTemplates)
+	if err != nil {
+		return nil, errors.Wrap(err, errorMessage+" - failure in Updating Meta section details")
+	}
+	log.Debugf("flavor/types/linux_platform_flavor:getPlatformFlavor() New Meta Section: %v", *newMeta)
+	log.Info("Check point 2")
 	newBios := pfutil.GetBiosSectionDetails(rhelpf.HostInfo)
 	if newBios == nil {
 		return nil, errors.Errorf("%s Failure in Bios section details", errorMessage)
@@ -433,6 +448,12 @@ func (rhelpf LinuxPlatformFlavor) getHostUniqueFlavor() ([]cm.FlavorFC, error) {
 		return nil, errors.Wrap(err, errorMessage+" Failure in Meta section details")
 	}
 	log.Debugf("flavor/types/linux_platform_flavor:getHostUniqueFlavor() New Meta Section: %v", *newMeta)
+
+	newMeta = UpdateMetaSectionDetails(cf.FlavorPartHostUnique, newMeta, rhelpf.FlavorTemplates)
+	if err != nil {
+		return nil, errors.Wrap(err, errorMessage+" - failure in Updating Meta section details")
+	}
+	log.Debugf("flavor/types/linux_platform_flavor:getPlatformFlavor() New Meta Section: %v", *newMeta)
 
 	newBios := pfutil.GetBiosSectionDetails(rhelpf.HostInfo)
 	if newBios == nil {
@@ -506,24 +527,24 @@ func (rhelpf LinuxPlatformFlavor) getDefaultSoftwareFlavor() ([]cm.FlavorFC, err
 	defer log.Trace("flavor/types/linux_platform_flavor:getDefaultSoftwareFlavor() Leaving")
 
 	var softwareFlavors []cm.FlavorFC
-	// var errorMessage = cf.SOFTWARE_FLAVOR_CANNOT_BE_CREATED().Message
+	var errorMessage = cf.SOFTWARE_FLAVOR_CANNOT_BE_CREATED().Message
 
-	// if rhelpf.HostManifest != nil && rhelpf.HostManifest.MeasurementXmls != nil {
-	// 	measurementXmls, err := rhelpf.getDefaultMeasurement()
-	// 	if err != nil {
-	// 		return nil, errors.Wrapf(err, errorMessage)
-	// 	}
+	if rhelpf.HostManifest != nil && rhelpf.HostManifest.MeasurementXmls != nil {
+		measurementXmls, err := rhelpf.getDefaultMeasurement()
+		if err != nil {
+			return nil, errors.Wrapf(err, errorMessage)
+		}
 
-	// 	for _, measurementXml := range measurementXmls {
-	// 		var softwareFlavor = NewSoftwareFlavor(measurementXml)
-	// 		swFlavor, err := softwareFlavor.GetSoftwareFlavor()
-	// 		if err != nil {
-	// 			return nil, err
-	// 		}
-	// 		softwareFlavors = append(softwareFlavors, *swFlavor)
-	// 	}
-	// }
-	// log.Debugf("flavor/types/esx_platform_flavor:getDefaultSoftwareFlavor() New Software Flavor: %v", softwareFlavors)
+		for _, measurementXml := range measurementXmls {
+			var softwareFlavor = NewSoftwareFlavor(measurementXml)
+			swFlavor, err := softwareFlavor.GetSoftwareFlavorFC()
+			if err != nil {
+				return nil, err
+			}
+			softwareFlavors = append(softwareFlavors, *swFlavor)
+		}
+	}
+	log.Debugf("flavor/types/esx_platform_flavor:getDefaultSoftwareFlavor() New Software Flavor: %v", softwareFlavors)
 	return softwareFlavors, nil
 }
 
@@ -664,6 +685,37 @@ func (rhelpf LinuxPlatformFlavor) GetPcrDetails(pcrManifest hcTypes.PcrManifestF
 	}
 	// return map for flavor to use
 	return pcrCollection
+}
+
+func UpdateMetaSectionDetails(flavorPart cf.FlavorPart, newMeta *cm.Meta, flavorTemplates *[]hvs.FlavorTemplate) *cm.Meta {
+	log.Trace("flavor/util/platform_flavor_util:UpdateMetaSectionDetails() Entering")
+	defer log.Trace("flavor/util/platform_flavor_util:UpdateMetaSectionDetails() Leaving")
+
+	log.Info("Check point A")
+	for _, flavorTemplate := range *flavorTemplates {
+		var flavor *hvs.FlavorPart
+		log.Info("Check point B")
+		switch flavorPart {
+		case cf.FlavorPartPlatform:
+			flavor = flavorTemplate.FlavorParts.Platform
+		case cf.FlavorPartOs:
+			log.Info("Check point C")
+			flavor = flavorTemplate.FlavorParts.OS
+		case cf.FlavorPartHostUnique:
+			flavor = flavorTemplate.FlavorParts.HostUnique
+		}
+
+		log.Info("Meta")
+		if flavor != nil {
+			log.Info(flavor.Meta)
+			for key, value := range flavor.Meta {
+				log.Info("Check point D")
+				log.Info(key)
+				newMeta.Description[key] = value
+			}
+		}
+	}
+	return newMeta
 }
 
 func getEventLogEqualsIncludes(manifestEventLogTags map[string]bool, eventLogEquals, eventLogIncludes map[string]int) (EventLogTags map[string]bool) {

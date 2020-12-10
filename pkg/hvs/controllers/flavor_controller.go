@@ -1183,7 +1183,8 @@ func (fcon *FlavorController) Create(w http.ResponseWriter, r *http.Request) (in
 	return signedFlavorCollection, http.StatusCreated, nil
 }
 
-func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([]hvs.SignedFlavorFC, error) {
+//To-do create another method for ESXI
+func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequestFC) ([]hvs.SignedFlavorFC, error) {
 	defaultLog.Trace("controllers/flavor_controller:createFlavors() Entering")
 	defer defaultLog.Trace("controllers/flavor_controller:createFlavors() Leaving")
 
@@ -1237,7 +1238,8 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 		defaultLog.Info("******************** tcFilterCriteria ", tcFilterCriteria)
 		tagCertificates, err := fcon.TCStore.Search(&tcFilterCriteria)
 		if err != nil {
-			defaultLog.Debugf("Unable to retrieve tag certificate for host with hardware UUID %s", hostManifest.HostInfo.HardwareUUID)
+			defaultLog.Error("controllers/flavor_controller:CreateFlavors() Error in finding the templates to apply")
+			return nil, errors.Wrap(err, "Error getting host manifest")
 		}
 		defaultLog.Info("******************** tagCertificates ", tagCertificates)
 		if len(tagCertificates) >= 1 {
@@ -1257,12 +1259,13 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 			defaultLog.Errorf("controllers/flavor_controller:createFlavors() Error while creating platform flavor instance from host manifest and tag certificate")
 			return nil, errors.Wrap(err, "Error while creating platform flavor instance from host manifest and tag certificate")
 		}
-
+		defaultLog.Debug("Mahesh 2")
 		platformFlavor, err = newPlatformFlavor.GetPlatformFlavor()
 		if err != nil {
 			defaultLog.Errorf("controllers/flavor_controller:createFlavors() Error while creating platform flavors for host %s", hostManifest.HostInfo.HardwareUUID)
 			return nil, errors.Wrapf(err, " Error while creating platform flavors for host %s", hostManifest.HostInfo.HardwareUUID)
 		}
+		defaultLog.Debug("Mahesh 3 -> ", platformFlavor)
 		// add all the flavor parts from create request to the list flavor parts to be associated with a flavorgroup
 		if len(flavorReq.FlavorParts) >= 1 {
 			for _, flavorPart := range flavorReq.FlavorParts {
@@ -1270,6 +1273,48 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 			}
 		}
 
+	} else if len(flavorReq.FlavorCollectionFC.Flavors) >= 1 || len(flavorReq.SignedFlavorCollection.SignedFlavors) >= 1 {
+		defaultLog.Debug("Creating flavors from flavor content")
+		flavorSignKey, _, _ := (*fcon.CertStore).GetKeyAndCertificates(dm.CertTypesFlavorSigning.String())
+
+		// create flavors from flavor content
+		// TODO: currently checking only the unsigned flavors
+		for _, flavor := range flavorReq.FlavorCollectionFC.Flavors {
+			// TODO : check if BIOS flavor part name is still accepted, if it is update the flavorpart to PLATFORM
+			defaultLog.Debug("Validating flavor meta content for flavor part")
+			if err := validateFlavorMetaContent(&flavor.Flavor.Meta); err != nil {
+				defaultLog.Error("controllers/flavor_controller:createFlavors() Valid flavor content must be given, invalid flavor meta data")
+				return nil, errors.Wrap(err, "Invalid flavor content")
+			}
+			// get flavor part form the content
+			var fp fc.FlavorPart
+			if err := (&fp).Parse(flavor.Flavor.Meta.Description[fm.FlavorPart].(string)); err != nil {
+				defaultLog.Error("controllers/flavor_controller:createFlavors() Valid flavor part must be given")
+				return nil, errors.Wrap(err, "Error parsing flavor part")
+			}
+			// check if flavor part already exists in flavor-flavorPart map, else sign the flavor and add it to the map
+			var platformFlavorUtil fu.PlatformFlavorUtil
+
+			defaultLog.Debug("Signing the flavor content")
+			signedFlavor, err := platformFlavorUtil.GetSignedFlavorFC(&flavor.Flavor, flavorSignKey.(*rsa.PrivateKey))
+			if err != nil {
+				defaultLog.Error("controllers/flavor_controller:createFlavors() Error getting signed flavor from flavor library")
+				return nil, errors.Wrap(err, "Error getting signed flavor from flavor library")
+			}
+
+			if _, ok := flavorFlavorPartMap[fp]; ok {
+				// sign the flavor and add it to the same flavor list
+				flavorFlavorPartMap[fp] = append(flavorFlavorPartMap[fp], *signedFlavor)
+			} else {
+				// add the flavor to the new list
+				flavorFlavorPartMap[fp] = []hvs.SignedFlavorFC{*signedFlavor}
+			}
+			flavorParts = append(flavorParts, fp)
+		}
+		if len(flavorFlavorPartMap) == 0 {
+			defaultLog.Error("controllers/flavor_controller:createFlavors() Valid flavor content must be given")
+			return nil, errors.New("Valid flavor content must be given")
+		}
 	}
 	// else if len(flavorReq.FlavorCollection.Flavors) >= 1 || len(flavorReq.SignedFlavorCollection.SignedFlavors) >= 1 {
 	// 	defaultLog.Debug("Creating flavors from flavor content")
@@ -1332,25 +1377,32 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 		return nil, err
 	}
 
+	defaultLog.Debug("Mahesh 4 Flavorgroup names -> ", flavorgroups)
+	defaultLog.Debug("Mahesh 4 Flavorgroup names -> ", &platformFlavor)
+	defaultLog.Debug("Mahesh 4 Flavorgroup names -> ", flavorParts)
+
+	defaultLog.Debug("Mahesh 4 fcon -> ", fcon)
+
 	// if platform flavor was retrieved from host, break it into the flavor part flavor map using the flavorgroups
 	if platformFlavor != nil {
+		defaultLog.Debug("Mahesh 4 fcon -> ", fcon)
 		flavorFlavorPartMap = fcon.retrieveFlavorCollectionFC(platformFlavor, flavorgroups, flavorParts)
 	}
+
+	defaultLog.Debug("Mahesh 5 flavorFlavorPartMap -> ", flavorFlavorPartMap)
 
 	if flavorFlavorPartMap == nil || len(flavorFlavorPartMap) == 0 {
 		defaultLog.Error("controllers/flavor_controller:createFlavors() Cannot create flavors")
 		return nil, errors.New("Unable to create Flavors")
 	}
-	defaultLog.Debug("controllers/flavor_controller:createFlavors() flavorFlavorPartMap[PLATFORM] ", flavorFlavorPartMap["PLATFORM"])
-	defaultLog.Debug("controllers/flavor_controller:createFlavors() flavorFlavorPartMap[OS] ", flavorFlavorPartMap["OS"])
 	return fcon.addFlavorToFlavorgroupFC(flavorFlavorPartMap, flavorgroups)
 }
 
-func getFlavorCreateReq(r *http.Request) (dm.FlavorCreateRequest, error) {
+func getFlavorCreateReq(r *http.Request) (dm.FlavorCreateRequestFC, error) {
 	defaultLog.Trace("controllers/flavor_controller:getFlavorCreateReq() Entering")
 	defer defaultLog.Trace("controllers/flavor_controller:getFlavorCreateReq() Leaving")
 
-	var flavorCreateReq dm.FlavorCreateRequest
+	var flavorCreateReq dm.FlavorCreateRequestFC
 	if r.Header.Get("Content-Type") != constants.HTTPMediaTypeJson {
 		secLog.Error("controllers/flavor_controller:getFlavorCreateReq() Invalid Content-Type")
 		return flavorCreateReq, errors.New("Invalid Content-Type")
@@ -1373,7 +1425,7 @@ func getFlavorCreateReq(r *http.Request) (dm.FlavorCreateRequest, error) {
 	}
 
 	defaultLog.Debug("Validating create flavor request")
-	err = validateFlavorCreateRequest(flavorCreateReq)
+	err = validateFlavorCreateRequestFC(flavorCreateReq)
 	if err != nil {
 		secLog.WithError(err).Errorf("controllers/flavor_controller:CreateFlavors() %s Invalid flavor create criteria", commLogMsg.InvalidInputBadParam)
 		return flavorCreateReq, errors.New("Invalid flavor create criteria")
@@ -1449,21 +1501,6 @@ func (fcon *FlavorController) findTemplatesToApply(hostManifest *hcType.HostMani
 	return &filteredTemplates, nil
 }
 
-// func (fcon *FlavorController) addFlavorToFlavorgroupFC(flavorFlavorPartMap map[fc.FlavorPart][]hvs.SignedFlavorFC, fgs []hvs.FlavorGroup) ([]hvs.SignedFlavorFC, error) {
-// 	defaultLog.Trace("controllers/flavor_controller:addFlavorToFlavorgroup() Entering")
-// 	defer defaultLog.Trace("controllers/flavor_controller:addFlavorToFlavorgroup() Leaving")
-
-// 	var returnSignedFlavors []hvs.SignedFlavorFC
-
-// 	for _, signedFlavors := range flavorFlavorPartMap {
-
-// 		for _, signedFlavor := range signedFlavors {
-// 			returnSignedFlavors = append(returnSignedFlavors, signedFlavor)
-// 		}
-// 	}
-// 	return returnSignedFlavors, nil
-// }
-
 func (fcon *FlavorController) addFlavorToFlavorgroupFC(flavorFlavorPartMap map[fc.FlavorPart][]hvs.SignedFlavorFC, fgs []hvs.FlavorGroup) ([]hvs.SignedFlavorFC, error) {
 	defaultLog.Trace("controllers/flavor_controller:addFlavorToFlavorgroup() Entering")
 	defer defaultLog.Trace("controllers/flavor_controller:addFlavorToFlavorgroup() Leaving")
@@ -1509,9 +1546,10 @@ func (fcon *FlavorController) addFlavorToFlavorgroupFC(flavorFlavorPartMap map[f
 					// get hostId
 					var hostHardwareUUID uuid.UUID
 					if !reflect.DeepEqual(signedFlavorCreated.Flavor.Meta, fm.Meta{}) &&
-						!reflect.DeepEqual(signedFlavorCreated.Flavor.Meta.Description, fm.Description{}) &&
-						signedFlavorCreated.Flavor.Meta.Description.HardwareUUID != nil {
-						hostHardwareUUID = *signedFlavorCreated.Flavor.Meta.Description.HardwareUUID
+						// TODO :
+						//!reflect.DeepEqual(signedFlavorCreated.Flavor.Meta.Description, fm.Description{}) &&
+						signedFlavorCreated.Flavor.Meta.Description[fm.HardwareUUID] != nil {
+						hostHardwareUUID = signedFlavorCreated.Flavor.Meta.Description[fm.HardwareUUID].(uuid.UUID)
 					} else {
 						defaultLog.Error("controllers/flavor_controller:addFlavorToFlavorgroup() hardware UUID must be specified in the flavor document")
 						if cleanUpErr := fcon.createCleanUp(flavorgroupFlavorMap); cleanUpErr != nil {
@@ -1544,9 +1582,9 @@ func (fcon *FlavorController) addFlavorToFlavorgroupFC(flavorFlavorPartMap map[f
 				} else if flavorPart == fc.FlavorPartSoftware {
 					var softwareFgName string
 					addToNonSoftwareGroup := false
-					if strings.Contains(signedFlavorCreated.Flavor.Meta.Description.Label, fConst.DefaultSoftwareFlavorPrefix) {
+					if strings.Contains(signedFlavorCreated.Flavor.Meta.Description[fm.Label].(string), fConst.DefaultSoftwareFlavorPrefix) {
 						softwareFgName = dm.FlavorGroupsPlatformSoftware.String()
-					} else if strings.Contains(signedFlavorCreated.Flavor.Meta.Description.Label, fConst.DefaultWorkloadFlavorPrefix) {
+					} else if strings.Contains(signedFlavorCreated.Flavor.Meta.Description[fm.Label].(string), fConst.DefaultWorkloadFlavorPrefix) {
 						softwareFgName = dm.FlavorGroupsWorkloadSoftware.String()
 					} else {
 						addToNonSoftwareGroup = true
@@ -1658,11 +1696,12 @@ func (fcon *FlavorController) addFlavorToFlavorgroup(flavorFlavorPartMap map[fc.
 					}
 					flavorgroupsForQueue = append(flavorgroupsForQueue, *flavorgroup)
 					// get hostId
+					//To-do
+					//!reflect.DeepEqual(signedFlavorCreated.Flavor.Meta.Description, fm.Description{}) &&
 					var hostHardwareUUID uuid.UUID
 					if !reflect.DeepEqual(signedFlavorCreated.Flavor.Meta, fm.Meta{}) &&
-						!reflect.DeepEqual(signedFlavorCreated.Flavor.Meta.Description, fm.Description{}) &&
-						signedFlavorCreated.Flavor.Meta.Description.HardwareUUID != nil {
-						hostHardwareUUID = *signedFlavorCreated.Flavor.Meta.Description.HardwareUUID
+						signedFlavorCreated.Flavor.Meta.Description[fm.HardwareUUID] != nil {
+						hostHardwareUUID = signedFlavorCreated.Flavor.Meta.Description[fm.HardwareUUID].(uuid.UUID)
 					} else {
 						defaultLog.Error("controllers/flavor_controller:addFlavorToFlavorgroup() hardware UUID must be specified in the flavor document")
 						if cleanUpErr := fcon.createCleanUp(flavorgroupFlavorMap); cleanUpErr != nil {
@@ -1695,9 +1734,9 @@ func (fcon *FlavorController) addFlavorToFlavorgroup(flavorFlavorPartMap map[fc.
 				} else if flavorPart == fc.FlavorPartSoftware {
 					var softwareFgName string
 					addToNonSoftwareGroup := false
-					if strings.Contains(signedFlavorCreated.Flavor.Meta.Description.Label, fConst.DefaultSoftwareFlavorPrefix) {
+					if strings.Contains(signedFlavorCreated.Flavor.Meta.Description[fm.Label].(string), fConst.DefaultSoftwareFlavorPrefix) {
 						softwareFgName = dm.FlavorGroupsPlatformSoftware.String()
-					} else if strings.Contains(signedFlavorCreated.Flavor.Meta.Description.Label, fConst.DefaultWorkloadFlavorPrefix) {
+					} else if strings.Contains(signedFlavorCreated.Flavor.Meta.Description[fm.Label].(string), fConst.DefaultWorkloadFlavorPrefix) {
 						softwareFgName = dm.FlavorGroupsWorkloadSoftware.String()
 					} else {
 						addToNonSoftwareGroup = true
@@ -1888,6 +1927,7 @@ func (fcon FlavorController) retrieveFlavorCollectionFC(platformFlavor *fType.Pl
 		}
 
 		signedFlavors, err := fu.PlatformFlavorUtil{}.GetSignedFlavorListFC(unsignedFlavors, flavorSignKey.(*rsa.PrivateKey))
+		defaultLog.Debugf("Mahesh unsigned flavors -> ", signedFlavors)
 		if err != nil {
 			defaultLog.Errorf("controllers/flavor_controller:retrieveFlavorCollection() Error signing flavor %s", flavorPart)
 			return flavorFlavorPartMap
@@ -2004,7 +2044,7 @@ func getHostsAssociatedWithFlavor(hStore domain.HostStore, fgStore domain.Flavor
 		//Host unique flavors are associated with only host_unique flavorgroup and associated with only one host uniquely
 		if flavorGroup.Name == dm.FlavorGroupsHostUnique.String() {
 			hosts, err := hStore.Search(&dm.HostFilterCriteria{
-				HostHardwareId: *flavor.Flavor.Meta.Description.HardwareUUID,
+				HostHardwareId: flavor.Flavor.Meta.Description[fm.HardwareUUID].(uuid.UUID),
 			})
 			if err != nil {
 				return nil, errors.Wrapf(err, "controllers/flavor_controller:getHostsAssociatedWithFlavor() Failed to retrieve hosts "+
@@ -2085,11 +2125,11 @@ func validateFlavorFilterCriteria(key, value, flavorgroupId string, ids, flavorP
 	return &filterCriteria, nil
 }
 
-func validateFlavorCreateRequest(criteria dm.FlavorCreateRequest) error {
+func validateFlavorCreateRequestFC(criteria dm.FlavorCreateRequestFC) error {
 	defaultLog.Trace("controllers/flavor_controller:validateFlavorCreateRequest() Entering")
 	defer defaultLog.Trace("controllers/flavor_controller:validateFlavorCreateRequest() Leaving")
 
-	if criteria.ConnectionString == "" && len(criteria.FlavorCollection.Flavors) == 0 && len(criteria.SignedFlavorCollection.SignedFlavors) == 0 {
+	if criteria.ConnectionString == "" && len(criteria.FlavorCollectionFC.Flavors) == 0 && len(criteria.SignedFlavorCollection.SignedFlavors) == 0 {
 		secLog.Error("controllers/flavor_controller: validateFlavorCreateCriteria() Valid host connection string or flavor content must be given")
 		return errors.New("Valid host connection string or flavor content must be given")
 	}
@@ -2129,11 +2169,13 @@ func validateFlavorCreateRequest(criteria dm.FlavorCreateRequest) error {
 func validateFlavorMetaContent(meta *fm.Meta) error {
 	defaultLog.Trace("controllers/flavor_controller:validateFlavorMetaContent() Entering")
 	defer defaultLog.Trace("controllers/flavor_controller:validateFlavorMetaContent() Leaving")
-	if meta == nil || reflect.DeepEqual(meta.Description, fm.Description{}) || meta.Description.Label == "" {
+	//To-Do
+	//reflect.DeepEqual(meta.Description, fm.Description{}) ||
+	if meta == nil || meta.Description[fm.Label].(string) == "" {
 		return errors.New("Invalid flavor meta content : flavor label missing")
 	}
 	var fp fc.FlavorPart
-	if err := (&fp).Parse(meta.Description.FlavorPart); err != nil {
+	if err := (&fp).Parse(meta.Description[fm.FlavorPart].(string)); err != nil {
 		return errors.New("Flavor Part must be ASSET_TAG, SOFTWARE, HOST_UNIQUE, PLATFORM or OS")
 	}
 	return nil
