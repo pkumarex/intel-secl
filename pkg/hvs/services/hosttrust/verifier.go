@@ -16,6 +16,7 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"sync"
 )
 
 var ErrInvalidHostManiFest = errors.New("invalid host data")
@@ -30,6 +31,9 @@ type Verifier struct {
 	CertsStore                      models.CertificatesStore
 	SamlIssuer                      saml.IssuerConfiguration
 	SkipFlavorSignatureVerification bool
+	hostPCRCache map[uuid.UUID] *types.PcrManifest
+	pcrCacheLock        sync.RWMutex
+
 }
 
 func NewVerifier(cfg domain.HostTrustVerifierConfig) domain.HostTrustVerifier {
@@ -45,6 +49,41 @@ func NewVerifier(cfg domain.HostTrustVerifierConfig) domain.HostTrustVerifier {
 	}
 }
 
+func (v* Verifier) addHostPCRCache (hostId uuid.UUID, cacheValues *types.PcrManifest){
+	v.pcrCacheLock.Lock()
+	v.hostPCRCache[hostId] = cacheValues
+	v.pcrCacheLock.Unlock()
+
+}
+func (v* Verifier) pcrValuesUnChanged (hostId uuid.UUID, hostData *types.HostManifest) bool {
+	defaultLog.Info("1. Checking if PCR values are changed")
+	v.pcrCacheLock.RLock()
+	var cacheValues *types.PcrManifest
+	var exists bool
+	if cacheValues, exists = v.hostPCRCache[hostId]; !exists {
+		v.pcrCacheLock.RUnlock()
+		v.addHostPCRCache(hostId,&hostData.PcrManifest)
+		return false
+	}
+	v.pcrCacheLock.RUnlock()
+
+	// compare the values - for the POC, we are only doing SHA256
+	var mismatch bool
+	for i := 0; i < len(hostData.PcrManifest.Sha256Pcrs); i++ {
+		if hostData.PcrManifest.Sha256Pcrs[i].Value != cacheValues.Sha256Pcrs[i].Value {
+			mismatch = true
+			break
+		}
+	}
+	if mismatch {
+		// add the new PCR values to the cache
+		v.addHostPCRCache(hostId,&hostData.PcrManifest)
+		return false
+	}
+	defaultLog.Info("2. PCR values are unchanged")
+	return true
+}
+
 func (v *Verifier) Verify(hostId uuid.UUID, hostData *types.HostManifest, newData bool) (*models.HVSReport, error) {
 	defaultLog.Trace("hosttrust/verifier:Verify() Entering")
 	defer defaultLog.Trace("hosttrust/verifier:Verify() Leaving")
@@ -57,6 +96,17 @@ func (v *Verifier) Verify(hostId uuid.UUID, hostData *types.HostManifest, newDat
 		return nil, ErrManifestMissingHwUUID
 	}
 
+	// check if the data has not changed
+	if !newData {
+		// store data in the cache
+		v.addHostPCRCache(hostId, &hostData.PcrManifest)
+	} else {
+		// check if the PCR Values are unchanged.
+		if v.pcrValuesUnChanged(hostId, hostData){
+			// retrieve the stored report
+			return v.refreshTrustReport(hostId)
+		}
+	}
 	// TODO : remove this when we remove the intermediate collection
 	flvGroupIds, err := v.HostStore.SearchFlavorgroups(hostId)
 	flvGroups, err := v.FlavorGroupStore.Search(&models.FlavorGroupFilterCriteria{Ids: flvGroupIds})
@@ -182,6 +232,31 @@ func (v *Verifier) validateCachedFlavors(hostId uuid.UUID,
 	}
 	htc.trustReport = collectiveReport
 	return htc, nil
+}
+
+func (v *Verifier) refreshTrustReport(hostID uuid.UUID) (*models.HVSReport, error) {
+	rfc := models.ReportFilterCriteria{
+		HostID:        hostID,
+		LatestPerHost: true,
+	}
+
+	// get the latest trust report from the host and use this to create a new report
+	hvsReportCollection, err := v.ReportStore.Search(&rfc)
+	if err != nil {
+		defaultLog.WithError(err).Warnf("hosttrust/verifier:refreshTrustReport() HVSReport search operation failed")
+		return nil, errors.Errorf("HVSReport search operation failed")
+	}
+
+	if len(hvsReportCollection) == 0 {
+		return nil, errors.Errorf("HVSReport search operation failed")
+	}
+	log.Debugf("hosttrust/verifier:refreshTrustReport() Generating new SAML for host: %s", hostID)
+	log.Info("3. Old report id and expiration time is ", hvsReportCollection[0].HostID, hvsReportCollection[0].Expiration)
+	samlReportGen := NewSamlReportGenerator(&v.SamlIssuer)
+	samlReport := samlReportGen.GenerateSamlReport(&hvsReportCollection[0].TrustReport)
+	//hvsReportCollection[0].TrustReport.Trusted = hvsReportCollection[0].TrustReport.IsTrusted()
+
+	return v.storeTrustReport(hostID, &hvsReportCollection[0].TrustReport, &samlReport), nil
 }
 
 func (v *Verifier) storeTrustReport(hostID uuid.UUID, trustReport *hvs.TrustReport, samlReport *saml.SamlAssertion) *models.HVSReport {
