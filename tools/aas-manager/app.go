@@ -63,20 +63,20 @@ type App struct {
 	KbsCN      string
 	KbsSanList string
 
-	InstallAdminUserName   string
-	InstallAdminPassword   string
-	GlobalAdminUserName    string
-	GlobalAdminPassword    string
-	HvsServiceUserName     string
-	HvsServiceUserPassword string
-	IhServiceUserName      string
-	IhServiceUserPassword  string
-	WpmServiceUserName     string
-	WpmServiceUserPassword string
-	WlsServiceUserName     string
-	WlsServiceUserPassword string
-	WlaServiceUserName     string
-	WlaServiceUserPassword string
+	InstallAdminUserName    string
+	InstallAdminPassword    string
+	GlobalAdminUserName     string
+	GlobalAdminPassword     string
+	HvsServiceUserName      string
+	HvsServiceUserPassword  string
+	IhubServiceUserName     string
+	IhubServiceUserPassword string
+	WpmServiceUserName      string
+	WpmServiceUserPassword  string
+	WlsServiceUserName      string
+	WlsServiceUserPassword  string
+	WlaServiceUserName      string
+	WlaServiceUserPassword  string
 
 	Components     map[string]bool
 	GenPassword    bool
@@ -146,8 +146,8 @@ func (a *App) GetServiceUsers() []UserAndRolesCreate {
 			urc.Password = a.HvsServiceUserPassword
 			urc.Roles = append(urc.Roles, NewRole("TA", "Administrator", "", []string{"*:*:*"}))
 		case "IH":
-			urc.Name = a.IhServiceUserName
-			urc.Password = a.IhServiceUserPassword
+			urc.Name = a.IhubServiceUserName
+			urc.Password = a.IhubServiceUserPassword
 			urc.Roles = append(urc.Roles, NewRole("HVS", "ReportSearcher", "", []string{"reports:search:*"}))
 		case "WPM":
 			urc.Name = a.WpmServiceUserName
@@ -312,8 +312,8 @@ func (a *App) LoadAllVariables(envFile string) error {
 		{&a.HvsServiceUserName, "HVS_SERVICE_USERNAME", "", "Host Verification Service User Name", false, false},
 		{&a.HvsServiceUserPassword, "HVS_SERVICE_PASSWORD", "", "Host Verification Service User Password", false, true},
 
-		{&a.IhServiceUserName, "IH_SERVICE_USERNAME", "", "Integration Hub Service User Name", false, false},
-		{&a.IhServiceUserPassword, "IH_SERVICE_PASSWORD", "", "Integration Hub Service User Password", false, true},
+		{&a.IhubServiceUserName, "IHUB_SERVICE_USERNAME", "", "Integration Hub Service User Name", false, false},
+		{&a.IhubServiceUserPassword, "IHUB_SERVICE_PASSWORD", "", "Integration Hub Service User Password", false, true},
 
 		{&a.WpmServiceUserName, "WPM_SERVICE_USERNAME", "", "Workload Policy Manager Service User Name", false, false},
 		{&a.WpmServiceUserPassword, "WPM_SERVICE_PASSWORD", "", "Workload Policy Manager Service User Password", false, true},
