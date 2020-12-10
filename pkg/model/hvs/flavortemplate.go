@@ -8,30 +8,6 @@ import (
 	"github.com/google/uuid"
 )
 
-//Meta - To store all meta data about host.
-type Meta struct {
-	FlavorPart   string     `json:"flavor_part,omitempty"`
-	Source       string     `json:"source,omitempty"`
-	Label        string     `json:"label,omitempty"`
-	Vendot       string     `json:"vendor,omitempty"`
-	IPAddress    string     `json:"ip_address,omitempty"`
-	BiosName     string     `json:"bios_name,omitempty"`
-	BiosVersion  string     `json:"bios_version,omitempty"`
-	OsName       string     `json:"os_name,omitempty"`
-	OsVersion    string     `json:"os_version,omitempty"`
-	VmmName      string     `json:"vmm_name,omitempty"`
-	VmmVersion   string     `json:"vmm_version,omitempty"`
-	TpmVersion   string     `json:"tpm_version,omitempty"`
-	HardwareUUID *uuid.UUID `json:"hardware_uuid,omitempty"`
-	Comment      string     `json:"comment,omitempty"`
-
-	TbootInstalled bool `json:"tboot_installed,omitempty"`
-	CBNTEnabled    bool `json:"cbnt_enabled,omitempty"`
-	UEFIEnabled    bool `json:"uefi_enabled,omitempty"`
-
-	DigestAlgorithm string `json:"digest_algorithm,omitempty"`
-}
-
 //PCR- Tp stpre PCR index with respective PCR bank.
 type PCR struct {
 	Index int    `json:"index"`
@@ -58,8 +34,8 @@ type PcrRules struct {
 
 //Flavor - To store flavor with meta, event-log-equals and event-log-includes.
 type FlavorPart struct {
-	Meta     *Meta      `json:"meta,omitempty"`
-	PcrRules []PcrRules `json:"pcr_rules"`
+	Meta     map[string]interface{} `json:"meta,omitempty"`
+	PcrRules []PcrRules             `json:"pcr_rules"`
 }
 
 //FlavorParts - To store possible flavor part requested.

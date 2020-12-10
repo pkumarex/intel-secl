@@ -6,15 +6,16 @@ package rules
 
 import (
 	"fmt"
+	"reflect"
+
 	"github.com/google/uuid"
-	"github.com/intel-secl/intel-secl/v3/pkg/hvs/constants/verifier-rules-and-faults"
+	constants "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants/verifier-rules-and-faults"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	flavormodel "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	ta "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
-	"reflect"
 )
 
 func NewXmlMeasurementLogEquals(softwareFlavor *hvs.Flavor) (Rule, error) {
@@ -24,11 +25,12 @@ func NewXmlMeasurementLogEquals(softwareFlavor *hvs.Flavor) (Rule, error) {
 		return nil, errors.New("'Meta' was not provided in the software flavor")
 	}
 
-	if reflect.DeepEqual(meta.Description, flavormodel.Description{}) {
-		return nil, errors.New("'Meta.Description' was not provided in the software flavor")
-	}
+	//To-Do comparsion for maps
+	// if reflect.DeepEqual(meta.Description, flavormodel.Meta.Description) {
+	// 	return nil, errors.New("'Meta.Description' was not provided in the software flavor")
+	// }
 
-	if len(meta.Description.Label) == 0 {
+	if len(meta.Description[flavormodel.Label].(string)) == 0 {
 		return nil, errors.New("The software flavor label was not provided")
 	}
 
@@ -38,7 +40,7 @@ func NewXmlMeasurementLogEquals(softwareFlavor *hvs.Flavor) (Rule, error) {
 
 	rule := xmlMeasurementLogEquals{
 		flavorID:    meta.ID,
-		flavorLabel: meta.Description.Label,
+		flavorLabel: meta.Description[flavormodel.Label].(string),
 	}
 
 	for _, measurement := range softwareFlavor.Software.Measurements {

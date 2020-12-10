@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
+	fm "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	dm "github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
 	commErr "github.com/intel-secl/intel-secl/v3/pkg/lib/common/err"
 	commLogMsg "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log/message"
@@ -55,7 +56,7 @@ func (controller ManifestsController) GetManifest(w http.ResponseWriter, r *http
 	}
 
 	var fmc util.FlavorToManifestConverter
-	if signedFlavors[0].Flavor.Meta.Description.FlavorPart == string(common.FlavorPartSoftware) {
+	if signedFlavors[0].Flavor.Meta.Description[fm.FlavorPart].(string) == string(common.FlavorPartSoftware) {
 		manifest := fmc.GetManifestFromFlavor(signedFlavors[0].Flavor)
 		return manifest, http.StatusOK, nil
 	} else {
