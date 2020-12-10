@@ -22,6 +22,7 @@ type (
 		Search(*models.FlavorGroupFilterCriteria) ([]hvs.FlavorGroup, error)
 		Delete(uuid.UUID) error
 		AddFlavors(uuid.UUID, []uuid.UUID) ([]uuid.UUID, error)
+		AddFlavorsFC(uuid.UUID, []uuid.UUID) ([]uuid.UUID, error)
 		RemoveFlavors(uuid.UUID, []uuid.UUID) error
 		SearchFlavors(uuid.UUID) ([]uuid.UUID, error)
 		RetrieveFlavor(uuid.UUID, uuid.UUID) (*hvs.FlavorgroupFlavorLink, error)
@@ -68,6 +69,11 @@ type (
 		Retrieve(uuid.UUID) (*hvs.SignedFlavor, error)
 		Search(*models.FlavorVerificationFC) ([]hvs.SignedFlavor, error)
 		Delete(uuid.UUID) error
+
+		CreateFC(*hvs.SignedFlavorFC) (*hvs.SignedFlavorFC, error)
+		RetrieveFC(uuid.UUID) (*hvs.SignedFlavorFC, error)
+		SearchFC(*models.FlavorVerificationFC) ([]hvs.SignedFlavorFC, error)
+		DeleteFC(uuid.UUID) error
 	}
 
 	TpmEndorsementStore interface {

@@ -121,6 +121,7 @@ func (rhelpf LinuxPlatformFlavor) GetFlavorPartRawFC(name cf.FlavorPart) ([]cm.F
 	case cf.FlavorPartOs:
 		return rhelpf.getOsFlavor()
 	case cf.FlavorPartAssetTag:
+		log.Trace("flavor/types/linux_platform_flavor:GetFlavorPartRaw() ASSET_TAG Flavor")
 		return rhelpf.getAssetTagFlavor()
 	case cf.FlavorPartHostUnique:
 		return rhelpf.getHostUniqueFlavor()
@@ -456,21 +457,28 @@ func (rhelpf LinuxPlatformFlavor) getAssetTagFlavor() ([]cm.FlavorFC, error) {
 	var errorMessage = "Error during creation of ASSET_TAG flavor"
 	var err error
 
+	log.Trace("flavor/types/linux_platform_flavor:getAssetTagFlavor() I'm HEre")
 	if rhelpf.TagCertificate == nil {
+		log.Trace("flavor/types/linux_platform_flavor:getAssetTagFlavor() Mahesh AT 0-")
 		return nil, errors.Errorf("%s - %s", errorMessage, cf.FLAVOR_PART_CANNOT_BE_SUPPORTED().Message)
 	}
+
+	log.Trace("flavor/types/linux_platform_flavor:getAssetTagFlavor() Mahesh AT 1-")
 
 	// create meta section details
 	newMeta, err := pfutil.GetMetaSectionDetails(rhelpf.HostInfo, rhelpf.TagCertificate, "", cf.FlavorPartAssetTag,
 		hcConstants.VendorIntel)
 	if err != nil {
+		log.Trace("flavor/types/linux_platform_flavor:getAssetTagFlavor() Mahesh AT 2-")
 		return nil, errors.Wrap(err, errorMessage+" Failure in Meta section details")
 	}
+	log.Trace("flavor/types/linux_platform_flavor:getAssetTagFlavor() Mahesh AT 3-")
 	log.Debugf("flavor/types/linux_platform_flavor:getAssetTagFlavor() New Meta Section: %v", *newMeta)
 
 	// create bios section details
 	newBios := pfutil.GetBiosSectionDetails(rhelpf.HostInfo)
 	if newBios == nil {
+		log.Trace("flavor/types/linux_platform_flavor:getAssetTagFlavor() Mahesh AT 4-")
 		return nil, errors.Errorf("%s - Failure in Bios section details", errorMessage)
 	}
 	log.Debugf("flavor/types/linux_platform_flavor:getAssetTagFlavor() New Bios Section: %v", *newBios)
@@ -478,6 +486,7 @@ func (rhelpf LinuxPlatformFlavor) getAssetTagFlavor() ([]cm.FlavorFC, error) {
 	// create external section details
 	newExt, err := pfutil.GetExternalConfigurationDetails(rhelpf.TagCertificate)
 	if err != nil {
+		log.Trace("flavor/types/linux_platform_flavor:getAssetTagFlavor() Mahesh AT 5-")
 		return nil, errors.Wrap(err, errorMessage+" Failure in External configuration section details")
 	}
 	log.Debugf("flavor/types/linux_platform_flavor:getAssetTagFlavor() New External Section: %v", *newExt)

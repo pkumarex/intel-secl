@@ -7,6 +7,7 @@ package hvs
 
 import (
 	"encoding/json"
+
 	"github.com/google/uuid"
 	cf "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 )
@@ -27,7 +28,7 @@ type FlavorGroup struct {
 	Name string    `json:"name,omitempty"`
 	// swagger:strfmt uuid
 	FlavorIds     []uuid.UUID         `json:"flavorIds,omitempty"`
-	Flavors       []Flavor            `json:"flavors,omitempty"`
+	Flavors       []FlavorFC          `json:"flavors,omitempty"`
 	MatchPolicies FlavorMatchPolicies `json:"flavor_match_policies,omitempty"`
 }
 
@@ -83,7 +84,7 @@ func (r FlavorGroup) MarshalJSON() ([]byte, error) {
 		ID                          uuid.UUID                   `json:"id,omitempty"`
 		Name                        string                      `json:"name,omitempty"`
 		FlavorIds                   []uuid.UUID                 `json:"flavorIds,omitempty"`
-		Flavors                     []Flavor                    `json:"flavors,omitempty"`
+		Flavors                     []FlavorFC                  `json:"flavors,omitempty"`
 		FlavorMatchPolicyCollection FlavorMatchPolicyCollection `json:"flavor_match_policy_collection,omitempty"`
 	}{
 		ID:                          r.ID,
@@ -99,7 +100,7 @@ func (r *FlavorGroup) UnmarshalJSON(b []byte) error {
 		ID                          uuid.UUID                   `json:"id,omitempty"`
 		Name                        string                      `json:"name,omitempty"`
 		FlavorIds                   []uuid.UUID                 `json:"flavorIds,omitempty"`
-		Flavors                     []Flavor                    `json:"flavors,omitempty"`
+		Flavors                     []FlavorFC                  `json:"flavors,omitempty"`
 		FlavorMatchPolicyCollection FlavorMatchPolicyCollection `json:"flavor_match_policy_collection,omitempty"`
 	})
 	err := json.Unmarshal(b, decoded)

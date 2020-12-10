@@ -117,6 +117,7 @@ func (pfutil PlatformFlavorUtil) GetMetaSectionDetails(hostDetails *taModel.Host
 		meta.Schema = pfutil.getSchema()
 
 	case common.FlavorPartAssetTag:
+		log.Debugf("flavor/util/platform_flavor_util:GetMetaSectionDetails() hostDetails -> ", hostDetails)
 		description.FlavorPart = flavorPartName.String()
 		if hostDetails != nil {
 			hwuuid, err := uuid.Parse(hostDetails.HardwareUUID)
