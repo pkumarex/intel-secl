@@ -22,6 +22,11 @@ import (
 var ErrInvalidHostManiFest = errors.New("invalid host data")
 var ErrManifestMissingHwUUID = errors.New("host data missing hardware uuid")
 
+type pcrCache struct{
+	pcrValues []types.Pcr
+	trustReport *hvs.TrustReport
+}
+
 type Verifier struct {
 	FlavorStore                     domain.FlavorStore
 	FlavorGroupStore                domain.FlavorGroupStore
@@ -31,7 +36,7 @@ type Verifier struct {
 	CertsStore                      models.CertificatesStore
 	SamlIssuer                      saml.IssuerConfiguration
 	SkipFlavorSignatureVerification bool
-	hostPCRCache map[uuid.UUID] *types.PcrManifest
+	hostPCRCache map[uuid.UUID] *pcrCache
 	pcrCacheLock        sync.RWMutex
 
 }
@@ -46,43 +51,46 @@ func NewVerifier(cfg domain.HostTrustVerifierConfig) domain.HostTrustVerifier {
 		CertsStore:                      cfg.CertsStore,
 		SamlIssuer:                      cfg.SamlIssuerConfig,
 		SkipFlavorSignatureVerification: cfg.SkipFlavorSignatureVerification,
-		hostPCRCache: make(map[uuid.UUID] *types.PcrManifest),
+		hostPCRCache: make(map[uuid.UUID] *pcrCache),
 	}
 }
 
-func (v* Verifier) addHostPCRCache (hostId uuid.UUID, cacheValues *types.PcrManifest){
+func (v* Verifier) addHostPCRCache (hostId uuid.UUID, existingEntry *pcrCache,  pcrManifest *types.PcrManifest, report *hvs.TrustReport){
+	// if we already have the pointer, we do not have to look up in the map again - just update the record
+	if existingEntry != nil {
+		existingEntry.pcrValues = pcrManifest.Sha256Pcrs
+		existingEntry.trustReport = report
+		return
+	}
+
+	// existing entry does not exist... create it.
 	v.pcrCacheLock.Lock()
-	v.hostPCRCache[hostId] = cacheValues
+	v.hostPCRCache[hostId] = &pcrCache{
+		pcrValues:   pcrManifest.Sha256Pcrs,
+		trustReport: report,
+	}
 	v.pcrCacheLock.Unlock()
 
 }
-func (v* Verifier) pcrValuesUnChanged (hostId uuid.UUID, hostData *types.HostManifest) bool {
+func (v* Verifier) pcrValuesUnChanged (hostId uuid.UUID, hostData *types.HostManifest) *pcrCache {
 	defaultLog.Trace("hosttrust/verifier:pcrValuesUnChanged() Entering")
 	defer defaultLog.Trace("hosttrust/verifier:pcrValuesUnChanged() Leaving")
 	v.pcrCacheLock.RLock()
-	var cacheValues *types.PcrManifest
+	var cache *pcrCache
 	var exists bool
-	if cacheValues, exists = v.hostPCRCache[hostId]; !exists {
+	if cache, exists = v.hostPCRCache[hostId]; !exists {
 		v.pcrCacheLock.RUnlock()
-		v.addHostPCRCache(hostId,&hostData.PcrManifest)
-		return false
+		return nil
 	}
 	v.pcrCacheLock.RUnlock()
 
 	// compare the values - for the POC, we are only doing SHA256
-	var mismatch bool
 	for i := 0; i < len(hostData.PcrManifest.Sha256Pcrs); i++ {
-		if hostData.PcrManifest.Sha256Pcrs[i].Value != cacheValues.Sha256Pcrs[i].Value {
-			mismatch = true
-			break
+		if hostData.PcrManifest.Sha256Pcrs[i].Value != cache.pcrValues[i].Value {
+			return nil
 		}
 	}
-	if mismatch {
-		// add the new PCR values to the cache
-		v.addHostPCRCache(hostId,&hostData.PcrManifest)
-		return false
-	}
-	return true
+	return cache
 }
 
 func (v *Verifier) Verify(hostId uuid.UUID, hostData *types.HostManifest, newData bool) (*models.HVSReport, error) {
@@ -97,16 +105,15 @@ func (v *Verifier) Verify(hostId uuid.UUID, hostData *types.HostManifest, newDat
 		return nil, ErrManifestMissingHwUUID
 	}
 
+	var cacheEntry *pcrCache
 	// check if the data has not changed
-	if !newData {
-		// store data in the cache
-		v.addHostPCRCache(hostId, &hostData.PcrManifest)
-	} else {
+	if newData {
 		// check if the PCR Values are unchanged.
-		if v.pcrValuesUnChanged(hostId, hostData){
+
+		if cacheEntry =  v.pcrValuesUnChanged(hostId, hostData); cacheEntry != nil {
 			// retrieve the stored report
 			log.Debug("hosttrust/verifier:Verify() PCR values matches cached value - skipping flavor verification")
-			if report, err := v.refreshTrustReport(hostId); err == nil {
+			if report, err := v.refreshTrustReport(hostId, cacheEntry); err == nil {
 				return report, err
 			} else {
 				// log warning message here - continue as normal and create a report from newly fetched data
@@ -185,6 +192,8 @@ func (v *Verifier) Verify(hostId uuid.UUID, hostData *types.HostManifest, newDat
 		samlReport := samlReportGen.GenerateSamlReport(&finalTrustReport)
 		finalTrustReport.Trusted = finalTrustReport.IsTrusted()
 		log.Debugf("hosttrust/verifier:Verify() Saving new report for host: %s", hostId)
+		// new report - save it to the cache
+		v.addHostPCRCache(hostId,cacheEntry, &hostData.PcrManifest, &finalTrustReport )
 		hvsReport = v.storeTrustReport(hostId, &finalTrustReport, &samlReport)
 	}
 	return hvsReport, nil
@@ -242,29 +251,13 @@ func (v *Verifier) validateCachedFlavors(hostId uuid.UUID,
 	return htc, nil
 }
 
-func (v *Verifier) refreshTrustReport(hostID uuid.UUID) (*models.HVSReport, error) {
-	rfc := models.ReportFilterCriteria{
-		HostID:        hostID,
-		LatestPerHost: true,
-	}
-	// get the latest trust report from the host and use this to create a new report
-	hvsReportCollection, err := v.ReportStore.Search(&rfc)
-	if err != nil {
-		return nil, errors.Errorf("HVSReport search operation failed")
-	}
-
-	if len(hvsReportCollection) == 0 {
-		return nil, errors.Errorf("hosttrust/verifier:refreshTrustReport() HVSReport search did not retrieve latest report for host id: %s", hostID)
-	}
-	if len(hvsReportCollection) != 1 {
-		return nil, errors.Errorf("hosttrust/verifier:refreshTrustReport() more than 1 report retrieved from data store for host id: %s", hostID )
-	}
+func (v *Verifier) refreshTrustReport(hostID uuid.UUID, cache *pcrCache) (*models.HVSReport, error) {
 
 	log.Debugf("hosttrust/verifier:refreshTrustReport() Generating SAML for host: %s using existing trust report", hostID)
 	samlReportGen := NewSamlReportGenerator(&v.SamlIssuer)
-	samlReport := samlReportGen.GenerateSamlReport(&hvsReportCollection[0].TrustReport)
+	samlReport := samlReportGen.GenerateSamlReport(cache.trustReport)
 
-	return v.storeTrustReport(hostID, &hvsReportCollection[0].TrustReport, &samlReport), nil
+	return v.storeTrustReport(hostID, cache.trustReport, &samlReport), nil
 }
 
 func (v *Verifier) storeTrustReport(hostID uuid.UUID, trustReport *hvs.TrustReport, samlReport *saml.SamlAssertion) *models.HVSReport {
