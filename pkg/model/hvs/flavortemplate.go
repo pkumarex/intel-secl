@@ -28,6 +28,9 @@ type Meta struct {
 	TbootInstalled bool `json:"tboot_installed,omitempty"`
 	CBNTEnabled    bool `json:"cbnt_enabled,omitempty"`
 	UEFIEnabled    bool `json:"uefi_enabled,omitempty"`
+	SUEFIEnabled   bool `json:"suefi_enabled,omitempty"`
+	BMCEnabled     bool `json:"bmc_enabled,omitempty"`
+	PFREnabled     bool `json:"pfr_enabled,omitempty"`
 
 	DigestAlgorithm string `json:"digest_algorithm,omitempty"`
 }
@@ -40,10 +43,10 @@ type PCR struct {
 
 //EventLogEquals - To store event log need be equal with specified PCR.
 type EventLogEquals struct {
-	ExculdingTags []string `json:"excluding_tags"`
+	ExculdingTags *[]string `json:"excluding_tags"`
 }
 
-type PcrRules []struct {
+type PcrRules struct {
 	Pcr              PCR             `json:"pcr"`
 	PcrMatches       bool            `json:"pcr_matches"`
 	EventlogEquals   *EventLogEquals `json:"eventlog_equals,omitempty"`
@@ -52,8 +55,8 @@ type PcrRules []struct {
 
 // swagger:parameters FlavorPart
 type FlavorPart struct {
-	Meta     *Meta    `json:"meta,omitempty"`
-	PcrRules PcrRules `json:"pcr_rules"`
+	Meta     *Meta      `json:"meta,omitempty"`
+	PcrRules []PcrRules `json:"pcr_rules"`
 }
 
 // swagger:parameters FlavorParts
@@ -70,5 +73,5 @@ type FlavorTemplate struct {
 	ID          uuid.UUID   `json:"id" gorm:"primary_key;type:uuid"`
 	Label       string      `json:"label"`
 	Condition   []string    `json:"condition" sql:"type:text[]"`
-	FlavorParts FlavorParts `json:"flavor-parts,omitempty" sql:"type:JSONB"`
+	FlavorParts FlavorParts `json:"flavor_parts,omitempty" sql:"type:JSONB"`
 }

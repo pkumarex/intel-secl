@@ -81,7 +81,7 @@ type (
 	// FlavorTemplateStore will do the DB operations related to flavor template CRUD.
 	FlavorTemplateStore interface {
 		Create(*hvs.FlavorTemplate) (*hvs.FlavorTemplate, error)
-		Retrieve(uuid.UUID, bool) (*hvs.FlavorTemplate, error)
+		Retrieve(uuid.UUID) (*hvs.FlavorTemplate, error)
 		Search(IncludeDeleted bool) ([]hvs.FlavorTemplate, error)
 		Delete(uuid.UUID) error
 		Recover([]string) error

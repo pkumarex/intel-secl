@@ -52,7 +52,7 @@ cp EndorsementCA-external.pem $CERTDIR_ENDORSEMENTCA/ && chown $SERVICE_USERNAME
 
 # Copy Schema files
 
-cp -r schema/ $CONFIG_PATH/ && chown $SERVICE_USERNAME:$SERVICE_USERNAME $SCHEMA_PATH/definitions.json $SCHEMA_PATH/Flavor-template.json
+cp -r schema/ $CONFIG_PATH/ && chown $SERVICE_USERNAME:$SERVICE_USERNAME $SCHEMA_PATH/common.schema.json $SCHEMA_PATH/Flavor-template.json
 
 # make log files world readable
 chmod 755 $LOG_PATH

@@ -157,7 +157,7 @@ const (
 )
 
 //VCSS constants
-const(
+const (
 	DefaultVcssRefreshPeriod = time.Duration(2) * time.Minute
 )
 
@@ -171,4 +171,11 @@ const (
 // Search APIs filter constants
 const (
 	MaxNumDaysSearchLimit = 365
+)
+
+//Schema location constansts
+
+const (
+	CommonDefinitionsSchema = "/etc/hvs/schema/common.schema.json"
+	FlavorTemplateSchema    = "/etc/hvs/schema/Flavor-template.json"
 )

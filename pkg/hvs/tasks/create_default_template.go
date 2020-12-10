@@ -152,7 +152,7 @@ var defaultFlavorTemplatesRaw = []string{
 		"//host_info/uefi_enabled/='true'",
 		"//host_info/suefi_enabled/='true'"
 	],
-	"flavor-parts": {
+	"flavor_parts": {
 		"PLATFORM": {
 			"meta": {
 				"vendor":"Linux",
@@ -197,7 +197,7 @@ var defaultFlavorTemplatesRaw = []string{
 		"//host_info/vendor='Linux'",
 		"//host_info/tpm_version/='2.0'" 
 	],
-	"flavor-parts": {
+	"flavor_parts": {
 		"PLATFORM": {
 			"meta": {
 				"vendor":"Linux",
@@ -225,7 +225,7 @@ var defaultFlavorTemplatesRaw = []string{
         "//host_info/vendor='Linux'",
         "//host_info/tpm_version/='2.0'" 
     ],
-    "flavor-parts": {
+    "flavor_parts": {
         "PLATFORM": {
             "meta": {
                 "vendor":"Linux",
