@@ -52,7 +52,7 @@ func Copy(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	return out.Close()
+	return nil
 }
 
 func GetDirFileContents(dir, pattern string) ([][]byte, error) {
