@@ -46,6 +46,7 @@ func NewVerifier(cfg domain.HostTrustVerifierConfig) domain.HostTrustVerifier {
 		CertsStore:                      cfg.CertsStore,
 		SamlIssuer:                      cfg.SamlIssuerConfig,
 		SkipFlavorSignatureVerification: cfg.SkipFlavorSignatureVerification,
+		hostPCRCache: make(map[uuid.UUID] *types.PcrManifest),
 	}
 }
 
@@ -56,7 +57,8 @@ func (v* Verifier) addHostPCRCache (hostId uuid.UUID, cacheValues *types.PcrMani
 
 }
 func (v* Verifier) pcrValuesUnChanged (hostId uuid.UUID, hostData *types.HostManifest) bool {
-	defaultLog.Info("1. Checking if PCR values are changed")
+	defaultLog.Trace("hosttrust/verifier:pcrValuesUnChanged() Entering")
+	defer defaultLog.Trace("hosttrust/verifier:pcrValuesUnChanged() Leaving")
 	v.pcrCacheLock.RLock()
 	var cacheValues *types.PcrManifest
 	var exists bool
@@ -80,7 +82,6 @@ func (v* Verifier) pcrValuesUnChanged (hostId uuid.UUID, hostData *types.HostMan
 		v.addHostPCRCache(hostId,&hostData.PcrManifest)
 		return false
 	}
-	defaultLog.Info("2. PCR values are unchanged")
 	return true
 }
 
@@ -104,7 +105,14 @@ func (v *Verifier) Verify(hostId uuid.UUID, hostData *types.HostManifest, newDat
 		// check if the PCR Values are unchanged.
 		if v.pcrValuesUnChanged(hostId, hostData){
 			// retrieve the stored report
-			return v.refreshTrustReport(hostId)
+			log.Debug("hosttrust/verifier:Verify() PCR values matches cached value - skipping flavor verification")
+			if report, err := v.refreshTrustReport(hostId); err == nil {
+				return report, err
+			} else {
+				// log warning message here - continue as normal and create a report from newly fetched data
+				log.Warn("hosttrust/verifier:Verify() - error encountered while refreshing report - err : ", err)
+			}
+
 		}
 	}
 	// TODO : remove this when we remove the intermediate collection
@@ -239,22 +247,22 @@ func (v *Verifier) refreshTrustReport(hostID uuid.UUID) (*models.HVSReport, erro
 		HostID:        hostID,
 		LatestPerHost: true,
 	}
-
 	// get the latest trust report from the host and use this to create a new report
 	hvsReportCollection, err := v.ReportStore.Search(&rfc)
 	if err != nil {
-		defaultLog.WithError(err).Warnf("hosttrust/verifier:refreshTrustReport() HVSReport search operation failed")
 		return nil, errors.Errorf("HVSReport search operation failed")
 	}
 
 	if len(hvsReportCollection) == 0 {
-		return nil, errors.Errorf("HVSReport search operation failed")
+		return nil, errors.Errorf("hosttrust/verifier:refreshTrustReport() HVSReport search did not retrieve latest report for host id: %s", hostID)
 	}
-	log.Debugf("hosttrust/verifier:refreshTrustReport() Generating new SAML for host: %s", hostID)
-	log.Info("3. Old report id and expiration time is ", hvsReportCollection[0].HostID, hvsReportCollection[0].Expiration)
+	if len(hvsReportCollection) != 1 {
+		return nil, errors.Errorf("hosttrust/verifier:refreshTrustReport() more than 1 report retrieved from data store for host id: %s", hostID )
+	}
+
+	log.Debugf("hosttrust/verifier:refreshTrustReport() Generating SAML for host: %s using existing trust report", hostID)
 	samlReportGen := NewSamlReportGenerator(&v.SamlIssuer)
 	samlReport := samlReportGen.GenerateSamlReport(&hvsReportCollection[0].TrustReport)
-	//hvsReportCollection[0].TrustReport.Trusted = hvsReportCollection[0].TrustReport.IsTrusted()
 
 	return v.storeTrustReport(hostID, &hvsReportCollection[0].TrustReport, &samlReport), nil
 }
