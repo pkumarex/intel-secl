@@ -7,10 +7,6 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"net/url"
-	"strings"
-
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
@@ -25,6 +21,9 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	model "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
+	"net/http"
+	"net/url"
+	"strings"
 )
 
 type HostController struct {
@@ -272,15 +271,14 @@ func (hc *HostController) CreateHost(reqHost hvs.HostCreateRequest) (interface{}
 	} else {
 		defaultLog.Debug("Flavorgroup names not present in request, associating with default ones")
 		fgNames = append(fgNames, models.FlavorGroupsAutomatic.String())
-
-		// Link to default software and workload groups if host is linux
-		if hostInfo != nil && utils.IsLinuxHost(hostInfo) {
-			defaultLog.Debug("Host is linux, associating with default software flavorgroups")
-			swFgs := utils.GetDefaultSoftwareFlavorGroups(hostInfo.InstalledComponents)
-			fgNames = append(fgNames, swFgs...)
-		}
 	}
 
+	// Link to default software and workload groups if host is linux
+	if hostInfo != nil && utils.IsLinuxHost(hostInfo) {
+		defaultLog.Debug("Host is linux, associating with default software flavorgroups")
+		swFgs := utils.GetDefaultSoftwareFlavorGroups(hostInfo.InstalledComponents)
+		fgNames = append(fgNames, swFgs...)
+	}
 
 	// remove credentials from connection string for host table storage
 	csWithoutCredentials := utils.GetConnectionStringWithoutCredentials(connectionString)
