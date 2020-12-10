@@ -47,9 +47,9 @@ func (ft *FlavorTemplateStore) Create(flavorTemplate *hvs.FlavorTemplate) (*hvs.
 	return flavorTemplate, nil
 }
 
-func (ft *FlavorTemplateStore) Retrieve(templateID uuid.UUID, included bool) (*hvs.FlavorTemplate, error) {
-	defaultLog.Trace("postgres/flavortemplate_store:Create() Entering")
-	defer defaultLog.Trace("postgres/flavortemplate_store:Create() Leaving")
+func (ft *FlavorTemplateStore) Retrieve(templateID uuid.UUID) (*hvs.FlavorTemplate, error) {
+	defaultLog.Trace("postgres/flavortemplate_store:Retrieve() Entering")
+	defer defaultLog.Trace("postgres/flavortemplate_store:Retrieve() Leaving")
 
 	sf := FlavorTemplate{}
 	row := ft.Store.Db.Model(FlavorTemplate{}).Select("id,content,deleted").Where(&FlavorTemplate{ID: templateID}).Row()
@@ -58,8 +58,7 @@ func (ft *FlavorTemplateStore) Retrieve(templateID uuid.UUID, included bool) (*h
 	}
 	flavorTemplate := hvs.FlavorTemplate{}
 
-	if (included && sf.Deleted) || (included && !sf.Deleted) || (!included && !sf.Deleted) {
-		//if (included || !sf.Deleted) {
+	if !sf.Deleted {
 
 		flavorTemplate = hvs.FlavorTemplate{
 			ID:          sf.ID,
