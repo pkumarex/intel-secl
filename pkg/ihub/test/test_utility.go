@@ -64,6 +64,9 @@ var OpenstackResourcesFilePath = "../test/resources/openstack_resources.json"
 //SGXPlatformDataFilePath sample json
 var SGXPlatformDataFilePath = "../../ihub/test/resources/sgx_platform_data.json"
 
+//SGXPlatformDataFilePathBadEpcSize sample json with bad EPC size
+var SGXPlatformDataFilePathBadEpcSize = "../../ihub/test/resources/sgx_platform_data_badepcsize.json"
+
 //OpenstackUserName Sample Openstack UserName
 var OpenstackUserName = "admin"
 

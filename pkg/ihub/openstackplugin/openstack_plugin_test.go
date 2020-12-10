@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	url "net/url"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -23,7 +23,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-var sampleSamlCertPath = "../test/resources/saml_certificate.pem"
+var (
+	sampleSamlCertPath = "../test/resources/saml_certificate.pem"
+	sampleCACertPath   = "../test/resources/trustedCACert"
+)
 
 func TestGetHostsFromOpenStack(t *testing.T) {
 
@@ -32,7 +35,7 @@ func TestGetHostsFromOpenStack(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 
@@ -84,8 +87,8 @@ func TestGetHostsFromOpenStack(t *testing.T) {
 	log.Info("openstackplugin/openstack_plugin_test:TestGetHostsFromOpenStack() Filtering Hosts from Openstack")
 	for num := range openstack.HostDetails {
 
-		samlReport, err := mockGetHostReports(openstack.HostDetails[num].hostName, openstack.Config, t)
-		err = getCustomTraitsFromReport(&openstack.HostDetails[num], samlReport)
+		samlReport, err := mockGetHostReports(openstack.HostDetails[num].HostName, openstack.Config, t)
+		err = getCustomTraitsFromSAMLReport(&openstack.HostDetails[num], samlReport)
 		if err != nil {
 			log.WithError(err).Error("openstackplugin/openstack_plugin_test:TestGetHostsFromOpenStack() Error in Filtering Host details for Openstack")
 		}
@@ -106,7 +109,7 @@ func mockGetHostReports(h string, c *config.Configuration, t *testing.T) (*saml.
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 
@@ -142,7 +145,7 @@ func mockGetHostReports(h string, c *config.Configuration, t *testing.T) (*saml.
 	body, err := ioutil.ReadAll(res.Body)
 
 	samlReport := &saml.Saml{}
-	err = xml.Unmarshal([]byte(body), samlReport)
+	err = xml.Unmarshal(body, samlReport)
 
 	return samlReport, err
 }
@@ -153,7 +156,7 @@ func TestOpenstackPluginInit(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 
@@ -180,7 +183,7 @@ func TestOpenstackPluginInit(t *testing.T) {
 					Password: testutility.OpenstackPassword,
 				},
 			},
-			wantErr: false,
+			wantErr: true,
 		},
 		{
 			name: "Testing for failures 3",
@@ -192,11 +195,28 @@ func TestOpenstackPluginInit(t *testing.T) {
 		},
 
 		{
-			name: "Testing Success scenario",
+			name: "Success with ISecl-HVS Push",
 			configuration: &config.Configuration{
 				AAS: config.AASConfig{URL: "http://localhost" + port + "/aas"},
 				AttestationService: config.AttestationConfig{
-					AttestationType: "HVS", AttestationURL: "http://localhost" + port + "/mtwilson/v2"},
+					AttestationType: constants.DefaultAttestationType, AttestationURL: "http://localhost" + port + "/mtwilson/v2"},
+				Endpoint: config.Endpoint{
+					Type:     "OPENSTACK",
+					URL:      "http://localhost" + port + "/openstack/api/",
+					AuthURL:  "http://localhost" + port + "/v3/auth/tokens",
+					UserName: testutility.OpenstackUserName,
+					Password: testutility.OpenstackPassword,
+				},
+			},
+			wantErr: false,
+		},
+
+		{
+			name: "Success with SGX-HVS Push",
+			configuration: &config.Configuration{
+				AAS: config.AASConfig{URL: "http://localhost" + port + "/aas"},
+				AttestationService: config.AttestationConfig{
+					AttestationType: constants.AttestationTypeSGX, AttestationURL: "http://localhost" + port + "/sgx-hvs/v1"},
 				Endpoint: config.Endpoint{
 					Type:     "OPENSTACK",
 					URL:      "http://localhost" + port + "/openstack/api/",
@@ -211,7 +231,9 @@ func TestOpenstackPluginInit(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			oPlugin := OpenstackDetails{
-				Config: tt.configuration,
+				Config:             tt.configuration,
+				TrustedCAsStoreDir: sampleCACertPath,
+				SamlCertFilePath:   sampleSamlCertPath,
 			}
 
 			authURL := oPlugin.Config.Endpoint.AuthURL
@@ -250,7 +272,7 @@ func Test_deleteNonAssociatedTraits(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 

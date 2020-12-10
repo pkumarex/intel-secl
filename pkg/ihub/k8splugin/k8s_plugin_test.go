@@ -6,6 +6,7 @@
 package k8splugin
 
 import (
+	types "github.com/intel-secl/intel-secl/v3/pkg/ihub/model"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
 	"io/ioutil"
 	"net/url"
@@ -26,14 +27,14 @@ var privateKeyFilePath = "../test/resources/private_key.pem"
 var publicKeyFilePath = "../test/resources/public_key.pem"
 var k8scertFilePath = "../test/resources/k8scert.pem"
 
-func setupMockValues(t *testing.T, portString string) (*KubernetesDetails, *HostDetails) {
+func setupMockValues(t *testing.T, portString string) (*KubernetesDetails, *types.HostDetails) {
 	c := testutility.SetupMockK8sConfiguration(t, portString)
 	hID := uuid.MustParse("42193CDA-7620-2540-C526-9B2F6936AECA")
-	hostDetails := HostDetails{
-		hostID:   hID,
-		hostName: "worker-node1",
-		hostIP:   "localhost",
-		trusted:  true,
+	hostDetails := types.HostDetails{
+		HostID:   hID,
+		HostName: "worker-node1",
+		HostIP:   "localhost",
+		Trusted:  true,
 		AssetTags: map[string]string{
 			"TAG_COUNTRY": "USA",
 		},
@@ -49,7 +50,7 @@ func setupMockValues(t *testing.T, portString string) (*KubernetesDetails, *Host
 
 	kubernetes := KubernetesDetails{
 		Config:         c,
-		HostDetailsMap: map[string]HostDetails{hostDetails.hostName: hostDetails},
+		HostDetailsMap: map[string]types.HostDetails{hostDetails.HostName: hostDetails},
 	}
 
 	return &kubernetes, &hostDetails
@@ -61,7 +62,7 @@ func TestGetHostsFromKubernetes(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 
@@ -115,13 +116,13 @@ func TestFilterHostReportsForKubernetes(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 
 	type args struct {
 		k *KubernetesDetails
-		h *HostDetails
+		h *types.HostDetails
 	}
 	tests := []struct {
 		name    string
@@ -154,7 +155,7 @@ func TestUpdateCRD(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 	time.Sleep(1 * time.Second)
@@ -199,36 +200,36 @@ func TestUpdateCRD(t *testing.T) {
 		{
 			name: "update-crd valid test using PUT method",
 			args: args{
-				k: k1,
+				k:                k1,
 				isSGXAttestation: false,
-				httpMethodType: "PUT",
+				httpMethodType:   "PUT",
 			},
 			wantErr: false,
 		},
 		{
 			name: "update-crd valid test for SGX using PUT method",
 			args: args{
-				k: k1,
+				k:                k1,
 				isSGXAttestation: true,
-				httpMethodType: "PUT",
+				httpMethodType:   "PUT",
 			},
 			wantErr: false,
 		},
 		{
 			name: "update-crd valid test using POST method",
 			args: args{
-				k: k1,
+				k:                k1,
 				isSGXAttestation: false,
-				httpMethodType: "POST",
+				httpMethodType:   "POST",
 			},
 			wantErr: false,
 		},
 		{
 			name: "update-crd valid test for SGX using POST method ",
 			args: args{
-				k: k1,
+				k:                k1,
 				isSGXAttestation: true,
-				httpMethodType: "POST",
+				httpMethodType:   "POST",
 			},
 			wantErr: false,
 		},
@@ -291,7 +292,7 @@ func TestKubePluginInit(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 
@@ -383,7 +384,7 @@ func TestKubePluginInit(t *testing.T) {
 				tt.args.configuration.AttestationService.AttestationType = "HVS"
 			}
 
-			err = SendDataToEndPoint(kPlugin, sampleRootCertDirPath, sampleSamlCertPath)
+			err = SendDataToEndPoint(kPlugin)
 
 			if err != nil && tt.wantErr == false {
 				t.Errorf("k8splugin/k8s_plugin_test:TestKubePluginInit(): error = %v, wantErr %v", err, tt.wantErr)
@@ -400,7 +401,7 @@ func TestPostCRD(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 
@@ -613,7 +614,7 @@ func TestPutCRD(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 	type args struct {
@@ -654,7 +655,7 @@ func TestPutCRD(t *testing.T) {
 							URL:      "http://localhost" + port + "/",
 							Token:    k8sToken,
 							CertFile: "k8sCert.pem",
-							CRDName: "custom-isecl",
+							CRDName:  "custom-isecl",
 						},
 					},
 				},

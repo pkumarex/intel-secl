@@ -19,7 +19,7 @@ func TestGetHostReportsSGX(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 
@@ -56,7 +56,7 @@ func TestGetHostReportsSGX(t *testing.T) {
 					},
 				},
 			},
-			want:    []byte(output),
+			want:    output,
 			wantErr: false,
 		},
 	}
@@ -80,7 +80,7 @@ func TestGetSHVSVersion(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 
@@ -127,7 +127,7 @@ func Test_initializeSKCClient(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 

@@ -40,7 +40,7 @@ func (app *App) startDaemon() error {
 	app.configureLogs(configuration.Log.EnableStdout, true)
 
 	if configuration.IHUB.PollIntervalMinutes < constants.PollingIntervalMinutes {
-		secLog.Infof("startService:startDaemon() POLL_INTERVAL_MINUTES value is less than %v mins. Setting it to " +
+		secLog.Infof("startService:startDaemon() POLL_INTERVAL_MINUTES value is less than %v mins. Setting it to "+
 			"%v mins", constants.PollingIntervalMinutes, constants.PollingIntervalMinutes)
 		configuration.IHUB.PollIntervalMinutes = constants.PollingIntervalMinutes
 	}
@@ -71,6 +71,16 @@ func (app *App) startDaemon() error {
 			return errors.Wrap(err, "startService:startDaemon() Error in initializing the OpenStack client")
 		}
 		o.OpenstackClient = openstackClient
+
+		o.TrustedCAsStoreDir = constants.TrustedCAsStoreDir
+		if _, err := os.Stat(o.TrustedCAsStoreDir); err != nil {
+			return errors.Wrap(err, "startService:startDaemon() Error in initializing the OpenStack client")
+		}
+
+		o.SamlCertFilePath = constants.SamlCertFilePath
+		if _, err := os.Stat(o.SamlCertFilePath); err != nil && configuration.AttestationService.AttestationType == constants.DefaultAttestationType {
+			return errors.Wrap(err, "startService:startDaemon() Error in initializing the OpenStack client")
+		}
 
 	} else if configuration.Endpoint.Type == constants.K8sTenant {
 
@@ -106,6 +116,16 @@ func (app *App) startDaemon() error {
 			return errors.Wrap(err, "startService:startDaemon() Error in initializing the Kubernetes client")
 		}
 		k.K8sClient = k8sClient
+
+		k.TrustedCAsStoreDir = constants.TrustedCAsStoreDir
+		if _, err := os.Stat(k.TrustedCAsStoreDir); err != nil {
+			return errors.Wrap(err, "startService:startDaemon() Error in initializing the Kubernetes client")
+		}
+
+		k.SamlCertFilePath = constants.SamlCertFilePath
+		if _, err := os.Stat(k.SamlCertFilePath); err != nil && configuration.AttestationService.AttestationType == constants.DefaultAttestationType {
+			return errors.Wrap(err, "startService:startDaemon() Error in initializing the Kubernetes client")
+		}
 
 	} else {
 		return errors.Errorf("startService:startDaemon() Endpoint type '%s' is not supported", configuration.Endpoint.Type)
@@ -147,7 +167,7 @@ func (app *App) kickOffPlugins(k k8splugin.KubernetesDetails, o openstackplugin.
 			log.WithError(err).Error("startService:kickOffPlugins() Error in pushing OpenStack traits")
 		}
 	} else {
-		err := k8splugin.SendDataToEndPoint(k, constants.TrustedCAsStoreDir, constants.SamlCertFilePath)
+		err := k8splugin.SendDataToEndPoint(k)
 		if err != nil {
 			log.WithError(err).Error("startService:kickOffPlugins() : Error in pushing Kubernetes CRDs")
 		}
