@@ -4,6 +4,10 @@
  */
 package hvs
 
+type Meta struct{
+
+}
+
 type EventLogCreteria struct {
 	TypeID      int      `json:"type_id"`     //oneof-required
 	TypeName    string   `json:"type_name"`   //oneof-required
