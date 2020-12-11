@@ -55,7 +55,6 @@ func (pfutil PlatformFlavorUtil) GetMetaSectionDetails(hostDetails *taModel.Host
 
 	// Set Description
 	var description = make(map[string]interface{})
-	log.Info("check point A")
 
 	if hostDetails != nil {
 		biosName = strings.TrimSpace(hostDetails.BiosName)
@@ -71,10 +70,8 @@ func (pfutil PlatformFlavorUtil) GetMetaSectionDetails(hostDetails *taModel.Host
 	switch flavorPartName {
 	case common.FlavorPartPlatform:
 		var features = pfutil.getSupportedHardwareFeatures(hostDetails)
-		log.Info("check point B")
 		description[cm.Label] = pfutil.getLabelFromDetails(meta.Vendor.String(), biosName,
 			biosVersion, strings.Join(features, "_"), pfutil.getCurrentTimeStamp())
-		log.Info("check point C")
 		description[cm.BiosName] = biosName
 		description[cm.BiosVersion] = biosVersion
 		description[cm.FlavorPart] = flavorPartName.String()
@@ -126,7 +123,7 @@ func (pfutil PlatformFlavorUtil) GetMetaSectionDetails(hostDetails *taModel.Host
 			if err != nil {
 				return nil, errors.Wrapf(err, "Invalid Hardware UUID for %s FlavorPart", flavorPartName)
 			}
-			description[cm.HardwareUUID] = &hwuuid
+			description[cm.HardwareUUID] = hwuuid.String()
 
 			if hostDetails.HostName != "" {
 				description[cm.Source] = strings.TrimSpace(hostDetails.HostName)
@@ -136,7 +133,7 @@ func (pfutil PlatformFlavorUtil) GetMetaSectionDetails(hostDetails *taModel.Host
 			if err != nil {
 				return nil, errors.Wrapf(err, "Invalid Hardware UUID for %s FlavorPart", flavorPartName)
 			} else {
-				description[cm.HardwareUUID] = &hwuuid
+				description[cm.HardwareUUID] = hwuuid.String()
 			}
 		}
 		description[cm.Label] = pfutil.getLabelFromDetails(meta.Vendor.String(), description[cm.HardwareUUID].(string), pfutil.getCurrentTimeStamp())
@@ -150,7 +147,7 @@ func (pfutil PlatformFlavorUtil) GetMetaSectionDetails(hostDetails *taModel.Host
 			if err != nil {
 				return nil, errors.Wrapf(err, "Invalid Hardware UUID for %s FlavorPart", flavorPartName)
 			}
-			description[cm.HardwareUUID] = &hwuuid
+			description[cm.HardwareUUID] = hwuuid.String()
 		}
 		description[cm.BiosName] = biosName
 		description[cm.BiosVersion] = biosVersion
