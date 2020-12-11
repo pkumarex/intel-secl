@@ -52,7 +52,6 @@ func (a *App) setup(args []string) error {
 	if err != nil {
 		return err
 	}
-	defer a.Config.Save(constants.DefaultConfigFilePath)
 	cmd := args[1]
 	// print help and return if applicable
 	if len(args) > 2 && args[2] == "--help" {
@@ -92,6 +91,10 @@ func (a *App) setup(args []string) error {
 			}
 			return errors.New("Failed to run setup task " + cmd)
 		}
+	}
+	err = a.Config.Save(constants.DefaultConfigFilePath)
+	if err != nil {
+		return errors.Wrap(err, "Error saving config")
 	}
 	return a.configDirChown()
 }
