@@ -25,7 +25,7 @@ type (
 	PGHostManifest          types.HostManifest
 	PGHostStatusInformation hvs.HostStatusInformation
 	PGFlavorContent         hvs.Flavor
-	PGFlavorTemplateContent models.FlavorTemplateContent
+	PGFlavorTemplateContent hvs.FlavorTemplate
 
 	flavorGroup struct {
 		ID                    uuid.UUID             `json:"id" gorm:"primary_key;type:uuid"`
@@ -71,7 +71,7 @@ type (
 	}
 
 	//FlavorTemplate - To maintain all values keep together inorder to maintain flavor template.
-	FlavorTemplate struct {
+	flavorTemplate struct {
 		ID      uuid.UUID               `gorm:"column:id;not null;primary_key;type:uuid"`
 		Content PGFlavorTemplateContent `gorm:"column:content" sql:"type:JSONB NOT NULL"`
 		Deleted bool                    `gorm:"column:deleted;not null;type:bool"`
@@ -253,7 +253,7 @@ func (fl PGFlavorTemplateContent) Value() (driver.Value, error) {
 func (fl *PGFlavorTemplateContent) Scan(value interface{}) error {
 	b, ok := value.([]byte)
 	if !ok {
-		return errors.New("postgres/models:PGFlavorContent_Scan() - type assertion to []byte failed")
+		return errors.New("postgres/models:PGFlavorTemplateContent_Scan() - type assertion to []byte failed")
 	}
 	return json.Unmarshal(b, &fl)
 }
