@@ -45,7 +45,7 @@ func (t *CreateDefaultTemplate) Run() error {
 		// Recover delete default template.
 		err := ftStore.Recover(t.deleted)
 		if err != nil {
-			return errors.Wrapf(err, "failed to recover default flavor template(s) ", t.deleted)
+			return errors.Wrapf(err, "failed to recover default flavor template(s) %s ", t.deleted)
 		}
 		t.deleted = []string{}
 		return nil
