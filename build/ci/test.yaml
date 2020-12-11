@@ -22,5 +22,6 @@
     - go tool cover -func cover.out
 
 test:go-1.14:
+  retry: 2
   extends: .test-common
   image: golang:1.14

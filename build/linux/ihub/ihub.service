@@ -1,0 +1,18 @@
+[Unit]
+Description=Integration Hub
+
+[Service]
+Type=simple
+User=ihub
+Group=ihub
+WorkingDirectory=/opt/ihub/bin/
+ExecStart=/usr/bin/ihub run
+ExecReload=/bin/kill -s HUP $MAINPID
+TimeoutStartSec=0
+Restart=on-failure
+PermissionsStartOnly=true
+RuntimeDirectory=ihub
+RuntimeDirectoryMode=0775
+
+[Install]
+WantedBy=multi-user.target

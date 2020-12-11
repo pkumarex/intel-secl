@@ -1,0 +1,9 @@
+FROM centos:8
+
+RUN useradd -u 1001 --comment "Authservice" --home /opt/authservice  --shell /bin/false aas
+
+COPY cmd/aas/authservice /usr/bin/authservice
+
+COPY build/image/entrypoint-aas.sh /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT [ "/usr/local/bin/entrypoint.sh"]
