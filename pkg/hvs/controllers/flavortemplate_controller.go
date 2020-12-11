@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/google/uuid"
@@ -26,11 +25,11 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
-type FlavorTemplateCreationController struct {
+type FlavorTemplateController struct {
 	Store domain.FlavorTemplateStore
 }
 
-func (ftc FlavorTemplateCreationController) Create(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+func (ftc FlavorTemplateController) Create(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 
 	defaultLog.Trace("controllers/flavortemplate_controller:Create() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Create() Leaving")
@@ -53,7 +52,7 @@ func (ftc FlavorTemplateCreationController) Create(w http.ResponseWriter, r *htt
 	return flavorTemplate, http.StatusOK, nil
 }
 
-func (ftc FlavorTemplateCreationController) Retrieve(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+func (ftc FlavorTemplateController) Retrieve(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:Retrieve() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Retrieve() Leaving")
 
@@ -93,7 +92,7 @@ func validateQueryParameter(includeDeleted string) (bool, error) {
 	return included, nil
 }
 
-func (ftc FlavorTemplateCreationController) Search(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+func (ftc FlavorTemplateController) Search(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:Search() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Search() Leaving")
 
@@ -115,7 +114,7 @@ func (ftc FlavorTemplateCreationController) Search(w http.ResponseWriter, r *htt
 	return flavorTemplates, http.StatusOK, nil
 }
 
-func (ftc FlavorTemplateCreationController) Delete(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+func (ftc FlavorTemplateController) Delete(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:Delete() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Delete() Leaving")
 
@@ -154,8 +153,6 @@ func getFlavorTemplateCreateReq(r *http.Request) (hvs.FlavorTemplate, error) {
 		return CreateFlavorTemplateReq, errors.New("Unable to read request body")
 	}
 
-	//TODO : Add schema validation here.
-
 	//Restore the request body to it's original state
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
@@ -181,8 +178,6 @@ func getFlavorTemplateCreateReq(r *http.Request) (hvs.FlavorTemplate, error) {
 		secLog.WithError(err).Errorf("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() %s Invalid flavor template create criteria", commLogMsg.InvalidInputBadParam)
 		return CreateFlavorTemplateReq, errors.New(errMsg)
 	}
-
-	//Initiate flavor part creation and once done store.
 
 	return CreateFlavorTemplateReq, nil
 }
@@ -264,19 +259,5 @@ func readJson(jsonFilePath string) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "controllers/flavortemplate_controller:readJson() unable to read file"+jsonFilePath)
 	}
-
-	//check marx
-	jsonFile, err := os.Open(jsonFilePath)
-	// if we os.Open returns an error then handle it
-	defaultLog.Info(jsonFile)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	var testData map[string]string
-
-	testData["SampleKey"] = "SampleValue"
-
-	//Checkmarx
 	return string(byteValue), nil
 }

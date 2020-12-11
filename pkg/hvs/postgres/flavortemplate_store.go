@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
 	commErr "github.com/intel-secl/intel-secl/v3/pkg/lib/common/err"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/pkg/errors"
@@ -23,36 +22,30 @@ func NewFlavorTemplateStore(store *DataStore) *FlavorTemplateStore {
 }
 
 // create
-func (ft *FlavorTemplateStore) Create(flavorTemplate *hvs.FlavorTemplate) (*hvs.FlavorTemplate, error) {
+func (ft *FlavorTemplateStore) Create(flvrTemplate *hvs.FlavorTemplate) (*hvs.FlavorTemplate, error) {
 	defaultLog.Trace("postgres/flavortemplate_store:Create() Entering")
 	defer defaultLog.Trace("postgres/flavortemplate_store:Create() Leaving")
 
-	flavorContent := models.FlavorTemplateContent{
-		Label:       flavorTemplate.Label,
-		Condition:   flavorTemplate.Condition,
-		FlavorParts: flavorTemplate.FlavorParts,
-	}
-
-	createdTemplate := FlavorTemplate{
+	createdTemplate := flavorTemplate{
 		ID:      uuid.New(),
-		Content: PGFlavorTemplateContent(flavorContent),
+		Content: PGFlavorTemplateContent(*flvrTemplate),
 		Deleted: false,
 	}
 
-	flavorTemplate.ID = createdTemplate.ID
+	flvrTemplate.ID = createdTemplate.ID
 
 	if err := ft.Store.Db.Create(&createdTemplate).Error; err != nil {
 		return nil, errors.Wrap(err, "postgres/flavortemplate_store:Create() failed to create flavor")
 	}
-	return flavorTemplate, nil
+	return flvrTemplate, nil
 }
 
 func (ft *FlavorTemplateStore) Retrieve(templateID uuid.UUID) (*hvs.FlavorTemplate, error) {
 	defaultLog.Trace("postgres/flavortemplate_store:Retrieve() Entering")
 	defer defaultLog.Trace("postgres/flavortemplate_store:Retrieve() Leaving")
 
-	sf := FlavorTemplate{}
-	row := ft.Store.Db.Model(FlavorTemplate{}).Select("id,content,deleted").Where(&FlavorTemplate{ID: templateID}).Row()
+	sf := flavorTemplate{}
+	row := ft.Store.Db.Model(flavorTemplate{}).Select("id,content,deleted").Where(&flavorTemplate{ID: templateID}).Row()
 	if err := row.Scan(&sf.ID, (*PGFlavorTemplateContent)(&sf.Content), &sf.Deleted); err != nil {
 		return nil, errors.Wrap(err, "postgres/flavortemplate_store:Retrieve() - Could not scan record ")
 	}
@@ -78,14 +71,14 @@ func (ft *FlavorTemplateStore) Search(included bool) ([]hvs.FlavorTemplate, erro
 	defer defaultLog.Trace("postgres/flavortemplate_store:Search() Leaving")
 
 	flavortemplates := []hvs.FlavorTemplate{}
-	rows, err := ft.Store.Db.Model(FlavorTemplate{}).Select("id,content,deleted").Where(&FlavorTemplate{Deleted: false}).Rows()
+	rows, err := ft.Store.Db.Model(flavorTemplate{}).Select("id,content,deleted").Where(&flavorTemplate{Deleted: false}).Rows()
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/flavortemplate_store:Search() failed to retrieve records from db")
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		template := FlavorTemplate{}
+		template := flavorTemplate{}
 
 		if err := rows.Scan(&template.ID, (*PGFlavorTemplateContent)(&template.Content), &template.Deleted); err != nil {
 			return nil, errors.Wrap(err, "postgres/flavortemplate_store:Search() - Could not scan record ")
@@ -109,7 +102,7 @@ func (ft *FlavorTemplateStore) Delete(templateID uuid.UUID) error {
 	defaultLog.Trace("postgres/flavortemplate_store:Delete() Entering")
 	defer defaultLog.Trace("postgres/flavortemplate_store:Delete() Leaving")
 
-	err := ft.Store.Db.Model(FlavorTemplate{}).Where(&FlavorTemplate{ID: templateID}).Update(&FlavorTemplate{Deleted: true}).Error
+	err := ft.Store.Db.Model(flavorTemplate{}).Where(&flavorTemplate{ID: templateID}).Update(&flavorTemplate{Deleted: true}).Error
 	if err != nil {
 		return errors.Wrap(err, "postgres/flavortemplate_store:Delete() - Could not Delete record "+templateID.String())
 	}
@@ -130,7 +123,7 @@ func (ft *FlavorTemplateStore) Recover(recoverTemplates []string) error {
 		for _, recover := range recoverTemplates {
 			if strings.EqualFold(recover, template.Label) {
 				defaultLog.Debug("postgres/flavortemplate_store:Recover() Recover default template ID ", template.ID)
-				err := ft.Store.Db.Model(FlavorTemplate{}).Update("deleted", false).Where(&FlavorTemplate{ID: template.ID}).Error
+				err := ft.Store.Db.Model(flavorTemplate{}).Update("deleted", false).Where(&flavorTemplate{ID: template.ID}).Error
 				if err != nil {
 					return errors.Wrap(err, "postgres/flavortemplate_store:Recover() - Could not recover record "+template.ID.String())
 				}
