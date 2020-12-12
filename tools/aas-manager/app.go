@@ -52,16 +52,16 @@ type App struct {
 	AasAdminUserName string
 	AasAdminPassword string
 
-	HvsCN      string
-	HvsSanList string
-	IhCN       string
-	IhSanList  string
-	WlsCN      string
-	WlsSanList string
-	TaCN       string
-	TaSanList  string
-	KbsCN      string
-	KbsSanList string
+	HvsCN       string
+	HvsSanList  string
+	IhubCN      string
+	IhubSanList string
+	WlsCN       string
+	WlsSanList  string
+	TaCN        string
+	TaSanList   string
+	KbsCN       string
+	KbsSanList  string
 
 	InstallAdminUserName    string
 	InstallAdminPassword    string
@@ -145,7 +145,7 @@ func (a *App) GetServiceUsers() []UserAndRolesCreate {
 			urc.Name = a.HvsServiceUserName
 			urc.Password = a.HvsServiceUserPassword
 			urc.Roles = append(urc.Roles, NewRole("TA", "Administrator", "", []string{"*:*:*"}))
-		case "IH":
+		case "IHUB":
 			urc.Name = a.IhubServiceUserName
 			urc.Password = a.IhubServiceUserPassword
 			urc.Roles = append(urc.Roles, NewRole("HVS", "ReportSearcher", "", []string{"reports:search:*"}))
@@ -225,8 +225,8 @@ func (a *App) GetSuperInstallUser() UserAndRolesCreate {
 					"host_unique_flavors:create:*", "flavors:search:*", "tpm_passwords:retrieve:*",
 					"tpm_passwords:create:*", "host_aiks:certify:*", "tpm_endorsements:create:*", "tpm_endorsements:search:*"}))
 			urc.Roles = append(urc.Roles, MakeTlsCertificateRole(a.TaCN, a.TaSanList))
-		case "IH":
-			urc.Roles = append(urc.Roles, MakeTlsCertificateRole(a.IhCN, a.IhSanList))
+		case "IHUB":
+			urc.Roles = append(urc.Roles, MakeTlsCertificateRole(a.IhubCN, a.IhubSanList))
 		case "KBS":
 			urc.Roles = append(urc.Roles, MakeTlsCertificateRole(a.KbsCN, a.KbsSanList))
 		case "WPM":
@@ -294,8 +294,8 @@ func (a *App) LoadAllVariables(envFile string) error {
 		{&a.HvsCN, "HVS_CERT_COMMON_NAME", "HVS TLS Certificate", "Host Verification Service TLS Certificate Common Name", false, false},
 		{&a.HvsSanList, "HVS_CERT_SAN_LIST", "", "Host Verification Service TLS Certificate SAN LIST", false, false},
 
-		{&a.IhCN, "IH_CERT_COMMON_NAME", "Integration Hub TLS Certificate", "Integration Hub TLS Certificate Common Name", false, false},
-		{&a.IhSanList, "IH_CERT_SAN_LIST", "", "Integration Hub TLS Certificate SAN LIST", false, false},
+		{&a.IhubCN, "IH_CERT_COMMON_NAME", "Integration Hub TLS Certificate", "Integration Hub TLS Certificate Common Name", false, false},
+		{&a.IhubSanList, "IH_CERT_SAN_LIST", "", "Integration Hub TLS Certificate SAN LIST", false, false},
 
 		{&a.WlsCN, "WLS_CERT_COMMON_NAME", "WLS TLS Certificate", "Workload Service TLS Certificate Common Name", false, false},
 		{&a.WlsSanList, "WLS_CERT_SAN_LIST", "", "Workload Service TLS Certificate SAN LIST", false, false},
