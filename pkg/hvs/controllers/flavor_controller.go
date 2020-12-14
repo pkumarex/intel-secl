@@ -1641,24 +1641,17 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequestFC) 
 			defaultLog.Error("controllers/flavor_controller:CreateFlavors() Error in finding the templates to apply")
 			return nil, errors.Wrap(err, "Error getting host manifest")
 		}
-		defaultLog.Info("********************flavor_templates********************")
-		defaultLog.Info(flavorTemplates)
-		defaultLog.Info("********************")
-
-		defaultLog.Info("******************** hostmanifest ", hostManifest)
 
 		tagCertificate := hvs.TagCertificate{}
 		var tagX509Certificate *x509.Certificate
 		tcFilterCriteria := dm.TagCertificateFilterCriteria{
 			HardwareUUID: uuid.MustParse(hostManifest.HostInfo.HardwareUUID),
 		}
-		defaultLog.Info("******************** tcFilterCriteria ", tcFilterCriteria)
 		tagCertificates, err := fcon.TCStore.Search(&tcFilterCriteria)
 		if err != nil {
 			defaultLog.Error("controllers/flavor_controller:CreateFlavors() Error in finding the templates to apply")
 			return nil, errors.Wrap(err, "Error getting host manifest")
 		}
-		defaultLog.Info("******************** tagCertificates ", tagCertificates)
 		if len(tagCertificates) >= 1 {
 			tagCertificate = *tagCertificates[0]
 			tagX509Certificate, err = x509.ParseCertificate(tagCertificate.Certificate)
@@ -1838,36 +1831,22 @@ func (fcon *FlavorController) findTemplatesToApply(hostManifest *hcType.HostMani
 		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Search() Error retrieving all flavor templates")
 		return nil, err
 	}
-	defaultLog.Info("************FlvrTemplates")
-	defaultLog.Info(flavorTemplates)
-	/*	bytes, err := json.Marshal(hostManifest)
-		if err != nil {
-			defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Search() Unable to marshal host manifest")
-			return nil, err
-		}
-		hostManifestJson, err := jsonquery.Parse(strings.NewReader(string(bytes))) */
 
-	hostManifestJson, err := jsonquery.Parse(strings.NewReader(string(steffyHostManifest))) // tempCode
+	hostManifestJson, err := jsonquery.Parse(strings.NewReader(string(steffyHostManifest)))
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Search() Error in parsing the host manifest")
 		return nil, err
 	}
 	for _, flavorTemplate := range flavorTemplates {
 		conditionEval := true
-		defaultLog.Info("checkpoint A")
 		for _, condition := range flavorTemplate.Condition {
-			defaultLog.Info("checkpoint B")
 			expectedData, _ := jsonquery.Query(hostManifestJson, condition)
 			if expectedData == nil {
 				conditionEval = false
-				defaultLog.Info("**************False" + condition)
 				break
-			} else {
-				defaultLog.Info("**************" + condition)
 			}
 		}
 		if conditionEval == true {
-			defaultLog.Info("**************Eval=true")
 			filteredTemplates = append(filteredTemplates, flavorTemplate)
 		}
 	}

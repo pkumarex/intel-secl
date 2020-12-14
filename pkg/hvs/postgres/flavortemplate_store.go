@@ -76,22 +76,20 @@ func (ft *FlavorTemplateStore) Retrieve(templateID uuid.UUID) (*hvs.FlavorTempla
 func (ft *FlavorTemplateStore) Search(included bool) ([]hvs.FlavorTemplate, error) {
 	defaultLog.Trace("postgres/flavortemplate_store:Search() Entering")
 	defer defaultLog.Trace("postgres/flavortemplate_store:Search() Leaving")
-	defaultLog.Info("1**********")
+
 	flavortemplates := []hvs.FlavorTemplate{}
 	rows, err := ft.Store.Db.Model(FlavorTemplate{}).Select("id,content,deleted").Where(&FlavorTemplate{Deleted: false}).Rows()
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/flavortemplate_store:Search() failed to retrieve records from db")
 	}
 	defer rows.Close()
-	defaultLog.Info("2**********")
 	for rows.Next() {
-		defaultLog.Info("3**********")
+
 		template := FlavorTemplate{}
 
 		if err := rows.Scan(&template.ID, (*PGFlavorTemplateContent)(&template.Content), &template.Deleted); err != nil {
 			return nil, errors.Wrap(err, "postgres/flavortemplate_store:Search() - Could not scan record ")
 		}
-		//if (included && template.Deleted) || (!included && !template.Deleted) {
 		if included || (!included && !template.Deleted) {
 			flavorTemplate := hvs.FlavorTemplate{
 				ID:          template.ID,
@@ -99,7 +97,6 @@ func (ft *FlavorTemplateStore) Search(included bool) ([]hvs.FlavorTemplate, erro
 				Condition:   template.Content.Condition,
 				FlavorParts: template.Content.FlavorParts,
 			}
-			defaultLog.Info("4**********")
 			flavortemplates = append(flavortemplates, flavorTemplate)
 		}
 	}
