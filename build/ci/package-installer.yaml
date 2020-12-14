@@ -42,7 +42,5 @@ package:ihub:installer:
 package:kbs:installer:
   extends: .installer-normal-components
 
-package:aas:installer:
-  extends: .installer-common
-  script:
-    - make aas-installer
+package:authservice:installer:
+  extends: .installer-normal-components
