@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/google/uuid"
@@ -265,17 +264,17 @@ func readJson(jsonFilePath string) (string, error) {
 		return "", errors.Wrap(err, "controllers/flavortemplate_controller:readJson() unable to read file"+jsonFilePath)
 	}
 
-	//check marx
-	jsonFile, err := os.Open(jsonFilePath)
-	// if we os.Open returns an error then handle it
-	defaultLog.Info(jsonFile)
-	if err != nil {
-		fmt.Println(err)
-	}
+	// //check marx
+	// jsonFile, err := os.Open(jsonFilePath)
+	// // if we os.Open returns an error then handle it
+	// defaultLog.Info(jsonFile)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
 
-	var testData map[string]string
+	// var testData map[string]string
 
-	testData["SampleKey"] = "SampleValue"
+	// testData["SampleKey"] = "SampleValue"
 
 	//Checkmarx
 	return string(byteValue), nil
