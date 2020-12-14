@@ -52,31 +52,53 @@ type App struct {
 	AasAdminUserName string
 	AasAdminPassword string
 
-	HvsCN       string
-	HvsSanList  string
-	IhubCN      string
-	IhubSanList string
-	WlsCN       string
-	WlsSanList  string
-	TaCN        string
-	TaSanList   string
-	KbsCN       string
-	KbsSanList  string
+	HvsCN         string
+	HvsSanList    string
+	IhubCN        string
+	IhubSanList   string
+	WlsCN         string
+	WlsSanList    string
+	TaCN          string
+	TaSanList     string
+	KbsCN         string
+	KbsSanList    string
+	ScsCN         string
+	ScsSanList    string
+	ShvsCN        string
+	ShvsSanList   string
+	SqvsCN        string
+	SqvsSanList   string
+	SagentCN      string
+	SagentSanList string
+	SkcLibCN      string
 
-	InstallAdminUserName    string
-	InstallAdminPassword    string
-	GlobalAdminUserName     string
-	GlobalAdminPassword     string
-	HvsServiceUserName      string
-	HvsServiceUserPassword  string
-	IhubServiceUserName     string
-	IhubServiceUserPassword string
-	WpmServiceUserName      string
-	WpmServiceUserPassword  string
-	WlsServiceUserName      string
-	WlsServiceUserPassword  string
-	WlaServiceUserName      string
-	WlaServiceUserPassword  string
+	InstallAdminUserName      string
+	InstallAdminPassword      string
+	GlobalAdminUserName       string
+	GlobalAdminPassword       string
+	HvsServiceUserName        string
+	HvsServiceUserPassword    string
+	IhubServiceUserName       string
+	IhubServiceUserPassword   string
+	WpmServiceUserName        string
+	WpmServiceUserPassword    string
+	WlsServiceUserName        string
+	WlsServiceUserPassword    string
+	WlaServiceUserName        string
+	WlaServiceUserPassword    string
+	ScsServiceUserName        string
+	ScsServiceUserPassword    string
+	SqvsServiceUserName       string
+	SqvsServiceUserPassword   string
+	ShvsServiceUserName       string
+	ShvsServiceUserPassword   string
+	SagentServiceUserName     string
+	SagentServiceUserPassword string
+	KbsServiceUsername        string
+	KbsServiceUserPassword    string
+	SKCLibUsername            string
+	SKCLibUserPassword        string
+	SKCLibRoleContext         string
 
 	Components     map[string]bool
 	GenPassword    bool
@@ -118,6 +140,14 @@ func MakeTlsCertificateRole(cn, san string) aas.RoleCreate {
 	r.Service = "CMS"
 	r.Name = "CertApprover"
 	r.Context = "CN=" + cn + ";SAN=" + san + ";certType=TLS"
+	return r
+}
+
+func MakeTlsClientCertificateRole(cn string) aas.RoleCreate {
+	r := aas.RoleCreate{}
+	r.Service = "CMS"
+	r.Name = "CertApprover"
+	r.Context = "CN=" + cn + ";certType=TLS-Client"
 	return r
 }
 
@@ -163,6 +193,31 @@ func (a *App) GetServiceUsers() []UserAndRolesCreate {
 			urc.Roles = append(urc.Roles, NewRole("WLS", "FlavorsImageRetrieval", "", []string{"image_flavors:retrieve:*"}))
 			urc.Roles = append(urc.Roles, NewRole("WLS", "ReportCreator", "", []string{"reports:create:*"}))
 			urc.Roles = append(urc.Roles, NewRole("WLS", "KeysCreator", "", []string{"keys:create:*"}))
+		case "SCS":
+			urc.Name = a.ScsServiceUserName
+			urc.Password = a.ScsServiceUserPassword
+			urc.Roles = append(urc.Roles, NewRole("SCS", "CacheManager", "", nil))
+		case "SHVS":
+			urc.Name = a.ShvsServiceUserName
+			urc.Password = a.ShvsServiceUserPassword
+			urc.Roles = append(urc.Roles, NewRole("SGX_AGENT", "HostDataReader", "", nil))
+			urc.Roles = append(urc.Roles, NewRole("SCS", "HostDataUpdater", "", nil))
+			urc.Roles = append(urc.Roles, NewRole("SCS", "HostDataReader", "", nil))
+		case "SIH":
+			urc.Name = a.IhubServiceUserName
+			urc.Password = a.IhubServiceUserPassword
+			urc.Roles = append(urc.Roles, NewRole("SHVS", "HostsListReader", "", nil))
+			urc.Roles = append(urc.Roles, NewRole("SHVS", "HostDataReader", "", nil))
+		case "SKBS":
+			urc.Name = a.KbsServiceUsername
+			urc.Password = a.KbsServiceUserPassword
+			urc.Roles = append(urc.Roles, NewRole("SQVS", "QuoteVerifier", "", nil))
+			urc.Roles = append(urc.Roles, NewRole("AAS", "Administrator", "", []string{"*:*:*"}))
+		case "SKC-LIBRARY":
+			urc.Name = a.SKCLibUsername
+			urc.Password = a.SKCLibUserPassword
+			urc.Roles = append(urc.Roles, NewRole("KBS", "KeyTransfer", a.SKCLibRoleContext, nil))
+
 		}
 		if urc.Name != "" {
 			urs = append(urs, urc)
@@ -225,9 +280,9 @@ func (a *App) GetSuperInstallUser() UserAndRolesCreate {
 					"host_unique_flavors:create:*", "flavors:search:*", "tpm_passwords:retrieve:*",
 					"tpm_passwords:create:*", "host_aiks:certify:*", "tpm_endorsements:create:*", "tpm_endorsements:search:*"}))
 			urc.Roles = append(urc.Roles, MakeTlsCertificateRole(a.TaCN, a.TaSanList))
-		case "IHUB":
+		case "IHUB", "SIH":
 			urc.Roles = append(urc.Roles, MakeTlsCertificateRole(a.IhubCN, a.IhubSanList))
-		case "KBS":
+		case "KBS", "SKBS":
 			urc.Roles = append(urc.Roles, MakeTlsCertificateRole(a.KbsCN, a.KbsSanList))
 		case "WPM":
 			urc.Roles = append(urc.Roles, NewRole("CMS", "CertApprover", "CN=WPM Flavor Signing Certificate;certType=Signing", nil))
@@ -235,6 +290,19 @@ func (a *App) GetSuperInstallUser() UserAndRolesCreate {
 			urc.Roles = append(urc.Roles, MakeTlsCertificateRole(a.WlsCN, a.WlsSanList))
 		case "WLA":
 			urc.Roles = append(urc.Roles, NewRole("HVS", "Certifier", "", []string{"host_signing_key_certificates:create:*"}))
+		case "SCS":
+			urc.Roles = append(urc.Roles, MakeTlsCertificateRole(a.ScsCN, a.ScsSanList))
+		case "SQVS":
+			urc.Roles = append(urc.Roles, MakeTlsCertificateRole(a.SqvsCN, a.SqvsSanList))
+		case "SHVS":
+			urc.Roles = append(urc.Roles, MakeTlsCertificateRole(a.ShvsCN, a.ShvsSanList))
+		case "SGX_AGENT":
+			urc.Roles = append(urc.Roles, MakeTlsCertificateRole(a.SagentCN, a.SagentSanList))
+			urc.Roles = append(urc.Roles, NewRole("SHVS", "HostRegistration", "", nil))
+			urc.Roles = append(urc.Roles, NewRole("SCS", "HostDataUpdater", "", nil))
+		case "SKC-LIBRARY":
+			urc.Roles = append(urc.Roles, MakeTlsClientCertificateRole(a.SkcLibCN))
+
 		}
 	}
 
@@ -306,6 +374,20 @@ func (a *App) LoadAllVariables(envFile string) error {
 		{&a.TaCN, "TA_CERT_COMMON_NAME", "Trust Agent TLS Certificate", "Trust Agent TLS Certificate Common Name", false, false},
 		{&a.TaSanList, "TA_CERT_SAN_LIST", "", "Trust Agent TLS Certificate SAN LIST", false, false},
 
+		{&a.ScsCN, "SCS_CERT_COMMON_NAME", "SCS TLS Certificate", "SGX Caching Service TLS Certificate Common Name", false, false},
+		{&a.ScsSanList, "SCS_CERT_SAN_LIST", "", "SGX Caching Service TLS Certificate SAN LIST", false, false},
+
+		{&a.SqvsCN, "SQVS_CERT_COMMON_NAME", "SQVS TLS Certificate", "SGX Quote Verification Service TLS Certificate Common Name", false, false},
+		{&a.SqvsSanList, "SQVS_CERT_SAN_LIST", "", "SGX Quote Verification Service TLS Certificate SAN LIST", false, false},
+
+		{&a.ShvsCN, "SHVS_CERT_COMMON_NAME", "SHVS TLS Certificate", "SGX Host Verification Service TLS Certificate Common Name", false, false},
+		{&a.ShvsSanList, "SHVS_CERT_SAN_LIST", "", "SGX Host Verification Service TLS Certificate SAN LIST", false, false},
+
+		{&a.SagentCN, "SGX_AGENT_CERT_COMMON_NAME", "SGX_AGENT TLS Certificate", "SGX Agent TLS Certificate Common Name", false, false},
+		{&a.SagentSanList, "SGX_AGENT_CERT_SAN_LIST", "", "SGX Agent TLS Certificate SAN LIST", false, false},
+
+		{&a.SkcLibCN, "SKC_LIBRARY_CERT_COMMON_NAME", "skcuser", "SKC Library TLS Client Certificate Common Name", false, false},
+
 		{&a.GlobalAdminUserName, "GLOBAL_ADMIN_USERNAME", "", "Global Admin User Name", false, false},
 		{&a.GlobalAdminPassword, "GLOBAL_ADMIN_PASSWORD", "", "Global Admin User Password", false, true},
 
@@ -323,6 +405,27 @@ func (a *App) LoadAllVariables(envFile string) error {
 
 		{&a.WlaServiceUserName, "WLA_SERVICE_USERNAME", "", "Workload Agent User Name", false, false},
 		{&a.WlaServiceUserPassword, "WLA_SERVICE_PASSWORD", "", "Workload Agent User Password", false, true},
+
+		{&a.ScsServiceUserName, "SCS_SERVICE_USERNAME", "", "SGX Caching Service User Name", false, false},
+		{&a.ScsServiceUserPassword, "SCS_SERVICE_PASSWORD", "", "SGX Caching Service User Password", false, true},
+
+		{&a.SqvsServiceUserName, "SQVS_SERVICE_USERNAME", "", "SGX Quote Verification Service User Name", false, false},
+		{&a.SqvsServiceUserPassword, "SQVS_SERVICE_PASSWORD", "", "SGX Quote Verification Service User Password", false, true},
+
+		{&a.ShvsServiceUserName, "SHVS_SERVICE_USERNAME", "", "SGX Host Verification Service User Name", false, false},
+		{&a.ShvsServiceUserPassword, "SHVS_SERVICE_PASSWORD", "", "SGX Host Verification Service User Password", false, true},
+
+		{&a.SagentServiceUserName, "SGX_AGENT_SERVICE_USERNAME", "", "SGX Agent User Name", false, false},
+		{&a.SagentServiceUserPassword, "SGX_AGENT_SERVICE_PASSWORD", "", "SGX Agent User Password", false, true},
+
+		{&a.KbsServiceUsername, "KBS_SERVICE_USERNAME", "", "Key Broker Service User Name", false, false},
+		{&a.KbsServiceUserPassword, "KBS_SERVICE_PASSWORD", "", "Key Broker Service User Password", false, true},
+
+		{&a.SKCLibUsername, "SKC_LIBRARY_USERNAME", "", "SKC Library User Name", false, false},
+		{&a.SKCLibUserPassword, "SKC_LIBRARY_PASSWORD", "", "SKC Library User Password", false, true},
+
+		{&a.SKCLibRoleContext, "SKC_LIBRARY_KEY_TRANSFER_CONTEXT", "", "SKC Library Key Transfer Role Context", false, false},
+
 	}
 
 	hasError := false
