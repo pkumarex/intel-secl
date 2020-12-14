@@ -204,8 +204,6 @@ var defaultFlavorTemplatesRaw = []string{
 			},
 			"OS": {
 				"meta": {
-					"os_name": "{{//host_info/meta/description/os_name}}",
-					"os_version": "{{//host_info/ meta/description/os_version}}",
 					"tpm_version": "2.0",
 					"tboot_installed": true
 				},
@@ -224,8 +222,6 @@ var defaultFlavorTemplatesRaw = []string{
 			},
 			"HOST_UNIQUE": {
 				"meta": {
-					"os_name": "{{//host_info/meta/description/os_name}}",
-					"os_version": "{{//host_info/ meta/description/os_version}}",
 					"tpm_version": "2.0",
 					"tboot_installed": true
 				},
@@ -270,6 +266,13 @@ var defaultFlavorTemplatesRaw = []string{
 					"suefi_enabled": true
 				},
 				"pcr_rules": [
+					{
+						"pcr": {
+							"index": 0,
+							"bank": "SHA256"
+						},
+						"pcr_matches": true
+					},
 					{
 						"pcr": {
 							"index": 1,
@@ -338,6 +341,13 @@ var defaultFlavorTemplatesRaw = []string{
 					"cbnt_enabled": true
 				},
 				"pcr_rules": [
+					{
+						"pcr": {
+							"index": 0,
+							"bank": "SHA256"
+						},
+						"pcr_matches": true
+					},
 					{
 						"pcr": {
 							"index": 7,
