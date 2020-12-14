@@ -57,46 +57,39 @@ func IsTrustedByHvs(saml string, samlReport *samlLib.Saml, keyId uuid.UUID, conf
 	var bindingKeyCertBytes, aikCertBytes []byte
 	for _, as := range samlReport.Attribute {
 
-		if as.Name == "TRUST_OVERALL" {
-			if as.AttributeValue != "true" {
-				defaultLog.Error("keytransfer/transfer_with_saml:IsTrustedByHvs() Host is not trusted")
-				return false, nil
-			}
-		}
-
-		if as.Name == "tpmVersion" {
-			if as.AttributeValue != "2.0" {
-				defaultLog.Error("keytransfer/transfer_with_saml:IsTrustedByHvs() Tpm version not supported")
-				return false, nil
-			}
-		}
-
-		if as.Name == "Binding_Key_Certificate" {
-			bindingKeyCertBytes, err = base64.StdEncoding.DecodeString(as.AttributeValue)
-			if err != nil {
-				defaultLog.Error("keytransfer/transfer_with_saml:IsTrustedByHvs() Unable to decode Binding Key Certificate")
-				return false, nil
-			}
-		}
-
-		if as.Name == "AIK_Certificate" {
-			aikCertBytes, err = base64.StdEncoding.DecodeString(as.AttributeValue)
-			if err != nil {
-				defaultLog.Error("keytransfer/transfer_with_saml:IsTrustedByHvs() Unable to decode AIK certificate")
-				return false, nil
-			}
-		}
-
-		// check if asset tag is deployed on the host
-		if as.Name == "TRUST_ASSET_TAG" {
-			if as.AttributeValue == "true" {
-				assetTagDeployed = true
-			}
-		}
-
-		// get the list of deployed tags on the host and add it in the map
-		if strings.HasPrefix(as.Name, "TAG_") {
-			tagsDeployedOnHost[strings.ToLower(strings.TrimPrefix(as.Name, "TAG_"))] = as.AttributeValue
+		switch as.Name {
+			case "TRUST_OVERALL" :
+				if as.AttributeValue != "true" {
+					defaultLog.Error("keytransfer/transfer_with_saml:IsTrustedByHvs() Host is not trusted")
+					return false, nil
+				}
+			case "tpmVersion" :
+				if as.AttributeValue != "2.0" {
+					defaultLog.Error("keytransfer/transfer_with_saml:IsTrustedByHvs() TPM version not supported")
+					return false, nil
+				}
+			case "Binding_Key_Certificate" :
+				bindingKeyCertBytes, err = base64.StdEncoding.DecodeString(as.AttributeValue)
+				if err != nil {
+					defaultLog.Error("keytransfer/transfer_with_saml:IsTrustedByHvs() Unable to decode Binding Key Certificate")
+					return false, nil
+				}
+			case "AIK_Certificate" :
+				aikCertBytes, err = base64.StdEncoding.DecodeString(as.AttributeValue)
+				if err != nil {
+					defaultLog.Error("keytransfer/transfer_with_saml:IsTrustedByHvs() Unable to decode AIK certificate")
+					return false, nil
+				}
+			case "TRUST_ASSET_TAG" :
+				// check if asset tag is deployed on the host
+				if as.AttributeValue == "true" {
+					assetTagDeployed = true
+				}
+			default:
+				// get the list of deployed tags on the host and add it in the map
+				if strings.HasPrefix(as.Name, "TAG_") {
+					tagsDeployedOnHost[strings.ToLower(strings.TrimPrefix(as.Name, "TAG_"))] = as.AttributeValue
+				}
 		}
 	}
 
