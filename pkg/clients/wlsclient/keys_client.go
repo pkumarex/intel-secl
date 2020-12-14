@@ -38,7 +38,7 @@ func (client keysClientImpl) GetKeyWithURL(keyUrl string, hardwareUUID string) (
 		return retKey, errors.New("wlsclient/keys_client:GetKeyWithURL() error retrieving WLS API URL")
 	}
 
-	requestURL.Path = path.Join(requestURL.Path,  "keys")
+	requestURL.Path = path.Join(requestURL.Path, "keys")
 
 	var rBody = wlsModel.RequestKey{
 		HwId:   hardwareUUID,

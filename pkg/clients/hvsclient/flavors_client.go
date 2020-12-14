@@ -24,7 +24,6 @@ import (
 //-------------------------------------------------------------------------------------------------
 
 type FlavorsClient interface {
-
 	CreateFlavor(flavorCreateRequest *models.FlavorCreateRequest) (hvs.FlavorCollection, error)
 }
 
@@ -58,7 +57,7 @@ func (client *flavorsClientImpl) CreateFlavor(flavorCreateRequest *models.Flavor
 	}
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Accept", "application/json")
-	request.Header.Set("Authorization", "Bearer " + client.cfg.BearerToken)
+	request.Header.Set("Authorization", "Bearer "+client.cfg.BearerToken)
 
 	log.Debugf("hvsclient/flavors_client:CreateFlavor() Posting to url %s, json: %s ", parsedUrl, string(jsonData))
 
@@ -85,10 +84,9 @@ func (client *flavorsClientImpl) CreateFlavor(flavorCreateRequest *models.Flavor
 
 	log.Debugf("hvsclient/flavors_client:CreateFlavor() Json response body returned: %s", string(jsonData))
 
-
 	err = json.Unmarshal(jsonData, &flavors)
 	if err != nil {
-		return flavors, errors.Wrap(err,"hvsclient/flavors_client:CreateFlavor() Error unmarshalling json data to flavors")
+		return flavors, errors.Wrap(err, "hvsclient/flavors_client:CreateFlavor() Error unmarshalling json data to flavors")
 	}
 	return flavors, nil
 }

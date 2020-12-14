@@ -32,12 +32,12 @@ import (
 )
 
 const (
-	samlCertsDir           = "./resources/saml/"
-	trustedCaCertsDir      = "./resources/trustedca/"
-	tpmIdentityCertsDir    = "./resources/tpm-identity/"
-	validSamlReportPath    = "./resources/saml_report.xml"
-	invalidSamlReportPath  = "./resources/invalid_saml_report.xml"
-	endpointUrl            = "https://localhost:9443/kbs/v1"
+	samlCertsDir          = "./resources/saml/"
+	trustedCaCertsDir     = "./resources/trustedca/"
+	tpmIdentityCertsDir   = "./resources/tpm-identity/"
+	validSamlReportPath   = "./resources/saml_report.xml"
+	invalidSamlReportPath = "./resources/invalid_saml_report.xml"
+	endpointUrl           = "https://localhost:9443/kbs/v1"
 )
 
 var _ = Describe("KeyController", func() {
@@ -97,7 +97,7 @@ var _ = Describe("KeyController", func() {
 
 				permissions := aas.PermissionInfo{
 					Service: constants.ServiceName,
-					Rules: []string{constants.KeyCreate},
+					Rules:   []string{constants.KeyCreate},
 				}
 				req = context.SetUserPermissions(req, []aas.PermissionInfo{permissions})
 
@@ -289,7 +289,7 @@ var _ = Describe("KeyController", func() {
 
 				permissions := aas.PermissionInfo{
 					Service: constants.ServiceName,
-					Rules: []string{constants.KeyRegister},
+					Rules:   []string{constants.KeyRegister},
 				}
 				req = context.SetUserPermissions(req, []aas.PermissionInfo{permissions})
 

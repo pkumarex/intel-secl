@@ -120,17 +120,17 @@ func getHardwareFeaturesMap(features model.HardwareFeatures) map[string]string {
 	hwFeaturesMap := make(map[string]string)
 	featurePrefix := "FEATURE_"
 	if features.CBNT != nil && features.CBNT.Enabled {
-		hwFeaturesMap[featurePrefix + constants.Cbnt] = strconv.FormatBool(features.CBNT.Enabled)
+		hwFeaturesMap[featurePrefix+constants.Cbnt] = strconv.FormatBool(features.CBNT.Enabled)
 		hwFeaturesMap["FEATURE_cbntProfile"] = features.CBNT.Meta.Profile
 	}
 	if features.SUEFI != nil && features.SUEFI.Enabled {
-		hwFeaturesMap[featurePrefix + constants.Suefi] = strconv.FormatBool(features.SUEFI.Enabled)
+		hwFeaturesMap[featurePrefix+constants.Suefi] = strconv.FormatBool(features.SUEFI.Enabled)
 	}
 	if features.TPM.Enabled {
-		hwFeaturesMap[featurePrefix+ constants.Tpm] = strconv.FormatBool(features.TPM.Enabled)
+		hwFeaturesMap[featurePrefix+constants.Tpm] = strconv.FormatBool(features.TPM.Enabled)
 	}
 	if features.TXT != nil && features.TXT.Enabled {
-		hwFeaturesMap[featurePrefix + constants.Txt] = strconv.FormatBool(features.TXT.Enabled)
+		hwFeaturesMap[featurePrefix+constants.Txt] = strconv.FormatBool(features.TXT.Enabled)
 	}
 	return hwFeaturesMap
 }
@@ -145,7 +145,7 @@ func getTags(trustReport *hvs.TrustReport) map[string]string {
 	for _, result := range trustReport.GetResultsForMarker(common.FlavorPartAssetTag.String()) {
 		if result.Rule.Name == faultsConst.RuleAssetTagMatches && len(result.Rule.Tags) > 0 {
 			for key, value := range result.Rule.Tags {
-				tagsMap[tagPrefix + key] = value
+				tagsMap[tagPrefix+key] = value
 			}
 		}
 	}

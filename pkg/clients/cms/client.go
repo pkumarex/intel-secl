@@ -26,7 +26,7 @@ var (
 func (c *Client) httpClient() *http.Client {
 	if c.HTTPClient == nil {
 		tlsConfig := tls.Config{
-			MinVersion: tls.VersionTLS12,
+			MinVersion:         tls.VersionTLS12,
 			InsecureSkipVerify: true,
 		}
 		// Skipping verification as it is done manually using digest of the TLS certificate as this is step of setting up service

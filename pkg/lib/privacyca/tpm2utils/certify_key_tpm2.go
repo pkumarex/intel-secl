@@ -30,7 +30,6 @@ type CertifyKey20 struct {
 	RegKeyInfo model.RegisterKeyInfo
 }
 
-
 func (certifyKey20 *CertifyKey20) IsCertifiedKeySignatureValid(aikCert *x509.Certificate) (bool, error) {
 	defaultLog.Trace("tpm2utils/certify_key_tpm2:IsCertifiedKeySignatureValid() Entering")
 	defer defaultLog.Trace("tpm2utils/certify_key_tpm2:IsCertifiedKeySignatureValid() Leaving")
@@ -45,7 +44,7 @@ func (certifyKey20 *CertifyKey20) IsCertifiedKeySignatureValid(aikCert *x509.Cer
 		return false, errors.New("tpm2utils/certify_key_tpm2:IsCertifiedKeySignatureValid() Error populating TPM Certify Key")
 	}
 
-	hashAlg,_, err := tpm2CertifyKey.GetTpmtHashAlgDigest()
+	hashAlg, _, err := tpm2CertifyKey.GetTpmtHashAlgDigest()
 	if err != nil {
 		return false, errors.New("tpm2utils/certify_key_tpm2:IsCertifiedKeySignatureValid() Error while getting hash algorithm from tpm certificate")
 	}
@@ -65,7 +64,7 @@ func (certifyKey20 *CertifyKey20) IsCertifiedKeySignatureValid(aikCert *x509.Cer
 
 	h := sha256.New()
 	_, err = h.Write(tpmCertifyKeyBytes)
-	if err != nil{
+	if err != nil {
 		return false, errors.Wrap(err, "tpm2utils/certify_key_tpm2:IsCertifiedKeySignatureValid() Error writing key")
 	}
 	computedDigest := h.Sum(nil)
@@ -89,10 +88,10 @@ func (certifyKey20 *CertifyKey20) ValidateNameDigest() error {
 	var tpmCertifyKey20 Tpm2CertifiedKey
 	err := tpmCertifyKey20.PopulateTpmCertifyKey20(tcgCertificate)
 	if err != nil {
-		return errors.Wrap(err,"tpm2utils/certify_key_tpm2:ValidateNameDigest() Error populating TPM Certify Key")
+		return errors.Wrap(err, "tpm2utils/certify_key_tpm2:ValidateNameDigest() Error populating TPM Certify Key")
 	}
 	_, digest, err := tpmCertifyKey20.GetTpmtHashAlgDigest()
-	if err != nil{
+	if err != nil {
 		return errors.Wrap(err, "tpm2utils/certify_key_tpm2:ValidateNameDigest() Error while extracting digest from tpm certified key")
 	}
 	digest = append(padding, digest...)
@@ -116,7 +115,7 @@ func (certifyKey20 *CertifyKey20) ValidatePublicKey() (bool, error) {
 	}
 	//Get the public key digest from attestation info
 	hashAlg, digest, err := tpmCertifyKey20.GetTpmtHashAlgDigest()
-	if err != nil{
+	if err != nil {
 		return false, errors.Wrap(err, "tpm2utils/certify_key_tpm2:ValidatePublicKey() Error while extracting digest from tpm certified key")
 	}
 	//remove first two bytes that represent the public area size
@@ -162,9 +161,9 @@ func (certifyKey20 *CertifyKey20) GetPublicKeyFromModulus() (*rsa.PublicKey, err
 	bigInt := big.NewInt(0)
 	// Generate the TCG standard exponent to create the RSA public key from the modulus specified.
 	pubExp := make([]byte, 3)
-	pubExp[0] = (byte) (0x01 & 0xff)
-	pubExp[1] = (byte) (0x00)
-	pubExp[2] = (byte) (0x01 & 0xff)
+	pubExp[0] = (byte)(0x01 & 0xff)
+	pubExp[1] = (byte)(0x00)
+	pubExp[2] = (byte)(0x01 & 0xff)
 
 	exponent := new(big.Int)
 	exponent.SetBytes(pubExp)
@@ -189,9 +188,9 @@ func (certifyKey20 *CertifyKey20) CertifyKey(caCert *x509.Certificate, rsaPubKey
 
 	serialNumber := getRandomSerialNumber()
 	csrTemplate := x509.Certificate{
-		SerialNumber:       serialNumber,
-		Subject:            pkix.Name{
-			CommonName:   cn,
+		SerialNumber: serialNumber,
+		Subject: pkix.Name{
+			CommonName: cn,
 		},
 		SignatureAlgorithm: x509.SHA384WithRSA,
 		PublicKey:          rsaPubKey,
@@ -203,7 +202,7 @@ func (certifyKey20 *CertifyKey20) CertifyKey(caCert *x509.Certificate, rsaPubKey
 
 	certificate, err := x509.CreateCertificate(rand.Reader, &csrTemplate, caCert, rsaPubKey, caKey)
 	if err != nil {
-		return nil, errors.Wrap(err,"tpm2utils/certify_key_tpm2:CertifyKey() Cannot create certificate")
+		return nil, errors.Wrap(err, "tpm2utils/certify_key_tpm2:CertifyKey() Cannot create certificate")
 	}
 
 	return certificate, nil
@@ -218,7 +217,7 @@ func getRandomSerialNumber() *big.Int {
 	return n
 }
 
-func (certifyKey20 *CertifyKey20) IsTpmGeneratedKey() bool{
+func (certifyKey20 *CertifyKey20) IsTpmGeneratedKey() bool {
 	defaultLog.Trace("tpm2utils/certify_key_tpm2:IsTpmGeneratedKey() Entering")
 	defer defaultLog.Trace("tpm2utils/certify_key_tpm2:IsTpmGeneratedKey() Leaving")
 

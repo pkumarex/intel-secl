@@ -21,7 +21,7 @@ func TestAttestationServiceConnectionRun(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 
@@ -148,7 +148,7 @@ func TestAttestationServiceConnectionValidate(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 
@@ -173,7 +173,7 @@ func TestAttestationServiceConnectionValidate(t *testing.T) {
 					Username: "admin@ihub",
 					Password: "hubAdminPass",
 				},
-				ConsoleWriter:     os.Stdout,
+				ConsoleWriter: os.Stdout,
 			},
 
 			wantErr: false,
@@ -185,8 +185,8 @@ func TestAttestationServiceConnectionValidate(t *testing.T) {
 				AttestationConfig: &config.AttestationConfig{
 					AttestationType: "HVS", AttestationURL: "",
 				},
-				IHUBConfig: &config.IHUBConfig{},
-				ConsoleWriter:     os.Stdout,
+				IHUBConfig:    &config.IHUBConfig{},
+				ConsoleWriter: os.Stdout,
 			},
 
 			wantErr: true,
@@ -198,8 +198,8 @@ func TestAttestationServiceConnectionValidate(t *testing.T) {
 				AttestationConfig: &config.AttestationConfig{
 					AttestationType: "SKC", AttestationURL: "",
 				},
-				IHUBConfig: &config.IHUBConfig{},
-				ConsoleWriter:     os.Stdout,
+				IHUBConfig:    &config.IHUBConfig{},
+				ConsoleWriter: os.Stdout,
 			},
 
 			wantErr: true,

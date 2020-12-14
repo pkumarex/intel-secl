@@ -60,7 +60,7 @@ func (a *App) runDirPath() string {
 	return constants.RunDirPath
 }
 
-func (a *App) uninstall(purge bool) error{
+func (a *App) uninstall(purge bool) error {
 	log.Trace("app:uninstall() Entering")
 	defer log.Trace("app:uninstall() Leaving")
 

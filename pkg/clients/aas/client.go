@@ -48,7 +48,6 @@ var (
 	ErrHTTPGetRolesForUser = &clients.HTTPClientErr{
 		ErrMessage: "Failed to get roles for user",
 	}
-
 )
 
 func (c *Client) prepReqHeader(req *http.Request) {
@@ -98,7 +97,7 @@ func (c *Client) GetUsers(name string) ([]types.UserCreateResponse, error) {
 	if name != "" {
 		queryString.Set("name", name)
 	}
-	
+
 	u.RawQuery = queryString.Encode()
 
 	userURL := clients.ResolvePath(c.BaseURL, u.ResolveReference(u).String())
@@ -187,7 +186,7 @@ func (c *Client) GetRoles(service, name, context, contextContains string, allCon
 	} else {
 		queryString.Set("allContexts", "false")
 	}
-	
+
 	u.RawQuery = queryString.Encode()
 
 	rolesURL := clients.ResolvePath(c.BaseURL, u.ResolveReference(u).String())
@@ -276,7 +275,6 @@ func (c *Client) GetRolesForUser(userID string) ([]types.RoleInfo, error) {
 	}
 	return roles, nil
 }
-
 
 func (c *Client) UpdateUser(userID string, user types.UserCreate) error {
 

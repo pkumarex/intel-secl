@@ -446,7 +446,6 @@ func (store *MockFlavorStore) Create(sf *hvs.SignedFlavor) (*hvs.SignedFlavor, e
 	return sf, nil
 }
 
-
 // NewMockFlavorStore provides one dummy data for Flavors
 func NewMockFlavorStore() *MockFlavorStore {
 	store := &MockFlavorStore{}

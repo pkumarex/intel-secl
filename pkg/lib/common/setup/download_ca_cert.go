@@ -108,7 +108,7 @@ func downloadRootCaCertificate(cmsBaseUrl string, dirPath string, trustedTlsCert
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
-				MinVersion: tls.VersionTLS12,
+				MinVersion:         tls.VersionTLS12,
 				InsecureSkipVerify: true,
 			},
 		},

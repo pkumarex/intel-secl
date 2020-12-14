@@ -121,7 +121,7 @@ func (r *Runner) Run(taskName string, force bool) error {
 			return retErr
 		}
 	}
-	printToWriter(r.ConsoleWriter,"", "Setup task finished successfully: "+taskName)
+	printToWriter(r.ConsoleWriter, "", "Setup task finished successfully: "+taskName)
 	return nil
 }
 

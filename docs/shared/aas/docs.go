@@ -31,13 +31,12 @@ type UserCred struct {
 	Body aas.UserCred
 }
 
-
 // swagger:operation POST /token Token getJwtToken
 // ---
 // description: |
-//   Creates a new bearer token that can be used in the Authorization header for other API 
-//   requests. Bearer token Authorization is not required when requesting token for Authservice 
-//   admin user. Authservice admin user bearer token should be provided in Authorization header 
+//   Creates a new bearer token that can be used in the Authorization header for other API
+//   requests. Bearer token Authorization is not required when requesting token for Authservice
+//   admin user. Authservice admin user bearer token should be provided in Authorization header
 //   when requesting bearer token for other users.
 //
 // consumes:
@@ -179,5 +178,3 @@ type UserCred struct {
 // x-sample-call-endpoint: https://authservice.com:8444/aas/noauth/version
 // x-sample-call-output: v2.2
 // ---
-
-

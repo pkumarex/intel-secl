@@ -44,8 +44,8 @@ type SwaggRolesResponse struct {
 // ---
 //
 // description: |
-//   Creates a new role in the Authservice database. An appropriate role name and service 
-//   should be provided to create the role. A valid bearer token should be provided to 
+//   Creates a new role in the Authservice database. An appropriate role name and service
+//   should be provided to create the role. A valid bearer token should be provided to
 //   authorize this REST call.
 //
 // security:

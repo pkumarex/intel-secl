@@ -13,9 +13,10 @@ import (
 )
 
 var log = commLog.GetDefaultLogger()
+
 // PrivacyCa is interface for processing the identity request from the trust agent.
 type PrivacyCa interface {
 	ProcessIdentityRequest(model.IdentityRequest, crypto.PublicKey, []byte) (model.IdentityProofRequest, error)
-	GetEkCert(model.IdentityChallengePayload, crypto.PrivateKey)([]byte, error)
+	GetEkCert(model.IdentityChallengePayload, crypto.PrivateKey) ([]byte, error)
 	GetIdentityChallengeRequest([]byte, *rsa.PublicKey, model.IdentityRequest) (model.IdentityChallengePayload, error)
 }

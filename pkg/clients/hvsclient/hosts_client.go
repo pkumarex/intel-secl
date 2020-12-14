@@ -91,9 +91,9 @@ func (client *hostsClientImpl) SearchHosts(hostFilterCriteria *models.HostFilter
 	log.Debugf("SearchHosts: %s", request.URL.RawQuery)
 
 	response, err := client.httpClient.Do(request)
-        if err != nil {
+	if err != nil {
 		secLog.Warn(message.BadConnection)
-        	return nil, errors.Wrapf(err, "hvsclient/hosts_client:SearchHosts() Error making request to %s", parsedUrl)
+		return nil, errors.Wrapf(err, "hvsclient/hosts_client:SearchHosts() Error making request to %s", parsedUrl)
 	}
 
 	defer func() {
@@ -139,22 +139,21 @@ func (client *hostsClientImpl) CreateHost(hostCreateRequest *hvs.HostCreateReque
 
 	parsedUrl.Path = path.Join(parsedUrl.Path, "hosts")
 
-
 	request, err := http.NewRequest("POST", parsedUrl.String(), bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, errors.Wrap(err, "hvsclient/hosts_client:CreateHost() error creating request")
 	}
-	request.Header.Set("Authorization", "Bearer "+ client.cfg.BearerToken)
+	request.Header.Set("Authorization", "Bearer "+client.cfg.BearerToken)
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Accept", "application/json")
 
 	log.Debugf("hvsclient/hosts_client:CreateHost() Sending Post request to url %s with json body: %s ", parsedUrl, string(jsonData))
 
 	response, err := client.httpClient.Do(request)
-        if err != nil {
+	if err != nil {
 		secLog.Warn(message.BadConnection)
-    		return nil, errors.Wrapf(err, "hvsclient/hosts_client:CreateHost() Error while making request to %s ", parsedUrl)
-        }
+		return nil, errors.Wrapf(err, "hvsclient/hosts_client:CreateHost() Error while making request to %s ", parsedUrl)
+	}
 
 	defer func() {
 		derr := response.Body.Close()
@@ -213,7 +212,7 @@ func (client *hostsClientImpl) UpdateHost(host *hvs.Host) (*hvs.Host, error) {
 	response, err := client.httpClient.Do(request)
 	if err != nil {
 		secLog.Warn(message.BadConnection)
-        	return nil, errors.Wrapf(err,"hvsclient/hosts_client:UpdateHost() Error while sending request to %s", parsedUrl)
+		return nil, errors.Wrapf(err, "hvsclient/hosts_client:UpdateHost() Error while sending request to %s", parsedUrl)
 	}
 
 	defer func() {
@@ -229,7 +228,7 @@ func (client *hostsClientImpl) UpdateHost(host *hvs.Host) (*hvs.Host, error) {
 
 	data, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return nil, errors.Wrap(err,"hvsclient/hosts_client:UpdateHost() Error reading response ")
+		return nil, errors.Wrap(err, "hvsclient/hosts_client:UpdateHost() Error reading response ")
 	}
 
 	log.Debugf("hvsclient/hosts_client:UpdateHost() UpdateHost returned json: %s", string(data))

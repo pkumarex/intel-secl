@@ -35,7 +35,7 @@ func (controller FlavorgroupController) Create(w http.ResponseWriter, r *http.Re
 	defaultLog.Trace("controllers/flavorgroup_controller:Create() Entering")
 	defer defaultLog.Trace("controllers/flavorgroup_controller:Create() Leaving")
 
-	if r.Header.Get("Content-Type") != consts.HTTPMediaTypeJson{
+	if r.Header.Get("Content-Type") != consts.HTTPMediaTypeJson {
 		return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: "Invalid Content-Type"}
 	}
 
@@ -154,7 +154,7 @@ func (controller FlavorgroupController) Delete(w http.ResponseWriter, r *http.Re
 		}
 	}
 
-	if models.IsDefaultFlavorgroup(delFlavorGroup.Name){
+	if models.IsDefaultFlavorgroup(delFlavorGroup.Name) {
 		secLog.Error("controllers/flavorgroup_controller:Delete() attempt to delete default FlavorGroup")
 		errorMsg := delFlavorGroup.Name + " is a system generated default flavorgroup which is protected and cannot be deleted"
 		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: errorMsg}
@@ -245,7 +245,7 @@ func (controller FlavorgroupController) AddFlavor(w http.ResponseWriter, r *http
 	defaultLog.Trace("controllers/flavorgroup_controller:AddFlavor() Entering")
 	defer defaultLog.Trace("controllers/flavorgroup_controller:AddFlavor() Leaving")
 
-	if r.Header.Get("Content-Type") != consts.HTTPMediaTypeJson{
+	if r.Header.Get("Content-Type") != consts.HTTPMediaTypeJson {
 		return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: "Invalid Content-Type"}
 	}
 

@@ -21,7 +21,6 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-
 var _ = Describe("TpmEndorsementController", func() {
 	var router *mux.Router
 	var w *httptest.ResponseRecorder
@@ -33,7 +32,6 @@ var _ = Describe("TpmEndorsementController", func() {
 		mockEndorsement = mocks2.NewFakeTpmEndorsementStore()
 		tpmEndorsmentController = &controllers.TpmEndorsementController{Store: mockEndorsement}
 	})
-
 
 	// Specs for HTTP Get to "/tpm-endorsements"
 	Describe("Get list of TpmEndorsements", func() {

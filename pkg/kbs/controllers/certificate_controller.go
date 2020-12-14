@@ -30,7 +30,7 @@ type CertificateController struct {
 }
 
 func NewCertificateController(cs domain.CertificateStore) *CertificateController {
-	return &CertificateController{store:cs}
+	return &CertificateController{store: cs}
 }
 
 var certificateSearchParams = map[string]bool{"subjectEqualTo": true, "subjectContains": true, "issuerEqualTo": true, "issuerContains": true,
@@ -52,7 +52,7 @@ func (cc CertificateController) Import(responseWriter http.ResponseWriter, reque
 	createdCert, err := cc.store.Create(cert)
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/certificate_controller:Import() Certificate save failed")
-		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message:"Failed to save certificate"}
+		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to save certificate"}
 	}
 
 	secLog.WithField("Id", createdCert.ID).Infof("controllers/certificate_controller:Import() %s: Certificate imported by: %s", commLogMsg.PrivilegeModified, request.RemoteAddr)
@@ -69,10 +69,10 @@ func (cc CertificateController) Retrieve(responseWriter http.ResponseWriter, req
 	if err != nil {
 		if err.Error() == commErr.RecordNotFound {
 			defaultLog.Error("controllers/certificate_controller:Retrieve() Certificate with specified id could not be located")
-			return nil, http.StatusNotFound, &commErr.ResourceError{Message:"Certificate with specified id does not exist"}
+			return nil, http.StatusNotFound, &commErr.ResourceError{Message: "Certificate with specified id does not exist"}
 		} else {
 			defaultLog.WithError(err).Error("controllers/certificate_controller:Retrieve() Certificate retrieve failed")
-			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message:"Failed to retrieve certificate"}
+			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to retrieve certificate"}
 		}
 	}
 
@@ -90,10 +90,10 @@ func (cc CertificateController) Delete(responseWriter http.ResponseWriter, reque
 	if err != nil {
 		if err.Error() == commErr.RecordNotFound {
 			defaultLog.Error("controllers/certificate_controller:Delete() Certificate with specified id could not be located")
-			return nil, http.StatusNotFound, &commErr.ResourceError{Message:"Certificate with specified id does not exist"}
+			return nil, http.StatusNotFound, &commErr.ResourceError{Message: "Certificate with specified id does not exist"}
 		} else {
 			defaultLog.WithError(err).Error("controllers/certificate_controller:Delete() Certificate delete failed")
-			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message:"Failed to delete certificate"}
+			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to delete certificate"}
 		}
 	}
 
@@ -117,7 +117,7 @@ func (cc CertificateController) Search(responseWriter http.ResponseWriter, reque
 	certificates, err := cc.store.Search(criteria)
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/certificate_controller:Search() Certificates search failed")
-		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message:"Failed to search certificates"}
+		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to search certificates"}
 	}
 
 	secLog.Infof("controllers/certificate_controller:Search() %s: Certificates searched by: %s", commLogMsg.AuthorizedAccess, request.RemoteAddr)

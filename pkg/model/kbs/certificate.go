@@ -13,7 +13,7 @@ import (
 //Certificate stores the decoded certificate values
 type Certificate struct {
 	// swagger:strfmt uuid
-	ID          uuid.UUID  `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// swagger:strfmt base64
 	Certificate []byte     `json:"certificate"`
 	Subject     string     `json:"subject,omitempty"`

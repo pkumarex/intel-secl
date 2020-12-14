@@ -178,7 +178,7 @@ func getVmwareHostReference(vc *vmwareClient) (mo.HostSystem, *govmomi.Client, e
 		"hostname " + vc.HostName + " found in cluster")
 }
 
-func (vc *vmwareClient) GetVmwareClusterReference (clusterName string) ([]mo.HostSystem, error) {
+func (vc *vmwareClient) GetVmwareClusterReference(clusterName string) ([]mo.HostSystem, error) {
 	log.Trace("vmware/client:GetVmwareClusterReference() Entering ")
 	defer log.Trace("vmware/client:GetVmwareClusterReference() Leaving ")
 

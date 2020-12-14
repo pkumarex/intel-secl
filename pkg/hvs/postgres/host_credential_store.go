@@ -35,12 +35,12 @@ func (hcs *HostCredentialStore) Create(hc *models.HostCredential) (*models.HostC
 
 	hc.Id = uuid.New()
 	dbHostCredential := hostCredential{
-		Id:               hc.Id,
-		HostId:           hc.HostId,
-		HostName:         hc.HostName,
-		HardwareUuid:     hc.HardwareUuid,
-		Credential:       encCred,
-		CreatedTs:        time.Now(),
+		Id:           hc.Id,
+		HostId:       hc.HostId,
+		HostName:     hc.HostName,
+		HardwareUuid: hc.HardwareUuid,
+		Credential:   encCred,
+		CreatedTs:    time.Now(),
 	}
 
 	if err := hcs.Store.Db.Create(&dbHostCredential).Error; err != nil {
@@ -80,17 +80,17 @@ func (hcs *HostCredentialStore) Update(hc *models.HostCredential) error {
 	}
 
 	dbHostCredential := hostCredential{
-		Id:               hc.Id,
-		HostId:           hc.HostId,
-		HostName:         hc.HostName,
-		HardwareUuid:     hc.HardwareUuid,
-		Credential:       hc.Credential,
-		CreatedTs:        time.Now(),
+		Id:           hc.Id,
+		HostId:       hc.HostId,
+		HostName:     hc.HostName,
+		HardwareUuid: hc.HardwareUuid,
+		Credential:   hc.Credential,
+		CreatedTs:    time.Now(),
 	}
 
 	if db := hcs.Store.Db.Model(&dbHostCredential).Updates(&dbHostCredential); db.Error != nil || db.RowsAffected != 1 {
 		if db.Error != nil {
-			return errors.Wrap(db.Error, "postgres/host_credential_store:Update() failed to update Host Credential  " + dbHostCredential.Id.String())
+			return errors.Wrap(db.Error, "postgres/host_credential_store:Update() failed to update Host Credential  "+dbHostCredential.Id.String())
 		} else {
 			return errors.New("postgres/host_credential_store:Update() - no rows affected - Record not found = id :  " + dbHostCredential.Id.String())
 		}

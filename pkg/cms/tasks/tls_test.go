@@ -48,7 +48,7 @@ AjYgFij/70d+Pv4EG+r2zA==
 }
 
 func testGetPrivateRootkey() interface{} {
-	block, _ := pem.Decode([]byte (`
+	block, _ := pem.Decode([]byte(`
 -----BEGIN PKCS8 PRIVATE KEY-----
 MIIG/QIBADANBgkqhkiG9w0BAQEFAASCBucwggbjAgEAAoIBgQCXVtwJjlp7srBw
 SRFJQbfpLRQJYAbAWVLPiRNrN4j4E9YOtNNAb3QZv/nL27ZJ55qxT7sN6loejA2A
@@ -121,9 +121,9 @@ func TestTlsCertCreation(t *testing.T) {
 	}
 
 	ca := RootCa{
-		ConsoleWriter: os.Stdout,
+		ConsoleWriter:   os.Stdout,
 		CACertConfigPtr: &c.CACert,
-		CACertConfig:  c.CACert,
+		CACertConfig:    c.CACert,
 	}
 
 	err = ca.Run()

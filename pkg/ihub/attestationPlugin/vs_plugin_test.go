@@ -38,7 +38,7 @@ func TestGetHostReports(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 	type args struct {
@@ -158,7 +158,7 @@ func TestGetCaCerts(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 
@@ -268,7 +268,7 @@ func Test_initializeClient(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 	type args struct {

@@ -16,11 +16,11 @@ import (
 	"encoding/binary"
 	"encoding/xml"
 	"fmt"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
-	"github.com/pkg/errors"
 	commLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
+	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
+	"github.com/pkg/errors"
 	"regexp"
 	"strconv"
 	"strings"
@@ -30,10 +30,10 @@ var log = commLog.GetDefaultLogger()
 var secLog = commLog.GetSecurityLogger()
 
 const (
-	SHA1_SIZE   = 20
-	SHA256_SIZE = 32
-	SHA384_SIZE = 48
-	SHA512_SIZE = 64
+	SHA1_SIZE                 = 20
+	SHA256_SIZE               = 32
+	SHA384_SIZE               = 48
+	SHA512_SIZE               = 64
 	TPM_API_ALG_ID_SHA1       = 0x04
 	TPM_API_ALG_ID_SHA256     = 0x0B
 	TPM_API_ALG_ID_SHA384     = 0x0C
@@ -159,7 +159,7 @@ func VerifyQuoteAndGetPCRManifest(decodedEventLog string, verificationNonce []by
 	hash := sha256.New()
 	_, err := hash.Write(quoteInfo)
 	if err != nil {
-		return types.PcrManifest{}, errors.Wrap(err,"Error writing quote information")
+		return types.PcrManifest{}, errors.Wrap(err, "Error writing quote information")
 	}
 	quoteDigest := hash.Sum(nil)
 	secLog.Debugf("util/aik_quote_verifier:VerifyQuoteAndGetPCRManifest() Quote signature : %v", quoteDigest)
@@ -225,7 +225,7 @@ func VerifyQuoteAndGetPCRManifest(decodedEventLog string, verificationNonce []by
 	hash = sha256.New()
 	_, err = hash.Write(pcrConcat)
 	if err != nil {
-		return types.PcrManifest{}, errors.Wrap(err,"Error writing pcr hash")
+		return types.PcrManifest{}, errors.Wrap(err, "Error writing pcr hash")
 	}
 	quoteDigest = hash.Sum(nil)
 
@@ -330,9 +330,9 @@ func createPCRManifest(pcrList []string, eventLog string) (types.PcrManifest, er
 				} else if strings.EqualFold(pcrBank, "SHA1") {
 					pcrManifest.Sha1Pcrs = append(pcrManifest.Sha1Pcrs, types.Pcr{
 						DigestType: fmt.Sprintf(constants.PcrClassNamePrefix+"%d", 1),
-						Index:   pcrIndex,
-						Value:   pcrValue,
-						PcrBank: shaAlgorithm,
+						Index:      pcrIndex,
+						Value:      pcrValue,
+						PcrBank:    shaAlgorithm,
 					})
 				}
 			} else {
@@ -343,7 +343,7 @@ func createPCRManifest(pcrList []string, eventLog string) (types.PcrManifest, er
 	pcrManifest.PcrEventLogMap, err = getPcrEventLog(eventLog)
 	if err != nil {
 		log.Errorf("util/aik_quote_verifier:createPCRManifest() Error getting PCR event log : %s", err.Error())
-		return pcrManifest, errors.Wrap(err, "util/aik_quote_verifier:createPCRManifest() Error getting PCR " +
+		return pcrManifest, errors.Wrap(err, "util/aik_quote_verifier:createPCRManifest() Error getting PCR "+
 			"event log")
 	}
 	return pcrManifest, nil
@@ -387,8 +387,7 @@ func addPcrEntry(module types.Module, eventLogMap types.PcrEventLogMap) types.Pc
 		eventLog.Info["ComponentName"] = module.Name
 		eventLog.Info["EventName"] = EVENT_NAME
 		if !pcrFound {
-			eventLogMap.Sha1EventLogs = append(eventLogMap.Sha1EventLogs, types.EventLogEntry{PcrIndex:
-			module.PcrNumber, PcrBank: SHA1, EventLogs: []types.EventLog{eventLog}})
+			eventLogMap.Sha1EventLogs = append(eventLogMap.Sha1EventLogs, types.EventLogEntry{PcrIndex: module.PcrNumber, PcrBank: SHA1, EventLogs: []types.EventLog{eventLog}})
 		} else {
 			eventLogMap.Sha1EventLogs[index].EventLogs = append(eventLogMap.Sha1EventLogs[index].EventLogs, eventLog)
 		}
@@ -406,8 +405,7 @@ func addPcrEntry(module types.Module, eventLogMap types.PcrEventLogMap) types.Pc
 		eventLog.Info["ComponentName"] = module.Name
 		eventLog.Info["EventName"] = EVENT_NAME
 		if !pcrFound {
-			eventLogMap.Sha256EventLogs = append(eventLogMap.Sha256EventLogs, types.EventLogEntry{PcrIndex:
-			module.PcrNumber, PcrBank: SHA256, EventLogs: []types.EventLog{eventLog}})
+			eventLogMap.Sha256EventLogs = append(eventLogMap.Sha256EventLogs, types.EventLogEntry{PcrIndex: module.PcrNumber, PcrBank: SHA256, EventLogs: []types.EventLog{eventLog}})
 		} else {
 			eventLogMap.Sha256EventLogs[index].EventLogs = append(eventLogMap.Sha256EventLogs[index].EventLogs, eventLog)
 		}

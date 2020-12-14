@@ -41,7 +41,7 @@ var _ = Describe("CaCertificatesController", func() {
 				router.Handle("/ca-certificates", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(caCertificatesController.Create))).Methods("POST")
 				cert, _, _ := crypt.CreateKeyPairAndCertificate("root-test", "", consts.DefaultKeyAlgorithm, consts.DefaultKeyLength)
 				certificate := hvs.CaCertificate{
-					Name: 	     "root-test",
+					Name:        "root-test",
 					Type:        models.CaCertTypesRootCa.String(),
 					Certificate: cert,
 				}
@@ -68,8 +68,8 @@ var _ = Describe("CaCertificatesController", func() {
 			It("Should return bad request", func() {
 				router.Handle("/ca-certificates", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(caCertificatesController.Create))).Methods("POST")
 				certificate := hvs.CaCertificate{
-					Name: 	     "root-test",
-					Type:        models.CaCertTypesTagCa.String(),
+					Name: "root-test",
+					Type: models.CaCertTypesTagCa.String(),
 				}
 				payload, _ := json.Marshal(certificate)
 				req, err := http.NewRequest(

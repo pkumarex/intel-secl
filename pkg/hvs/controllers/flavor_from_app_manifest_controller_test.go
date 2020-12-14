@@ -42,7 +42,7 @@ var _ = Describe("FlavorFromAppManifestController", func() {
 		certStore := mocks.NewFakeCertificatesStore()
 
 		(*certStore)[dm.CertTypesFlavorSigning.String()].Key, _ = rsa.GenerateKey(rand.Reader, 3072)
-		
+
 		hostControllerConfig = domain.HostControllerConfig{
 			HostConnectorProvider: hostConnectorProvider,
 			DataEncryptionKey:     nil,

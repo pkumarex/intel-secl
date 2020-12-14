@@ -17,7 +17,7 @@ type CACertificatesController struct {
 }
 
 //GetCACertificates is used to get the root CA certificate upon JWT validation
-func (controller CACertificatesController)GetCACertificates(httpWriter http.ResponseWriter, httpRequest *http.Request) {
+func (controller CACertificatesController) GetCACertificates(httpWriter http.ResponseWriter, httpRequest *http.Request) {
 	log.Trace("resource/ca_certificates:GetCACertificates() Entering")
 	defer log.Trace("resource/ca_certificates:GetCACertificates() Leaving")
 

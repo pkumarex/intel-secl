@@ -142,7 +142,7 @@ func (app *App) setupTaskRunner() (*setup.Runner, error) {
 	})
 
 	runner.AddTask("tenant-service-connection", "", &tasks.TenantConnection{
-		TenantConfig: &app.Config.Endpoint,
+		TenantConfig:  &app.Config.Endpoint,
 		ConsoleWriter: app.consoleWriter(),
 	})
 

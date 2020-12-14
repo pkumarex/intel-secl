@@ -13,7 +13,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-type CertifyKey interface{
+type CertifyKey interface {
 	IsCertifiedKeySignatureValid(aikCert *x509.Certificate) (bool, error)
 	ValidateNameDigest() error
 	ValidatePublicKey() (bool, error)
@@ -22,10 +22,10 @@ type CertifyKey interface{
 	IsTpmGeneratedKey() bool
 }
 
-func NewCertifyKey(regKeyInfo model.RegisterKeyInfo) (CertifyKey, error){
+func NewCertifyKey(regKeyInfo model.RegisterKeyInfo) (CertifyKey, error) {
 	log.Trace("privacyca/certify_key_factory:NewCertifyKey() Entering")
 	defer log.Trace("privacyca/certify_key_factory:NewCertifyKey() Leaving")
-	if regKeyInfo.TpmVersion == "2.0"{
+	if regKeyInfo.TpmVersion == "2.0" {
 		certifyKey20 := tpm2utils.CertifyKey20{
 			RegKeyInfo: regKeyInfo,
 		}

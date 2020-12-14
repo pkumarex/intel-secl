@@ -32,13 +32,13 @@ type Tpm2bData struct {
 }
 
 type TpmsClockInfo struct {
-	Clock [8]    byte
+	Clock        [8]byte
 	ResetCount   uint32
 	RestartCount uint32
 	Safe         byte
 }
 
-type TpmuAttest struct{
+type TpmuAttest struct {
 	/* This corresponds to the TPMS_CERTIFY_INFO struct  */
 	Tpm2bName Tpm2bName
 }
@@ -49,69 +49,69 @@ func (tpm2CertifiedKey *Tpm2CertifiedKey) PopulateTpmCertifyKey20(tpmCertifiedKe
 
 	buf := bytes.NewBuffer(tpmCertifiedKey)
 	err := binary.Read(buf, binary.BigEndian, &tpm2CertifiedKey.Magic)
-	if err != nil{
-		return errors.Wrap(err,"tpm2utils/tpm2_certified_key:Error reading magic")
+	if err != nil {
+		return errors.Wrap(err, "tpm2utils/tpm2_certified_key:Error reading magic")
 	}
 	err = binary.Read(buf, binary.BigEndian, &tpm2CertifiedKey.Type)
-	if err != nil{
-		return errors.Wrap(err,"tpm2utils/tpm2_certified_key:Error reading key type")
+	if err != nil {
+		return errors.Wrap(err, "tpm2utils/tpm2_certified_key:Error reading key type")
 	}
 
 	err = binary.Read(buf, binary.BigEndian, &tpm2CertifiedKey.Tpm2bName.Size)
-	if err != nil{
-		return errors.Wrap(err,"tpm2utils/tpm2_certified_key:Error reading key name size")
+	if err != nil {
+		return errors.Wrap(err, "tpm2utils/tpm2_certified_key:Error reading key name size")
 	}
 	tpm2CertifiedKey.Tpm2bName.Name = buf.Next(int(tpm2CertifiedKey.Tpm2bName.Size))
 
 	err = binary.Read(buf, binary.BigEndian, &tpm2CertifiedKey.Tpm2bData.Size)
-	if err != nil{
-		return errors.Wrap(err,"tpm2utils/tpm2_certified_key:Error reading external info size")
+	if err != nil {
+		return errors.Wrap(err, "tpm2utils/tpm2_certified_key:Error reading external info size")
 	}
 	tpm2CertifiedKey.Tpm2bData.Buffer = buf.Next(int(tpm2CertifiedKey.Tpm2bData.Size))
 
 	err = binary.Read(buf, binary.BigEndian, &tpm2CertifiedKey.TpmsClockInfo.Clock)
-	if err != nil{
-		return errors.Wrap(err,"tpm2utils/tpm2_certified_key:Error reading clock")
+	if err != nil {
+		return errors.Wrap(err, "tpm2utils/tpm2_certified_key:Error reading clock")
 	}
 	err = binary.Read(buf, binary.BigEndian, &tpm2CertifiedKey.TpmsClockInfo.ResetCount)
-	if err != nil{
-		return errors.Wrap(err,"tpm2utils/tpm2_certified_key:Error reading reset count")
+	if err != nil {
+		return errors.Wrap(err, "tpm2utils/tpm2_certified_key:Error reading reset count")
 	}
 	err = binary.Read(buf, binary.BigEndian, &tpm2CertifiedKey.TpmsClockInfo.RestartCount)
-	if err != nil{
-		return errors.Wrap(err,"tpm2utils/tpm2_certified_key:Error reading restart count")
+	if err != nil {
+		return errors.Wrap(err, "tpm2utils/tpm2_certified_key:Error reading restart count")
 	}
 	err = binary.Read(buf, binary.BigEndian, &tpm2CertifiedKey.TpmsClockInfo.Safe)
-	if err != nil{
-		return errors.Wrap(err,"tpm2utils/tpm2_certified_key:Error reading safe")
+	if err != nil {
+		return errors.Wrap(err, "tpm2utils/tpm2_certified_key:Error reading safe")
 	}
 
 	err = binary.Read(buf, binary.BigEndian, &tpm2CertifiedKey.FirmwareVersion)
-	if err != nil{
-		return errors.Wrap(err,"tpm2utils/tpm2_certified_key:Error reading firmware version")
+	if err != nil {
+		return errors.Wrap(err, "tpm2utils/tpm2_certified_key:Error reading firmware version")
 	}
 
 	err = binary.Read(buf, binary.BigEndian, &tpm2CertifiedKey.TpmuAttest.Tpm2bName.Size)
-	if err != nil{
-		return errors.Wrap(err,"tpm2utils/tpm2_certified_key:Error reading attestation information size")
+	if err != nil {
+		return errors.Wrap(err, "tpm2utils/tpm2_certified_key:Error reading attestation information size")
 	}
 	tpm2CertifiedKey.TpmuAttest.Tpm2bName.Name = buf.Next(int(tpm2CertifiedKey.TpmuAttest.Tpm2bName.Size))
 	return nil
 }
 
-func (tpm2CertifiedKey *Tpm2CertifiedKey) GetTpmtHashAlgDigest() (int, []byte, error){
+func (tpm2CertifiedKey *Tpm2CertifiedKey) GetTpmtHashAlgDigest() (int, []byte, error) {
 	defaultLog.Trace("tpm2utils/tpm2_certified_key:GetTpmtHashAlgDigest() Entering")
 	defer defaultLog.Trace("tpm2utils/tpm2_certified_key:GetTpmtHashAlgDigest() Leaving")
 
 	buf := bytes.NewBuffer(tpm2CertifiedKey.TpmuAttest.Tpm2bName.Name)
 	var hashAlg int16
 	err := binary.Read(buf, binary.BigEndian, &hashAlg)
-	if err != nil{
-		return 0, nil, errors.Wrap(err,"tpm2utils/tpm2_certified_key:Error reading hash algorithm")
+	if err != nil {
+		return 0, nil, errors.Wrap(err, "tpm2utils/tpm2_certified_key:Error reading hash algorithm")
 	}
-	digest := buf.Next(int(tpm2CertifiedKey.TpmuAttest.Tpm2bName.Size)-2)
-	if digest == nil{
-		return 0, nil, errors.Wrap(err,"tpm2utils/tpm2_certified_key:Digest bytes are empty")
+	digest := buf.Next(int(tpm2CertifiedKey.TpmuAttest.Tpm2bName.Size) - 2)
+	if digest == nil {
+		return 0, nil, errors.Wrap(err, "tpm2utils/tpm2_certified_key:Digest bytes are empty")
 	}
 	return int(hashAlg), digest, nil
 }

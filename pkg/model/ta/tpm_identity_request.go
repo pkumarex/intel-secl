@@ -31,11 +31,11 @@ type IdentityProofRequest struct {
 }
 
 type IdentityRequest struct {
-	TpmVersion              string `json:"tpm_version"`
-	IdentityRequestBlock    []byte `json:"identity_request_blob"`
-	AikModulus		[]byte `json:"aik_modulus"`
-	AikBlob			[]byte `json:"aik_blob"`
-	AikName			[]byte `json:"aik_name"`
+	TpmVersion           string `json:"tpm_version"`
+	IdentityRequestBlock []byte `json:"identity_request_blob"`
+	AikModulus           []byte `json:"aik_modulus"`
+	AikBlob              []byte `json:"aik_blob"`
+	AikName              []byte `json:"aik_name"`
 }
 
 type IdentityChallengePayload struct {
@@ -47,19 +47,19 @@ type IdentityChallengePayload struct {
 }
 
 type TpmAsymmetricKeyParams struct {
-	TpmAlgId	         int
-	TpmAlgEncScheme		 int
-	TpmAlgSignatureScheme    int
-	KeyLength	         int
-	PrimesCount	         int
-	ExponentSize	         int
+	TpmAlgId              int
+	TpmAlgEncScheme       int
+	TpmAlgSignatureScheme int
+	KeyLength             int
+	PrimesCount           int
+	ExponentSize          int
 }
 
 type TpmSymmetricKeyParams struct {
-	TpmAlgId                int
-	TpmAlgEncScheme	        int
-	TpmAlgSignatureScheme	int
-	KeyLength		int
-	BlockSize		int
-	IV	                []byte
+	TpmAlgId              int
+	TpmAlgEncScheme       int
+	TpmAlgSignatureScheme int
+	KeyLength             int
+	BlockSize             int
+	IV                    []byte
 }

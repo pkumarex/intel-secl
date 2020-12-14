@@ -116,7 +116,7 @@ func SendRequest(req *http.Request, aasURL, serviceUsername, servicePassword str
 			return nil, errors.Wrap(err, "clients/send_http_request.go:SendRequest() Error from response")
 		}
 	}
-	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusNoContent{
+	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusNoContent {
 		return nil, errors.Wrap(errors.New("HTTP Status :"+strconv.Itoa(response.StatusCode)),
 			"clients/send_http_request.go:SendRequest() Error from response")
 	}
@@ -159,7 +159,7 @@ func SendNoAuthRequest(req *http.Request, trustedCaCerts []x509.Certificate) ([]
 			log.WithError(derr).Error("Error closing response body")
 		}
 	}()
-	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusNoContent{
+	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusNoContent {
 		return nil, errors.Wrap(errors.New("HTTP Status :"+strconv.Itoa(response.StatusCode)),
 			"clients/send_http_request.go:SendNoAuthRequest() Error from response")
 	}

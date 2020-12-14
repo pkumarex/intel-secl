@@ -85,7 +85,6 @@ func TestLegacyGenAndSign(t *testing.T) {
 	t.Log(str)
 }
 
-
 func TestLegacyInvalidSamlSig(t *testing.T) {
 	testMap := map[string]string{
 		"test-field-1": "test-val-1",

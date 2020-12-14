@@ -68,7 +68,6 @@ var _ = Describe("FlavorgroupController", func() {
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(200))
 
-
 				var fgCollection *hvs.FlavorgroupCollection
 				err = json.Unmarshal(w.Body.Bytes(), &fgCollection)
 				Expect(err).NotTo(HaveOccurred())

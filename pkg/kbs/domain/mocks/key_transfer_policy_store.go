@@ -67,34 +67,34 @@ func NewFakeKeyTransferPolicyStore() *MockKeyTransferPolicyStore {
 	store.KeyTransferPolicyStore = make(map[uuid.UUID]*kbs.KeyTransferPolicyAttributes)
 
 	_, err := store.Create(&kbs.KeyTransferPolicyAttributes{
-		ID:                                uuid.MustParse("ee37c360-7eae-4250-a677-6ee12adce8e2"),
-		CreatedAt:                         time.Now().UTC(),
-		SGXEnclaveIssuerAnyof:             []string{"cd171c56941c6ce49690b455f691d9c8a04c2e43e0a4d30f752fa5285c7ee57f"},
-		SGXEnclaveIssuerProductIDAnyof:    []int16{0},
+		ID:                                     uuid.MustParse("ee37c360-7eae-4250-a677-6ee12adce8e2"),
+		CreatedAt:                              time.Now().UTC(),
+		SGXEnclaveIssuerAnyof:                  []string{"cd171c56941c6ce49690b455f691d9c8a04c2e43e0a4d30f752fa5285c7ee57f"},
+		SGXEnclaveIssuerProductIDAnyof:         []int16{0},
 		SGXEnclaveIssuerExtendedProductIDAnyof: []string{"00000000000000000000000000000000"},
-		SGXEnclaveMeasurementAnyof:        []string{"01c60b9617b2f96e53cb75ef01e0dccea3afc7b7992697eabb8f714b2ccd1953"},
-		SGXConfigIDAnyof:                  []string{"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"},
-		SGXEnclaveSVNMinimum:              int16(1),
-		TLSClientCertificateIssuerCNAnyof: []string{"CMSCA", "CMS TLS Client CA"},
-		AttestationTypeAnyof:              []string{"SGX"},
-		TLSClientCertificateSANAllof:      []string{"nginx","USA"},
+		SGXEnclaveMeasurementAnyof:             []string{"01c60b9617b2f96e53cb75ef01e0dccea3afc7b7992697eabb8f714b2ccd1953"},
+		SGXConfigIDAnyof:                       []string{"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"},
+		SGXEnclaveSVNMinimum:                   int16(1),
+		TLSClientCertificateIssuerCNAnyof:      []string{"CMSCA", "CMS TLS Client CA"},
+		AttestationTypeAnyof:                   []string{"SGX"},
+		TLSClientCertificateSANAllof:           []string{"nginx", "USA"},
 	})
 	if err != nil {
 		log.WithError(err).Errorf("Error creating key transfer properties")
 	}
 
 	_, err = store.Create(&kbs.KeyTransferPolicyAttributes{
-		ID:                                uuid.MustParse("73755fda-c910-46be-821f-e8ddeab189e9"),
-		CreatedAt:                         time.Now().UTC(),
-		SGXEnclaveIssuerAnyof:             []string{"cd171c56941c6ce49690b455f691d9c8a04c2e43e0a4d30f752fa5285c7ee57f"},
-		SGXEnclaveIssuerProductIDAnyof:    []int16{0},
+		ID:                                     uuid.MustParse("73755fda-c910-46be-821f-e8ddeab189e9"),
+		CreatedAt:                              time.Now().UTC(),
+		SGXEnclaveIssuerAnyof:                  []string{"cd171c56941c6ce49690b455f691d9c8a04c2e43e0a4d30f752fa5285c7ee57f"},
+		SGXEnclaveIssuerProductIDAnyof:         []int16{0},
 		SGXEnclaveIssuerExtendedProductIDAnyof: []string{"00000000000000000000000000000000"},
-		SGXEnclaveMeasurementAnyof:        []string{"01c60b9617b2f96e53cb75ef01e0dccea3afc7b7992697eabb8f714b2ccd1953"},
-		SGXConfigIDAnyof:                  []string{"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"},
-		SGXEnclaveSVNMinimum:              int16(1),
-		TLSClientCertificateIssuerCNAnyof: []string{"CMSCA", "CMS TLS Client CA"},
-		AttestationTypeAnyof:              []string{"SGX"},
-		TLSClientCertificateSANAllof:      []string{"nginx","USA"},
+		SGXEnclaveMeasurementAnyof:             []string{"01c60b9617b2f96e53cb75ef01e0dccea3afc7b7992697eabb8f714b2ccd1953"},
+		SGXConfigIDAnyof:                       []string{"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"},
+		SGXEnclaveSVNMinimum:                   int16(1),
+		TLSClientCertificateIssuerCNAnyof:      []string{"CMSCA", "CMS TLS Client CA"},
+		AttestationTypeAnyof:                   []string{"SGX"},
+		TLSClientCertificateSANAllof:           []string{"nginx", "USA"},
 	})
 	if err != nil {
 		log.WithError(err).Errorf("Error creating key transfer properties")

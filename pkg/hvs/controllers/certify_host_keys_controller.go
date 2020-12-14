@@ -29,10 +29,10 @@ type CertifyHostKeysController struct {
 	CertStore *models.CertificatesStore
 }
 
-func NewCertifyHostKeysController(certStore *models.CertificatesStore) *CertifyHostKeysController  {
+func NewCertifyHostKeysController(certStore *models.CertificatesStore) *CertifyHostKeysController {
 	// CertStore should have an entry for Privacyca key
 	pcaKey, pcaCerts, err := certStore.GetKeyAndCertificates(models.CaCertTypesPrivacyCa.String())
-	if err != nil || pcaKey == nil || pcaCerts == nil{
+	if err != nil || pcaKey == nil || pcaCerts == nil {
 		defaultLog.Errorf("Error while retrieving certificate and key for certType %s", models.CaCertTypesPrivacyCa.String())
 		return nil
 	}
@@ -43,7 +43,7 @@ func (certifyHostKeysController *CertifyHostKeysController) CertifySigningKey(w 
 	defaultLog.Trace("controllers/certify_host_keys_controller:CertifySigningKey() Entering")
 	defer defaultLog.Trace("controllers/certify_host_keys_controller:CertifySigningKey() Leaving")
 
-	if r.Header.Get("Content-Type") != constants.HTTPMediaTypeJson{
+	if r.Header.Get("Content-Type") != constants.HTTPMediaTypeJson {
 		return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: "Invalid Content-Type"}
 	}
 
@@ -57,7 +57,7 @@ func (certifyHostKeysController *CertifyHostKeysController) CertifySigningKey(w 
 	}
 
 	certificate, err, httpStatus := certifyHostKeysController.generateCertificate(consts.HostSigningKeyCertificateCN, regKeyInfo)
-	if err != nil{
+	if err != nil {
 		defaultLog.WithError(err).Error("controllers/certify_host_keys_controller:CertifySigningKey() Error while certifying Signing Key")
 		return nil, httpStatus, &commErr.ResourceError{Message: "Error while certifying Signing Key"}
 	}
@@ -73,7 +73,7 @@ func (certifyHostKeysController *CertifyHostKeysController) CertifyBindingKey(w 
 	defaultLog.Trace("controllers/certify_host_keys_controller:CertifyBindingKey() Entering")
 	defer defaultLog.Trace("controllers/certify_host_keys_controller:CertifyBindingKey() Leaving")
 
-	if r.Header.Get("Content-Type") != constants.HTTPMediaTypeJson{
+	if r.Header.Get("Content-Type") != constants.HTTPMediaTypeJson {
 		return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: "Invalid Content-Type"}
 	}
 
@@ -83,11 +83,11 @@ func (certifyHostKeysController *CertifyHostKeysController) CertifyBindingKey(w 
 	dec.DisallowUnknownFields()
 	if err := dec.Decode(&regKeyInfo); err != nil {
 		secLog.WithError(err).Errorf("controllers/certify_host_keys_controller:CertifyBindingKey() %s Error while decoding request body", commLogMsg.InvalidInputBadEncoding)
-		return nil, http.StatusBadRequest, &commErr.ResourceError{Message:"Error while decoding request body"}
+		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: "Error while decoding request body"}
 	}
 
 	certificate, err, httpStatus := certifyHostKeysController.generateCertificate(consts.HostBindingKeyCertificateCN, regKeyInfo)
-	if err != nil{
+	if err != nil {
 		defaultLog.WithError(err).Error("controllers/certify_host_keys_controller:CertifyBindingKey() Error while certifying Binding Key")
 		return nil, httpStatus, &commErr.ResourceError{Message: "Error while certifying Binding Key"}
 	}
@@ -97,18 +97,17 @@ func (certifyHostKeysController *CertifyHostKeysController) CertifyBindingKey(w 
 	return bindingKeyCert, http.StatusCreated, nil
 }
 
-
-func (certifyHostKeysController *CertifyHostKeysController) generateCertificate(commName string, regKeyInfo model.RegisterKeyInfo) ([]byte, error, int){
+func (certifyHostKeysController *CertifyHostKeysController) generateCertificate(commName string, regKeyInfo model.RegisterKeyInfo) ([]byte, error, int) {
 	defaultLog.Trace("controllers/certify_host_keys_controller:generateCertificate() Entering")
 	defer defaultLog.Trace("controllers/certify_host_keys_controller:generateCertificate() Leaving")
 
 	if regKeyInfo.PublicKeyModulus == nil || regKeyInfo.TpmCertifyKey == nil || regKeyInfo.TpmCertifyKeySignature == nil ||
-		regKeyInfo.AikDerCertificate == nil || regKeyInfo.NameDigest == nil{
+		regKeyInfo.AikDerCertificate == nil || regKeyInfo.NameDigest == nil {
 		return nil, errors.New("controllers/certify_host_keys_controller:generateCertificate() Invalid input specified or input value missing"), http.StatusBadRequest
 	}
 
 	//Currently supported only for linux systems
-	if strings.ToLower(regKeyInfo.OsType) != "linux"{
+	if strings.ToLower(regKeyInfo.OsType) != "linux" {
 		return nil, errors.New("controllers/certify_host_keys_controller:generateCertificate() Supported only for OS linux"), http.StatusBadRequest
 	}
 
@@ -122,7 +121,7 @@ func (certifyHostKeysController *CertifyHostKeysController) generateCertificate(
 		return nil, errors.Wrap(err, "controllers/certify_host_keys_controller:generateCertificate() Could not certify AIK"), http.StatusInternalServerError
 	}
 
-	if !certifyKey20.IsTpmGeneratedKey(){
+	if !certifyKey20.IsTpmGeneratedKey() {
 		return nil, errors.New("controllers/certify_host_keys_controller:generateCertificate() Not a valid tpm generated key"), http.StatusBadRequest
 	}
 
@@ -130,14 +129,14 @@ func (certifyHostKeysController *CertifyHostKeysController) generateCertificate(
 	if !certifyHostKeysController.isAikCertifiedByPrivacyCA(aikCert) {
 		return nil, errors.New("controllers/certify_host_keys_controller:generateCertificate() Error verifying the AIK signature against the Privacy CA"), http.StatusBadRequest
 	}
-	
+
 	rsaPubKey, err := certifyKey20.GetPublicKeyFromModulus()
-	if err != nil{
+	if err != nil {
 		return nil, errors.Wrap(err, "controllers/certify_host_keys_controller:generateCertificate() Error while retrieving public key modulus"), http.StatusBadRequest
 	}
 
-	status, err:= certifyKey20.IsCertifiedKeySignatureValid(aikCert)
-	if err != nil || !status{
+	status, err := certifyKey20.IsCertifiedKeySignatureValid(aikCert)
+	if err != nil || !status {
 		return nil, errors.Wrap(err, "controllers/certify_host_keys_controller:generateCertificate() Signature verification failed"), http.StatusBadRequest
 	}
 	defaultLog.Info("controllers/certify_host_keys_controller:generateCertificate() TpmCertifyKeySignature is validated successfully")
@@ -151,7 +150,7 @@ func (certifyHostKeysController *CertifyHostKeysController) generateCertificate(
 
 	err = certifyKey20.ValidateNameDigest()
 	if err != nil {
-		return nil, errors.Wrap(err,"TPM Key Name specified does not match name digest in the TCG binding certificate"), http.StatusBadRequest
+		return nil, errors.Wrap(err, "TPM Key Name specified does not match name digest in the TCG binding certificate"), http.StatusBadRequest
 	}
 	defaultLog.Info("controllers/certify_host_keys_controller:generateCertificate() TpmNameDigest validated successfully")
 	pcaKey := (*certifyHostKeysController.CertStore)[models.CaCertTypesPrivacyCa.String()].Key

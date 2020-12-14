@@ -24,7 +24,7 @@ func TestTenantConnectionRun(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 
@@ -48,8 +48,8 @@ func TestTenantConnectionRun(t *testing.T) {
 		{
 			name: "tenant-connection-kubernetes negative test 1",
 			tenantConnection: TenantConnection{
-				TenantConfig: &config.Endpoint{},
-				ConsoleWriter:     os.Stdout,
+				TenantConfig:  &config.Endpoint{},
+				ConsoleWriter: os.Stdout,
 			},
 			args: args{
 				EnvValues: map[string]string{
@@ -65,8 +65,8 @@ func TestTenantConnectionRun(t *testing.T) {
 		{
 			name: "tenant-connection-kubernetes negative test 2",
 			tenantConnection: TenantConnection{
-				TenantConfig: &config.Endpoint{},
-				ConsoleWriter:     os.Stdout,
+				TenantConfig:  &config.Endpoint{},
+				ConsoleWriter: os.Stdout,
 			},
 			args: args{
 				EnvValues: map[string]string{
@@ -82,8 +82,8 @@ func TestTenantConnectionRun(t *testing.T) {
 		{
 			name: "tenant-connection-kubernetes negative test 3",
 			tenantConnection: TenantConnection{
-				TenantConfig: &config.Endpoint{},
-				ConsoleWriter:     os.Stdout,
+				TenantConfig:  &config.Endpoint{},
+				ConsoleWriter: os.Stdout,
 			},
 			args: args{
 				EnvValues: map[string]string{
@@ -99,8 +99,8 @@ func TestTenantConnectionRun(t *testing.T) {
 		{
 			name: "tenant-connection-kubernetes negative test 4",
 			tenantConnection: TenantConnection{
-				TenantConfig: &config.Endpoint{},
-				ConsoleWriter:     os.Stdout,
+				TenantConfig:  &config.Endpoint{},
+				ConsoleWriter: os.Stdout,
 			},
 			args: args{
 				EnvValues: map[string]string{
@@ -116,8 +116,8 @@ func TestTenantConnectionRun(t *testing.T) {
 		{
 			name: "tenant-connection-kubernetes negative test 5",
 			tenantConnection: TenantConnection{
-				TenantConfig: &config.Endpoint{},
-				ConsoleWriter:     os.Stdout,
+				TenantConfig:  &config.Endpoint{},
+				ConsoleWriter: os.Stdout,
 			},
 			args: args{
 				EnvValues: map[string]string{
@@ -132,8 +132,8 @@ func TestTenantConnectionRun(t *testing.T) {
 		{
 			name: "tenant-connection-openstack valid test",
 			tenantConnection: TenantConnection{
-				TenantConfig: &config.Endpoint{},
-				ConsoleWriter:     os.Stdout,
+				TenantConfig:  &config.Endpoint{},
+				ConsoleWriter: os.Stdout,
 			},
 			args: args{
 				EnvValues: map[string]string{
@@ -150,8 +150,8 @@ func TestTenantConnectionRun(t *testing.T) {
 		{
 			name: "tenant-connection-openstack negative test 1",
 			tenantConnection: TenantConnection{
-				TenantConfig: &config.Endpoint{},
-				ConsoleWriter:     os.Stdout,
+				TenantConfig:  &config.Endpoint{},
+				ConsoleWriter: os.Stdout,
 			},
 			args: args{
 				EnvValues: map[string]string{
@@ -167,8 +167,8 @@ func TestTenantConnectionRun(t *testing.T) {
 		{
 			name: "tenant-connection-openstack negative test 2",
 			tenantConnection: TenantConnection{
-				TenantConfig: &config.Endpoint{},
-				ConsoleWriter:     os.Stdout,
+				TenantConfig:  &config.Endpoint{},
+				ConsoleWriter: os.Stdout,
 			},
 			args: args{
 				EnvValues: map[string]string{
@@ -183,8 +183,8 @@ func TestTenantConnectionRun(t *testing.T) {
 		{
 			name: "tenant-connection-openstack negative test 3",
 			tenantConnection: TenantConnection{
-				TenantConfig: &config.Endpoint{},
-				ConsoleWriter:     os.Stdout,
+				TenantConfig:  &config.Endpoint{},
+				ConsoleWriter: os.Stdout,
 			},
 			args: args{
 				EnvValues: map[string]string{
@@ -200,8 +200,8 @@ func TestTenantConnectionRun(t *testing.T) {
 		{
 			name: "tenant-connection-openstack negative test 4",
 			tenantConnection: TenantConnection{
-				TenantConfig: &config.Endpoint{},
-				ConsoleWriter:     os.Stdout,
+				TenantConfig:  &config.Endpoint{},
+				ConsoleWriter: os.Stdout,
 			},
 			args: args{
 				EnvValues: map[string]string{
@@ -217,8 +217,8 @@ func TestTenantConnectionRun(t *testing.T) {
 		{
 			name: "tenant-connection-openstack negative test 5",
 			tenantConnection: TenantConnection{
-				TenantConfig: &config.Endpoint{},
-				ConsoleWriter:     os.Stdout,
+				TenantConfig:  &config.Endpoint{},
+				ConsoleWriter: os.Stdout,
 			},
 			args: args{
 				EnvValues: map[string]string{
@@ -234,8 +234,8 @@ func TestTenantConnectionRun(t *testing.T) {
 		{
 			name: "tenant-connection-openstack negative test 6",
 			tenantConnection: TenantConnection{
-				TenantConfig: &config.Endpoint{},
-				ConsoleWriter:     os.Stdout,
+				TenantConfig:  &config.Endpoint{},
+				ConsoleWriter: os.Stdout,
 			},
 			args: args{
 				EnvValues: map[string]string{
@@ -252,8 +252,8 @@ func TestTenantConnectionRun(t *testing.T) {
 		{
 			name: "tenant-connection-openstack negative test 7",
 			tenantConnection: TenantConnection{
-				TenantConfig: &config.Endpoint{},
-				ConsoleWriter:     os.Stdout,
+				TenantConfig:  &config.Endpoint{},
+				ConsoleWriter: os.Stdout,
 			},
 			args: args{
 				EnvValues: map[string]string{
@@ -304,7 +304,7 @@ func TestTenantConnectionValidate(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 
@@ -325,7 +325,7 @@ func TestTenantConnectionValidate(t *testing.T) {
 					UserName: "admin",
 					Password: "password",
 				},
-				ConsoleWriter:     os.Stdout,
+				ConsoleWriter: os.Stdout,
 			},
 			wantErr: false,
 		},
@@ -339,7 +339,7 @@ func TestTenantConnectionValidate(t *testing.T) {
 					UserName: "admin",
 					Password: "password",
 				},
-				ConsoleWriter:     os.Stdout,
+				ConsoleWriter: os.Stdout,
 			},
 			wantErr: true,
 		},
@@ -353,7 +353,7 @@ func TestTenantConnectionValidate(t *testing.T) {
 					Token:    "",
 					CertFile: "",
 				},
-				ConsoleWriter:     os.Stdout,
+				ConsoleWriter: os.Stdout,
 			},
 			wantErr: true,
 		},
@@ -374,7 +374,7 @@ func TestTenantConnection_validateService(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 
@@ -382,13 +382,13 @@ func TestTenantConnection_validateService(t *testing.T) {
 	k8sConfig := testutility.SetupMockK8sConfiguration(t, portString)
 
 	t1 := TenantConnection{
-		TenantConfig: &openstackConfig.Endpoint,
-		ConsoleWriter:     os.Stdout,
+		TenantConfig:  &openstackConfig.Endpoint,
+		ConsoleWriter: os.Stdout,
 	}
 
 	t2 := TenantConnection{
-		TenantConfig: &k8sConfig.Endpoint,
-		ConsoleWriter:     os.Stdout,
+		TenantConfig:  &k8sConfig.Endpoint,
+		ConsoleWriter: os.Stdout,
 	}
 
 	tests := []struct {

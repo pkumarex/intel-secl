@@ -72,7 +72,7 @@ func (controller CertificatesController) GetCertificates(httpWriter http.Respons
 		return
 	}
 
-	// TODO: this is a POST.. we should not be having Query parameters here. If we need to distinguish the type of 
+	// TODO: this is a POST.. we should not be having Query parameters here. If we need to distinguish the type of
 	// certificate requested, this should be part of the path and not a query parameter.
 	certType := httpRequest.URL.Query().Get("certType")
 	if certType == "" {

@@ -47,12 +47,12 @@ type DownloadCert struct {
 const downloadCAEnvHelpPrompt = "Following environment variables are optionally used in "
 
 var downloadCAEnvHelp = map[string]string{
-	"CERT_FILE":         "The file to which certificate is saved",
-	"KEY_FILE":          "The file to which private key is saved",
-	"COMMON_NAME":       "The common name of signed certificate",
-	"SAN_LIST":          "Comma separated list of hostnames to add to Certificate, including IP addresses and DNS names",
-	"ISSUER":            "The issuer of signed certificate",
-	"VALIDITY_DAYS":     "The validity time in days of signed certificate",
+	"CERT_FILE":     "The file to which certificate is saved",
+	"KEY_FILE":      "The file to which private key is saved",
+	"COMMON_NAME":   "The common name of signed certificate",
+	"SAN_LIST":      "Comma separated list of hostnames to add to Certificate, including IP addresses and DNS names",
+	"ISSUER":        "The issuer of signed certificate",
+	"VALIDITY_DAYS": "The validity time in days of signed certificate",
 }
 
 const downloadCAEnvHelpPrompt2 = "Following environment variables are required in "
@@ -177,7 +177,7 @@ func getCertificateFromCMS(certType string, keyAlg string, keyLen int, cmsBaseUr
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
-				MinVersion: tls.VersionTLS12,
+				MinVersion:         tls.VersionTLS12,
 				InsecureSkipVerify: false,
 				RootCAs:            rootCAs,
 			},

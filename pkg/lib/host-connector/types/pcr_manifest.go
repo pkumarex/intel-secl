@@ -267,9 +267,8 @@ func (pcrEventLogMap *PcrEventLogMap) GetEventLog(pcrBank SHAAlgorithm, pcrIndex
 	return eventLogEntry, nil
 }
 
-
 // Provided an EventLogEntry that contains an array of EventLogs, this function
-// will return a new EventLogEntry that contains the events that existed in 
+// will return a new EventLogEntry that contains the events that existed in
 // the original ('eventLogEntry') but not in 'eventsToSubtract'.  Returns an error
 // if the bank/index of 'eventLogEntry' and 'eventsToSubtract' do not match.
 // Note: 'eventLogEntry' and 'eventsToSubract' are not altered.
@@ -285,8 +284,8 @@ func (eventLogEntry *EventLogEntry) Subtract(eventsToSubtract *EventLogEntry) (*
 
 	// build a new EventLogEntry that will be populated by the event log entries
 	// in the source less those 'eventsToSubtract'.
-	difference := EventLogEntry {
-		PcrBank: eventLogEntry.PcrBank,
+	difference := EventLogEntry{
+		PcrBank:  eventLogEntry.PcrBank,
 		PcrIndex: eventLogEntry.PcrIndex,
 	}
 
@@ -304,7 +303,7 @@ func (eventLogEntry *EventLogEntry) Subtract(eventsToSubtract *EventLogEntry) (*
 	return &difference, nil
 }
 
-// Returns the string value of the "cumulative" hash of the 
+// Returns the string value of the "cumulative" hash of the
 // an event log.
 func (eventLogEntry *EventLogEntry) Replay() (string, error) {
 
@@ -322,7 +321,7 @@ func (eventLogEntry *EventLogEntry) Replay() (string, error) {
 		return "", errors.Errorf("Invalid sha algorithm '%s'", eventLogEntry.PcrBank)
 	}
 
-	for i, eventLog := range(eventLogEntry.EventLogs) {
+	for i, eventLog := range eventLogEntry.EventLogs {
 		var hash hash.Hash
 		if eventLogEntry.PcrBank == SHA1 {
 			hash = sha1.New()
@@ -341,11 +340,11 @@ func (eventLogEntry *EventLogEntry) Replay() (string, error) {
 
 		_, err = hash.Write(cumulativeHash)
 		if err != nil {
-			return  "", errors.Wrap(err,"Error writing cumulative hash")
+			return "", errors.Wrap(err, "Error writing cumulative hash")
 		}
 		_, err = hash.Write(eventHash)
 		if err != nil {
-			return "", errors.Wrap(err,"Error writing event hash")
+			return "", errors.Wrap(err, "Error writing event hash")
 		}
 		cumulativeHash = hash.Sum(nil)
 	}

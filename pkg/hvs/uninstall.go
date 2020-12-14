@@ -145,7 +145,7 @@ func (a *App) eraseData() error {
 		sqlCmd := "DROP TABLE IF EXISTS " + t + " CASCADE;"
 		err = dataStore.ExecuteSql(&sqlCmd)
 		if err != nil {
-			return errors.Wrap(err,"Failed to execute query")
+			return errors.Wrap(err, "Failed to execute query")
 		}
 	}
 	dataStore.Migrate()

@@ -74,7 +74,7 @@ func (certifyHostAiksController *CertifyHostAiksController) StoreEkCerts(identit
 	defaultLog.Debugf("controllers/certify_host_aiks_controller:StoreEkCerts() idReqFileName: %s", idReqFileName)
 	optionsFileName := idReqFileName + ".opt"
 	// add validation to check if the file exists with permission 0400
-	fInfoAikMod, err := os.Stat(certifyHostAiksController.AikRequestsDirPath+idReqFileName)
+	fInfoAikMod, err := os.Stat(certifyHostAiksController.AikRequestsDirPath + idReqFileName)
 	if fInfoAikMod != nil && fInfoAikMod.Mode().Perm() != 0400 {
 		return errors.Errorf("Invalid file permission on %s", certifyHostAiksController.AikRequestsDirPath+idReqFileName)
 	}
@@ -84,7 +84,7 @@ func (certifyHostAiksController *CertifyHostAiksController) StoreEkCerts(identit
 	}
 
 	// add validation to check if the file exists with permission 0400
-	fInfoAik, err := os.Stat(certifyHostAiksController.AikRequestsDirPath+optionsFileName)
+	fInfoAik, err := os.Stat(certifyHostAiksController.AikRequestsDirPath + optionsFileName)
 	if fInfoAik != nil && fInfoAik.Mode().Perm() != 0400 {
 		return errors.Errorf("Invalid file permission on %s", certifyHostAiksController.AikRequestsDirPath+optionsFileName)
 	}
@@ -95,7 +95,7 @@ func (certifyHostAiksController *CertifyHostAiksController) StoreEkCerts(identit
 
 	ekcertFilename := idReqFileName + ".ekcert"
 	// add validation to check if the file exists with permission 0400
-	fInfoEkCert, err := os.Stat(certifyHostAiksController.AikRequestsDirPath+ekcertFilename)
+	fInfoEkCert, err := os.Stat(certifyHostAiksController.AikRequestsDirPath + ekcertFilename)
 	if fInfoEkCert != nil && fInfoEkCert.Mode().Perm() != 0400 {
 		return errors.Errorf("Invalid file permission on %s", certifyHostAiksController.AikRequestsDirPath+ekcertFilename)
 	}
@@ -146,7 +146,7 @@ func (certifyHostAiksController *CertifyHostAiksController) IdentityRequestGetCh
 	defaultLog.Trace("controllers/certify_host_aiks_controller:IdentityRequestGetChallenge() Entering")
 	defer defaultLog.Trace("controllers/certify_host_aiks_controller:IdentityRequestGetChallenge() Leaving")
 
-	if r.Header.Get("Content-Type") != constants.HTTPMediaTypeJson{
+	if r.Header.Get("Content-Type") != constants.HTTPMediaTypeJson {
 		return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: "Invalid Content-Type"}
 	}
 	data, err := ioutil.ReadAll(r.Body)
@@ -247,7 +247,7 @@ func (certifyHostAiksController *CertifyHostAiksController) IdentityRequestSubmi
 	defaultLog.Trace("controllers/certify_host_aiks_controller:IdentityRequestSubmitChallengeResponse() Entering")
 	defer defaultLog.Trace("controllers/certify_host_aiks_controller:IdentityRequestSubmitChallengeResponse() Leaving")
 
-	if r.Header.Get("Content-Type") != constants.HTTPMediaTypeJson{
+	if r.Header.Get("Content-Type") != constants.HTTPMediaTypeJson {
 		return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: "Invalid Content-Type"}
 	}
 

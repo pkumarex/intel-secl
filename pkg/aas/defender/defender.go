@@ -26,7 +26,7 @@ type Client struct {
 func (c *Client) Key() interface{}  { return c.key }
 func (c *Client) Banned() bool      { return c.banned }
 func (c *Client) Expire() time.Time { return c.expire }
-func (c *Client) BanExpired() bool  { return c.banned && time.Now().After(c.expire)}
+func (c *Client) BanExpired() bool  { return c.banned && time.Now().After(c.expire) }
 
 // Defender keep tracks if the `Client`s and maintains the banlist
 type Defender struct {
@@ -111,13 +111,14 @@ func (d *Defender) Inc(key interface{}) bool {
 	return banned
 }
 
-func (d *Defender) RemoveClient(key interface{}){
+func (d *Defender) RemoveClient(key interface{}) {
 	d.Lock()
 	defer d.Unlock()
 	if _, found := d.clients[key]; found {
 		delete(d.clients, key)
 	}
 }
+
 // Cleanup should be used if you want to manage the cleanup yourself, looks for CleanupTask for an automatic way
 func (d *Defender) Cleanup() {
 	d.Lock()

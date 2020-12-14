@@ -11,7 +11,6 @@ import (
 )
 
 type (
-
 	AASDatabase interface {
 		Migrate() error
 		UserStore() UserStore

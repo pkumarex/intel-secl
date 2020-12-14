@@ -25,8 +25,8 @@ import (
 func NewXmlMeasurementLogIntegrity(flavorID uuid.UUID, flavorLabel string, expectedCumulativeHash string) (Rule, error) {
 
 	rule := xmlMeasurementLogIntegrity{
-		flavorId: flavorID,
-		flavorLabel: flavorLabel,
+		flavorId:               flavorID,
+		flavorLabel:            flavorLabel,
 		expectedCumulativeHash: expectedCumulativeHash,
 	}
 
@@ -45,7 +45,7 @@ type xmlMeasurementLogIntegrity struct {
 //   XmlMeasurementLogMissing fault.
 // - If PCR15 is not present in the manifest, we can't verify integrity so generate a PcrEventLogMissing
 //   fault.
-// - Otherwise, replay the events in the hostmanifest, comparing the cumulative hash against 
+// - Otherwise, replay the events in the hostmanifest, comparing the cumulative hash against
 //   the flavor's cumulative hash, the manifest's cumulative has and the event log measurement
 //   in PCR15.
 func (rule *xmlMeasurementLogIntegrity) Apply(hostManifest *types.HostManifest) (*hvs.RuleResult, error) {
@@ -94,7 +94,7 @@ func (rule *xmlMeasurementLogIntegrity) Apply(hostManifest *types.HostManifest) 
 				if err != nil {
 					// the event log was missing from the manifest...
 					fault := newPcrEventLogMissingFault(types.PCR15)
-					result.Faults = append(result.Faults, fault)					
+					result.Faults = append(result.Faults, fault)
 				} else {
 					// The pcr event log is present, see if it has a measurement that
 					// matches the flavor label.  The event log label will be the concatenation
@@ -123,7 +123,7 @@ func (rule *xmlMeasurementLogIntegrity) Apply(hostManifest *types.HostManifest) 
 							ExpectedValue: &pcrEventLogMeasurement,
 							ActualValue:   &calculatedHash,
 						}
-						
+
 						result.Faults = append(result.Faults, fault)
 					} else {
 
@@ -149,7 +149,7 @@ func (rule *xmlMeasurementLogIntegrity) Apply(hostManifest *types.HostManifest) 
 								ExpectedValue: &pcrEventLogMeasurement,
 								ActualValue:   &calculatedSha256String,
 							}
-							
+
 							result.Faults = append(result.Faults, fault)
 						}
 					}
@@ -171,7 +171,7 @@ func (rule *xmlMeasurementLogIntegrity) replay(measurementsXml []byte) (string, 
 		return "", err
 	}
 
-	for _, measurement := range(orderedMeasurements) {
+	for _, measurement := range orderedMeasurements {
 		hash := sha512.New384()
 		measurementBytes, err := hex.DecodeString(measurement)
 		if err != nil {
@@ -216,12 +216,12 @@ func (rule *xmlMeasurementLogIntegrity) getOrderedMeasurements(measurementsXml [
 			measurements = append(measurements, string(measurement))
 			inMeasurementTag = false
 		} else if start, ok := token.(xml.StartElement); ok {
-			if start.Name.Local == "File" || start.Name.Local == "Dir" || start.Name.Local == "Symlink"{
+			if start.Name.Local == "File" || start.Name.Local == "Dir" || start.Name.Local == "Symlink" {
 				inMeasurementTag = true
 			}
 		} else {
 			inMeasurementTag = false
-		} 
+		}
 	}
 
 	return measurements, nil

@@ -21,7 +21,7 @@ import (
 
 type Database struct {
 	commConfig.DBConfig
-	DBConfigPtr   *commConfig.DBConfig
+	DBConfigPtr *commConfig.DBConfig
 
 	SSLCertSource string
 	ConsoleWriter io.Writer

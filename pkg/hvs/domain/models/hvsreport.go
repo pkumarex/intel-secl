@@ -18,5 +18,5 @@ type HVSReport struct {
 	CreatedAt   time.Time
 	Expiration  time.Time
 	// Saml is string which is actually xml encoded to string
-	Saml        string
+	Saml string
 }

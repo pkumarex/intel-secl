@@ -20,21 +20,21 @@ type JwtCertificateController struct {
 
 func (controller JwtCertificateController) GetJwtCertificate(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 
-		defaultLog.Trace("call to getJwtCertificate")
-		defer defaultLog.Trace("getJwtCertificate return")
+	defaultLog.Trace("call to getJwtCertificate")
+	defer defaultLog.Trace("getJwtCertificate return")
 
-		tokenCertificate, err := ioutil.ReadFile(consts.TokenSignCertFile)
-		if err != nil {
-			return nil, http.StatusInternalServerError, err
-		}
+	tokenCertificate, err := ioutil.ReadFile(consts.TokenSignCertFile)
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
 
-		re := regexp.MustCompile(`\r?\n`)
-		err = validation.ValidatePemEncodedKey(re.ReplaceAllString(string(tokenCertificate), ""))
+	re := regexp.MustCompile(`\r?\n`)
+	err = validation.ValidatePemEncodedKey(re.ReplaceAllString(string(tokenCertificate), ""))
 
-		if err != nil {
-			secLog.Errorf(commLogMsg.UnauthorizedAccess, err.Error())
-			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Invalid jwt certificate"}
-		}
-		secLog.Info(commLogMsg.AuthorizedAccess, r.RemoteAddr)
-		return string(tokenCertificate), http.StatusOK, nil
+	if err != nil {
+		secLog.Errorf(commLogMsg.UnauthorizedAccess, err.Error())
+		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Invalid jwt certificate"}
+	}
+	secLog.Info(commLogMsg.AuthorizedAccess, r.RemoteAddr)
+	return string(tokenCertificate), http.StatusOK, nil
 }

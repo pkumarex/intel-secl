@@ -10,6 +10,7 @@ const (
 	RecordNotFound = "record not found"
 	RowsNotFound   = "no rows in result set"
 )
+
 type HandledError struct {
 	StatusCode int
 	Message    string
@@ -26,7 +27,7 @@ func (e PrivilegeError) Error() string {
 }
 
 type ServiceError struct {
-	Message    string
+	Message string
 }
 
 func (e ServiceError) Error() string {

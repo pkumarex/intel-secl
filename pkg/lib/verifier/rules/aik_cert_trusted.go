@@ -27,7 +27,7 @@ func NewAikCertificateTrusted(privacyCACertificates *x509.CertPool, marker commo
 
 	rule := aikCertTrusted{
 		privacyCACertificates: privacyCACertificates,
-		marker: marker,
+		marker:                marker,
 	}
 	return &rule, nil
 }

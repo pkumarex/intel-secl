@@ -61,12 +61,12 @@ func (a *App) setup(args []string) error {
 		if cmd == "all" {
 			err = runner.PrintAllHelp()
 			if err != nil {
-				return errors.Wrap(err,"Failed to write to console")
+				return errors.Wrap(err, "Failed to write to console")
 			}
 		} else {
 			err = runner.PrintHelp(cmd)
 			if err != nil {
-				return errors.Wrap(err,"Failed to write to console")
+				return errors.Wrap(err, "Failed to write to console")
 			}
 		}
 		return nil
@@ -79,7 +79,7 @@ func (a *App) setup(args []string) error {
 				fmt.Fprintln(a.errorWriter(), errCmd+": "+failErr.Error())
 				err = runner.PrintHelp(errCmd)
 				if err != nil {
-					return errors.Wrap(err,"Failed to write to console")
+					return errors.Wrap(err, "Failed to write to console")
 				}
 			}
 			return errors.New("Failed to run all tasks")
@@ -90,7 +90,7 @@ func (a *App) setup(args []string) error {
 			fmt.Fprintln(a.errorWriter(), cmd+": "+err.Error())
 			err = runner.PrintHelp(cmd)
 			if err != nil {
-				return errors.Wrap(err,"Failed to write to console")
+				return errors.Wrap(err, "Failed to write to console")
 			}
 			return errors.New("Failed to run setup task " + cmd)
 		}

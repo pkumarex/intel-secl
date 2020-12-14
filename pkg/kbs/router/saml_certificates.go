@@ -25,10 +25,10 @@ func setSamlCertRoutes(router *mux.Router) *mux.Router {
 		[]string{constants.SamlCertCreate}))).Methods("POST")
 
 	router.Handle(certIdExpr, ErrorHandler(permissionsHandler(JsonResponseHandler(samlCertController.Retrieve),
-			[]string{constants.SamlCertRetrieve}))).Methods("GET")
+		[]string{constants.SamlCertRetrieve}))).Methods("GET")
 
 	router.Handle(certIdExpr, ErrorHandler(permissionsHandler(JsonResponseHandler(samlCertController.Delete),
-			[]string{constants.SamlCertDelete}))).Methods("DELETE")
+		[]string{constants.SamlCertDelete}))).Methods("DELETE")
 
 	router.Handle("/saml-certificates", ErrorHandler(permissionsHandler(JsonResponseHandler(samlCertController.Search),
 		[]string{constants.SamlCertSearch}))).Methods("GET")

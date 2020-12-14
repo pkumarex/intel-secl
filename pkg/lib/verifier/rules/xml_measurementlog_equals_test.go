@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2020 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
-*/
+ */
 package rules
 
 import (
@@ -30,7 +30,7 @@ func TestXmlMeasurementLogEqualsNoFault(t *testing.T) {
 	var testExpectedMeasurement ta.Measurement
 	err = xml.Unmarshal([]byte(testMeasurementXml), &testExpectedMeasurement)
 
-	hostManifest := types.HostManifest {
+	hostManifest := types.HostManifest{
 		MeasurementXmls: []string{testMeasurementXml},
 	}
 
@@ -41,7 +41,6 @@ func TestXmlMeasurementLogEqualsNoFault(t *testing.T) {
 	assert.True(t, result.Trusted)
 	assert.Equal(t, len(result.Faults), 0)
 }
-
 
 func TestXmlMeasurementLogEqualsMeasurementLogMissingFault(t *testing.T) {
 
@@ -79,7 +78,7 @@ func TestXmlMeasurementLogEqualsMeasurementLogMissingFaultWrongId(t *testing.T) 
 	wrongId.Uuid = uuid.New().String()
 	wrongLabelXml, err := xml.Marshal(wrongId)
 	assert.NoError(t, err)
-	hostManifest := types.HostManifest {
+	hostManifest := types.HostManifest{
 		MeasurementXmls: []string{string(wrongLabelXml)},
 	}
 
@@ -103,7 +102,7 @@ func TestXmlMeasurementLogEqualsMeasurementLogInvalidFault(t *testing.T) {
 	assert.NoError(t, err)
 
 	// manifest with invalid measurement xml
-	hostManifest := types.HostManifest {
+	hostManifest := types.HostManifest{
 		MeasurementXmls: []string{"invalidxml"},
 	}
 
@@ -131,24 +130,24 @@ func TestXmlMeasurementLogEqualsUnexpectedEntriesFault(t *testing.T) {
 	var unexpectedMeasurements ta.Measurement
 	err = xml.Unmarshal([]byte(testMeasurementXml), &unexpectedMeasurements)
 
-	unexpectedMeasurements.File = append(unexpectedMeasurements.File, ta.FileMeasurementType {
-		Path: "/root/malware",
+	unexpectedMeasurements.File = append(unexpectedMeasurements.File, ta.FileMeasurementType{
+		Path:  "/root/malware",
 		Value: "79770fb02e5a8f6b51678bde4d017f23ac811b1a9f89182a8b7f9871990dbbc07fd9a0578275c405a02ac5223412095e",
 	})
 
-	unexpectedMeasurements.Dir = append(unexpectedMeasurements.Dir, ta.DirectoryMeasurementType {
-		Path: "/roots",
+	unexpectedMeasurements.Dir = append(unexpectedMeasurements.Dir, ta.DirectoryMeasurementType{
+		Path:  "/roots",
 		Value: "89770fb02e5a8f6b51678bde4d017f23ac811b1a9f89182a8b7f9871990dbbc07fd9a0578275c405a02ac5223412095e",
 	})
 
-	unexpectedMeasurements.Symlink = append(unexpectedMeasurements.Symlink, ta.SymlinkMeasurementType {
-		Path: "/usr/bin/tpmextend",
+	unexpectedMeasurements.Symlink = append(unexpectedMeasurements.Symlink, ta.SymlinkMeasurementType{
+		Path:  "/usr/bin/tpmextend",
 		Value: "09770fb02e5a8f6b51678bde4d017f23ac811b1a9f89182a8b7f9871990dbbc07fd9a0578275c405a02ac5223412095e",
 	})
 
 	unexpectedMeasurementsXml, err := xml.Marshal(unexpectedMeasurements)
 	assert.NoError(t, err)
-	hostManifest := types.HostManifest {
+	hostManifest := types.HostManifest{
 		MeasurementXmls: []string{string(unexpectedMeasurementsXml)},
 	}
 
@@ -182,7 +181,7 @@ func TestXmlMeasurementLogEqualsMissingExpectedEntriesFault(t *testing.T) {
 
 	missingMeasurementsXml, err := xml.Marshal(missingMeasurements)
 	assert.NoError(t, err)
-	hostManifest := types.HostManifest {
+	hostManifest := types.HostManifest{
 		MeasurementXmls: []string{string(missingMeasurementsXml)},
 	}
 
@@ -217,7 +216,7 @@ func TestXmlMeasurementLogEqualsMismatchEntriesFault(t *testing.T) {
 
 	missingMeasurementsXml, err := xml.Marshal(mismatchMeasurements)
 	assert.NoError(t, err)
-	hostManifest := types.HostManifest {
+	hostManifest := types.HostManifest{
 		MeasurementXmls: []string{string(missingMeasurementsXml)},
 	}
 
@@ -246,17 +245,17 @@ func TestXmlMeasurementLogEqualsMultipleComparisonFaults(t *testing.T) {
 	// mix and match missing, unexpected, mismatch faults in the manifest...
 	var multipleFaultMeasurements ta.Measurement
 	err = xml.Unmarshal([]byte(testMeasurementXml), &multipleFaultMeasurements)
-	
-	multipleFaultMeasurements.File = multipleFaultMeasurements.File[1:]                               // missing
-	multipleFaultMeasurements.File[0].Value = "invalid"                                               // mismatch
-	multipleFaultMeasurements.File = append(multipleFaultMeasurements.File, ta.FileMeasurementType {  // unexpected
-		Path: "/root/malware",
+
+	multipleFaultMeasurements.File = multipleFaultMeasurements.File[1:]                             // missing
+	multipleFaultMeasurements.File[0].Value = "invalid"                                             // mismatch
+	multipleFaultMeasurements.File = append(multipleFaultMeasurements.File, ta.FileMeasurementType{ // unexpected
+		Path:  "/root/malware",
 		Value: "79770fb02e5a8f6b51678bde4d017f23ac811b1a9f89182a8b7f9871990dbbc07fd9a0578275c405a02ac5223412095e",
 	})
 
 	multipleFaultMeasurementsXml, err := xml.Marshal(multipleFaultMeasurements)
 	assert.NoError(t, err)
-	hostManifest := types.HostManifest {
+	hostManifest := types.HostManifest{
 		MeasurementXmls: []string{string(multipleFaultMeasurementsXml)},
 	}
 

@@ -42,7 +42,7 @@ var _ = BeforeSuite(func() {
 	(*certStore)[models.CaCertTypesPrivacyCa.String()].Certificates = caCerts
 })
 
-var _ = AfterSuite(func(){
+var _ = AfterSuite(func() {
 	err := os.RemoveAll("../domain/mocks/resources/aik-reqs-dir")
 	Expect(err).NotTo(HaveOccurred())
 })

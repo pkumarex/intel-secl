@@ -52,7 +52,7 @@ func defineSubRoutes(router *mux.Router, service string, cfg *config.Configurati
 	subRouter = router.PathPrefix(serviceApi).Subrouter()
 	cfgRouter := Router{cfg: cfg}
 	subRouter.Use(middleware.NewTokenAuth(constants.TrustedJWTSigningCertsDir, constants.ConfigDir, cfgRouter.fnGetJwtCerts,
-		time.Minute * constants.DefaultJwtValidateCacheKeyMins))
+		time.Minute*constants.DefaultJwtValidateCacheKeyMins))
 	subRouter = SetCertificatesRoutes(subRouter, cfg)
 }
 
@@ -93,7 +93,7 @@ func (r *Router) fnGetJwtCerts() error {
 	httpClient := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
-				MinVersion: tls.VersionTLS12,
+				MinVersion:         tls.VersionTLS12,
 				InsecureSkipVerify: false,
 				RootCAs:            rootCAs,
 			},

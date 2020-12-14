@@ -35,6 +35,7 @@ func (store *MockFlavorgroupStore) Delete(id uuid.UUID) error {
 func (store *MockFlavorgroupStore) HasAssociatedHosts(uuid.UUID) (bool, error) {
 	return false, nil
 }
+
 // Retrieve returns FlavorGroup
 func (store *MockFlavorgroupStore) Retrieve(id uuid.UUID) (*hvs.FlavorGroup, error) {
 	if _, ok := store.FlavorgroupStore[id]; ok {
@@ -169,7 +170,6 @@ func (store *MockFlavorgroupStore) SearchHostsByFlavorGroup(fgID uuid.UUID) ([]u
 }
 
 func (store *MockFlavorgroupStore) GetFlavorTypesInFlavorGroup(fgId uuid.UUID) (map[cf.FlavorPart]bool, error) {
-
 
 	return make(map[cf.FlavorPart]bool), nil
 }

@@ -7,8 +7,8 @@ package serialize
 
 import (
 	log "github.com/sirupsen/logrus"
-	"os"
 	"io/ioutil"
+	"os"
 
 	yaml "gopkg.in/yaml.v2"
 )

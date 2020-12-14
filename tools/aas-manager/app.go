@@ -425,7 +425,6 @@ func (a *App) LoadAllVariables(envFile string) error {
 		{&a.SKCLibUserPassword, "SKC_LIBRARY_PASSWORD", "", "SKC Library User Password", false, true},
 
 		{&a.SKCLibRoleContext, "SKC_LIBRARY_KEY_TRANSFER_CONTEXT", "", "SKC Library Key Transfer Role Context", false, false},
-
 	}
 
 	hasError := false

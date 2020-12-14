@@ -37,7 +37,7 @@ type TLS struct {
 const tlsEnvHelpPrompt = "Following environment variables are required for tls setup:"
 
 var tlsEnvHelp = map[string]string{
-	"SAN_LIST":"TLS SAN list",
+	"SAN_LIST": "TLS SAN list",
 }
 
 func outboundHost() (string, error) {

@@ -99,7 +99,7 @@ func reorderTree(signedTree *etree.Element) *etree.Element {
 	//Move Signature next to issuer
 	signElement := signedTree.SelectElement("Signature")
 	signedTree.RemoveChildAt(signElementPos)
-	signedTree.InsertChildAt(issuerElement + 1, signElement)
+	signedTree.InsertChildAt(issuerElement+1, signElement)
 	return signedTree
 }
 

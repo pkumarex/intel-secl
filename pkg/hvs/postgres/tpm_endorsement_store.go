@@ -28,12 +28,12 @@ func (t *TpmEndorsementStore) Create(te *hvs.TpmEndorsement) (*hvs.TpmEndorsemen
 	te.ID = uuid.New()
 
 	dbTpmEndorsement := tpmEndorsement{
-		ID : te.ID,
-		HardwareUUID: te.HardwareUUID,
-		Issuer: strings.Replace(te.Issuer, " ","", -1),
-		Revoked: te.Revoked,
-		Certificate: te.Certificate,
-		Comment: te.Comment,
+		ID:                te.ID,
+		HardwareUUID:      te.HardwareUUID,
+		Issuer:            strings.Replace(te.Issuer, " ", "", -1),
+		Revoked:           te.Revoked,
+		Certificate:       te.Certificate,
+		Comment:           te.Comment,
 		CertificateDigest: te.CertificateDigest,
 	}
 
@@ -44,14 +44,14 @@ func (t *TpmEndorsementStore) Create(te *hvs.TpmEndorsement) (*hvs.TpmEndorsemen
 	return te, nil
 }
 
-func (t *TpmEndorsementStore) Update(te *hvs.TpmEndorsement)(*hvs.TpmEndorsement, error) {
+func (t *TpmEndorsementStore) Update(te *hvs.TpmEndorsement) (*hvs.TpmEndorsement, error) {
 	dbTpmEndorsement := tpmEndorsement{
-		ID : te.ID,
-		HardwareUUID: te.HardwareUUID,
-		Issuer: strings.Replace(te.Issuer, " ","", -1),
-		Revoked: te.Revoked,
-		Certificate: te.Certificate,
-		Comment: te.Comment,
+		ID:                te.ID,
+		HardwareUUID:      te.HardwareUUID,
+		Issuer:            strings.Replace(te.Issuer, " ", "", -1),
+		Revoked:           te.Revoked,
+		Certificate:       te.Certificate,
+		Comment:           te.Comment,
 		CertificateDigest: te.CertificateDigest,
 	}
 	if err := t.Store.Db.Save(&dbTpmEndorsement).Error; err != nil {
@@ -118,7 +118,7 @@ func (t *TpmEndorsementStore) Search(teFilter *models.TpmEndorsementFilterCriter
 	return &tpmEndorsementCollection, nil
 }
 
-func buildTpmEndorsementSearchQuery(tx *gorm.DB, teFilter *models.TpmEndorsementFilterCriteria) *gorm.DB{
+func buildTpmEndorsementSearchQuery(tx *gorm.DB, teFilter *models.TpmEndorsementFilterCriteria) *gorm.DB {
 	defaultLog.Trace("postgres/tpm_endorsement_store:buildTpmEndorsementSearchQuery() Entering")
 	defer defaultLog.Trace("postgres/tpm_endorsement_store:buildTpmEndorsementSearchQuery() Leaving")
 
@@ -144,7 +144,7 @@ func buildTpmEndorsementSearchQuery(tx *gorm.DB, teFilter *models.TpmEndorsement
 		tx = tx.Where("hardware_uuid = ? ", teFilter.HardwareUuidEqualTo)
 	} else if teFilter.IssuerContains != "" {
 		tx = tx.Where("issuer like ? ", "%"+teFilter.IssuerContains+"%")
-	}else if teFilter.CertificateDigestEqualTo != "" {
+	} else if teFilter.CertificateDigestEqualTo != "" {
 		tx = tx.Where("certificate_digest = ? ", teFilter.CertificateDigestEqualTo)
 	}
 	return tx

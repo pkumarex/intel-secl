@@ -23,7 +23,7 @@ func TestDownloadSamlCertValidate(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 	time.Sleep(1 * time.Second)
@@ -77,7 +77,7 @@ func TestDownloadSamlCertRun(t *testing.T) {
 	defer func() {
 		derr := server.Close()
 		if derr != nil {
-			t.Errorf("Error closing mock server: %v",derr)
+			t.Errorf("Error closing mock server: %v", derr)
 		}
 	}()
 	time.Sleep(1 * time.Second)
