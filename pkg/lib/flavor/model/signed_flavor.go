@@ -9,6 +9,7 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"encoding/base64"
+
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
@@ -20,8 +21,9 @@ import (
 
 // SignedFlavor combines the Flavor along with the cryptographically signed hash that authenticates its source
 type SignedFlavor struct {
-	Flavor    Flavor `json:"flavor"`
-	Signature string `json:"signature"`
+	Flavor      Flavor      `json:"flavor"`
+	NewFVFlavor NewFVFlavor `json:"flavorFV"`
+	Signature   string      `json:"signature,omitempty"`
 }
 
 // NewSignedFlavor Provided an existing flavor and a privatekey, create a SignedFlavor

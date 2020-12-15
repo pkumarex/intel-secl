@@ -10,18 +10,16 @@ package types
  */
 
 import (
-	"crypto"
-	"encoding/hex"
+	"strings"
+
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
 	cf "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
 	cm "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	hcConstants "github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/constants"
 	hcTypes "github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/util"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
-	"strings"
 )
 
 var (
@@ -289,20 +287,21 @@ func (esxpf ESXPlatformFlavor) getAssetTagFlavor() ([]cm.Flavor, error) {
 
 	var errorMessage = "Error during creation of ASSET_TAG flavor"
 	var err error
-	var tagCertificateHash []byte
+	//var tagCertificateHash []byte
 	var expectedPcrValue string
 
 	if esxpf.TagCertificate == nil {
 		return nil, errors.Errorf("Tag certificate not specified")
 	}
 
+	//TODO Have to handle the commented out code while doing Esxi
 	// calculate the expected PCR 22 value based on tag certificate hash event
-	tagCertificateHash, err = crypt.GetHashData(esxpf.TagCertificate.Encoded, crypto.SHA1)
+	/*tagCertificateHash, err = crypt.GetHashData(esxpf.TagCertificate.Encoded, crypto.SHA1)
 	if err != nil {
 		return nil, errors.Wrap(err, errorMessage+" Failure in evaluating certificate digest")
-	}
+	}*/
 
-	expectedEventLogEntry := hcTypes.EventLogEntry{
+	/*expectedEventLogEntry := hcTypes.EventLogEntry{
 		PcrIndex: hcTypes.PCR22,
 		PcrBank:  hcTypes.SHA1,
 		EventLogs: []hcTypes.EventLog{
@@ -311,9 +310,9 @@ func (esxpf ESXPlatformFlavor) getAssetTagFlavor() ([]cm.Flavor, error) {
 				Value:      hex.EncodeToString(tagCertificateHash),
 			},
 		},
-	}
+	}*/
 
-	expectedPcrValue, err = expectedEventLogEntry.Replay()
+	//expectedPcrValue, err = expectedEventLogEntry.Replay()
 	if err != nil {
 		return nil, errors.Wrap(err, errorMessage+" Failure in evaluating PCR22 value")
 	}

@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	constants "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants/verifier-rules-and-faults"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
+	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	ta "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 )
@@ -24,43 +25,65 @@ type TrustReport struct {
 }
 
 type RuleResult struct {
-	Rule     RuleInfo   `json:"rule"`
-	FlavorId *uuid.UUID `json:"flavor_id,omitempty"`
-	Faults   []Fault    `json:"faults,omitempty"`
-	Trusted  bool       `json:"trusted"`
+	Rule          RuleInfo        `json:"rule"`
+	FlavorId      *uuid.UUID      `json:"flavor_id,omitempty"`
+	MismatchField []MismatchField `json:"mismatch_fields,omitempty"`
+	Faults        []Fault         `json:"faults,omitempty"`
+	Trusted       bool            `json:"trusted"`
+}
+
+type MismatchField struct {
+	Name              string                `json:"name"`
+	Description       string                `json:"description"`
+	PcrIndex          *types.PcrIndex       `json:"pcr_index,omitempty"`
+	PcrBank           *types.SHAAlgorithm   `json:"pcr_bank,omitempty"`
+	MissingEntries    []types.NewFVEventLog `json:"missing_entries,omitempty"`
+	UnexpectedEntries []types.NewFVEventLog `json:"unexpected_entries,omitempty"`
 }
 
 type RuleInfo struct {
-	Name                  string                     `json:"rule_name,omitempty"`
-	Markers               []common.FlavorPart        `json:"markers,omitempty"`
-	ExpectedPcr           *types.Pcr                 `json:"expected_pcr,omitempty"`
-	FlavorID              *uuid.UUID                 `json:"flavor_id,omitempty"`
-	FlavorName            *string                    `json:"flavor_name,omitempty"`
-	ExpectedValue         *string                    `json:"expected_value,omitempty"`
-	ExpectedMeasurements  []ta.FlavorMeasurement     `json:"expected_measurements,omitempty"`
-	ExpectedEventLogs     []types.EventLog           `json:"expected,omitempty"`
-	ExpectedEventLogEntry *types.EventLogEntry       `json:"expected,omitempty"`
-	ExpectedTag           []byte                     `json:"expected_tag,omitempty"`
-	Tags                  map[string]string          `json:"tags,omitempty"`
+	Name                          string                    `json:"rule_name,omitempty"`
+	Markers                       []common.FlavorPart       `json:"markers,omitempty"`
+	ExpectedPcr                   *model.NewFVPcrEx         `json:"expected_pcr,omitempty"`
+	PCR                           *model.PCR                `json:"pcr,omitempty"`
+	Measurement                   string                    `json:"measurement,omitempty"` //required
+	PCRMatches                    bool                      `json:"pcr_matches,omitempty"`
+	FlavorID                      *uuid.UUID                `json:"flavor_id,omitempty"`
+	FlavorName                    *string                   `json:"flavor_name,omitempty"`
+	ExpectedValue                 *string                   `json:"expected_value,omitempty"`
+	ExpectedMeasurements          []ta.FlavorMeasurement    `json:"expected_measurements,omitempty"`
+	ExpectedEventLogs             []types.NewFVEventLog     `json:"expected,omitempty"`
+	ExpectedEventLogEntry         *types.NewFVEventLogEntry `json:"expected_values,omitempty"`
+	ExpectedEqualsEventLogEntry   *types.NewFVEventLogEntry `json:"expected,omitempty"`
+	ExpectedIncludesEventLogEntry *types.NewFVEventLogEntry `json:"expected,omitempty"`
+	Exclude_Tags                  []string                  `json:"excluding_tag,omitempty"`
+	ExpectedTag                   []byte                    `json:"expected_tag,omitempty"`
+	Tags                          map[string]string         `json:"tags,omitempty"`
 }
 
 type Fault struct {
-	Name                   string                 `json:"fault_name"`
-	Description            string                 `json:"description"`
-	PcrIndex               *types.PcrIndex        `json:"pcr_index,omitempty"`
-	ExpectedPcrValue       *string                `json:"expected_value,omitempty"`
-	ActualPcrValue         *string                `json:"actual_value,omitempty"`
-	MissingEntries         []types.EventLog       `json:"missing_entries,omitempty"`
-	UnexpectedEntries      []types.EventLog       `json:"unexpected_entries,omitempty"`
-	FlavorId               *uuid.UUID             `json:"flavor_id,omitempty"`
-	UnexpectedMeasurements []ta.FlavorMeasurement `json:"unexpected_entries,omitempty"`
-	MissingMeasurements    []ta.FlavorMeasurement `json:"missing_entries,omitempty"`
-	MismatchMeasurements   []ta.FlavorMeasurement `json:"unexpected_entries,omitempty"`
-	ExpectedValue          *string                `json:"expected_value,omitempty"`
-	ActualValue            *string                `json:"actual_value,omitempty"`
-	MeasurementId          *string                `json:"measurement_id,omitempty"`
-	FlavorDigestAlg        *string                `json:"flavor_digest_alg,omitempty"`
-	MeasurementDigestAlg   *string                `json:"measurement_digest_alg,omitempty"`
+	Name                    string                     `json:"fault_name"`
+	Description             string                     `json:"description"`
+	PcrIndex                *types.PcrIndex            `json:"pcr_index,omitempty"`
+	PcrBank                 *types.SHAAlgorithm        `json:"pcr_bank,omitempty"`
+	ExpectedPcrValue        *string                    `json:"expected_pcrvalue,omitempty"`
+	ActualPcrValue          *string                    `json:"actual_pcrvalue,omitempty"`
+	MissingEntries          []types.NewFVEventLog      `json:"missing_entries,omitempty"`
+	UnexpectedEntries       []types.NewFVEventLog      `json:"unexpected_entries,omitempty"`
+	ActualEventLog          []types.NewFVEventLog      `json:"actual_events,omitempty"`
+	ExpectedEventLog        []types.NewFVEventLog      `json:"expected_events,omitempty"`
+	EqualsEventLogEntries   *model.NewFVEventlogEquals `json:"equals_entries,omitempty"`
+	IncludesEventLogEntries []types.NewFVEventLog      `json:"includes_entries,omitempty"`
+	ExcludeTags             []string                   `json:"exclude_tags,omitempty"`
+	FlavorId                *uuid.UUID                 `json:"flavor_id,omitempty"`
+	UnexpectedMeasurements  []ta.FlavorMeasurement     `json:"unexpected_measurements,omitempty"`
+	MissingMeasurements     []ta.FlavorMeasurement     `json:"missing_measurements,omitempty"`
+	MismatchMeasurements    []ta.FlavorMeasurement     `json:"mismatch_measurements,omitempty"`
+	ExpectedValue           *string                    `json:"expected_value,omitempty"`
+	ActualValue             *string                    `json:"actual_value,omitempty"`
+	MeasurementId           *string                    `json:"measurement_id,omitempty"`
+	FlavorDigestAlg         *string                    `json:"flavor_digest_alg,omitempty"`
+	MeasurementDigestAlg    *string                    `json:"measurement_digest_alg,omitempty"`
 }
 
 func NewTrustReport(report TrustReport) *TrustReport {
@@ -116,7 +139,7 @@ func (t *TrustReport) CheckResultExists(targetRuleResult RuleResult) bool {
 				constants.RulePcrMatchesConstant:
 				// Compare pcrs for only these rules, all other rules will have pcr expected entry = nil
 				// We need to take care same rule does not get repeated in report, hence exclude value for PCR match
-				// as in case of rules like RulePcrEventLogIncludes, RulePcrEventLogEqualsExcluding etc actual PCR value can be different	
+				// as in case of rules like RulePcrEventLogIncludes, RulePcrEventLogEqualsExcluding etc actual PCR value can be different
 				if targetRuleResult.Rule.ExpectedPcr == nil {
 					return false
 				} else if targetRuleResult.Rule.ExpectedPcr.EqualsWithoutValue(*ruleResult.Rule.ExpectedPcr) {
@@ -124,6 +147,7 @@ func (t *TrustReport) CheckResultExists(targetRuleResult RuleResult) bool {
 				} else {
 					continue
 				}
+
 			default:
 				if len(targetRuleResult.Faults) > 0 {
 					return false
