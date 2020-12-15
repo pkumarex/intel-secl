@@ -34,7 +34,7 @@ func (gpf GenericPlatformFlavor) GetFlavorPartRaw(name cf.FlavorPart) ([]cm.Flav
 	return nil, errors.New("Unknown flavor part specified by the user")
 }
 
-func (gpf GenericPlatformFlavor) GetFlavorPartRawFC(name cf.FlavorPart) ([]cm.FlavorFC, error) {
+func (gpf GenericPlatformFlavor) GetFlavorPartRawFC(name cf.FlavorPart) ([]cm.Flavor, error) {
 	log.Trace("flavor/types/generic_platform_flavor:GetFlavorPartRaw() Entering")
 	defer log.Trace("flavor/types/generic_platform_flavor:GetFlavorPartRaw() Leaving")
 
@@ -82,7 +82,7 @@ func (gpf GenericPlatformFlavor) getAssetTagFlavor() ([]cm.Flavor, error) {
 	log.Debugf("flavor/types/generic_platform_flavor:getAssetTagFlavor() New External Section: %v", *newExt)
 
 	// Create flavor and
-	assetTagFlavor := cm.NewFlavor(newMeta, nil, nil, nil, newExt, nil)
+	assetTagFlavor := cm.NewFlavor(newMeta, nil, nil, nil, nil, newExt, nil)
 
 	log.Debugf("flavor/types/generic_platform_flavor:getAssetTagFlavor() New AssetTag Flavor: %v", assetTagFlavor)
 

@@ -88,30 +88,30 @@ func NewLinuxPlatformFlavor(hostReport *hcTypes.HostManifestFC, tagCertificate *
 	}
 }
 
+// // GetFlavorPartRaw extracts the details of the flavor part requested by the
+// // caller from the host report used during the creation of the PlatformFlavor instance
+// func (rhelpf LinuxPlatformFlavor) GetFlavorPartRaw(name cf.FlavorPart) ([]cm.Flavor, error) {
+// 	log.Trace("flavor/types/linux_platform_flavor:GetFlavorPartRaw() Entering")
+// 	defer log.Trace("flavor/types/linux_platform_flavor:GetFlavorPartRaw() Leaving")
+
+// 	// switch name {
+// 	// case cf.FlavorPartPlatform:
+// 	// 	return rhelpf.getPlatformFlavor()
+// 	// case cf.FlavorPartOs:
+// 	// 	return rhelpf.getOsFlavor()
+// 	// case cf.FlavorPartAssetTag:
+// 	// 	return rhelpf.getAssetTagFlavor()
+// 	// case cf.FlavorPartHostUnique:
+// 	// 	return rhelpf.getHostUniqueFlavor()
+// 	// case cf.FlavorPartSoftware:
+// 	// 	return rhelpf.getDefaultSoftwareFlavor()
+// 	// }
+// 	return nil, cf.UNKNOWN_FLAVOR_PART()
+// }
+
 // GetFlavorPartRaw extracts the details of the flavor part requested by the
 // caller from the host report used during the creation of the PlatformFlavor instance
 func (rhelpf LinuxPlatformFlavor) GetFlavorPartRaw(name cf.FlavorPart) ([]cm.Flavor, error) {
-	log.Trace("flavor/types/linux_platform_flavor:GetFlavorPartRaw() Entering")
-	defer log.Trace("flavor/types/linux_platform_flavor:GetFlavorPartRaw() Leaving")
-
-	// switch name {
-	// case cf.FlavorPartPlatform:
-	// 	return rhelpf.getPlatformFlavor()
-	// case cf.FlavorPartOs:
-	// 	return rhelpf.getOsFlavor()
-	// case cf.FlavorPartAssetTag:
-	// 	return rhelpf.getAssetTagFlavor()
-	// case cf.FlavorPartHostUnique:
-	// 	return rhelpf.getHostUniqueFlavor()
-	// case cf.FlavorPartSoftware:
-	// 	return rhelpf.getDefaultSoftwareFlavor()
-	// }
-	return nil, cf.UNKNOWN_FLAVOR_PART()
-}
-
-// GetFlavorPartRaw extracts the details of the flavor part requested by the
-// caller from the host report used during the creation of the PlatformFlavor instance
-func (rhelpf LinuxPlatformFlavor) GetFlavorPartRawFC(name cf.FlavorPart) ([]cm.FlavorFC, error) {
 	log.Trace("flavor/types/linux_platform_flavor:GetFlavorPartRaw() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:GetFlavorPartRaw() Leaving")
 
@@ -337,7 +337,7 @@ func (rhelpf LinuxPlatformFlavor) eventLogRequired(flavorPartName cf.FlavorPart)
 
 // getPlatformFlavor returns a json document having all the good known PCR values and
 // corresponding event logs that can be used for evaluating the PLATFORM trust of a host
-func (rhelpf LinuxPlatformFlavor) getPlatformFlavor() ([]cm.FlavorFC, error) {
+func (rhelpf LinuxPlatformFlavor) getPlatformFlavor() ([]cm.Flavor, error) {
 	log.Trace("flavor/types/linux_platform_flavor:getPlatformFlavor() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:getPlatformFlavor() Leaving")
 
@@ -376,16 +376,16 @@ func (rhelpf LinuxPlatformFlavor) getPlatformFlavor() ([]cm.FlavorFC, error) {
 	log.Debugf("flavor/types/linux_platform_flavor:getPlatformFlavor() New Hardware Section: %v", *newHW)
 
 	// Assemble the Platform Flavor
-	platformFlavor := cm.NewFlavorFC(newMeta, newBios, newHW, allPcrDetails, nil, nil)
+	platformFlavor := cm.NewFlavor(newMeta, newBios, newHW, nil, allPcrDetails, nil, nil)
 
 	log.Debugf("flavor/types/linux_platform_flavor:getPlatformFlavor()  New PlatformFlavor: %v", platformFlavor)
 
-	return []cm.FlavorFC{*platformFlavor}, nil
+	return []cm.Flavor{*platformFlavor}, nil
 }
 
 // getOsFlavor Returns a json document having all the good known PCR values and
 // corresponding event logs that can be used for evaluating the OS Trust of a host
-func (rhelpf LinuxPlatformFlavor) getOsFlavor() ([]cm.FlavorFC, error) {
+func (rhelpf LinuxPlatformFlavor) getOsFlavor() ([]cm.Flavor, error) {
 	log.Trace("flavor/types/linux_platform_flavor:getOsFlavor() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:getOsFlavor() Leaving")
 
@@ -419,17 +419,17 @@ func (rhelpf LinuxPlatformFlavor) getOsFlavor() ([]cm.FlavorFC, error) {
 	log.Debugf("flavor/types/linux_platform_flavor:getOsFlavor() New Bios Section: %v", *newBios)
 
 	// Assemble the OS Flavor
-	osFlavor := cm.NewFlavorFC(newMeta, newBios, nil, allPcrDetails, nil, nil)
+	osFlavor := cm.NewFlavor(newMeta, newBios, nil, nil, allPcrDetails, nil, nil)
 
 	log.Debugf("flavor/types/linux_platform_flavor:getOSFlavor()  New OS Flavor: %v", osFlavor)
 
-	return []cm.FlavorFC{*osFlavor}, nil
+	return []cm.Flavor{*osFlavor}, nil
 }
 
 // getHostUniqueFlavor Returns a json document having all the good known PCR values and corresponding event logs that
 // can be used for evaluating the unique part of the PCR configurations of a host. These include PCRs/modules getting
 // extended to PCRs that would vary from host to host.
-func (rhelpf LinuxPlatformFlavor) getHostUniqueFlavor() ([]cm.FlavorFC, error) {
+func (rhelpf LinuxPlatformFlavor) getHostUniqueFlavor() ([]cm.Flavor, error) {
 	log.Trace("flavor/types/linux_platform_flavor:getHostUniqueFlavor() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:getHostUniqueFlavor() Leaving")
 
@@ -462,16 +462,16 @@ func (rhelpf LinuxPlatformFlavor) getHostUniqueFlavor() ([]cm.FlavorFC, error) {
 	log.Debugf("flavor/types/linux_platform_flavor:getHostUniqueFlavor() New Bios Section: %v", *newBios)
 
 	// Assemble the Host Unique Flavor
-	hostUniqueFlavor := cm.NewFlavorFC(newMeta, newBios, nil, allPcrDetails, nil, nil)
+	hostUniqueFlavor := cm.NewFlavor(newMeta, newBios, nil, nil, allPcrDetails, nil, nil)
 
 	log.Debugf("flavor/types/esx_platform_flavor:getHostUniqueFlavor() New PlatformFlavor: %v", hostUniqueFlavor)
 
-	return []cm.FlavorFC{*hostUniqueFlavor}, nil
+	return []cm.Flavor{*hostUniqueFlavor}, nil
 }
 
 // getAssetTagFlavor Retrieves the asset tag part of the flavor including the certificate and all the key-value pairs
 // that are part of the certificate.
-func (rhelpf LinuxPlatformFlavor) getAssetTagFlavor() ([]cm.FlavorFC, error) {
+func (rhelpf LinuxPlatformFlavor) getAssetTagFlavor() ([]cm.Flavor, error) {
 	log.Trace("flavor/types/linux_platform_flavor:getAssetTagFlavor() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:getAssetTagFlavor() Leaving")
 
@@ -513,20 +513,20 @@ func (rhelpf LinuxPlatformFlavor) getAssetTagFlavor() ([]cm.FlavorFC, error) {
 	log.Debugf("flavor/types/linux_platform_flavor:getAssetTagFlavor() New External Section: %v", *newExt)
 
 	// Assemble the Asset Tag Flavor
-	assetTagFlavor := cm.NewFlavorFC(newMeta, newBios, nil, nil, newExt, nil)
+	assetTagFlavor := cm.NewFlavor(newMeta, newBios, nil, nil, nil, newExt, nil)
 
 	log.Debugf("flavor/types/esx_platform_flavor:getPlatformFlavor() New Asset Tag Flavor: %v", assetTagFlavor)
 
-	return []cm.FlavorFC{*assetTagFlavor}, nil
+	return []cm.Flavor{*assetTagFlavor}, nil
 }
 
 // getDefaultSoftwareFlavor Method to create a software flavor. This method would create a software flavor that would
 // include all the measurements provided from host.
-func (rhelpf LinuxPlatformFlavor) getDefaultSoftwareFlavor() ([]cm.FlavorFC, error) {
+func (rhelpf LinuxPlatformFlavor) getDefaultSoftwareFlavor() ([]cm.Flavor, error) {
 	log.Trace("flavor/types/linux_platform_flavor:getDefaultSoftwareFlavor() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:getDefaultSoftwareFlavor() Leaving")
 
-	var softwareFlavors []cm.FlavorFC
+	var softwareFlavors []cm.Flavor
 	var errorMessage = cf.SOFTWARE_FLAVOR_CANNOT_BE_CREATED().Message
 
 	if rhelpf.HostManifest != nil && rhelpf.HostManifest.MeasurementXmls != nil {
@@ -537,7 +537,7 @@ func (rhelpf LinuxPlatformFlavor) getDefaultSoftwareFlavor() ([]cm.FlavorFC, err
 
 		for _, measurementXml := range measurementXmls {
 			var softwareFlavor = NewSoftwareFlavor(measurementXml)
-			swFlavor, err := softwareFlavor.GetSoftwareFlavorFC()
+			swFlavor, err := softwareFlavor.GetSoftwareFlavor()
 			if err != nil {
 				return nil, err
 			}

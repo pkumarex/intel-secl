@@ -470,7 +470,7 @@ func (controller FlavorgroupController) getAssociatedFlavor(flavorgroupList []hv
 		}
 		flavorgroupList[index].FlavorIds = flavorIds
 		if includeFlavorContent {
-			signedFlavorList, err := controller.FlavorStore.SearchFC(&models.FlavorVerificationFC{FlavorFC: models.FlavorFilterCriteria{Ids: flavorIds}})
+			signedFlavorList, err := controller.FlavorStore.Search(&models.FlavorVerificationFC{FlavorFC: models.FlavorFilterCriteria{Ids: flavorIds}})
 			if err != nil {
 				return nil, errors.Wrap(err, "Error retrieving flavors "+
 					"linked to flavor group")

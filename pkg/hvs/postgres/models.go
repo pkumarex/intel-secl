@@ -25,7 +25,6 @@ type (
 	PGHostManifest          types.HostManifest
 	PGHostStatusInformation hvs.HostStatusInformation
 	PGFlavorContent         hvs.Flavor
-	PGFlavorContentFC       hvs.FlavorFC
 	PGFlavorTemplateContent models.FlavorTemplateContent
 
 	flavorGroup struct {
@@ -44,12 +43,12 @@ type (
 	}
 
 	flavorfc struct {
-		ID         uuid.UUID         `json:"id" gorm:"primary_key;type:uuid"`
-		Content    PGFlavorContentFC `json:"flavorfc" sql:"type:JSONB"`
-		CreatedAt  time.Time         `json:"created"`
-		Label      string            `gorm:"unique;not null"`
-		FlavorPart string            `json:"flavor_part"`
-		Signature  string            `json:"signature"`
+		ID uuid.UUID `json:"id" gorm:"primary_key;type:uuid"`
+		//Content    PGFlavorContentFC `json:"flavorfc" sql:"type:JSONB"`
+		CreatedAt  time.Time `json:"created"`
+		Label      string    `gorm:"unique;not null"`
+		FlavorPart string    `json:"flavor_part"`
+		Signature  string    `json:"signature"`
 	}
 
 	host struct {
@@ -262,17 +261,17 @@ func (fl *PGFlavorContent) Scan(value interface{}) error {
 	return json.Unmarshal(b, &fl)
 }
 
-func (fl PGFlavorContentFC) Value() (driver.Value, error) {
-	return json.Marshal(fl)
-}
+// func (fl PGFlavorContentFC) Value() (driver.Value, error) {
+// 	return json.Marshal(fl)
+// }
 
-func (fl *PGFlavorContentFC) Scan(value interface{}) error {
-	b, ok := value.([]byte)
-	if !ok {
-		return errors.New("postgres/models:PGFlavorContent_Scan() - type assertion to []byte failed")
-	}
-	return json.Unmarshal(b, &fl)
-}
+// func (fl *PGFlavorContentFC) Scan(value interface{}) error {
+// 	b, ok := value.([]byte)
+// 	if !ok {
+// 		return errors.New("postgres/models:PGFlavorContent_Scan() - type assertion to []byte failed")
+// 	}
+// 	return json.Unmarshal(b, &fl)
+// }
 
 func (fl PGFlavorTemplateContent) Value() (driver.Value, error) {
 	return json.Marshal(fl)

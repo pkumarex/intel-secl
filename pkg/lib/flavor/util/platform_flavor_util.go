@@ -528,37 +528,37 @@ func (pfutil PlatformFlavorUtil) GetSignedFlavorList(flavors []cm.Flavor, flavor
 	return signedFlavors, nil
 }
 
-// GetSignedFlavorListFC performs a bulk signing of a list of flavor strings and returns a list of SignedFlavors
-func (pfutil PlatformFlavorUtil) GetSignedFlavorListFC(flavors []cm.FlavorFC, flavorSigningPrivateKey *rsa.PrivateKey) ([]hvs.SignedFlavorFC, error) {
-	log.Trace("flavor/util/platform_flavor_util:GetSignedFlavorListFC() Entering")
-	defer log.Trace("flavor/util/platform_flavor_util:GetSignedFlavorListFC() Leaving")
+// //GetSignedFlavorListFC performs a bulk signing of a list of flavor strings and returns a list of SignedFlavors
+// func (pfutil PlatformFlavorUtil) GetSignedFlavorListFC(flavors []cm.FlavorFC, flavorSigningPrivateKey *rsa.PrivateKey) ([]hvs.SignedFlavorFC, error) {
+// 	log.Trace("flavor/util/platform_flavor_util:GetSignedFlavorListFC() Entering")
+// 	defer log.Trace("flavor/util/platform_flavor_util:GetSignedFlavorListFC() Leaving")
 
-	log.Debugf("Mahesh signed flavors -> ", flavors)
-	log.Debugf("Mahesh signed flavorSigningPrivateKey -> ", flavorSigningPrivateKey)
+// 	log.Debugf("Mahesh signed flavors -> ", flavors)
+// 	log.Debugf("Mahesh signed flavorSigningPrivateKey -> ", flavorSigningPrivateKey)
 
-	var signedFlavors []hvs.SignedFlavorFC
+// 	var signedFlavors []hvs.SignedFlavorFC
 
-	if flavors != nil {
-		// loop through and sign each flavor
-		for _, unsignedFlavor := range flavors {
-			var sf *hvs.SignedFlavorFC
+// 	if flavors != nil {
+// 		// loop through and sign each flavor
+// 		for _, unsignedFlavor := range flavors {
+// 			var sf *hvs.SignedFlavorFC
 
-			log.Debugf("Mahesh GetSignedFlavorListFC unsignedFlavor -> ", unsignedFlavor)
+// 			log.Debugf("Mahesh GetSignedFlavorListFC unsignedFlavor -> ", unsignedFlavor)
 
-			sf, err := pfutil.GetSignedFlavorFC(&unsignedFlavor, flavorSigningPrivateKey)
-			if err != nil {
-				return nil, errors.Errorf("Error signing flavor collection: %s", err.Error())
-			}
+// 			sf, err := pfutil.GetSignedFlavorFC(&unsignedFlavor, flavorSigningPrivateKey)
+// 			if err != nil {
+// 				return nil, errors.Errorf("Error signing flavor collection: %s", err.Error())
+// 			}
 
-			log.Debugf("Mahesh GetSignedFlavorListFC sf -> ", sf)
-			signedFlavors = append(signedFlavors, *sf)
-		}
-	} else {
-		return nil, errors.Errorf("empty flavors list provided")
-	}
-	log.Debugf("Mahesh GetSignedFlavorListFC signedFlavors -> ", signedFlavors)
-	return signedFlavors, nil
-}
+// 			log.Debugf("Mahesh GetSignedFlavorListFC sf -> ", sf)
+// 			signedFlavors = append(signedFlavors, *sf)
+// 		}
+// 	} else {
+// 		return nil, errors.Errorf("empty flavors list provided")
+// 	}
+// 	log.Debugf("Mahesh GetSignedFlavorListFC signedFlavors -> ", signedFlavors)
+// 	return signedFlavors, nil
+// }
 
 // GetSignedFlavor is used to sign the flavor
 func (pfutil PlatformFlavorUtil) GetSignedFlavor(unsignedFlavor *hvs.Flavor, privateKey *rsa.PrivateKey) (*hvs.SignedFlavor, error) {
@@ -581,19 +581,19 @@ func (pfutil PlatformFlavorUtil) GetSignedFlavor(unsignedFlavor *hvs.Flavor, pri
 	return signedFlavor, nil
 }
 
-// GetSignedFlavor is used to sign the flavor
-func (pfutil PlatformFlavorUtil) GetSignedFlavorFC(unsignedFlavor *hvs.FlavorFC, privateKey *rsa.PrivateKey) (*hvs.SignedFlavorFC, error) {
-	log.Trace("flavor/util/platform_flavor_util:GetSignedFlavorFC() Entering")
-	defer log.Trace("flavor/util/platform_flavor_util:GetSignedFlavorFC() Leaving")
+// // GetSignedFlavor is used to sign the flavor
+// func (pfutil PlatformFlavorUtil) GetSignedFlavorFC(unsignedFlavor *hvs.FlavorFC, privateKey *rsa.PrivateKey) (*hvs.SignedFlavorFC, error) {
+// 	log.Trace("flavor/util/platform_flavor_util:GetSignedFlavorFC() Entering")
+// 	defer log.Trace("flavor/util/platform_flavor_util:GetSignedFlavorFC() Leaving")
 
-	if unsignedFlavor == nil {
-		return nil, errors.New("GetSignedFlavorFC: Flavor content missing")
-	}
+// 	if unsignedFlavor == nil {
+// 		return nil, errors.New("GetSignedFlavorFC: Flavor content missing")
+// 	}
 
-	signedFlavor, err := cm.NewSignedFlavorFC(unsignedFlavor, privateKey)
-	if err != nil {
-		return nil, errors.Wrap(err, "GetSignedFlavorFC: Error while marshalling signed flavor")
-	}
+// 	signedFlavor, err := cm.NewSignedFlavorFC(unsignedFlavor, privateKey)
+// 	if err != nil {
+// 		return nil, errors.Wrap(err, "GetSignedFlavorFC: Error while marshalling signed flavor")
+// 	}
 
-	return signedFlavor, nil
-}
+// 	return signedFlavor, nil
+// }
