@@ -12,6 +12,5 @@ stages:
 
 include:
   - local: '/build/ci/build.yaml'
-  - local: '/build/ci/test.yaml'
   - local: '/build/ci/package-installer.yaml'
   - local: '/build/ci/package-kaniko.yaml'
