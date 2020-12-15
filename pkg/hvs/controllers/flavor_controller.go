@@ -1802,7 +1802,7 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 }
 
 //To-do create another method for ESXI
-func (fcon *FlavorController) createFlavorsFC(flavorReq dm.FlavorCreateRequestFC) ([]hvs.SignedFlavor, error) {
+func (fcon *FlavorController) createFlavorsFC(flavorReq dm.FlavorCreateRequest) ([]hvs.SignedFlavor, error) {
 	defaultLog.Trace("controllers/flavor_controller:createFlavors() Entering")
 	defer defaultLog.Trace("controllers/flavor_controller:createFlavors() Leaving")
 
@@ -1966,11 +1966,11 @@ func (fcon *FlavorController) createFlavorsFC(flavorReq dm.FlavorCreateRequestFC
 	return fcon.addFlavorToFlavorgroupFC(flavorFlavorPartMap, flavorgroups)
 }
 
-func getFlavorCreateReqFC(r *http.Request) (dm.FlavorCreateRequestFC, error) {
+func getFlavorCreateReqFC(r *http.Request) (dm.FlavorCreateRequest, error) {
 	defaultLog.Trace("controllers/flavor_controller:getFlavorCreateReqFC() Entering")
 	defer defaultLog.Trace("controllers/flavor_controller:getFlavorCreateReqFC() Leaving")
 
-	var flavorCreateReq dm.FlavorCreateRequestFC
+	var flavorCreateReq dm.FlavorCreateRequest
 	if r.Header.Get("Content-Type") != constants.HTTPMediaTypeJson {
 		secLog.Error("controllers/flavor_controller:getFlavorCreateReq() Invalid Content-Type")
 		return flavorCreateReq, errors.New("Invalid Content-Type")
