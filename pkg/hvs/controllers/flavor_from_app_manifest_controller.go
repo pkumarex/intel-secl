@@ -106,14 +106,14 @@ func (controller FlavorFromAppManifestController) CreateSoftwareFlavor(w http.Re
 		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Error marshalling measurement to string"}
 	}
 	softwareFlavorInstance := types.NewSoftwareFlavor(string(measurementBytes))
-	softwareFlavor, err := softwareFlavorInstance.GetSoftwareFlavorFC()
+	softwareFlavor, err := softwareFlavorInstance.GetSoftwareFlavor()
 	if err != nil {
 		defaultLog.WithError(err).Errorf("controllers/flavor_from_app_manifest_controller:"+
 			"CreateSoftwareFlavor() %s : Error getting software flavor from measurement", commLogMsg.AppRuntimeErr)
 		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Error getting software flavor from measurement"}
 	}
 
-	_, err = controller.FlavorController.createFlavorsFC(models.FlavorCreateRequestFC{FlavorCollection: hvs.FlavorCollectionFC{Flavors: []hvs.FlavorsFC{{Flavor: *softwareFlavor}}}, FlavorgroupNames: appManifestRequest.FlavorGroupNames})
+	_, err = controller.FlavorController.createFlavorsFC(models.FlavorCreateRequest{FlavorCollection: hvs.FlavorCollection{Flavors: []hvs.Flavors{{Flavor: *softwareFlavor}}}, FlavorgroupNames: appManifestRequest.FlavorGroupNames})
 	if err != nil {
 		defaultLog.WithError(err).Errorf("controllers/flavor_from_app_manifest_controller:"+
 			"CreateSoftwareFlavor() %s : Error creating new SOFTWARE flavor", commLogMsg.AppRuntimeErr)

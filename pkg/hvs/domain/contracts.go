@@ -70,10 +70,10 @@ type (
 		Search(*models.FlavorVerificationFC) ([]hvs.SignedFlavor, error)
 		Delete(uuid.UUID) error
 
-		CreateFC(*hvs.SignedFlavorFC) (*hvs.SignedFlavorFC, error)
-		RetrieveFC(uuid.UUID) (*hvs.SignedFlavorFC, error)
-		SearchFC(*models.FlavorVerificationFC) ([]hvs.SignedFlavorFC, error)
-		DeleteFC(uuid.UUID) error
+		// CreateFC(*hvs.SignedFlavorFC) (*hvs.SignedFlavorFC, error)
+		// RetrieveFC(uuid.UUID) (*hvs.SignedFlavorFC, error)
+		// SearchFC(*models.FlavorVerificationFC) ([]hvs.SignedFlavorFC, error)
+		// DeleteFC(uuid.UUID) error
 	}
 
 	TpmEndorsementStore interface {
