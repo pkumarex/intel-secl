@@ -26,7 +26,7 @@ type FlavorCreateRequest struct {
 
 type FlavorCreateRequestFC struct {
 	ConnectionString       string                     `json:"connection_string,omitempty"`
-	FlavorCollectionFC     hvs.FlavorCollectionFC     `json:"flavor_collection,omitempty"`
+	FlavorCollection       hvs.FlavorCollectionFC     `json:"flavor_collection,omitempty"`
 	SignedFlavorCollection hvs.SignedFlavorCollection `json:"signed_flavor_collection,omitempty"`
 	FlavorgroupNames       []string                   `json:"flavorgroup_names,omitempty"`
 	FlavorParts            []cf.FlavorPart            `json:"partial_flavor_types,omitempty"`

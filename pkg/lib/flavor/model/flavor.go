@@ -28,6 +28,7 @@ type Flavor struct {
 	// Hardware section is unique to Platform Flavor type
 	Hardware *Hardware                   `json:"hardware,omitempty"`
 	Pcrs     map[string]map[string]PcrEx `json:"pcrs,omitempty"`
+	PcrLogs  []types.PCRS                `json:"pcrs,omitempty"`
 	// External section is unique to AssetTag Flavor type
 	External *External `json:"external,omitempty"`
 	Software *Software `json:"software,omitempty"`

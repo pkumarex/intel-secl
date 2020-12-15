@@ -263,19 +263,5 @@ func readJson(jsonFilePath string) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "controllers/flavortemplate_controller:readJson() unable to read file"+jsonFilePath)
 	}
-
-	// //check marx
-	// jsonFile, err := os.Open(jsonFilePath)
-	// // if we os.Open returns an error then handle it
-	// defaultLog.Info(jsonFile)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-
-	// var testData map[string]string
-
-	// testData["SampleKey"] = "SampleValue"
-
-	//Checkmarx
 	return string(byteValue), nil
 }
