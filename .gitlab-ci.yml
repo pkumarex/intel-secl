@@ -7,7 +7,6 @@ variables:
   no_proxy: "${NO_PROXY}"
 
 stages:
-  - test
   - build
   - package
 

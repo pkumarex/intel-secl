@@ -21,6 +21,7 @@ type verifierImpl struct {
 	overallTrust         bool
 }
 
+//Verify method implements the flavor verification
 func (v *verifierImpl) Verify(hostManifest *types.HostManifest, signedFlavor *hvs.SignedFlavor, skipSignedFlavorVerification bool) (*hvs.TrustReport, error) {
 
 	var err error
@@ -41,24 +42,25 @@ func (v *verifierImpl) Verify(hostManifest *types.HostManifest, signedFlavor *hv
 	ruleFactory := NewRuleFactory(v.verifierCertificates, hostManifest, v.signedFlavor, skipSignedFlavorVerification)
 	verificationRules, policyName, err := ruleFactory.GetVerificationRules()
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Error in getting Verification rules")
 	}
 
 	results, err := v.applyRules(verificationRules, hostManifest)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Error in applying Verification rules")
 	}
 
 	trustReport := hvs.TrustReport{
-		PolicyName: policyName,
-		Results:    results,
-		Trusted:    v.overallTrust,
+		PolicyName:   policyName,
+		Results:      results,
+		Trusted:      v.overallTrust,
 		HostManifest: *hostManifest,
 	}
 
 	return &trustReport, nil
 }
 
+//applyRules method is used to apply the verifier rules created
 func (v *verifierImpl) applyRules(rulesToApply []rules.Rule, hostManifest *types.HostManifest) ([]hvs.RuleResult, error) {
 
 	var results []hvs.RuleResult
@@ -67,11 +69,12 @@ func (v *verifierImpl) applyRules(rulesToApply []rules.Rule, hostManifest *types
 
 		log.Debugf("Applying verifier rule %T", rule)
 		result, err := rule.Apply(hostManifest)
+
 		if err != nil {
 			return nil, errors.Wrapf(err, "Error ocrurred applying rule type '%T'", rule)
 		}
 
-		// if 'Apply' returned a result with any faults, then the 
+		// if 'Apply' returned a result with any faults, then the
 		// rule is not trusted
 		if len(result.Faults) > 0 {
 			result.Trusted = false
@@ -79,8 +82,8 @@ func (v *verifierImpl) applyRules(rulesToApply []rules.Rule, hostManifest *types
 		}
 
 		// assign the flavor id to all rules
-		fId := v.signedFlavor.Flavor.Meta.ID
-		result.FlavorId = &fId
+		flavorID := v.signedFlavor.NewFVFlavor.Meta.ID
+		result.FlavorId = &flavorID
 
 		results = append(results, *result)
 	}
@@ -88,6 +91,6 @@ func (v *verifierImpl) applyRules(rulesToApply []rules.Rule, hostManifest *types
 	return results, nil
 }
 
-func (v *verifierImpl) GetVerifierCerts() VerifierCertificates{
+func (v *verifierImpl) GetVerifierCerts() VerifierCertificates {
 	return v.verifierCertificates
 }

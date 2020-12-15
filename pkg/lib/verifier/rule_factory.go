@@ -5,6 +5,8 @@
 package verifier
 
 import (
+	"reflect"
+
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	flavormodel "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/constants"
@@ -12,7 +14,6 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/verifier/rules"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/pkg/errors"
-	"reflect"
 )
 
 // A ruleBuilder creates flavor specific rules for a particular
@@ -49,21 +50,23 @@ func NewRuleFactory(verifierCertificates VerifierCertificates,
 	}
 }
 
+//GetVerificationRules method is used to get the verification rules dynamically for pcr/event log rules
+//Other rules like aik certificate,asset tag rules will be hardcoded based on vendor and flavor part
 func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error) {
 
 	var flavorPart common.FlavorPart
-	var requiredRules []rules.Rule
+	var requiredRules, PcrRule []rules.Rule
 
 	ruleBuilder, err := factory.getRuleBuilder()
 	if err != nil {
 		return nil, "", errors.Wrap(err, "Could not retrieve rule builder")
 	}
 
-	if reflect.DeepEqual(factory.signedFlavor.Flavor.Meta.Description, flavormodel.Description{}) {
+	if reflect.DeepEqual(factory.signedFlavor.NewFVFlavor.Meta.Description, flavormodel.Description{}) {
 		return nil, "", errors.New("The flavor's description cannot be nil")
 	}
 
-	err = (&flavorPart).Parse(factory.signedFlavor.Flavor.Meta.Description.FlavorPart)
+	err = (&flavorPart).Parse(factory.signedFlavor.NewFVFlavor.Meta.Description.FlavorPart)
 	if err != nil {
 		return nil, "", errors.Wrap(err, "Could not retrieve flavor part name")
 	}
@@ -81,17 +84,58 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 		requiredRules, err = ruleBuilder.GetSoftwareRules()
 	default:
 		return nil, "", errors.Errorf("Cannot build requiredRules for unknown flavor part %s", flavorPart)
-	}
 
-	if err != nil {
-		return nil, "", errors.Wrapf(err, "Error creating trust requiredRules for flavor '%s'", factory.signedFlavor.Flavor.Meta.ID)
+	}
+	flavorPcrs := factory.signedFlavor.NewFVFlavor.Pcrs
+
+	// Iterate the pcrs section to get rules
+	for _, rule := range flavorPcrs {
+
+		eventsPresent := false
+		IntegrityRuleAdded := false
+		value := reflect.Indirect(reflect.ValueOf(rule))
+
+		for i := 0; i < value.NumField(); i++ {
+
+			if value.Type().Field(i).Name == "EventlogEqual" && !reflect.ValueOf(rule.EventlogEqual).IsZero() {
+				eventsPresent = true
+				//call method to create pcr event log equals rule
+				PcrRule, err = getPcrEventLogEqualsRules(&rule, flavorPart)
+				requiredRules = append(requiredRules, PcrRule...)
+				log.Info("Rule added :", value.Type().Field(i).Name)
+			} else if value.Type().Field(i).Name == "EventlogIncludes" && !reflect.ValueOf(rule.EventlogIncludes).IsZero() {
+				eventsPresent = true
+				//call method to create pcr event log includes rule
+				PcrRule, err = getPcrEventLogIncludesRules(&rule, flavorPart)
+				requiredRules = append(requiredRules, PcrRule...)
+				log.Info("Rule added :", value.Type().Field(i).Name)
+			} else if value.Type().Field(i).Name == "PCRMatches" && rule.PCRMatches {
+				//call method to create pcr matches constant rule
+				PcrRule, err = getPcrMatchesConstantRules(&rule, flavorPart)
+				requiredRules = append(requiredRules, PcrRule...)
+				log.Info("Rule added :", value.Type().Field(i).Name)
+			}
+
+			if eventsPresent == true && IntegrityRuleAdded == false {
+				//add Integrity rules//
+				IntegrityRuleAdded = true
+				PcrRule, err = getPcrEventLogIntegrityRules(&rule, flavorPart)
+				requiredRules = append(requiredRules, PcrRule...)
+				log.Info("Rule added :", value.Type().Field(i).Name)
+			}
+			if err != nil {
+				return nil, "", errors.Wrapf(err, "Error creating trust requiredRules for flavor '%s'", factory.signedFlavor.Flavor.Meta.ID)
+			}
+
+		}
+
 	}
 
 	// if skip flavor signing verification is enabled, add the FlavorTrusted.
 	if !factory.skipSignedFlavorVerification {
 
 		var flavorPart common.FlavorPart
-		err := (&flavorPart).Parse(factory.signedFlavor.Flavor.Meta.Description.FlavorPart)
+		err := (&flavorPart).Parse(factory.signedFlavor.NewFVFlavor.Meta.Description.FlavorPart)
 		if err != nil {
 			return nil, "", errors.Wrap(err, "Could not retrieve flavor part name")
 		}
@@ -109,8 +153,10 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 	}
 
 	return requiredRules, ruleBuilder.GetName(), nil
+
 }
 
+//getRuleBuilder method will get the ruler builder based on vendor
 func (factory *ruleFactory) getRuleBuilder() (ruleBuilder, error) {
 
 	var builder ruleBuilder
@@ -154,7 +200,7 @@ func (factory *ruleFactory) getRuleBuilder() (ruleBuilder, error) {
 		}
 
 	default:
-		return nil, errors.Errorf("Vendor '%s' is not currently supported", string(vendor))
+		return nil, errors.Errorf("Vendor '%s' is not currently supported", vendor)
 	}
 
 	return builder, nil

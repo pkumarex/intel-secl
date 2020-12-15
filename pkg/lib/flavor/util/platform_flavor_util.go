@@ -8,6 +8,9 @@ import (
 	"crypto/rsa"
 	"encoding/xml"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
 	commLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
@@ -19,8 +22,6 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
-	"strings"
-	"time"
 )
 
 var log = commLog.GetDefaultLogger()
@@ -302,7 +303,7 @@ func (pfutil PlatformFlavorUtil) GetPcrDetails(pcrManifest hcTypes.PcrManifest, 
 
 				// Event logs if allowed
 				if includeEventLog {
-					manifestPcrEventLogs, err := pcrManifest.GetPcrEventLog(digestBank, pI)
+					manifestPcrEventLogs, err := pcrManifest.GetEsxiPcrEventLog(digestBank, pI)
 
 					// check if returned logset from PCR is nil
 					if manifestPcrEventLogs != nil && err == nil {

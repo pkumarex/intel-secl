@@ -9,31 +9,33 @@ package rules
 //
 
 import (
-	"github.com/intel-secl/intel-secl/v3/pkg/hvs/constants/verifier-rules-and-faults"
+	constants "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants/verifier-rules-and-faults"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
+	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/pkg/errors"
 )
 
-func NewPcrMatchesConstant(expectedPcr *types.Pcr, marker common.FlavorPart) (Rule, error) {
+//NewFVPcrMatchesConstant collects the expected PCR values
+func NewFVPcrMatchesConstant(expectedPcr *model.NewFVPcrEx, marker common.FlavorPart) (Rule, error) {
 	if expectedPcr == nil {
 		return nil, errors.New("The expected PCR cannot be nil")
 	}
 
-	if len(expectedPcr.Value) == 0 {
+	if len(expectedPcr.Measurement) < 1 || len(expectedPcr.Measurement) < 1 {
 		return nil, errors.New("The expected PCR cannot have an empty value")
 	}
 
 	rule := pcrMatchesConstant{
 		expectedPcr: *expectedPcr,
-		marker: marker,
+		marker:      marker,
 	}
 	return &rule, nil
 }
 
 type pcrMatchesConstant struct {
-	expectedPcr types.Pcr
+	expectedPcr model.NewFVPcrEx
 	marker      common.FlavorPart
 }
 
@@ -42,22 +44,24 @@ func (rule *pcrMatchesConstant) Apply(hostManifest *types.HostManifest) (*hvs.Ru
 	result := hvs.RuleResult{}
 	result.Trusted = true // default to true, set to false in fault logic
 	result.Rule.Name = constants.RulePcrMatchesConstant
-	result.Rule.ExpectedPcr = &rule.expectedPcr
+	result.Rule.PCR = &rule.expectedPcr.PCR
+	result.Rule.Measurement = rule.expectedPcr.Measurement
+	result.Rule.PCRMatches = rule.expectedPcr.PCRMatches
 	result.Rule.Markers = append(result.Rule.Markers, rule.marker)
 
 	if hostManifest.PcrManifest.IsEmpty() {
 		result.Faults = append(result.Faults, newPcrManifestMissingFault())
 	} else {
 
-		actualPcr, err := hostManifest.PcrManifest.GetPcrValue(rule.expectedPcr.PcrBank, rule.expectedPcr.Index)
+		actualPcr, err := hostManifest.PcrManifest.GetPcrValue(types.SHAAlgorithm(rule.expectedPcr.PCR.Bank), types.PcrIndex(rule.expectedPcr.PCR.Index))
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "Error in getting actual Pcr in Pcr Matches constant rule")
 		}
 
-		if actualPcr == nil {
-			result.Faults = append(result.Faults, newPcrValueMissingFault(rule.expectedPcr.PcrBank, rule.expectedPcr.Index))
-		} else if rule.expectedPcr.Value != actualPcr.Value {
-			result.Faults = append(result.Faults, newPcrValueMismatchFault(rule.expectedPcr.Index, rule.expectedPcr, *actualPcr))
+		if actualPcr == nil || actualPcr.Value == "" || rule.expectedPcr.Measurement == "" {
+			result.Faults = append(result.Faults, newPcrValueMissingFault(types.SHAAlgorithm(rule.expectedPcr.PCR.Bank), types.PcrIndex(rule.expectedPcr.PCR.Index)))
+		} else if rule.expectedPcr.Measurement != actualPcr.Value {
+			result.Faults = append(result.Faults, newPcrValueMismatchFault(types.PcrIndex(rule.expectedPcr.PCR.Index), types.SHAAlgorithm(rule.expectedPcr.PCR.Bank), rule.expectedPcr, *actualPcr))
 		}
 	}
 

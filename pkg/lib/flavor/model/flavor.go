@@ -7,6 +7,7 @@ package model
 import (
 	"crypto/sha512"
 	"encoding/json"
+
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
@@ -27,6 +28,19 @@ type Flavor struct {
 	// Hardware section is unique to Platform Flavor type
 	Hardware *Hardware                   `json:"hardware,omitempty"`
 	Pcrs     map[string]map[string]PcrEx `json:"pcrs,omitempty"`
+	// External section is unique to AssetTag Flavor type
+	External *External `json:"external,omitempty"`
+	Software *Software `json:"software,omitempty"`
+}
+
+//NewFVFlavor
+type NewFVFlavor struct {
+	// Meta section is mandatory for all Flavor types
+	Meta Meta  `json:"meta"`
+	Bios *Bios `json:"bios,omitempty"`
+	// Hardware section is unique to Platform Flavor type
+	Hardware *Hardware    `json:"hardware,omitempty"`
+	Pcrs     []NewFVPcrEx `json:"pcrs,omitempty"`
 	// External section is unique to AssetTag Flavor type
 	External *External `json:"external,omitempty"`
 	Software *Software `json:"software,omitempty"`

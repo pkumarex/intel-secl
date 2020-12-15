@@ -59,4 +59,6 @@ const (
 	FaultXmlMeasurementLogValueMismatchEntries384   = FaultPrefix + "XmlMeasurementLogValueMismatchEntriesSha384"
 	FaultXmlMeasurementsDigestValueMismatch         = FaultPrefix + "XmlMeasurementsDigestValueMismatch"
 	FaultXmlMeasurementValueMismatch                = FaultPrefix + "XmlMeasurementValueMismatch"
+	PcrEventLogUnexpectedFields                     = "PcrEventLogUnexpectedFields"
+	PcrEventLogMissingFields                        = "PcrEventLogMissingFields"
 )
