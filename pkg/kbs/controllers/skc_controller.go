@@ -121,7 +121,7 @@ func (kc *SKCController) TransferApplicationKey(responseWriter http.ResponseWrit
 	}
 
 	///check for return value also.
-	isValidSession, isValidSGXAttributes := keyInfo.IsValidSession()
+	isValidSession, isValidSGXAttributes := keyInfo.IsValidSession(stmChallenge)
 	if isValidSession {
 		if !isValidSGXAttributes {
 			var challenge kbs.NotFoundResponse ///if session is valid but sgx attributes incorrect then Not Found
