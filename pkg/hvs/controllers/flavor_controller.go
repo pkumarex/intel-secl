@@ -1544,7 +1544,7 @@ func (fcon *FlavorController) Create(w http.ResponseWriter, r *http.Request) (in
 
 	flavorCreateReq, err := getFlavorCreateReq(r)
 	if err == nil && strings.HasPrefix(flavorCreateReq.ConnectionString, "vmware") {
-		fcon.IsExsi = true
+
 		errorcode, err := validatePermissions(r, flavorCreateReq.FlavorParts)
 		if err != nil {
 			return nil, errorcode, err
@@ -1870,13 +1870,11 @@ func (fcon *FlavorController) createFlavorsFC(flavorReq dm.FlavorCreateRequest) 
 			defaultLog.Errorf("controllers/flavor_controller:createFlavors() Error while creating platform flavor instance from host manifest and tag certificate")
 			return nil, errors.Wrap(err, "Error while creating platform flavor instance from host manifest and tag certificate")
 		}
-		defaultLog.Debug("Mahesh 2")
 		platformFlavor, err = newPlatformFlavor.GetPlatformFlavor()
 		if err != nil {
 			defaultLog.Errorf("controllers/flavor_controller:createFlavors() Error while creating platform flavors for host %s", hostManifest.HostInfo.HardwareUUID)
 			return nil, errors.Wrapf(err, " Error while creating platform flavors for host %s", hostManifest.HostInfo.HardwareUUID)
 		}
-		defaultLog.Debug("Mahesh 3 -> ", platformFlavor)
 		// add all the flavor parts from create request to the list flavor parts to be associated with a flavorgroup
 		if len(flavorReq.FlavorParts) >= 1 {
 			for _, flavorPart := range flavorReq.FlavorParts {
@@ -1945,19 +1943,10 @@ func (fcon *FlavorController) createFlavorsFC(flavorReq dm.FlavorCreateRequest) 
 		return nil, err
 	}
 
-	defaultLog.Debug("Mahesh 4 Flavorgroup names -> ", flavorgroups)
-	defaultLog.Debug("Mahesh 4 Flavorgroup names -> ", &platformFlavor)
-	defaultLog.Debug("Mahesh 4 Flavorgroup names -> ", flavorParts)
-
-	defaultLog.Debug("Mahesh 4 fcon -> ", fcon)
-
 	// if platform flavor was retrieved from host, break it into the flavor part flavor map using the flavorgroups
 	if platformFlavor != nil {
-		defaultLog.Debug("Mahesh 4 fcon -> ", fcon)
 		flavorFlavorPartMap = fcon.retrieveFlavorCollectionFC(platformFlavor, flavorgroups, flavorParts)
 	}
-
-	defaultLog.Debug("Mahesh 5 flavorFlavorPartMap -> ", flavorFlavorPartMap)
 
 	if flavorFlavorPartMap == nil || len(flavorFlavorPartMap) == 0 {
 		defaultLog.Error("controllers/flavor_controller:createFlavors() Cannot create flavors")
@@ -1975,35 +1964,17 @@ func getFlavorCreateReqFC(r *http.Request) (dm.FlavorCreateRequest, error) {
 		secLog.Error("controllers/flavor_controller:getFlavorCreateReq() Invalid Content-Type")
 		return flavorCreateReq, errors.New("Invalid Content-Type")
 	}
-	defaultLog.Debug("Create request Create r", r)
 
 	if r.ContentLength == 0 {
 		secLog.Error("controllers/flavor_controller:getFlavorCreateReq() The request body is not provided")
 		return flavorCreateReq, errors.New("The request body is not provided")
 	}
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		secLog.Error("controllers/flavor_controller:getFlavorCreateReq() Unable to read the request body")
-		return flavorCreateReq, errors.New("Unable to read request body")
-	}
-
-	//Restore the request body to it's original state
-	r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
 	//Decode the incoming json data to note struct
 	dec := json.NewDecoder(r.Body)
 	dec.DisallowUnknownFields()
 
-	body, err1 := ioutil.ReadAll(r.Body)
-	if err1 != nil {
-		defaultLog.Trace("controllers/flavor_controller:getFlavorCreateReqFC() Erro decode read all , ", err1)
-		secLog.Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to read the request body")
-		return flavorCreateReq, errors.New("Unable to read request body")
-	}
-
-	defaultLog.Debug("Create request ", body)
-
-	err = dec.Decode(&flavorCreateReq)
+	err := dec.Decode(&flavorCreateReq)
 	if err != nil {
 		defaultLog.Trace("controllers/flavor_controller:getFlavorCreateReqFC() Erro decode , ", err)
 		secLog.WithError(err).Errorf("controllers/flavor_controller:getFlavorCreateReq() %s :  Failed to decode request body as Flavor", commLogMsg.InvalidInputBadEncoding)
@@ -2249,7 +2220,7 @@ func (fcon *FlavorController) addFlavorToFlavorgroupFC(flavorFlavorPartMap map[f
 
 	// for each flavorgroup, we have to associate it with flavors
 	for fgId, fIds := range flavorgroupFlavorMap {
-		_, err := fcon.FGStore.AddFlavorsFC(fgId, fIds)
+		_, err := fcon.FGStore.AddFlavors(fgId, fIds)
 		if err != nil {
 			defaultLog.Errorf("controllers/flavor_controller: addFlavorToFlavorgroup(): Error while adding flavors to flavorgroup %s", fgId.String())
 			if cleanUpErr := fcon.createCleanUp(flavorgroupFlavorMap); cleanUpErr != nil {
@@ -2514,12 +2485,8 @@ func (fcon FlavorController) retrieveFlavorCollectionFC(platformFlavor *fType.Pl
 	defaultLog.Trace("controllers/flavor_controller:retrieveFlavorCollection() Entering")
 	defer defaultLog.Trace("controllers/flavor_controller:retrieveFlavorCollection() Leaving")
 
-	defaultLog.Debugf("Mahesh unsigned retrieveFlavorCollectionFC  platformFlavor ", platformFlavor)
-
 	flavorFlavorPartMap := make(map[fc.FlavorPart][]hvs.SignedFlavor)
 	flavorSignKey := (*fcon.CertStore)[dm.CertTypesFlavorSigning.String()].Key
-
-	defaultLog.Debugf("Mahesh retrieveFlavorCollectionFC  flavorSignKey ", flavorSignKey)
 
 	if fgs == nil || platformFlavor == nil {
 		defaultLog.Error("controllers/flavor_controller:retrieveFlavorCollection() Platform flavor and flavorgroup must be specified")
@@ -2530,27 +2497,19 @@ func (fcon FlavorController) retrieveFlavorCollectionFC(platformFlavor *fType.Pl
 		flavorParts = append(flavorParts, fc.FlavorPartSoftware)
 	}
 
-	defaultLog.Debugf("Mahesh retrieveFlavorCollectionFC  flavorParts ", flavorParts)
-
 	for _, flavorPart := range flavorParts {
 
-		defaultLog.Debugf("Mahesh retrieveFlavorCollectionFC  flavorPart ", flavorPart)
-
 		unsignedFlavors, err := (*platformFlavor).GetFlavorPartRaw(flavorPart)
-		defaultLog.Debugf("Mahesh unsigned flavors -> ", unsignedFlavors)
 		if err != nil {
 			defaultLog.Errorf("controllers/flavor_controller:retrieveFlavorCollection() Error building a flavor for flavor part %s", flavorPart)
 			return flavorFlavorPartMap
 		}
 
 		signedFlavors, err := fu.PlatformFlavorUtil{}.GetSignedFlavorList(unsignedFlavors, flavorSignKey.(*rsa.PrivateKey))
-		defaultLog.Debugf("Mahesh unsigned flavors -> ", signedFlavors)
 		if err != nil {
 			defaultLog.Errorf("controllers/flavor_controller:retrieveFlavorCollection() Error signing flavor %s", flavorPart)
 			return flavorFlavorPartMap
 		}
-
-		defaultLog.Debugf("Mahesh signed flavors -> ", signedFlavors)
 
 		for _, signedFlavor := range signedFlavors {
 			if _, ok := flavorFlavorPartMap[flavorPart]; ok {
@@ -2560,7 +2519,6 @@ func (fcon FlavorController) retrieveFlavorCollectionFC(platformFlavor *fType.Pl
 			}
 		}
 	}
-	defaultLog.Debugf("Mahesh signed flavor MAP-> ", flavorFlavorPartMap)
 	return flavorFlavorPartMap
 }
 
