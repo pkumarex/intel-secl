@@ -34,9 +34,13 @@ func GetImageFlavor(label string, encryptionRequired bool, keyURL string, digest
 	}
 
 	meta := model.Meta{
-		ID:          uuid.New(),
 		Description: description,
 	}
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create new UUID")
+	}
+	meta.ID = newUuid
 
 	if encryptionRequired {
 		encryption = &model.Encryption{
@@ -73,9 +77,13 @@ func GetContainerImageFlavor(label string, encryptionRequired bool, keyURL strin
 	}
 
 	meta := model.Meta{
-		ID:          uuid.New(),
 		Description: description,
 	}
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create new UUID")
+	}
+	meta.ID = newUuid
 
 	encryption = &model.Encryption{
 		KeyURL: keyURL,

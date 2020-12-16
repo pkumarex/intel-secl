@@ -75,7 +75,9 @@ func TestXmlMeasurementLogEqualsMeasurementLogMissingFaultWrongId(t *testing.T) 
 	// (the expected label will not be found in the rule)
 	var wrongId ta.Measurement
 	err = xml.Unmarshal([]byte(testCustomMeasurementXml), &wrongId)
-	wrongId.Uuid = uuid.New().String()
+	newUuid, err := uuid.NewRandom()
+	assert.NoError(t, err)
+	wrongId.Uuid = newUuid.String()
 	wrongLabelXml, err := xml.Marshal(wrongId)
 	assert.NoError(t, err)
 	hostManifest := types.HostManifest{

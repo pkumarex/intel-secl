@@ -67,7 +67,11 @@ func (qs *qStore) Update(queue *models.Queue) error {
 
 func (qs *qStore) Create(queue *models.Queue) (*models.Queue, error) {
 	rec := *queue
-	rec.Id = uuid.New()
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.New("failed to create new UUID - " + err.Error())
+	}
+	rec.Id = newUuid
 	rec.Created = time.Now()
 	rec.Updated = rec.Created
 	qs.m[rec.Id] = rec

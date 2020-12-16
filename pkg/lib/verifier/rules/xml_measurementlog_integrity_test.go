@@ -112,7 +112,9 @@ func TestXmlMeasurementLogIntegrityXmlMissingFromBadId(t *testing.T) {
 	err = xml.Unmarshal([]byte(testCustomMeasurementXml), &invalidMeasurements)
 	assert.NoError(t, err)
 
-	invalidMeasurements.Uuid = uuid.New().String()
+	newUuid, err := uuid.NewRandom()
+	assert.NoError(t, err)
+	invalidMeasurements.Uuid = newUuid.String()
 	invalidMeasurementsXml, err := xml.Marshal(invalidMeasurements)
 	assert.NoError(t, err)
 

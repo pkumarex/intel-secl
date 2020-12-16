@@ -632,8 +632,10 @@ var _ = Describe("TagCertificateController", func() {
 
 				hardwareUUID := uuid.MustParse("7a569dad-2d82-49e4-9156-069b0065b262")
 
+				newId, err := uuid.NewRandom()
+				Expect(err).NotTo(HaveOccurred())
 				_, _ = tagCertController.HostStore.Create(&hvs.Host{
-					Id:               uuid.New(),
+					Id:               newId,
 					HostName:         "MyFakeHost",
 					Description:      "Fakest Connected Host In The World",
 					ConnectionString: hostUrl,
@@ -667,8 +669,10 @@ var _ = Describe("TagCertificateController", func() {
 
 				hardwareUUID := uuid.MustParse("00e4d709-8d72-44c3-89ae-c5edc395d6fe")
 
+				newId, err := uuid.NewRandom()
+				Expect(err).NotTo(HaveOccurred())
 				_, _ = tagCertController.HostStore.Create(&hvs.Host{
-					Id:               uuid.New(),
+					Id:               newId,
 					HostName:         "MyFakeBadHost",
 					Description:      "Fakest Disconnected Host In The World",
 					ConnectionString: hostUrl,
@@ -755,14 +759,18 @@ var _ = Describe("TagCertificateController", func() {
 				aasBaseURL := "/aas"
 				config.Global().AASApiUrl = aasBaseURL
 
+				newId, err := uuid.NewRandom()
+				Expect(err).NotTo(HaveOccurred())
+				hwId, err := uuid.NewRandom()
+				Expect(err).NotTo(HaveOccurred())
 				newTC, _ := tagCertController.Store.Create(&hvs.TagCertificate{
-					ID:           uuid.New(),
+					ID:           newId,
 					Certificate:  nil,
 					Subject:      "CN=Does Not Compute",
 					Issuer:       "Fake CA",
 					NotBefore:    time.Now(),
 					NotAfter:     time.Now().AddDate(1, 0, 0),
-					HardwareUUID: uuid.New(),
+					HardwareUUID: hwId,
 				})
 
 				router.Handle(hvsRoutes.TagCertificateDeployEndpointPath, hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(tagCertController.Deploy))).Methods("POST")

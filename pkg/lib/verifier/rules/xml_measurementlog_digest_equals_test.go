@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	testUuid = uuid.New()
+	testUuid, _ = uuid.NewRandom()
 )
 
 func TestXmlMeasurementLogDigestEqualsNoFault(t *testing.T) {

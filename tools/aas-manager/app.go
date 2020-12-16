@@ -72,29 +72,29 @@ type App struct {
 	SagentSanList string
 	SkcLibCN      string
 
-	InstallAdminUserName      string
-	InstallAdminPassword      string
-	GlobalAdminUserName       string
-	GlobalAdminPassword       string
-	HvsServiceUserName        string
-	HvsServiceUserPassword    string
-	IhubServiceUserName       string
-	IhubServiceUserPassword   string
-	WpmServiceUserName        string
-	WpmServiceUserPassword    string
-	WlsServiceUserName        string
-	WlsServiceUserPassword    string
-	WlaServiceUserName        string
-	WlaServiceUserPassword    string
-	ScsServiceUserName        string
-	ScsServiceUserPassword    string
-	ShvsServiceUserName       string
-	ShvsServiceUserPassword   string
-	KbsServiceUsername        string
-	KbsServiceUserPassword    string
-	SKCLibUsername            string
-	SKCLibUserPassword        string
-	SKCLibRoleContext         string
+	InstallAdminUserName    string
+	InstallAdminPassword    string
+	GlobalAdminUserName     string
+	GlobalAdminPassword     string
+	HvsServiceUserName      string
+	HvsServiceUserPassword  string
+	IhubServiceUserName     string
+	IhubServiceUserPassword string
+	WpmServiceUserName      string
+	WpmServiceUserPassword  string
+	WlsServiceUserName      string
+	WlsServiceUserPassword  string
+	WlaServiceUserName      string
+	WlaServiceUserPassword  string
+	ScsServiceUserName      string
+	ScsServiceUserPassword  string
+	ShvsServiceUserName     string
+	ShvsServiceUserPassword string
+	KbsServiceUsername      string
+	KbsServiceUserPassword  string
+	SKCLibUsername          string
+	SKCLibUserPassword      string
+	SKCLibRoleContext       string
 
 	Components     map[string]bool
 	GenPassword    bool

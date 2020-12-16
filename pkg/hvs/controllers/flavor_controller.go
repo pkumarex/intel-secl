@@ -182,8 +182,14 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 		}
 		tagCertificate := hvs.TagCertificate{}
 		var tagX509Certificate *x509.Certificate
+
+		hardwareUUID, err := uuid.Parse(hostManifest.HostInfo.HardwareUUID)
+		if err != nil {
+			defaultLog.Errorf("controllers/flavor_controller: Failed to parse hardware UUID %s", hostManifest.HostInfo.HardwareUUID)
+			return nil, errors.Wrapf(err, "Failed to parse hardware UUID %s", hostManifest.HostInfo.HardwareUUID)
+		}
 		tcFilterCriteria := dm.TagCertificateFilterCriteria{
-			HardwareUUID: uuid.MustParse(hostManifest.HostInfo.HardwareUUID),
+			HardwareUUID: hardwareUUID,
 		}
 		tagCertificates, err := fcon.TCStore.Search(&tcFilterCriteria)
 		if err != nil {

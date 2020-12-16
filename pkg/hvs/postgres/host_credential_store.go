@@ -33,7 +33,11 @@ func (hcs *HostCredentialStore) Create(hc *models.HostCredential) (*models.HostC
 		return nil, errors.Wrap(err, "postgres/host_credential_store:Create() failed to encrypt Host Credential")
 	}
 
-	hc.Id = uuid.New()
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "postgres/host_credential_store:Create() failed to create new UUID")
+	}
+	hc.Id = newUuid
 	dbHostCredential := hostCredential{
 		Id:           hc.Id,
 		HostId:       hc.HostId,

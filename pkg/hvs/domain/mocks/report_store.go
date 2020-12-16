@@ -27,7 +27,11 @@ type MockReportStore struct {
 // Create inserts a HVSReport
 func (store *MockReportStore) Create(report *models.HVSReport) (*models.HVSReport, error) {
 	if report.ID == uuid.Nil {
-		report.ID = uuid.New()
+		newUuid, err := uuid.NewRandom()
+		if err != nil {
+			return nil, err
+		}
+		report.ID = newUuid
 	}
 	store.reportStore[report.ID] = *report
 	return report, nil

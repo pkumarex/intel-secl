@@ -41,8 +41,12 @@ func (store *MockTagCertificateStore) Create(tc *hvs.TagCertificate) (*hvs.TagCe
 
 	store.Mock.ExpectBegin()
 
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create new UUID")
+	}
 	store.Mock.ExpectQuery(`INSERT INTO "tag_certificate" (.+)`).
-		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(uuid.New().String()))
+		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(newUuid.String()))
 
 	store.Mock.ExpectCommit()
 

@@ -32,8 +32,11 @@ func (as *auditLogEntryStore) Create(entry *models.AuditLogEntry) (*models.Audit
 		entry.Data.Columns == nil {
 		return nil, errors.New("invalid audit log entry for audit_log_entry_store_store:Create()")
 	}
-	id := uuid.New()
-	entry.ID = id
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create new UUID")
+	}
+	entry.ID = newUuid
 	dbEntry := auditLogEntry{
 		ID:         entry.ID,
 		EntityID:   entry.EntityID,

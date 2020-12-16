@@ -30,7 +30,11 @@ func (e *ESXiClusterStore) Create(esxiCLuster *hvs.ESXiCluster) (*hvs.ESXiCluste
 	defer defaultLog.Trace("postgres/esxi_cluster_store:Create() Leaving")
 
 	if esxiCLuster.Id == uuid.Nil {
-		esxiCLuster.Id = uuid.New()
+		newUuid, err := uuid.NewRandom()
+		if err != nil {
+			return nil, errors.Wrap(err, "postgres/esxi_cluster_store:Create() failed to create new UUID")
+		}
+		esxiCLuster.Id = newUuid
 	}
 
 	encCS, err := utils.EncryptString(esxiCLuster.ConnectionString, e.Dek)

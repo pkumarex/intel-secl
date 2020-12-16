@@ -7,6 +7,7 @@ package auditlog
 
 import (
 	"crypto/rand"
+	"github.com/stretchr/testify/assert"
 	"math/big"
 	"testing"
 
@@ -23,7 +24,7 @@ type mockEntryStore struct {
 }
 
 func (me *mockEntryStore) Create(e *models.AuditLogEntry) (*models.AuditLogEntry, error) {
-	id := uuid.New()
+	id, _ := uuid.NewRandom()
 	e.ID = id
 	me.data[id.String()] = e
 	me.t.Log("Create", e)
@@ -134,16 +135,24 @@ func testWorkers(w domain.AuditLogWriter, t *testing.T) (hs []*hvs.HostStatus, r
 	syncChan := make(chan struct{}, hostStatTestCnt+ReportTestCnt)
 
 	for i := 1; i <= hostStatTestCnt; i++ {
+		newId, err := uuid.NewRandom()
+		assert.NoError(t, err)
+		hostId, err := uuid.NewRandom()
+		assert.NoError(t, err)
 		hs = append(hs, &hvs.HostStatus{
-			ID:     uuid.New(),
-			HostID: uuid.New(),
+			ID:     newId,
+			HostID: hostId,
 		})
 	}
 
 	for i := 1; i <= ReportTestCnt; i++ {
+		newId, err := uuid.NewRandom()
+		assert.NoError(t, err)
+		hostId, err := uuid.NewRandom()
+		assert.NoError(t, err)
 		r = append(r, &models.HVSReport{
-			ID:     uuid.New(),
-			HostID: uuid.New(),
+			ID:     newId,
+			HostID: hostId,
 		})
 	}
 	// add to audit log in parallel

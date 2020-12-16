@@ -25,7 +25,11 @@ func NewTpmEndorsementStore(store *DataStore) *TpmEndorsementStore {
 func (t *TpmEndorsementStore) Create(te *hvs.TpmEndorsement) (*hvs.TpmEndorsement, error) {
 	defaultLog.Trace("postgres/tpm_endorsement_store:Create() Entering")
 	defer defaultLog.Trace("postgres/tpm_endorsement_store:Create() Leaving")
-	te.ID = uuid.New()
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "postgres/tpm_endorsement_store:Create() failed to create new UUID")
+	}
+	te.ID = newUuid
 
 	dbTpmEndorsement := tpmEndorsement{
 		ID:                te.ID,

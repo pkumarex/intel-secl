@@ -31,7 +31,11 @@ func (qr *QueueStore) Create(q *models.Queue) (*models.Queue, error) {
 		return nil, errors.New("postgres/queue_store:Create()- invalid input  must have Action, Parameter and valid State")
 	}
 
-	dbq := queue{Id: uuid.New(),
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "postgres/queue_store:Create() failed to create new UUID")
+	}
+	dbq := queue{Id: newUuid,
 		Action:    q.Action,
 		State:     q.State,
 		Message:   q.Message,

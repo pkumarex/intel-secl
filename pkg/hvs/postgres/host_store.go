@@ -27,7 +27,11 @@ func (hs *HostStore) Create(h *hvs.Host) (*hvs.Host, error) {
 	defaultLog.Trace("postgres/host_store:Create() Entering")
 	defer defaultLog.Trace("postgres/host_store:Create() Leaving")
 
-	h.Id = uuid.New()
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "postgres/host_store:Create() failed to create new UUID")
+	}
+	h.Id = newUuid
 	dbHost := host{
 		Id:               h.Id,
 		Name:             h.HostName,

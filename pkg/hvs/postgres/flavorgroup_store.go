@@ -33,7 +33,11 @@ func (f *FlavorGroupStore) Create(fg *hvs.FlavorGroup) (*hvs.FlavorGroup, error)
 	defaultLog.Trace("postgres/flavorgroup_store:Create() Entering")
 	defer defaultLog.Trace("postgres/flavorgroup_store:Create() Leaving")
 
-	fg.ID = uuid.New()
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "postgres/flavorgroup_store:Create() failed to create new UUID")
+	}
+	fg.ID = newUuid
 	dbFlavorGroup := &flavorGroup{
 		ID:                    fg.ID,
 		Name:                  fg.Name,

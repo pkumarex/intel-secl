@@ -12,6 +12,7 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/postgres"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	_ "github.com/lib/pq"
+	"github.com/pkg/errors"
 	"time"
 )
 
@@ -81,10 +82,14 @@ func init() {
 // Create simulates the insertion of a HostStatus
 func (store *MockHostStatusStore) Create(hs *hvs.HostStatus) (*hvs.HostStatus, error) {
 
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create new UUID")
+	}
 	// Mock Host Create Response
 	store.Mock.ExpectQuery(`INSERT INTO "host_status" (.+)`).
 		WithArgs(sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
-		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(uuid.New().String()))
+		WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(newUuid.String()))
 
 	return store.HostStatusStore.Create(hs)
 }
@@ -166,12 +171,16 @@ func (store *MockHostStatusStore) Search(criteria *models.HostStatusFilterCriter
 		WithArgs("13885605-a0ee-41f2-b6fc-fd82edc487ad").
 		WillReturnRows(sqlmock.NewRows([]string{"id", "host_id", "status", "host_report", "created"}))
 
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create new UUID")
+	}
 	// Mock query for Reports Controller
 	// Scenario: Host in Connected State
 	store.Mock.ExpectQuery(`SELECT \* FROM "host_status" WHERE \(host_id = \$1\) LIMIT (.+)`).
 		WithArgs("ee37c360-7eae-4250-a677-6ee12adce8e2").
 		WillReturnRows(sqlmock.NewRows([]string{"id", "host_id", "status", "host_report", "created"}).
-			AddRow(uuid.New(), "e57e5ea0-d465-461e-882d-1600090caa0d", hsi1, hsm1, hs1.Created))
+			AddRow(newUuid, "e57e5ea0-d465-461e-882d-1600090caa0d", hsi1, hsm1, hs1.Created))
 
 	// Search by existing HostHardareUUID
 	store.Mock.ExpectQuery(`SELECT "host_status"\.\* FROM "host_status" INNER JOIN host h on h\.id = host_id WHERE \(h\.hardware_uuid = \$1\) LIMIT (.+)`).
@@ -203,20 +212,44 @@ func (store *MockHostStatusStore) Search(criteria *models.HostStatusFilterCriter
 			AddRow(hs1.ID.String(), hs1.HostID.String(), hsi1, hsm1, hs1.Created).
 			AddRow(hs2.ID.String(), hs2.HostID.String(), hsi2, hsm2, hs2.Created))
 
+	newUuid1, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create new UUID")
+	}
+	newUuid2, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create new UUID")
+	}
+	newUuid3, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create new UUID")
+	}
 	// Search by numberOfDays
 	store.Mock.ExpectQuery(`
 SELECT au.\* FROM audit_log_entry au INNER JOIN \(SELECT entity_id, max\(auj.created\) AS max_date FROM audit_log_entry auj WHERE auj.entity_type = 'host_status' AND CAST\(auj.created AS TIMESTAMP\) >= CAST\('(.+)' AS TIMESTAMP\) AND CAST\(auj.created AS TIMESTAMP\) <= CAST\('(.+)' AS TIMESTAMP\)  GROUP BY entity_id\) a ON a.entity_id = au.entity_id AND a.max_date = au.created ORDER BY au.Created DESC LIMIT (.+)`).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "entity_id", "entity_type", "created", "action", "data"}).
-			AddRow(uuid.New().String(), hs1.ID.String(), "host_status", time.Now().AddDate(0, 0, -1), "create", []byte(auditData)).
-			AddRow(uuid.New().String(), hs1.ID.String(), "host_status", time.Now().AddDate(0, 0, -1), "create", []byte(auditData)).
-			AddRow(uuid.New().String(), hs1.ID.String(), "host_status", time.Now().AddDate(0, 0, -2), "create", []byte(auditData)))
+			AddRow(newUuid1.String(), hs1.ID.String(), "host_status", time.Now().AddDate(0, 0, -1), "create", []byte(auditData)).
+			AddRow(newUuid2.String(), hs1.ID.String(), "host_status", time.Now().AddDate(0, 0, -1), "create", []byte(auditData)).
+			AddRow(newUuid3.String(), hs1.ID.String(), "host_status", time.Now().AddDate(0, 0, -2), "create", []byte(auditData)))
 
+	newUuid1, err = uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create new UUID")
+	}
+	newUuid2, err = uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create new UUID")
+	}
+	newUuid3, err = uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create new UUID")
+	}
 	// Search by fromDate and toDate
 	store.Mock.ExpectQuery(`SELECT au.\* FROM audit_log_entry au INNER JOIN \(SELECT entity_id, max\(auj.created\) AS max_date FROM audit_log_entry auj WHERE auj.entity_type = 'host_status' AND CAST\(auj.created AS TIMESTAMP\) >= CAST\('(.+)' AS TIMESTAMP\) AND CAST\(auj.created AS TIMESTAMP\) <= CAST\('(.+)' AS TIMESTAMP\)  GROUP BY entity_id\) a ON a.entity_id = au.entity_id AND a.max_date = au.created ORDER BY au.Created DESC LIMIT (.+)`).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "entity_id", "entity_type", "created", "action", "data"}).
-			AddRow(uuid.New().String(), hs1.ID.String(), "host_status", time.Now().AddDate(0, 0, -1), "create", []byte(auditData)).
-			AddRow(uuid.New().String(), hs1.ID.String(), "host_status", time.Now().AddDate(0, 0, -1), "create", []byte(auditData)).
-			AddRow(uuid.New().String(), hs1.ID.String(), "host_status", time.Now().AddDate(0, 0, -2), "create", []byte(auditData)))
+			AddRow(newUuid1.String(), hs1.ID.String(), "host_status", time.Now().AddDate(0, 0, -1), "create", []byte(auditData)).
+			AddRow(newUuid2.String(), hs1.ID.String(), "host_status", time.Now().AddDate(0, 0, -1), "create", []byte(auditData)).
+			AddRow(newUuid3.String(), hs1.ID.String(), "host_status", time.Now().AddDate(0, 0, -2), "create", []byte(auditData)))
 	return store.HostStatusStore.Search(criteria)
 }
 

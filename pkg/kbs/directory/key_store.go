@@ -90,9 +90,13 @@ func (ks *KeyStore) Search(criteria *models.KeyFilterCriteria) ([]models.KeyAttr
 	}
 
 	for _, keyFile := range keyFiles {
-		key, err := ks.Retrieve(uuid.MustParse(keyFile.Name()))
+		filename, err := uuid.Parse(keyFile.Name())
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "directory/key_store:Search() Error in parsing key file name : %s", keyFile.Name())
+		}
+		key, err := ks.Retrieve(filename)
+		if err != nil {
+			return nil, errors.Wrapf(err, "directory/key_store:Search() Error in retrieving key from file : %s", keyFile.Name())
 		}
 
 		keys = append(keys, *key)

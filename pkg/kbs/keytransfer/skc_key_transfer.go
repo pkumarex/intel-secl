@@ -386,8 +386,11 @@ func (keyInfo *KeyDetails) BuildChallengeJsonRequest(cfg *config.Configuration) 
 
 	challengeReq.ChallengeType = keyInfo.ActiveStmLabel
 
-	challengeReq.Challenge = keyInfo.generateStmChallenge()
-
+	challenge, err := keyInfo.generateStmChallenge()
+	if err != nil {
+		return challengeReq, errors.Wrap(err, "Failed to generate challenge")
+	}
+	challengeReq.Challenge = challenge
 	url := cfg.EndpointURL + "/session"
 
 	challengeReq.Link.ChallengeReply.Href = url
@@ -546,11 +549,15 @@ func (keyInfo KeyDetails) validateSgxConfigIdSvn(stmSgxConfigSvn string) bool {
 }
 
 // generateStmChallenge - Function to generate stm challenge
-func (keyInfo KeyDetails) generateStmChallenge() string {
+func (keyInfo KeyDetails) generateStmChallenge() (string, error) {
 	defaultLog.Trace("keytransfer/skc_key_transfer:generateStmChallenge() Entering")
 	defer defaultLog.Trace("keytransfer/skc_key_transfer:generateStmChallenge() Leaving")
 
-	encSessionID := base64.StdEncoding.EncodeToString([]byte(uuid.New().String()))
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return "", errors.Wrap(err, "keytransfer/skc_key_transfer:generateStmChallenge() failed to create new UUID")
+	}
+	encSessionID := base64.StdEncoding.EncodeToString([]byte(newUuid.String()))
 
 	var keytransfer kbs.KeyTransferSession
 	keytransfer.SessionId = encSessionID
@@ -559,7 +566,7 @@ func (keyInfo KeyDetails) generateStmChallenge() string {
 
 	keyInfo.SessionMap[encSessionID] = keytransfer
 
-	return encSessionID
+	return encSessionID, nil
 }
 
 // FetchApplicationKey - Function to fetch the application key

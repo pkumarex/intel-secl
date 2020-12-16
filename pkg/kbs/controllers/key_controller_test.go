@@ -65,11 +65,13 @@ var _ = Describe("KeyController", func() {
 		router = mux.NewRouter()
 		keyStore = mocks.NewFakeKeyStore()
 		policyStore = mocks.NewFakeKeyTransferPolicyStore()
+		newId, err := uuid.NewRandom()
+		Expect(err).NotTo(HaveOccurred())
 		keyControllerConfig = domain.KeyControllerConfig{
 			SamlCertsDir:            samlCertsDir,
 			TrustedCaCertsDir:       trustedCaCertsDir,
 			TpmIdentityCertsDir:     tpmIdentityCertsDir,
-			DefaultTransferPolicyId: uuid.New(),
+			DefaultTransferPolicyId: newId,
 		}
 
 		keyManager := &keymanager.DirectoryManager{}
