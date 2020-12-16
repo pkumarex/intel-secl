@@ -88,12 +88,8 @@ type App struct {
 	WlaServiceUserPassword    string
 	ScsServiceUserName        string
 	ScsServiceUserPassword    string
-	SqvsServiceUserName       string
-	SqvsServiceUserPassword   string
 	ShvsServiceUserName       string
 	ShvsServiceUserPassword   string
-	SagentServiceUserName     string
-	SagentServiceUserPassword string
 	KbsServiceUsername        string
 	KbsServiceUserPassword    string
 	SKCLibUsername            string
@@ -409,14 +405,8 @@ func (a *App) LoadAllVariables(envFile string) error {
 		{&a.ScsServiceUserName, "SCS_SERVICE_USERNAME", "", "SGX Caching Service User Name", false, false},
 		{&a.ScsServiceUserPassword, "SCS_SERVICE_PASSWORD", "", "SGX Caching Service User Password", false, true},
 
-		{&a.SqvsServiceUserName, "SQVS_SERVICE_USERNAME", "", "SGX Quote Verification Service User Name", false, false},
-		{&a.SqvsServiceUserPassword, "SQVS_SERVICE_PASSWORD", "", "SGX Quote Verification Service User Password", false, true},
-
 		{&a.ShvsServiceUserName, "SHVS_SERVICE_USERNAME", "", "SGX Host Verification Service User Name", false, false},
 		{&a.ShvsServiceUserPassword, "SHVS_SERVICE_PASSWORD", "", "SGX Host Verification Service User Password", false, true},
-
-		{&a.SagentServiceUserName, "SGX_AGENT_SERVICE_USERNAME", "", "SGX Agent User Name", false, false},
-		{&a.SagentServiceUserPassword, "SGX_AGENT_SERVICE_PASSWORD", "", "SGX Agent User Password", false, true},
 
 		{&a.KbsServiceUsername, "KBS_SERVICE_USERNAME", "", "Key Broker Service User Name", false, false},
 		{&a.KbsServiceUserPassword, "KBS_SERVICE_PASSWORD", "", "Key Broker Service User Password", false, true},
