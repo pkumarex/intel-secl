@@ -49,6 +49,10 @@ func TestLoadConfiguration(t *testing.T) {
 					t.Log("config/config_test:TestLoadConfiguration() Error in writing data")
 				}
 				defer func() {
+					cerr := f.Close()
+					if cerr != nil {
+						t.Errorf("Error closing file: %v", cerr)
+					}
 					derr := os.Remove(f.Name())
 					if derr != nil {
 						t.Errorf("Error removing file: %v", derr)

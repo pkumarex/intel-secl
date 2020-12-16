@@ -344,6 +344,10 @@ func TestKubePluginInit(t *testing.T) {
 				t.Log("k8splugin/k8s_plugin_test:TestKubePluginInit(): error in reading the file")
 			}
 			defer func() {
+				cerr := samlFile.Close()
+				if cerr != nil {
+					t.Errorf("Error closing file: %v", cerr)
+				}
 				err := os.Remove(samlFile.Name())
 				if err != nil {
 					t.Errorf("Error removing file")

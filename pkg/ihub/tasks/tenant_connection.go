@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/url"
 	"os"
+	"strings"
 
 	"github.com/intel-secl/intel-secl/v3/pkg/clients/k8s"
 	openstackClient "github.com/intel-secl/intel-secl/v3/pkg/clients/openstack"
@@ -41,23 +42,17 @@ func (tenantConnection TenantConnection) Run() error {
 
 	if endPointType == constants.OpenStackTenant {
 
-		openstackIP := viper.GetString("openstack-ip")
-		openstackAuthPort := viper.GetString("openstack-auth-port")
-		openstackAPIPort := viper.GetString("openstack-api-port")
+		openstackPlacementUrl := viper.GetString("openstack-placement-url")
+		openstackAuthUrl := viper.GetString("openstack-auth-url")
 		openstackUserName := viper.GetString("openstack-username")
 		openstackPassword := viper.GetString("openstack-password")
 
-		if openstackIP == "" {
-			return errors.New("tasks/tenant_connection:Run() OPENSTACK_IP is not defined in environment")
+		if openstackPlacementUrl == "" {
+			return errors.New("tasks/tenant_connection:Run() OPENSTACK_PLACEMENT_URL is not defined in environment")
 		}
 
-		if openstackAuthPort == "" {
-			return errors.New("tasks/tenant_connection:Run() OPENSTACK_AUTH_PORT is not defined in environment")
-		}
-
-		if openstackAPIPort == "" {
-			return errors.New("tasks/tenant_connection:Run() OPENSTACK_API_PORT is not defined in environment")
-
+		if openstackAuthUrl == "" {
+			return errors.New("tasks/tenant_connection:Run() OPENSTACK_AUTH_URL is not defined in environment")
 		}
 
 		if openstackUserName == "" {
@@ -68,8 +63,25 @@ func (tenantConnection TenantConnection) Run() error {
 			return errors.New("tasks/tenant_connection:Run() OPENSTACK_PASSWORD is not defined in environment")
 		}
 
-		tenantConf.URL = constants.HTTP + "://" + openstackIP + ":" + openstackAPIPort + "/"
-		tenantConf.AuthURL = constants.HTTP + "://" + openstackIP + ":" + openstackAuthPort + "/" + constants.OpenStackAuthenticationAPI
+		if _, err := url.Parse(openstackPlacementUrl); err != nil {
+			return errors.Wrap(err, "tasks/tenant_connection:Run() OPENSTACK_PLACEMENT_URL is invalid")
+		}
+
+		if _, err := url.Parse(openstackAuthUrl); err != nil {
+			return errors.Wrap(err, "tasks/tenant_connection:Run() OPENSTACK_AUTH_URL is invalid")
+		}
+
+		if !strings.HasSuffix(openstackPlacementUrl, "/") {
+			openstackPlacementUrl += "/"
+		}
+
+		if !strings.HasSuffix(openstackAuthUrl, "/") {
+			openstackAuthUrl += "/"
+		}
+		openstackAuthUrl += constants.OpenStackAuthenticationAPI
+
+		tenantConf.URL = openstackPlacementUrl
+		tenantConf.AuthURL = openstackAuthUrl
 		tenantConf.UserName = openstackUserName
 		tenantConf.Password = openstackPassword
 
@@ -208,11 +220,10 @@ func (tenantConnection TenantConnection) PrintHelp(w io.Writer) {
 	}
 
 	var opsEnv = map[string]string{
-		"OPENSTACK_IP":        "IP for OpenStack deployment",
-		"OPENSTACK_AUTH_PORT": "Authorization Port for OpenStack deployment",
-		"OPENSTACK_API_PORT":  "API Port for OpenStack deployment",
-		"OPENSTACK_USERNAME":  "UserName for OpenStack deployment",
-		"OPENSTACK_PASSWORD":  "Password for OpenStack deployment",
+		"OPENSTACK_AUTH_URL":      "Keystone API endpoint for OpenStack deployment",
+		"OPENSTACK_PLACEMENT_URL": "Placement API endpoint for OpenStack deployment",
+		"OPENSTACK_USERNAME":      "UserName for OpenStack deployment",
+		"OPENSTACK_PASSWORD":      "Password for OpenStack deployment",
 	}
 
 	setup.PrintEnvHelp(w, "Following environment variables are required for tenant-service-connection setup:", "", envHelp)

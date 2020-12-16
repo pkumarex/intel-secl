@@ -30,7 +30,10 @@ func TestDownloadSamlCertValidate(t *testing.T) {
 	c1 := testutility.SetupMockK8sConfiguration(t, port)
 	c2 := testutility.SetupMockK8sConfiguration(t, port)
 	c2.AttestationService.AttestationURL = c2.AttestationService.AttestationURL + "/e"
-	c2.SaveConfiguration(c2.ConfigFile)
+	err := c2.SaveConfiguration(c2.ConfigFile)
+	if err != nil {
+		t.Log("tasks/download_saml_cert_test:TestDownloadSamlCertValidate() : Unable to persist configuration", err)
+	}
 
 	temp, err := ioutil.TempFile("", "samlCert.pem")
 	if err != nil {
@@ -87,6 +90,10 @@ func TestDownloadSamlCertRun(t *testing.T) {
 		t.Errorf("tasks/download_saml_cert_test:TestDownloadSamlCertRun() unable to create samlecert.pem temp file %v", err)
 	}
 	defer func() {
+		cerr := tempSamlFile.Close()
+		if cerr != nil {
+			t.Errorf("Error closing file: %v", cerr)
+		}
 		derr := os.Remove(tempSamlFile.Name())
 		if derr != nil {
 			t.Errorf("Error removing file : %v", derr)

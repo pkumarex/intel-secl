@@ -137,12 +137,11 @@ func TestTenantConnectionRun(t *testing.T) {
 			},
 			args: args{
 				EnvValues: map[string]string{
-					"TENANT":              openstackConfig.Endpoint.Type,
-					"OPENSTACK_IP":        "localhost",
-					"OPENSTACK_AUTH_PORT": port,
-					"OPENSTACK_API_PORT":  port,
-					"OPENSTACK_USERNAME":  openstackConfig.Endpoint.UserName,
-					"OPENSTACK_PASSWORD":  openstackConfig.Endpoint.Password,
+					"TENANT":                  openstackConfig.Endpoint.Type,
+					"OPENSTACK_AUTH_URL":      "http://localhost:" + port,
+					"OPENSTACK_PLACEMENT_URL": "http://localhost:" + port,
+					"OPENSTACK_USERNAME":      openstackConfig.Endpoint.UserName,
+					"OPENSTACK_PASSWORD":      openstackConfig.Endpoint.Password,
 				},
 			},
 			wantErr: false,
@@ -155,11 +154,10 @@ func TestTenantConnectionRun(t *testing.T) {
 			},
 			args: args{
 				EnvValues: map[string]string{
-					"TENANT":              openstackConfig.Endpoint.Type,
-					"OPENSTACK_IP":        "localhost",
-					"OPENSTACK_AUTH_PORT": port,
-					"OPENSTACK_USERNAME":  openstackConfig.Endpoint.UserName,
-					"OPENSTACK_PASSWORD":  openstackConfig.Endpoint.Password,
+					"TENANT":             openstackConfig.Endpoint.Type,
+					"OPENSTACK_AUTH_URL": "http://localhost:" + port,
+					"OPENSTACK_USERNAME": openstackConfig.Endpoint.UserName,
+					"OPENSTACK_PASSWORD": openstackConfig.Endpoint.Password,
 				},
 			},
 			wantErr: true,
@@ -172,10 +170,10 @@ func TestTenantConnectionRun(t *testing.T) {
 			},
 			args: args{
 				EnvValues: map[string]string{
-					"TENANT":              openstackConfig.Endpoint.Type,
-					"OPENSTACK_AUTH_PORT": port,
-					"OPENSTACK_USERNAME":  openstackConfig.Endpoint.UserName,
-					"OPENSTACK_PASSWORD":  openstackConfig.Endpoint.Password,
+					"TENANT":                  openstackConfig.Endpoint.Type,
+					"OPENSTACK_PLACEMENT_URL": "http://localhost:" + port,
+					"OPENSTACK_USERNAME":      openstackConfig.Endpoint.UserName,
+					"OPENSTACK_PASSWORD":      openstackConfig.Endpoint.Password,
 				},
 			},
 			wantErr: true,
@@ -188,11 +186,9 @@ func TestTenantConnectionRun(t *testing.T) {
 			},
 			args: args{
 				EnvValues: map[string]string{
-					"OPENSTACK_IP":        "localhost",
-					"OPENSTACK_AUTH_PORT": port,
-					"OPENSTACK_API_PORT":  port,
-					"OPENSTACK_USERNAME":  openstackConfig.Endpoint.UserName,
-					"OPENSTACK_PASSWORD":  openstackConfig.Endpoint.Password,
+					"TENANT":             openstackConfig.Endpoint.Type,
+					"OPENSTACK_USERNAME": openstackConfig.Endpoint.UserName,
+					"OPENSTACK_PASSWORD": openstackConfig.Endpoint.Password,
 				},
 			},
 			wantErr: true,
@@ -205,11 +201,10 @@ func TestTenantConnectionRun(t *testing.T) {
 			},
 			args: args{
 				EnvValues: map[string]string{
-					"TENANT":              openstackConfig.Endpoint.Type,
-					"OPENSTACK_IP":        "localhost",
-					"OPENSTACK_AUTH_PORT": port,
-					"OPENSTACK_API_PORT":  port,
-					"OPENSTACK_PASSWORD":  openstackConfig.Endpoint.Password,
+					"TENANT":                  openstackConfig.Endpoint.Type,
+					"OPENSTACK_AUTH_URL":      "http://localhost:" + port,
+					"OPENSTACK_PLACEMENT_URL": "http://localhost:" + port,
+					"OPENSTACK_PASSWORD":      openstackConfig.Endpoint.Password,
 				},
 			},
 			wantErr: true,
@@ -222,11 +217,10 @@ func TestTenantConnectionRun(t *testing.T) {
 			},
 			args: args{
 				EnvValues: map[string]string{
-					"TENANT":              openstackConfig.Endpoint.Type,
-					"OPENSTACK_IP":        "localhost",
-					"OPENSTACK_AUTH_PORT": port,
-					"OPENSTACK_API_PORT":  port,
-					"OPENSTACK_USERNAME":  openstackConfig.Endpoint.UserName,
+					"TENANT":                  openstackConfig.Endpoint.Type,
+					"OPENSTACK_AUTH_URL":      "http://localhost:" + port,
+					"OPENSTACK_PLACEMENT_URL": "http://localhost:" + port,
+					"OPENSTACK_USERNAME":      openstackConfig.Endpoint.UserName,
 				},
 			},
 			wantErr: true,
@@ -239,12 +233,11 @@ func TestTenantConnectionRun(t *testing.T) {
 			},
 			args: args{
 				EnvValues: map[string]string{
-					"TENANT":              openstackConfig.Endpoint.Type,
-					"OPENSTACK_IP":        "localhost",
-					"OPENSTACK_AUTH_PORT": port,
-					"OPENSTACK_API_PORT":  port,
-					"OPENSTACK_USERNAME":  "",
-					"OPENSTACK_PASSWORD":  openstackConfig.Endpoint.Password,
+					"TENANT":                  openstackConfig.Endpoint.Type,
+					"OPENSTACK_AUTH_URL":      "http://localhost:" + port,
+					"OPENSTACK_PLACEMENT_URL": "http://localhost:" + port,
+					"OPENSTACK_USERNAME":      "",
+					"OPENSTACK_PASSWORD":      openstackConfig.Endpoint.Password,
 				},
 			},
 			wantErr: true,
@@ -257,12 +250,45 @@ func TestTenantConnectionRun(t *testing.T) {
 			},
 			args: args{
 				EnvValues: map[string]string{
-					"TENANT":              openstackConfig.Endpoint.Type,
-					"OPENSTACK_IP":        "localhost",
-					"OPENSTACK_AUTH_PORT": port,
-					"OPENSTACK_API_PORT":  port,
-					"OPENSTACK_USERNAME":  openstackConfig.Endpoint.UserName,
-					"OPENSTACK_PASSWORD":  "",
+					"TENANT":                  openstackConfig.Endpoint.Type,
+					"OPENSTACK_AUTH_URL":      "http://localhost:" + port,
+					"OPENSTACK_PLACEMENT_URL": "http://localhost:" + port,
+					"OPENSTACK_USERNAME":      openstackConfig.Endpoint.UserName,
+					"OPENSTACK_PASSWORD":      "",
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "tenant-connection-openstack negative test 8",
+			tenantConnection: TenantConnection{
+				TenantConfig:  &config.Endpoint{},
+				ConsoleWriter: os.Stdout,
+			},
+			args: args{
+				EnvValues: map[string]string{
+					"TENANT":                  openstackConfig.Endpoint.Type,
+					"OPENSTACK_AUTH_URL":      "_________________________________abc:localhost1234:" + port,
+					"OPENSTACK_PLACEMENT_URL": "http://localhost:" + port,
+					"OPENSTACK_USERNAME":      openstackConfig.Endpoint.UserName,
+					"OPENSTACK_PASSWORD":      openstackConfig.Endpoint.Password,
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "tenant-connection-openstack negative test 9",
+			tenantConnection: TenantConnection{
+				TenantConfig:  &config.Endpoint{},
+				ConsoleWriter: os.Stdout,
+			},
+			args: args{
+				EnvValues: map[string]string{
+					"TENANT":                  openstackConfig.Endpoint.Type,
+					"OPENSTACK_AUTH_URL":      "http://localhost:" + port,
+					"OPENSTACK_PLACEMENT_URL": "_________________________________abc:localhost1234:" + port,
+					"OPENSTACK_USERNAME":      openstackConfig.Endpoint.UserName,
+					"OPENSTACK_PASSWORD":      openstackConfig.Endpoint.Password,
 				},
 			},
 			wantErr: true,
@@ -281,6 +307,10 @@ func TestTenantConnectionRun(t *testing.T) {
 				t.Log("tasks/tenant_connection_test:TestTenantConnectionRun(): Error in Reading Config File")
 			}
 			defer func() {
+				cerr := temp.Close()
+				if cerr != nil {
+					t.Errorf("Error closing file: %v", cerr)
+				}
 				derr := os.Remove(temp.Name())
 				if derr != nil {
 					t.Errorf("Error removing file :%v", derr)
