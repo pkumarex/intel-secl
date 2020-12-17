@@ -55,6 +55,7 @@ func TestGetHostsFromOpenStack(t *testing.T) {
 	apiURL := configuration.Endpoint.URL
 	userName := configuration.Endpoint.UserName
 	password := configuration.Endpoint.Password
+	certPath := configuration.Endpoint.CertFile
 
 	authUrl, err := url.Parse(authURL)
 	if err != nil {
@@ -68,35 +69,35 @@ func TestGetHostsFromOpenStack(t *testing.T) {
 		return
 	}
 
-	opnstkClient, err := openstack.NewOpenstackClient(authUrl, apiUrl, userName, password)
+	opnstkClient, err := openstack.NewOpenstackClient(authUrl, apiUrl, userName, password, certPath)
 	if err != nil {
 		log.WithError(err).Error("openstackplugin/openstack_plugin_test:TestGetHostsFromOpenStack() Error Initializing Openstack Client")
 	}
 
-	openstack := OpenstackDetails{
+	osdetails := OpenstackDetails{
 		Config:          &configuration,
 		OpenstackClient: opnstkClient,
 	}
 
 	log.Info("openstackplugin/openstack_plugin_test:TestGetHostsFromOpenStack() Fetching Hosts from Openstack")
-	err = GetHostsFromOpenstack(&openstack)
+	err = getHostsFromOpenstack(&osdetails)
 	if err != nil {
 		log.WithError(err).Error("openstackplugin/openstack_plugin_test:TestGetHostsFromOpenStack() Error in getting Hosts from Openstack")
 	}
 
 	log.Info("openstackplugin/openstack_plugin_test:TestGetHostsFromOpenStack() Filtering Hosts from Openstack")
-	for num := range openstack.HostDetails {
+	for num := range osdetails.HostDetails {
 
-		samlReport, err := mockGetHostReports(openstack.HostDetails[num].HostName, openstack.Config, t)
-		err = getCustomTraitsFromSAMLReport(&openstack.HostDetails[num], samlReport)
+		samlReport, err := mockGetHostReports(osdetails.HostDetails[num].HostName, osdetails.Config, t)
+		err = getCustomTraitsFromSAMLReport(&osdetails.HostDetails[num], samlReport)
 		if err != nil {
 			log.WithError(err).Error("openstackplugin/openstack_plugin_test:TestGetHostsFromOpenStack() Error in Filtering Host details for Openstack")
 		}
 	}
-	log.Debug("openstackplugin/openstack_plugin_test:TestGetHostsFromOpenStack() Updating Openstack with the host Details : ", openstack.HostDetails)
+	log.Debug("openstackplugin/openstack_plugin_test:TestGetHostsFromOpenStack() Updating Openstack with the host Details : ", osdetails.HostDetails)
 
 	log.Info("openstackplugin/openstack_plugin_test:TestGetHostsFromOpenStack() Updating traits to Openstack")
-	err = UpdateOpenstackTraits(&openstack)
+	err = updateOpenstackTraits(&osdetails)
 	if err != nil {
 		log.WithError(err).Error("openstackplugin/openstack_plugin_test:TestGetHostsFromOpenStack() Error in Filtering Host details for Openstack")
 	}
@@ -113,10 +114,10 @@ func mockGetHostReports(h string, c *config.Configuration, t *testing.T) (*saml.
 		}
 	}()
 
-	url := "http://localhost" + port + "/mtwilson/v2/reports?latestPerHost=true&hostName=%s"
+	osurl := "http://localhost" + port + "/mtwilson/v2/reports?latestPerHost=true&hostName=%s"
 	method := "GET"
 
-	url = fmt.Sprintf(url, strings.ToLower(h))
+	osurl = fmt.Sprintf(osurl, strings.ToLower(h))
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			MinVersion:         tls.VersionTLS12,
@@ -124,7 +125,7 @@ func mockGetHostReports(h string, c *config.Configuration, t *testing.T) (*saml.
 	}
 	client := &http.Client{Transport: tr}
 
-	req, err := http.NewRequest(method, url, nil)
+	req, err := http.NewRequest(method, osurl, nil)
 
 	if err != nil {
 		fmt.Println(err)
@@ -185,7 +186,7 @@ func TestOpenstackPluginInit(t *testing.T) {
 					Password: testutility.OpenstackPassword,
 				},
 			},
-			wantErr: true,
+			wantErr: false,
 		},
 		{
 			name: "Testing for failures 3",
@@ -242,18 +243,19 @@ func TestOpenstackPluginInit(t *testing.T) {
 			apiURL := oPlugin.Config.Endpoint.URL
 			userName := oPlugin.Config.Endpoint.UserName
 			password := oPlugin.Config.Endpoint.Password
+			certPath := oPlugin.Config.Endpoint.CertFile
 
-			authUrl, err := url.Parse(authURL)
+			authUrl, err := url.ParseRequestURI(authURL)
 			if err != nil {
 				log.WithError(err).Error("openstackplugin/openstack_plugin_test:TestOpenstackPluginInit() unable to parse OpenStack auth url")
 			}
 
-			apiUrl, err := url.Parse(apiURL)
+			apiUrl, err := url.ParseRequestURI(apiURL)
 			if err != nil {
 				log.WithError(err).Error("openstackplugin/openstack_plugin_test:TestOpenstackPluginInit() unable to parse OpenStack api url")
 			}
 
-			openstackClient, err := openstack.NewOpenstackClient(authUrl, apiUrl, userName, password)
+			openstackClient, err := openstack.NewOpenstackClient(authUrl, apiUrl, userName, password, certPath)
 			if err != nil {
 				log.WithError(err).Error("openstackplugin/openstack_plugin_test:TestOpenstackPluginInit() Error in initializing the OpenStack client")
 			}
@@ -300,6 +302,7 @@ func Test_deleteNonAssociatedTraits(t *testing.T) {
 							Type:     constants.OpenStackTenant,
 							UserName: testutility.OpenstackUserName,
 							Password: testutility.OpenstackPassword,
+							CertFile: "",
 						},
 					},
 				},
@@ -311,7 +314,7 @@ func Test_deleteNonAssociatedTraits(t *testing.T) {
 		authURL, _ := url.Parse(tt.args.o.Config.Endpoint.AuthURL)
 		apiURL, _ := url.Parse(tt.args.o.Config.Endpoint.URL)
 
-		opClient, _ := openstack.NewOpenstackClient(authURL, apiURL, tt.args.o.Config.Endpoint.UserName, tt.args.o.Config.Endpoint.Password)
+		opClient, _ := openstack.NewOpenstackClient(authURL, apiURL, tt.args.o.Config.Endpoint.UserName, tt.args.o.Config.Endpoint.Password, tt.args.o.Config.Endpoint.CertFile)
 		tt.args.o.OpenstackClient = opClient
 
 		t.Run(tt.name, func(t *testing.T) {

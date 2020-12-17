@@ -55,6 +55,7 @@ func (app *App) startDaemon() error {
 		apiURL := o.Config.Endpoint.URL
 		userName := o.Config.Endpoint.UserName
 		password := o.Config.Endpoint.Password
+		certPath := o.Config.Endpoint.CertFile
 
 		authUrl, err := url.Parse(authURL)
 		if err != nil {
@@ -66,7 +67,7 @@ func (app *App) startDaemon() error {
 			return errors.Wrap(err, "startService:startDaemon() unable to parse OpenStack api url")
 		}
 
-		openstackClient, err := openstack.NewOpenstackClient(authUrl, apiUrl, userName, password)
+		openstackClient, err := openstack.NewOpenstackClient(authUrl, apiUrl, userName, password, certPath)
 		if err != nil {
 			return errors.Wrap(err, "startService:startDaemon() Error in initializing the OpenStack client")
 		}

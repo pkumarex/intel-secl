@@ -167,7 +167,7 @@ func (tenantConnection TenantConnection) validateService() error {
 			return errors.Wrap(err, "tasks/tenant_connection:validateService() : Unable to parse the api URL")
 		}
 
-		_, err = openstackClient.NewOpenstackClient(authURL, apiURL, conf.UserName, conf.Password)
+		_, err = openstackClient.NewOpenstackClient(authURL, apiURL, conf.UserName, conf.Password, "")
 		if err != nil {
 			return errors.Wrap(err, "tasks/tenant_connection:validateService() : Error Initializing the OpenStack client")
 		}

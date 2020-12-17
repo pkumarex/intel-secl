@@ -26,8 +26,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-//HostDetails for Openstack
-type HostDetails struct {
+//openstackHostDetails for Openstack
+type openstackHostDetails struct {
 	types.HostDetails
 	ResourceProviderGeneration int
 	DefaultTraits              []string
@@ -37,7 +37,7 @@ type HostDetails struct {
 //OpenstackDetails for requesting auth and getting host list and updating traits
 type OpenstackDetails struct {
 	Config             *config.Configuration
-	HostDetails        []HostDetails
+	HostDetails        []openstackHostDetails
 	AllCustomTraits    []string
 	OpenstackClient    *openstackClient.Client
 	TrustedCAsStoreDir string
@@ -46,15 +46,15 @@ type OpenstackDetails struct {
 
 var log = commonLog.GetDefaultLogger()
 
-//GetHostsFromOpenstack Get Hosts from Openstack
-func GetHostsFromOpenstack(openstackDetails *OpenstackDetails) error {
+//getHostsFromOpenstack Get Hosts from Openstack
+func getHostsFromOpenstack(openstackDetails *OpenstackDetails) error {
 	log.Trace("openstackplugin/openstack_plugin:GetHostsFromOpenstack() Entering")
 	defer log.Trace("openstackplugin/openstack_plugin:GetHostsFromOpenstack() Leaving")
 
 	prefixURL := openstackDetails.Config.Endpoint.URL
 	resourcePath := "resource_providers"
 
-	parsedUrl, err := url.Parse(prefixURL + resourcePath)
+	parsedUrl, err := url.ParseRequestURI(prefixURL + resourcePath)
 	if err != nil {
 		return errors.Wrap(err, "openstackplugin/openstack_plugin:GetHostsFromOpenstack()  Unable to parse the resource path url")
 	}
@@ -87,12 +87,12 @@ func GetHostsFromOpenstack(openstackDetails *OpenstackDetails) error {
 		return errors.Wrap(err, "openstackplugin/openstack_plugin:GetHostsFromOpenstack()  Error in unmarshalling the host details from Openstack")
 	}
 
-	var hostDetailsList []HostDetails
+	var hostDetailsList []openstackHostDetails
 
 	log.Debug("openstackplugin/openstack_plugin:GetHostsFromOpenstack() getting host details list from resource providers")
 	for _, actualObject := range openStackResources.ResourceProviders {
 
-		hostDetails := HostDetails{}
+		hostDetails := openstackHostDetails{}
 		hostDetails.HostID = actualObject.HostID
 		hostDetails.HostName = actualObject.Name
 
@@ -105,8 +105,8 @@ func GetHostsFromOpenstack(openstackDetails *OpenstackDetails) error {
 	return nil
 }
 
-//FilterHostReportsForOpenstack Get Host Reports
-func FilterHostReportsForOpenstack(hostDetails *HostDetails, openstackDetails *OpenstackDetails) error {
+//filterHostReportsForOpenstack Get Host Reports
+func filterHostReportsForOpenstack(hostDetails *openstackHostDetails, openstackDetails *OpenstackDetails) error {
 
 	log.Trace("openstackplugin/openstack_plugin:FilterHostReportsForOpenstack() Entering")
 	defer log.Trace("openstackplugin/openstack_plugin:FilterHostReportsForOpenstack() Leaving")
@@ -170,7 +170,7 @@ func FilterHostReportsForOpenstack(hostDetails *HostDetails, openstackDetails *O
 }
 
 // getCustomTraitsFromSAMLReport pulls custom traits from the HVS SAML report
-func getCustomTraitsFromSAMLReport(hostDetails *HostDetails, samlReport *saml.Saml) error {
+func getCustomTraitsFromSAMLReport(hostDetails *openstackHostDetails, samlReport *saml.Saml) error {
 
 	log.Trace("openstackplugin/openstack_plugin:getCustomTraitsFromSAMLReport() Entering")
 	defer log.Trace("openstackplugin/openstack_plugin:getCustomTraitsFromSAMLReport() Leaving")
@@ -187,7 +187,7 @@ func getCustomTraitsFromSAMLReport(hostDetails *HostDetails, samlReport *saml.Sa
 		if strings.HasPrefix(key, "TAG") {
 			log.Debugf("openstackplugin/openstack_plugin:getCustomTraitsFromSAMLReport() Constructing custom trait for Asset tag: %s - %s", key, value)
 			prefix := constants.IseclTraitPrefix + constants.TraitAssetTagPrefix
-			trait := GetFormattedCustomTraits(prefix, key, value)
+			trait := getFormattedCustomTraits(prefix, key, value)
 			customTraits = append(customTraits, trait)
 
 		} else if strings.EqualFold(as.Name, "TRUST_OVERALL") && strings.EqualFold(value, "true") { //Trust tags
@@ -197,7 +197,7 @@ func getCustomTraitsFromSAMLReport(hostDetails *HostDetails, samlReport *saml.Sa
 		} else if strings.HasPrefix(as.Name, "FEATURE") && !strings.EqualFold(value, "false") { //HWFeature tags
 			log.Debugf("openstackplugin/openstack_plugin:getCustomTraitsFromSAMLReport() Constructing custom trait for HWFeature tag: %s", key)
 			prefix := constants.IseclTraitPrefix + constants.TraitHardwareFeaturesPrefix
-			trait := GetFormattedCustomTraits(prefix, key, "")
+			trait := getFormattedCustomTraits(prefix, key, "")
 			customTraits = append(customTraits, trait)
 		}
 	}
@@ -214,22 +214,22 @@ func getCustomTraitsFromSAMLReport(hostDetails *HostDetails, samlReport *saml.Sa
 }
 
 // getCustomTraitsFromPlatformData sets the custom traits per SGX-HVS Platform Data
-func getCustomTraitsFromPlatformData(hostDetails *HostDetails) error {
+func getCustomTraitsFromPlatformData(hostDetails *openstackHostDetails) error {
 	log.Trace("openstackplugin/openstack_plugin:getCustomTraitsFromPlatformData() Entering")
 	defer log.Trace("openstackplugin/openstack_plugin:getCustomTraitsFromPlatformData() Leaving")
 
 	var traitSet []string
 
 	log.Debug("openstackplugin/openstack_plugin:getCustomTraitsFromPlatformData() Getting traits from the SGX PlatformData")
-	traitSet = append(traitSet, GetFormattedCustomTraits(constants.IseclTraitPrefix+constants.TraitDelimiter, constants.SgxTraitEnabled, strconv.FormatBool(hostDetails.SgxEnabled)))
-	traitSet = append(traitSet, GetFormattedCustomTraits(constants.IseclTraitPrefix+constants.TraitDelimiter, constants.SgxTraitSupported, strconv.FormatBool(hostDetails.SgxSupported)))
-	traitSet = append(traitSet, GetFormattedCustomTraits(constants.IseclTraitPrefix+constants.TraitDelimiter, constants.SgxTraitTcbUpToDate, strconv.FormatBool(hostDetails.TcbUpToDate)))
-	traitSet = append(traitSet, GetFormattedCustomTraits(constants.IseclTraitPrefix+constants.TraitDelimiter, constants.SgxTraitFlcEnabled, strconv.FormatBool(hostDetails.FlcEnabled)))
+	traitSet = append(traitSet, getFormattedCustomTraits(constants.IseclTraitPrefix+constants.TraitDelimiter, constants.SgxTraitEnabled, strconv.FormatBool(hostDetails.SgxEnabled)))
+	traitSet = append(traitSet, getFormattedCustomTraits(constants.IseclTraitPrefix+constants.TraitDelimiter, constants.SgxTraitSupported, strconv.FormatBool(hostDetails.SgxSupported)))
+	traitSet = append(traitSet, getFormattedCustomTraits(constants.IseclTraitPrefix+constants.TraitDelimiter, constants.SgxTraitTcbUpToDate, strconv.FormatBool(hostDetails.TcbUpToDate)))
+	traitSet = append(traitSet, getFormattedCustomTraits(constants.IseclTraitPrefix+constants.TraitDelimiter, constants.SgxTraitFlcEnabled, strconv.FormatBool(hostDetails.FlcEnabled)))
 
 	if hostDetails.EpcSize != "" {
-		traitSet = append(traitSet, GetFormattedCustomTraits(constants.IseclTraitPrefix+constants.TraitDelimiter, constants.SgxTraitEpcSize, hostDetails.EpcSize))
+		traitSet = append(traitSet, getFormattedCustomTraits(constants.IseclTraitPrefix+constants.TraitDelimiter, constants.SgxTraitEpcSize, hostDetails.EpcSize))
 	} else {
-		traitSet = append(traitSet, GetFormattedCustomTraits(constants.IseclTraitPrefix+constants.TraitDelimiter, constants.SgxTraitEpcSize, constants.SgxTraitEpcSizeNotAvailable))
+		traitSet = append(traitSet, getFormattedCustomTraits(constants.IseclTraitPrefix+constants.TraitDelimiter, constants.SgxTraitEpcSize, constants.SgxTraitEpcSizeNotAvailable))
 	}
 
 	// persist custom traits
@@ -238,8 +238,8 @@ func getCustomTraitsFromPlatformData(hostDetails *HostDetails) error {
 	return nil
 }
 
-//GetFormattedCustomTraits Format the custom Traits with the "CUSTOM_ISECL" prefix
-func GetFormattedCustomTraits(prefix string, tagKey string, tagValue string) string {
+//getFormattedCustomTraits Format the custom Traits with the "CUSTOM_ISECL" prefix
+func getFormattedCustomTraits(prefix string, tagKey string, tagValue string) string {
 
 	log.Trace("openstackplugin/openstack_plugin:GetFormattedCustomTraits() Entering")
 	defer log.Trace("openstackplugin/openstack_plugin:GetFormattedCustomTraits() Leaving")
@@ -263,8 +263,8 @@ func GetFormattedCustomTraits(prefix string, tagKey string, tagValue string) str
 	return formattedString
 }
 
-//UpdateOpenstackTraits Update the traits for the resources
-func UpdateOpenstackTraits(openstackDetails *OpenstackDetails) error {
+//updateOpenstackTraits Update the traits for the resources
+func updateOpenstackTraits(openstackDetails *OpenstackDetails) error {
 
 	log.Trace("openstackplugin/openstack_plugin:UpdateOpenstackTraits() Entering")
 	defer log.Trace("openstackplugin/openstack_plugin:UpdateOpenstackTraits() Leaving")
@@ -313,7 +313,7 @@ func UpdateOpenstackTraits(openstackDetails *OpenstackDetails) error {
 }
 
 //getTraitsForResource Get traits for the Openstack Resources
-func getTraitsForResource(hostDetails *HostDetails, openstackDetails *OpenstackDetails) error {
+func getTraitsForResource(hostDetails *openstackHostDetails, openstackDetails *OpenstackDetails) error {
 
 	log.Trace("openstackplugin/openstack_plugin:getTraitsForResource() Entering")
 	defer log.Trace("openstackplugin/openstack_plugin:getTraitsForResource() Leaving")
@@ -414,7 +414,7 @@ func createCustomTraits(traits []string, openstackDetails *OpenstackDetails) err
 }
 
 //associateTraitsForResource Associate Traits for resource
-func associateTraitsForResource(hostDetails *HostDetails, openstackDetails *OpenstackDetails) error {
+func associateTraitsForResource(hostDetails *openstackHostDetails, openstackDetails *OpenstackDetails) error {
 
 	log.Trace("openstackplugin/openstack_plugin:associateTraitsForResource() Entering")
 	defer log.Trace("openstackplugin/openstack_plugin:associateTraitsForResource() Leaving")
@@ -575,23 +575,23 @@ func SendDataToEndPoint(openstack OpenstackDetails) error {
 	defer log.Trace("openstackplugin/openstack_plugin:SendDataToEndPoint() Leaving")
 
 	log.Debug("openstackplugin/openstack_plugin:SendDataToEndPoint() Fetching Hosts from Openstack")
-	err := GetHostsFromOpenstack(&openstack)
+	err := getHostsFromOpenstack(&openstack)
 	if err != nil {
 		return errors.Wrap(err, "openstackplugin/openstack_plugin:SendDataToEndPoint() Error in getting Hosts from Openstack")
 	}
 
 	log.Debug("openstackplugin/openstack_plugin:SendDataToEndPoint() Filtering Hosts from Openstack")
 
-	for index := range openstack.HostDetails {
-		err := FilterHostReportsForOpenstack(&openstack.HostDetails[index], &openstack)
+	for _, hostDetail := range openstack.HostDetails {
+		err := filterHostReportsForOpenstack(&hostDetail, &openstack)
 		if err != nil {
-			errors.Wrapf(err, "openstackplugin/openstack_plugin:SendDataToEndPoint() Error in Filtering Host details for Openstack host %s", openstack.HostDetails[index].HostID.String())
-			return err
+			log.WithError(err).Errorf("openstackplugin/openstack_plugin:SendDataToEndPoint() Error in Filtering"+
+				" Host details for Openstack host %s", hostDetail.HostID.String())
 		}
 	}
 
 	log.Info("openstackplugin/openstack_plugin:SendDataToEndPoint() Updating traits to Openstack for host : ", openstack.HostDetails)
-	err = UpdateOpenstackTraits(&openstack)
+	err = updateOpenstackTraits(&openstack)
 	if err != nil {
 		return errors.Wrap(err, "openstackplugin/openstack_plugin:SendDataToEndPoint() Error in Filtering Host details for Openstack")
 	}

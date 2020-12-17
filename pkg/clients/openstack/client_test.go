@@ -23,8 +23,6 @@ var allTraitsFilePath = "../../ihub/test/resources/all_traits.json"
 var openstackAuthToken = "gAAAAABfCJHzESrTqqH7H3Vpx7RWAdZehUb9gojm11klJ8RIXzhMEnkG94HLTFepQNrctmngE4qRmHolWNNyKO6UYjIKC8QmyGyUksLZxtcjMYlQbVfshCqwxW0iuVF_X9LnQIqbxucfqTjzf8nXVg2Yp3Onxves_ghQAUlld3-dMY-eFf8aDKc"
 var userName = "admin"
 var password = "password"
-var authUrl *url.URL
-var apiUrl *url.URL
 var traitsUrl *url.URL
 var emptyUrl *url.URL
 
@@ -42,12 +40,14 @@ func TestNewOpenstackClient(t *testing.T) {
 		apiURL   string
 		userName string
 		password string
+		certPath string
 	}
 	tests := []struct {
 		name       string
 		args       args
 		wantClient bool
 		wantErr    bool
+		certPath   string
 	}{
 		{
 			name: "Test For New client with Valid data",
@@ -95,7 +95,7 @@ func TestNewOpenstackClient(t *testing.T) {
 				t.Errorf("openstack/client_test:TestNewOpenstackClient(): unable to parse the api url,error = %v", err)
 				return
 			}
-			got, err := NewOpenstackClient(authUrl, apiUrl, tt.args.userName, tt.args.password)
+			got, err := NewOpenstackClient(authUrl, apiUrl, tt.args.userName, tt.args.password, tt.args.certPath)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("openstack/client_test:TestNewOpenstackClient(): error = %v, wantErr %v", err, tt.wantErr)
@@ -124,7 +124,7 @@ func TestSendRequest(t *testing.T) {
 		t.Errorf("openstack/client_test:TestSendRequest(): unable to parse the auth url,error = %v", err)
 		return
 	}
-	apiUrl, err = url.Parse("http://localhost" + portString + "/")
+	apiUrl, err := url.Parse("http://localhost" + portString + "/")
 	if err != nil {
 		t.Errorf("openstack/client_test:TestSendRequest(): unable to parse the api url,error = %v", err)
 		return
@@ -228,7 +228,7 @@ func TestUpdateOpenstackToken(t *testing.T) {
 		t.Errorf("openstack/client_test:TestUpdateOpenstackToken(): unable to parse the auth url,error = %v", err)
 		return
 	}
-	apiUrl, err = url.Parse("http://localhost" + portString + "/")
+	apiUrl, err := url.Parse("http://localhost" + portString + "/")
 	if err != nil {
 		t.Errorf("openstack/client_test:TestUpdateOpenstackToken(): unable to parse the api url,error = %v", err)
 		return
@@ -306,7 +306,7 @@ func TestGetOpenstackHTTPClient(t *testing.T) {
 		return
 	}
 
-	apiUrl, err = url.Parse("http://localhost" + portString + "/")
+	apiUrl, err := url.Parse("http://localhost" + portString + "/")
 	if err != nil {
 		t.Errorf("openstack/client_test:TestUpdateOpenstackToken(): unable to parse the api url,error = %v", err)
 		return

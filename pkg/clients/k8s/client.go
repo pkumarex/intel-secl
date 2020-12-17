@@ -88,8 +88,8 @@ func (k8sClient *Client) validateKubernetesDetails() error {
 	}
 
 	if k8sClient.CertPath != "" {
-		if _, err := os.Stat(k8sClient.CertPath); os.IsNotExist(err) {
-			return errors.Wrap(err, "K8s/client:validateKubernetesDetails() K8s Cert File does not exist")
+		if _, err := os.Stat(k8sClient.CertPath); err != nil {
+			return errors.Wrap(err, "K8s/client:validateKubernetesDetails() K8s cert file cannot be read")
 		}
 	}
 
