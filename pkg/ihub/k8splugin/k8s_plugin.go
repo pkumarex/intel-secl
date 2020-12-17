@@ -419,6 +419,7 @@ func SendDataToEndPoint(kubernetes KubernetesDetails) error {
 			err := FilterHostReports(&kubernetes, &hostDetails, kubernetes.TrustedCAsStoreDir, kubernetes.SamlCertFilePath)
 			if err != nil {
 				log.WithError(err).Error("k8splugin/k8s_plugin:SendDataToEndPoint() Error in Filtering Report for Hosts")
+				continue
 			}
 			kubernetes.HostDetailsMap[key] = hostDetails
 		}
@@ -430,16 +431,19 @@ func SendDataToEndPoint(kubernetes KubernetesDetails) error {
 				log.Infof("k8splugin/k8s_plugin:SendDataToEndPoint() Host %s doesn't exist in SHVS: removing from map", hostDetails.HostID)
 				//host doesn't exist remove from the map
 				delete(kubernetes.HostDetailsMap, key)
+				continue
 			}
 
 			err = json.Unmarshal(platformData, &sgxData)
 			if err != nil {
-				return errors.Wrap(err, "k8splugin/k8s_plugin:SendDataToEndPoint() SGX Platform data unmarshal failed")
+				log.WithError(err).Error("k8splugin/k8s_plugin:SendDataToEndPoint() SGX Platform data unmarshal failed")
+				continue
 			}
 
 			// need to validate contents of EpcSize
 			if !regexp.MustCompile(constants.RegexEpcSize).MatchString(sgxData[0].EpcSize) {
-				return errors.Errorf("k8splugin/k8s_plugin:SendDataToEndPoint() Invalid EPC Size value")
+				log.WithError(err).Error("k8splugin/k8s_plugin:SendDataToEndPoint() Invalid EPC Size value")
+				continue
 			}
 			hostDetails.EpcSize = sgxData[0].EpcSize
 			hostDetails.FlcEnabled = sgxData[0].FlcEnabled
