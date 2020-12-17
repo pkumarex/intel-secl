@@ -8,9 +8,6 @@ import (
 	"crypto/x509"
 	"encoding/xml"
 	"fmt"
-	"net/url"
-	"strings"
-
 	"github.com/intel-secl/intel-secl/v3/pkg/clients/vs"
 	"github.com/intel-secl/intel-secl/v3/pkg/ihub/config"
 	"github.com/intel-secl/intel-secl/v3/pkg/ihub/constants"
@@ -19,6 +16,7 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/os"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/saml"
 	"github.com/pkg/errors"
+	"net/url"
 )
 
 var log = commonLog.GetDefaultLogger()
@@ -100,7 +98,7 @@ func GetHostReports(h string, conf *config.Configuration, certDirectory, samlCer
 		filterType = "hostHardwareId"
 	}
 	reportUrl = reportUrl + filterType + "=%s"
-	reportUrl = fmt.Sprintf(reportUrl, strings.ToLower(h))
+	reportUrl = fmt.Sprintf(reportUrl, h)
 
 	log.Debug("attestationPlugin/vs_plugin:GetHostReports() Reports URL : " + reportUrl)
 
