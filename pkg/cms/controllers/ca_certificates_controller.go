@@ -21,6 +21,7 @@ func (controller CACertificatesController) GetCACertificates(httpWriter http.Res
 	log.Trace("resource/ca_certificates:GetCACertificates() Entering")
 	defer log.Trace("resource/ca_certificates:GetCACertificates() Leaving")
 
+	httpWriter.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
 	if httpRequest.Header.Get("Accept") != "application/x-pem-file" {
 		httpWriter.WriteHeader(http.StatusNotAcceptable)
 		_, err := httpWriter.Write([]byte("Accept type not supported"))
