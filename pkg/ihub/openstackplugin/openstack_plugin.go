@@ -582,11 +582,11 @@ func SendDataToEndPoint(openstack OpenstackDetails) error {
 
 	log.Debug("openstackplugin/openstack_plugin:SendDataToEndPoint() Filtering Hosts from Openstack")
 
-	for _, hostDetail := range openstack.HostDetails {
-		err := filterHostReportsForOpenstack(&hostDetail, &openstack)
+	for index := range openstack.HostDetails {
+		err := filterHostReportsForOpenstack(&openstack.HostDetails[index], &openstack)
 		if err != nil {
 			log.WithError(err).Errorf("openstackplugin/openstack_plugin:SendDataToEndPoint() Error in Filtering"+
-				" Host details for Openstack host %s", hostDetail.HostID.String())
+				" Host details for Openstack host %s", openstack.HostDetails[index].HostID.String())
 		}
 	}
 
