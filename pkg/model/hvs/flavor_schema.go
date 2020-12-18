@@ -4,7 +4,7 @@
  */
 package hvs
 
-type EventLogCreteria struct {
+type EventLogCriteria struct {
 	TypeID      int      `json:"type_id"`     //oneof-required
 	TypeName    string   `json:"type_name"`   //oneof-required
 	Tags        []string `json:"tags"`        //oneof-required
@@ -12,7 +12,7 @@ type EventLogCreteria struct {
 }
 
 type EventLogEqual struct {
-	Events      []EventLogCreteria `json:"events"`
+	Events      []EventLogCriteria `json:"events"`
 	ExcludeTags []string           `json:"exclude_tags"`
 }
 
@@ -21,7 +21,7 @@ type PCRS struct {
 	Measurement      string             `json:"measurement"` //required
 	PCRMatches       bool               `json:"pcr_matches"`
 	EventlogEqual    []EventLogEqual    `json:"eventlog_equals"`
-	EventlogIncludes []EventLogCreteria `json:"eventlog_includes"`
+	EventlogIncludes []EventLogCriteria `json:"eventlog_includes"`
 }
 
 type FlavorSchema struct {
