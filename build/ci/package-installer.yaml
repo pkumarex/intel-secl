@@ -43,4 +43,6 @@ package:kbs:installer:
   extends: .installer-normal-components
 
 package:authservice:installer:
-  extends: .installer-normal-components
+  extends: .installer-common
+  script:
+    - make authservice-installer
