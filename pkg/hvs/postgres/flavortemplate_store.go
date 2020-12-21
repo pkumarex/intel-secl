@@ -26,13 +26,20 @@ func (ft *FlavorTemplateStore) Create(flvrTemplate *hvs.FlavorTemplate) (*hvs.Fl
 	defaultLog.Trace("postgres/flavortemplate_store:Create() Entering")
 	defer defaultLog.Trace("postgres/flavortemplate_store:Create() Leaving")
 
+	if flvrTemplate.ID == uuid.Nil {
+		flavorTemplateID, err := uuid.NewRandom()
+		if err != nil {
+		 	return nil, errors.Wrap(err, "postgres/flavortemplate_store:Create() failed to generate flavor template ID")
+		}
+
+		flvrTemplate.ID = flavorTemplateID
+	}
+
 	createdTemplate := flavorTemplate{
-		ID:      uuid.New(),
+		ID:      flvrTemplate.ID,
 		Content: PGFlavorTemplateContent(*flvrTemplate),
 		Deleted: false,
 	}
-
-	flvrTemplate.ID = createdTemplate.ID
 
 	if err := ft.Store.Db.Create(&createdTemplate).Error; err != nil {
 		return nil, errors.Wrap(err, "postgres/flavortemplate_store:Create() failed to create flavor")
@@ -66,7 +73,7 @@ func (ft *FlavorTemplateStore) Retrieve(templateID uuid.UUID) (*hvs.FlavorTempla
 	return &flavorTemplate, nil
 }
 
-func (ft *FlavorTemplateStore) Search(included bool) ([]hvs.FlavorTemplate, error) {
+func (ft *FlavorTemplateStore) Search(includeDeleted bool) ([]hvs.FlavorTemplate, error) {
 	defaultLog.Trace("postgres/flavortemplate_store:Search() Entering")
 	defer defaultLog.Trace("postgres/flavortemplate_store:Search() Leaving")
 
@@ -84,7 +91,7 @@ func (ft *FlavorTemplateStore) Search(included bool) ([]hvs.FlavorTemplate, erro
 			return nil, errors.Wrap(err, "postgres/flavortemplate_store:Search() - Could not scan record ")
 		}
 		//if (included && template.Deleted) || (!included && !template.Deleted) {
-		if included || (!included && !template.Deleted) {
+		if includeDeleted || (!includeDeleted && !template.Deleted) {
 			flavorTemplate := hvs.FlavorTemplate{
 				ID:          template.ID,
 				Label:       template.Content.Label,
