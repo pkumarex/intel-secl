@@ -30,7 +30,6 @@ type FlavorTemplateController struct {
 }
 
 func (ftc FlavorTemplateController) Create(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
-
 	defaultLog.Trace("controllers/flavortemplate_controller:Create() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Create() Leaving")
 
@@ -39,6 +38,7 @@ func (ftc FlavorTemplateController) Create(w http.ResponseWriter, r *http.Reques
 		if strings.Contains(err.Error(), "Invalid Content-Type") {
 			return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: "Invalid Content-Type"}
 		}
+		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Create() Failed to complete create flavor template")
 		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: err.Error()}
 	}
 
@@ -46,7 +46,7 @@ func (ftc FlavorTemplateController) Create(w http.ResponseWriter, r *http.Reques
 	flavorTemplate, err := ftc.Store.Create(&flavorTemplateReq)
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Create() Error creation flavor template")
-		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: err.Error()}
+		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Unable to create flavor template"}
 	}
 
 	return flavorTemplate, http.StatusOK, nil
