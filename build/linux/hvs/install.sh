@@ -51,7 +51,6 @@ ln -sfT $BIN_PATH/$COMPONENT_NAME /usr/bin/$COMPONENT_NAME
 cp EndorsementCA-external.pem $CERTDIR_ENDORSEMENTCA/ && chown $SERVICE_USERNAME:$SERVICE_USERNAME $CERTDIR_ENDORSEMENTCA/EndorsementCA-external.pem
 
 # Copy Schema files
-
 cp -r schema/ $CONFIG_PATH/ && chown $SERVICE_USERNAME:$SERVICE_USERNAME $SCHEMA_PATH/common.schema.json $SCHEMA_PATH/Flavor-template.json
 
 # make log files world readable
