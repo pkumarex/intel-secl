@@ -43,14 +43,14 @@ type PCR struct {
 
 //EventLogEquals - To store event log need be equal with specified PCR.
 type EventLogEquals struct {
-	ExculdingTags *[]string `json:"excluding_tags"`
+	ExcludingTags []string `json:"excluding_tags,omitempty"`
 }
 
 type PcrRules struct {
 	Pcr              PCR             `json:"pcr"`
 	PcrMatches       bool            `json:"pcr_matches"`
 	EventlogEquals   *EventLogEquals `json:"eventlog_equals,omitempty"`
-	EventlogIncludes *[]string       `json:"eventlog_includes"`
+	EventlogIncludes []string        `json:"eventlog_includes,omitempty"`
 }
 
 // swagger:parameters FlavorPart
@@ -70,8 +70,8 @@ type FlavorParts struct {
 
 type FlavorTemplate struct {
 	// swagger: strfmt uuid
-	ID          uuid.UUID   `json:"id" gorm:"primary_key;type:uuid"`
-	Label       string      `json:"label"`
-	Condition   []string    `json:"condition" sql:"type:text[]"`
-	FlavorParts FlavorParts `json:"flavor_parts,omitempty" sql:"type:JSONB"`
+	ID          uuid.UUID    `json:"id" gorm:"primary_key;type:uuid"`
+	Label       string       `json:"label"`
+	Condition   []string     `json:"condition" sql:"type:text[]"`
+	FlavorParts *FlavorParts `json:"flavor_parts,omitempty" sql:"type:JSONB"`
 }

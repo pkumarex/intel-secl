@@ -36,10 +36,6 @@ var defaultFlavorTemplateNames = []string{
 	"default-pfr",
 }
 
-// var defaultFlavorTemplateNames = []string{
-// 	"default-bmc",
-// }
-
 func (t *CreateDefaultTemplate) Run() error {
 	var templates []hvs.FlavorTemplate
 
@@ -49,7 +45,7 @@ func (t *CreateDefaultTemplate) Run() error {
 	}
 
 	if len(t.deleted) != 0 {
-		// Recover delete default template.
+		// Recover deleted default template.
 		err := ftStore.Recover(t.deleted)
 		if err != nil {
 			return errors.Wrapf(err, "failed to recover default flavor template(s) %s ", t.deleted)
@@ -64,7 +60,6 @@ func (t *CreateDefaultTemplate) Run() error {
 	}
 
 	for _, ft := range templates {
-		// create default flavortemplates ONLY if it does not exist already
 		_, err := ftStore.Create(&ft)
 		if err != nil {
 			return errors.Wrap(err, "failed to create default flavor template with ID \""+ft.ID.String()+"\"")
