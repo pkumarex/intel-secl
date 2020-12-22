@@ -7,19 +7,20 @@ package hosttrust
 
 import (
 	"encoding/xml"
+	"reflect"
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/services/hosttrust/rules"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/utils"
-	flavormodel "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	cf "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
+	flavormodel "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"reflect"
-	"strings"
 )
 
 // FlavorVerify.java: 529
@@ -171,9 +172,9 @@ func (v *Verifier) verifyFlavors(hostID uuid.UUID, flavors []hvs.SignedFlavor, h
 					return &hvs.TrustReport{}, errors.Wrap(err, "hosttrust/trust_report:verifyFlavors() Error verifying flavor")
 				}
 				if individualTrustReport.Trusted {
-					if reflect.DeepEqual(collectiveTrustReport, hvs.TrustReport{}){
+					if reflect.DeepEqual(collectiveTrustReport, hvs.TrustReport{}) {
 						collectiveTrustReport = *individualTrustReport
-					} else{
+					} else {
 						collectiveTrustReport.AddResults(individualTrustReport.Results)
 					}
 					newTrustCaches = append(newTrustCaches, signedFlavor.Flavor.Meta.ID)
@@ -182,9 +183,9 @@ func (v *Verifier) verifyFlavors(hostID uuid.UUID, flavors []hvs.SignedFlavor, h
 					faults := 0
 					for _, result := range individualTrustReport.Results {
 						faults += len(result.Faults)
-						for _, fault := range result.Faults{
+						for _, fault := range result.Faults {
 							log.Debugf("Flavor [%s] did not match host [%s] due to fault: %s",
-								signedFlavor.Flavor.Meta.ID, hostID, fault.Name )
+								signedFlavor.Flavor.Meta.ID, hostID, fault.Name)
 						}
 					}
 					untrusted.flavorPartMap[flvMatchPolicy.FlavorPart] =
@@ -309,11 +310,19 @@ func getHostManifestMap(hostManifest *types.HostManifest, flavorParts []cf.Flavo
 							})
 						}
 					}
-					if hostInfo.HardwareFeatures.SUEFI != nil {
-						pfQueryAttrs = append(pfQueryAttrs, models.FlavorMetaKv{
-							Key:   "hardware.feature.SUEFI.enabled",
-							Value: hostInfo.HardwareFeatures.SUEFI.Enabled,
-						})
+					if hostInfo.HardwareFeatures.UEFI != nil {
+						if hostInfo.HardwareFeatures.UEFI.Enabled {
+							pfQueryAttrs = append(pfQueryAttrs, models.FlavorMetaKv{
+								Key:   "hardware.feature.UEFI.enabled",
+								Value: hostInfo.HardwareFeatures.UEFI.Enabled,
+							})
+						}
+						if hostInfo.HardwareFeatures.UEFI.Meta.SecureBootEnabled {
+							pfQueryAttrs = append(pfQueryAttrs, models.FlavorMetaKv{
+								Key:   "hardware.feature.UEFI.Meta.SecureBootEnabled",
+								Value: hostInfo.HardwareFeatures.UEFI.Meta.SecureBootEnabled,
+							})
+						}
 					}
 					if hostInfo.HardwareFeatures.TPM.Enabled {
 						pfQueryAttrs = append(pfQueryAttrs, models.FlavorMetaKv{

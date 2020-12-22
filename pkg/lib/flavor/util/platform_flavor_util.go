@@ -224,11 +224,12 @@ func (pfutil PlatformFlavorUtil) GetHardwareSectionDetails(hostInfo *taModel.Hos
 			feature.CBNT = &cbnt
 		}
 
-		suefi := cm.SUEFI{}
-		// and SUEFI state
-		if hostInfo.HardwareFeatures.SUEFI != nil {
-			suefi.Enabled = hostInfo.HardwareFeatures.SUEFI.Enabled
-			feature.SUEFI = &suefi
+		uefi := cm.UEFI{}
+		// and UEFI state
+		if hostInfo.HardwareFeatures.UEFI != nil && hostInfo.HardwareFeatures.UEFI.Enabled {
+			uefi.Enabled = hostInfo.HardwareFeatures.UEFI.Enabled
+			uefi.SecureBootEnabled = hostInfo.HardwareFeatures.UEFI.Meta.SecureBootEnabled
+			feature.UEFI = &uefi
 		}
 
 		hardware.Feature = &feature
@@ -475,8 +476,13 @@ func (pfutil PlatformFlavorUtil) getSupportedHardwareFeatures(hostDetails *taMod
 		features = append(features, constants.Txt)
 	}
 
-	if hostDetails.HardwareFeatures.SUEFI != nil && hostDetails.HardwareFeatures.SUEFI.Enabled {
-		features = append(features, constants.Suefi)
+	if hostDetails.HardwareFeatures.UEFI != nil {
+		if hostDetails.HardwareFeatures.UEFI.Enabled {
+			features = append(features, constants.Uefi)
+		}
+		if hostDetails.HardwareFeatures.UEFI.Meta.SecureBootEnabled {
+			features = append(features, constants.Sboot)
+		}
 	}
 
 	return features

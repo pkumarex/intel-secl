@@ -32,9 +32,10 @@ type CBNT struct {
 	Profile string `json:"profile,omitempty"`
 }
 
-// SUEFI
-type SUEFI struct {
-	Enabled bool `json:"enabled,omitempty"`
+// UEFI
+type UEFI struct {
+	Enabled           bool `json:"enabled,omitempty"`
+	SecureBootEnabled bool `json:"secure_boot_enabled,omitempty"`
 }
 
 // Feature encapsulates the presence of various Platform security features on the Host hardware
@@ -43,5 +44,5 @@ type Feature struct {
 	TXT    *TXT    `json:"TXT,omitempty"`
 	TPM    *TPM    `json:"TPM,omitempty"`
 	CBNT   *CBNT   `json:"CBNT,omitempty"`
-	SUEFI  *SUEFI  `json:"SUEFI,omitempty"`
+	UEFI   *UEFI   `json:"SUEFI,omitempty"`
 }

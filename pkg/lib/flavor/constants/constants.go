@@ -18,7 +18,8 @@ const (
 	Tpm   = "TPM"
 	Txt   = "TXT"
 	Cbnt  = "CBNT"
-	Suefi = "SUEFI"
+	Uefi  = "UEFI"
+	Sboot = "SecureBootEnabled"
 
 	//Pcr
 	PcrClassNamePrefix = "com.intel.mtwilson.core.common.model.PcrSha"
