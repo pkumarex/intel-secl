@@ -11,24 +11,13 @@ import (
 // Flavor sourced from the lib/flavor - this is a external request/response on the HVS API
 type Flavor = model.Flavor
 
-// FlavorFC sourced from the lib/flavor - this is a external request/response on the HVS API
-type FlavorFC = model.FlavorFC
-
 // FlavorCollection is a list of Flavor objects in response to a Flavor Search query
 type FlavorCollection struct {
 	Flavors []Flavors `json:"flavors"`
 }
 
-type FlavorCollectionFC struct {
-	Flavors []FlavorsFC `json:"flavors"`
-}
-
 type Flavors struct {
 	Flavor Flavor `json:"flavor"`
-}
-
-type FlavorsFC struct {
-	Flavor FlavorFC `json:"flavor"`
 }
 
 // SignedFlavor sourced from the lib/flavor - this is a external request/response on the HVS API
