@@ -19,12 +19,6 @@ type EventLogEquals struct {
 	ExculdingTags *[]string `json:"excluding_tags,omitempty"`
 }
 
-// //EventLogEquals - To store Event Log need be included with specified PCR.
-// type EventLogIncludes struct {
-// 	PCR         PCR      `json:"pcr"`
-// 	IncludeTags []string `json:"include_tags,omitempty"`
-// }
-
 type PcrRules struct {
 	Pcr              PCR             `json:"pcr"`
 	PcrMatches       *bool           `json:"pcr_matches,omitempty"`

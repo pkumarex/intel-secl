@@ -11,6 +11,7 @@ package verifier
 
 import (
 	"crypto/x509"
+
 	commLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
@@ -27,14 +28,12 @@ type VerifierCertificates struct {
 }
 
 // Verifier The interface that exposes the verification of a host manifest
-// and signed flavor.  The 'skipFlavorsignatureVerfication' parameter can 
+// and signed flavor.  The 'skipFlavorsignatureVerfication' parameter can
 // be used to disable the verification of the flavor signature.
 type Verifier interface {
 	Verify(hostManifest *types.HostManifest, signedFlavor *hvs.SignedFlavor, skipFlavorSignatureVerification bool) (*hvs.TrustReport, error)
 	GetVerifierCerts() VerifierCertificates
 }
-
-
 
 // NewVerifier Creates a Verifier provided a valid set of verifierCertificates.
 // An error is raised if any of the fields in VerifierCertificate is nil.

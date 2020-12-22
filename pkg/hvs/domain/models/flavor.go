@@ -24,14 +24,6 @@ type FlavorCreateRequest struct {
 	FlavorParts            []cf.FlavorPart            `json:"partial_flavor_types,omitempty"`
 }
 
-// type FlavorCreateRequestFC struct {
-// 	ConnectionString       string                     `json:"connection_string,omitempty"`
-// 	FlavorCollection       hvs.FlavorCollectionFC     `json:"flavor_collection,omitempty"`
-// 	SignedFlavorCollection hvs.SignedFlavorCollection `json:"signed_flavor_collection,omitempty"`
-// 	FlavorgroupNames       []string                   `json:"flavorgroup_names,omitempty"`
-// 	FlavorParts            []cf.FlavorPart            `json:"partial_flavor_types,omitempty"`
-// }
-
 type FlavorFilterCriteria struct {
 	Ids           []uuid.UUID
 	Key           string

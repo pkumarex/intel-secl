@@ -23,17 +23,10 @@ type Flavors struct {
 // SignedFlavor sourced from the lib/flavor - this is a external request/response on the HVS API
 type SignedFlavor = model.SignedFlavor
 
-// // SignedFlavor sourced from the lib/flavor - this is a external request/response on the HVS API
-// type SignedFlavorFC = model.SignedFlavorFC
-
 // SignedFlavorCollection is a list of SignedFlavor objects
 type SignedFlavorCollection struct {
 	SignedFlavors []SignedFlavor `json:"signed_flavors"`
 }
-
-// type SignedFlavorCollectionFC struct {
-// 	SignedFlavors []SignedFlavorFC `json:"signed_flavors"`
-// }
 
 func (s SignedFlavorCollection) GetFlavors(flavorPart string) []SignedFlavor {
 	signedFlavors := []SignedFlavor{}
