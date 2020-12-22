@@ -16,7 +16,6 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"regexp"
 	"strconv"
 	"strings"
@@ -231,9 +230,7 @@ func VerifyQuoteAndGetPCRManifest(decodedEventLog string, verificationNonce []by
 		return types.PcrManifest{}, errors.New("util/aik_quote_verifier:VerifyQuoteAndGetPCRManifest() AIK Quote " +
 			"verification failed, Digest of Concatenated PCR values does not match with PCR digest in the quote")
 	}
-	log.Info("util/aik_quote_verifier:VerifyQuoteAndGetPCRManifest()  Successfully verified AIK Quote")
-	log.Info("util/aik_quote_verifier:VerifyQuoteAndGetPCRManifest()  Successfully verified AIK Quote decodedEventLog -> ", decodedEventLog)
-	log.Info("util/aik_quote_verifier:VerifyQuoteAndGetPCRManifest()  Successfully verified AIK Quote len of decodedEventLog -> ", len(decodedEventLog))
+
 	pcrManifest, err := createPCRManifest(strings.Split(buffer.String(), "\n"), decodedEventLog)
 	if err != nil {
 		return types.PcrManifest{}, errors.Wrap(err, "util/aik_quote_verifier:VerifyQuoteAndGetPCRManifest() Error "+
@@ -330,8 +327,6 @@ func createPCRManifest(pcrList []string, eventLog string) (types.PcrManifest, er
 		}
 	}
 	pcrManifest.PcrEventLogMapNew, err = getPcrEventLog(eventLog)
-	log.Trace("util/aik_quote_verifier:createPCRManifest() PcrEventLogMapNew 00 -> ", pcrManifest.PcrEventLogMapNew)
-
 	if err != nil {
 		log.Errorf("util/aik_quote_verifier:createPCRManifest() Error getting PCR event log : %s", err.Error())
 		return pcrManifest, errors.Wrap(err, "util/aik_quote_verifier:createPCRManifest() Error getting PCR "+
@@ -346,12 +341,6 @@ func getPcrEventLog(eventLog string) (types.PcrEventLogMapFC, error) {
 	defer log.Trace("util/aik_quote_verifier:getPcrEventLog() Leaving")
 	var pcrEventLogMap types.PcrEventLogMapFC
 	var measureLogs []types.MeasureLog
-	log.Trace("util/aik_quote_verifier:getPcrEventLog() eventLog 00 -> ", eventLog)
-	log.Trace("util/aik_quote_verifier:getPcrEventLog() eventLog 00 -> ", len(eventLog))
-	err1 := ioutil.WriteFile("/tmp/eventLog.json", []byte(eventLog), 0644)
-	if err1 != nil {
-		log.Debug("util/aik_quote_verifier:getPcrEventLog() write error in eventlog")
-	}
 	err := json.Unmarshal([]byte(eventLog), &measureLogs)
 	if err != nil {
 		return types.PcrEventLogMapFC{}, errors.Wrap(err, "util/aik_quote_verifier:getPcrEventLog() Error unmarshalling measureLog")

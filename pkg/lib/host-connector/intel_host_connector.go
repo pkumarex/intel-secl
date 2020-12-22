@@ -120,8 +120,6 @@ func (ic *IntelConnector) GetHostManifestAcceptNonce(nonce string) (types.HostMa
 			"event log to bytes")
 	}
 
-	log.Info("intel_host_connector:GetHostManifestAcceptNonce() Retrieved event log from TPM quote response -> ", string(eventLogBytes))
-
 	eventLogBytes = []byte(`[
   {
     "pcr": {
@@ -399,9 +397,6 @@ func (ic *IntelConnector) GetHostManifestAcceptNonce(nonce string) (types.HostMa
 
 	decodedEventLog := string(eventLogBytes)
 	//EventlogBytes, hardcode. from measurelogjson
-	log.Info("intel_host_connector:GetHostManifestAcceptNonce() Retrieved event log from TPM quote response -> ", decodedEventLog)
-	log.Info("intel_host_connector:GetHostManifestAcceptNonce() Retrieved event log from TPM quote response length -> ", len(decodedEventLog))
-	log.Info("intel_host_connector:GetHostManifestAcceptNonce() Retrieved event log from TPM quote response")
 
 	tpmQuoteInBytes, err := base64.StdEncoding.DecodeString(tpmQuoteResponse.Quote)
 	if err != nil {

@@ -464,21 +464,16 @@ func (pcrManifest *PcrManifest) GetPcrEventLogNew(pcrBank SHAAlgorithm, pcrIndex
 
 func (pcrManifest *PcrManifestFC) GetPcrEventLog(pcrBank SHAAlgorithm, pcrIndex PcrIndex) (*[]EventLogCriteria, error) {
 
-	log.Info("GetPcrEventLog pcrBank -> ", pcrBank)
-	log.Info("GetPcrEventLog pcrIndex -> ", pcrIndex)
-
 	pI := int(pcrIndex)
 	if pcrBank == "SHA1" {
 		for _, eventLogEntry := range pcrManifest.PcrEventLogMap.Sha1EventLogs {
 			if eventLogEntry.Pcr.Index == pI {
-				log.Info("GetPcrEventLog TpmEvent -> ", &eventLogEntry.TpmEvent)
 				return &eventLogEntry.TpmEvent, nil
 			}
 		}
 	} else if pcrBank == "SHA256" {
 		for _, eventLogEntry := range pcrManifest.PcrEventLogMap.Sha256EventLogs {
 			if eventLogEntry.Pcr.Index == pI {
-				log.Info("GetPcrEventLog TpmEvent -> ", &eventLogEntry.TpmEvent)
 				return &eventLogEntry.TpmEvent, nil
 			}
 		}

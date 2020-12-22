@@ -92,7 +92,6 @@ func SendRequest(req *http.Request, aasURL, serviceUsername, servicePassword str
 	log.Debug("clients/send_http_request:SendRequest() AAS client successfully created")
 
 	response, err := aasClient.HTTPClient.Do(req)
-	log.Trace("clients/send_http_request.go:SendRequest() Mahesh -> response.", response)
 	if err != nil {
 		return nil, errors.Wrap(err, "clients/send_http_request.go:SendRequest() Error from response")
 	}
