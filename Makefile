@@ -3,10 +3,10 @@ GITCOMMIT := $(shell git describe --always)
 GITCOMMITDATE := $(shell git log -1 --date=short --pretty=format:%cd)
 VERSION := $(or ${GITTAG}, v0.0.0)
 BUILDDATE := $(shell TZ=UTC date +%Y-%m-%dT%H:%M:%S%z)
-
+PROXY_EXISTS := $(shell if [[ "${https_proxy}" || "${http_proxy}" ]]; then echo 1; else echo 0; fi)
 DOCKER_PROXY_FLAGS := ""
 ifeq ($(PROXY_EXISTS),1)
-	DOCKER_PROXY_FLAGS = "--build-arg http_proxy=${http_proxy} --build-arg https_proxy=${https_proxy}"
+	DOCKER_PROXY_FLAGS = --build-arg http_proxy=${http_proxy} --build-arg https_proxy=${https_proxy}
 endif
 
 TARGETS = cms kbs ihub hvs aas
@@ -31,7 +31,11 @@ kbs:
 	rm -rf installer
 
 %-docker: %
+ifeq ($(PROXY_EXISTS),1)
 	docker build ${DOCKER_PROXY_FLAGS} -f build/image/Dockerfile-$* -t isecl/$*:$(VERSION) .
+else
+	docker build -f build/image/Dockerfile-$* -t isecl/$*:$(VERSION) .
+endif
 	docker save isecl/$*:$(VERSION) > deployments/docker/docker-$*-$(VERSION)-$(GITCOMMIT).tar
 
 %-swagger:

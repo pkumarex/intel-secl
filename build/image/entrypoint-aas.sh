@@ -18,10 +18,10 @@ if [ ! -f $CONFIG_PATH/.setup_done ]; then
     chown -R $SERVICE_USERNAME:$SERVICE_USERNAME $directory
     chmod 700 $directory
   done
-  authservice setup all
+  aas setup all
   if [ $? -ne 0 ]; then
     exit 1
   fi
   touch $CONFIG_PATH/.setup_done
 fi
-authservice run
+aas run

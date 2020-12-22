@@ -2,7 +2,7 @@ FROM centos:8
 
 RUN useradd -u 1001 --comment "Authservice" --home /opt/authservice  --shell /bin/false aas
 
-COPY cmd/aas/authservice /usr/bin/authservice
+COPY cmd/aas/aas /usr/bin/aas
 
 COPY build/image/entrypoint-aas.sh /usr/local/bin/entrypoint.sh
 
