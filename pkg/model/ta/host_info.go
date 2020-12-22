@@ -5,16 +5,30 @@
 package model
 
 type CBNT struct {
-	Enabled bool `json:"enabled,string"`
-	Meta    struct {
-		ForceBit bool   `json:"force_bit,string"`
-		Profile  string `json:"profile"`
-		MSR      string `json:"msr"`
+	HardwareFeature
+	Meta struct {
+		//ForceBit bool   `json:"force_bit,string"`
+		Profile string `json:"profile"`
+		MSR     string `json:"msr"`
 	} `json:"meta"`
 }
 
 type HardwareFeature struct {
 	Enabled bool `json:"enabled,string"`
+}
+
+type TPM struct {
+	Enabled bool `json:"enabled,string"`
+	Meta    struct {
+		TPMVersion string `json:"tpm_version,omitempty"`
+		PCRBanks   string `json:"pcr_banks,omitempty"`
+	} `json:"meta"`
+}
+type UEFI struct {
+	HardwareFeature
+	Meta struct {
+		SecureBootEnabled bool `json:"secure_boot_enabled,omitempty"`
+	} `json:"meta"`
 }
 
 type HostInfo struct {
@@ -36,14 +50,8 @@ type HostInfo struct {
 }
 
 type HardwareFeatures struct {
-	TXT *HardwareFeature `json:"TXT"`
-	TPM struct {
-		Enabled bool `json:"enabled,string"`
-		Meta    struct {
-			TPMVersion string `json:"tpm_version,omitempty"`
-			PCRBanks   string `json:"pcr_banks,omitempty"`
-		} `json:"meta"`
-	} `json:"TPM,omitempty"`
-	CBNT  *CBNT            `json:"CBNT,omitempty"`
-	SUEFI *HardwareFeature `json:"SUEFI,omitempty"`
+	TXT  *HardwareFeature `json:"TXT"`
+	TPM  *TPM             `json:"TPM,omitempty"`
+	CBNT *CBNT            `json:"CBNT,omitempty"`
+	UEFI *UEFI            `json:"UEFI,omitempty"`
 }

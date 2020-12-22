@@ -6,16 +6,17 @@ package hosttrust
 
 import (
 	"fmt"
+	"reflect"
+	"strconv"
+	"strings"
+
 	faultsConst "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants/verifier-rules-and-faults"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/saml"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
-	"github.com/intel-secl/intel-secl/v3/pkg/model/ta"
+	model "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	log "github.com/sirupsen/logrus"
-	"reflect"
-	"strconv"
-	"strings"
 )
 
 type SamlReportGenerator struct {
@@ -120,17 +121,22 @@ func getHardwareFeaturesMap(features model.HardwareFeatures) map[string]string {
 	hwFeaturesMap := make(map[string]string)
 	featurePrefix := "FEATURE_"
 	if features.CBNT != nil && features.CBNT.Enabled {
-		hwFeaturesMap[featurePrefix + constants.Cbnt] = strconv.FormatBool(features.CBNT.Enabled)
+		hwFeaturesMap[featurePrefix+constants.Cbnt] = strconv.FormatBool(features.CBNT.Enabled)
 		hwFeaturesMap["FEATURE_cbntProfile"] = features.CBNT.Meta.Profile
 	}
-	if features.SUEFI != nil && features.SUEFI.Enabled {
-		hwFeaturesMap[featurePrefix + constants.Suefi] = strconv.FormatBool(features.SUEFI.Enabled)
+	if features.UEFI != nil {
+		if features.UEFI.Enabled {
+			hwFeaturesMap[featurePrefix+constants.Uefi] = strconv.FormatBool(features.UEFI.Enabled)
+		}
+		if features.UEFI.Meta.SecureBootEnabled {
+			hwFeaturesMap[featurePrefix+constants.Sboot] = strconv.FormatBool(features.UEFI.Meta.SecureBootEnabled)
+		}
 	}
 	if features.TPM.Enabled {
-		hwFeaturesMap[featurePrefix+ constants.Tpm] = strconv.FormatBool(features.TPM.Enabled)
+		hwFeaturesMap[featurePrefix+constants.Tpm] = strconv.FormatBool(features.TPM.Enabled)
 	}
 	if features.TXT != nil && features.TXT.Enabled {
-		hwFeaturesMap[featurePrefix + constants.Txt] = strconv.FormatBool(features.TXT.Enabled)
+		hwFeaturesMap[featurePrefix+constants.Txt] = strconv.FormatBool(features.TXT.Enabled)
 	}
 	return hwFeaturesMap
 }
@@ -145,7 +151,7 @@ func getTags(trustReport *hvs.TrustReport) map[string]string {
 	for _, result := range trustReport.GetResultsForMarker(common.FlavorPartAssetTag.String()) {
 		if result.Rule.Name == faultsConst.RuleAssetTagMatches && len(result.Rule.Tags) > 0 {
 			for key, value := range result.Rule.Tags {
-				tagsMap[tagPrefix + key] = value
+				tagsMap[tagPrefix+key] = value
 			}
 		}
 	}

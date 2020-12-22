@@ -323,20 +323,17 @@ func (builder *ruleBuilderIntelTpm20) getPlatformPcrsFromHardwareMeta() ([]types
 		}
 	}
 
-	if feature.SUEFI != nil {
-		if feature.SUEFI.Enabled {
-			suefiPcrs := []types.PcrIndex{
-				types.PCR1,
-				types.PCR2,
-				types.PCR3,
-				types.PCR4,
-				types.PCR5,
-				types.PCR6,
-				types.PCR7,
-			}
-
-			pcrs = append(pcrs, suefiPcrs...)
+	if feature.UEFI != nil && feature.UEFI.SecureBootEnabled {
+		suefiPcrs := []types.PcrIndex{
+			types.PCR1,
+			types.PCR2,
+			types.PCR3,
+			types.PCR4,
+			types.PCR5,
+			types.PCR6,
+			types.PCR7,
 		}
+		pcrs = append(pcrs, suefiPcrs...)
 	}
 
 	return pcrs, nil
