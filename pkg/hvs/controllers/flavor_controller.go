@@ -1712,7 +1712,10 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 		}
 		// create a platform flavor with the host manifest information
 		defaultLog.Debug("Creating flavor from host manifest using flavor library")
-		newPlatformFlavor, err := flavor.NewPlatformFlavorProvider(hostManifest, nil, tagX509Certificate, nil)
+
+		defaultLog.Debug("Getting flavorTemplates...No FT in here ")
+
+		newPlatformFlavor, err := flavor.NewPlatformFlavorProvider(hostManifest, tagX509Certificate, nil)
 		if err != nil {
 			defaultLog.Errorf("controllers/flavor_controller:createFlavors() Error while creating platform flavor instance from host manifest and tag certificate")
 			return nil, errors.Wrap(err, "Error while creating platform flavor instance from host manifest and tag certificate")
@@ -1814,34 +1817,39 @@ func (fcon *FlavorController) createFlavorsFC(flavorReq dm.FlavorCreateRequest) 
 		// get flavor from host
 		// get host manifest from the host
 		defaultLog.Debug("Host connection string given, trying to create flavors from host")
-		/*connectionString, _, err := GenerateConnectionString(flavorReq.ConnectionString,
-		fcon.HostCon.HCConfig.Username,
-		fcon.HostCon.HCConfig.Password,
-		fcon.HostCon.HCStore)*/
+		connectionString, _, err := GenerateConnectionString(flavorReq.ConnectionString,
+			fcon.HostCon.HCConfig.Username,
+			fcon.HostCon.HCConfig.Password,
+			fcon.HostCon.HCStore)
 
-		/*if err != nil {
+		if err != nil {
 			defaultLog.Error("controllers/flavor_controller:CreateFlavors() Could not generate formatted connection string")
 			return nil, errors.Wrap(err, "Error while generating a formatted connection string")
 		}
 		defaultLog.Debug("Getting manifest from host...")
+
 		hostManifest, err := fcon.getHostManifest(connectionString)
 		if err != nil {
 			defaultLog.Error("controllers/flavor_controller:CreateFlavors() Error getting host manifest")
 			return nil, errors.Wrap(err, "Error getting host manifest")
-		}*/
-
-		var hostManifest *hcType.HostManifestFC
-		err := json.Unmarshal([]byte(steffyHostManifest), &hostManifest)
-		if err != nil {
-			defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Search() Error in Unmarshal the host manifest")
-			return nil, err
 		}
+		defaultLog.Debug("Getting manifest from host...Hostmanifest -> ", hostManifest)
 
-		flavorTemplates, err := fcon.findTemplatesToApply(nil) // temp code
-		if err != nil {
+		//var hostManifest *hcType.HostManifestFC
+		// err := json.Unmarshal([]byte(steffyHostManifest), &hostManifest)
+		// if err != nil {
+		// 	defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Search() Error in Unmarshal the host manifest")
+		// 	return nil, err
+		// }
+
+		flavorTemplates, err := fcon.findTemplatesToApply(hostManifest) // temp code
+		if err != nil || flavorTemplates==nil{
 			defaultLog.Error("controllers/flavor_controller:CreateFlavors() Error in finding the templates to apply")
 			return nil, errors.Wrap(err, "Error getting host manifest")
 		}
+
+		defaultLog.Debug("Getting flavorTemplates...flavorTemplates -> ", flavorTemplates)
+		defaultLog.Debug("Getting flavorTemplates...len flavorTemplates -> ", len(*flavorTemplates))
 
 		tagCertificate := hvs.TagCertificate{}
 		var tagX509Certificate *x509.Certificate
@@ -1865,7 +1873,7 @@ func (fcon *FlavorController) createFlavorsFC(flavorReq dm.FlavorCreateRequest) 
 
 		// create a platform flavor with the host manifest information
 		defaultLog.Debug("Creating flavor from host manifest using flavor library")
-		newPlatformFlavor, err := flavor.NewPlatformFlavorProvider(nil, hostManifest, tagX509Certificate, flavorTemplates)
+		newPlatformFlavor, err := flavor.NewPlatformFlavorProvider(hostManifest, tagX509Certificate, flavorTemplates)
 		if err != nil {
 			defaultLog.Errorf("controllers/flavor_controller:createFlavors() Error while creating platform flavor instance from host manifest and tag certificate")
 			return nil, errors.Wrap(err, "Error while creating platform flavor instance from host manifest and tag certificate")
@@ -2057,6 +2065,14 @@ func (fcon *FlavorController) getHostManifest(cs string) (*hcType.HostManifest, 
 		return nil, errors.Wrap(err, "Could not instantiate host connector")
 	}
 	hostManifest, err := hostConnector.GetHostManifest()
+	hostManifestbytes, err1 := json.Marshal(hostManifest)
+	if err1 != nil {
+		defaultLog.Debug("controllers/flavor_controller:getHostManifest() erro in hostmanifet")
+	}
+	err1 = ioutil.WriteFile("/tmp/hostmanifest.json", hostManifestbytes, 0644)
+	if err1 != nil {
+		defaultLog.Debug("controllers/flavor_controller:getHostManifest() write error in hostmanifet")
+	}
 	return &hostManifest, err
 }
 
@@ -2068,7 +2084,13 @@ func (fcon *FlavorController) findTemplatesToApply(hostManifest *hcType.HostMani
 		return nil, err
 	}
 
-	hostManifestJson, err := jsonquery.Parse(strings.NewReader(string(steffyHostManifest)))
+	hostManifestBytes, err := json.Marshal(hostManifest)
+	if err != nil {
+		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Search() Error Marshalling hostmanifest")
+		return nil, err
+	}
+
+	hostManifestJson, err := jsonquery.Parse(strings.NewReader(string(hostManifestBytes)))
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Search() Error in parsing the host manifest")
 		return nil, err
