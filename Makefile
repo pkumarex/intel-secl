@@ -39,7 +39,7 @@ kbs:
 	swagger generate spec -w ./docs/shared/$* -o ./docs/swagger/$*-openapi.yml
 	swagger validate ./docs/swagger/$*-openapi.yml
 
-installer: $(patsubst %, %-installer, $(TARGETS)) aas-manager
+installer: $(patsubst %, %-installer, $(TARGETS)) authservice-installer aas-manager
 	
 
 docker: $(patsubst %, %-docker, $(TARGETS))
