@@ -40,7 +40,7 @@ type EventLog struct {
 	Info       map[string]string `json:"info"`
 }
 
-type EventLogCreteria struct {
+type EventLogCriteria struct {
 	TypeID      string   `json:"type_id"`   //oneof-required
 	TypeName    string   `json:"type_name"` //oneof-required
 	Tags        []string `json:"tags,omitempty"`
@@ -55,7 +55,7 @@ type EventLogEntry struct {
 
 type EventLogEntryFC struct {
 	Pcr      PCR                `json:"pcr"`
-	TpmEvent []EventLogCreteria `json:"tpm_events"`
+	TpmEvent []EventLogCriteria `json:"tpm_events"`
 }
 
 type PCR struct {
@@ -68,11 +68,11 @@ type PCRS struct {
 	Measurement      string             `json:"measurement"` //required
 	PCRMatches       bool               `json:"pcr_matches,omitempty"`
 	EventlogEqual    *EventLogEqual     `json:"eventlog_equals,omitempty"`
-	EventlogIncludes []EventLogCreteria `json:"eventlog_includes,omitempty"`
+	EventlogIncludes []EventLogCriteria `json:"eventlog_includes,omitempty"`
 }
 
 type EventLogEqual struct {
-	Events      []EventLogCreteria `json:"events,omitempty"`
+	Events      []EventLogCriteria `json:"events,omitempty"`
 	ExcludeTags []string           `json:"exclude_tags,omitempty"`
 }
 
@@ -86,9 +86,10 @@ type PcrEventLogMapFC struct {
 	Sha256EventLogs []EventLogEntryFC `json:"SHA256"`
 }
 type PcrManifest struct {
-	Sha1Pcrs       []Pcr          `json:"sha1pcrs"`
-	Sha256Pcrs     []Pcr          `json:"sha2pcrs"`
-	PcrEventLogMap PcrEventLogMap `json:"pcr_event_log_map"`
+	Sha1Pcrs          []Pcr            `json:"sha1pcrs"`
+	Sha256Pcrs        []Pcr            `json:"sha2pcrs"`
+	PcrEventLogMap    PcrEventLogMap   `json:"pcr_event_log_map"`
+	PcrEventLogMapNew PcrEventLogMapFC `json:"pcr_event_log_map_new"`
 }
 
 type PcrManifestFC struct {
@@ -440,7 +441,28 @@ func (pcrManifest *PcrManifest) GetPcrEventLog(pcrBank SHAAlgorithm, pcrIndex Pc
 
 var log = commLog.GetDefaultLogger()
 
-func (pcrManifest *PcrManifestFC) GetPcrEventLog(pcrBank SHAAlgorithm, pcrIndex PcrIndex) (*[]EventLogCreteria, error) {
+func (pcrManifest *PcrManifest) GetPcrEventLogNew(pcrBank SHAAlgorithm, pcrIndex PcrIndex) (*[]EventLogCriteria, error) {
+
+	pI := int(pcrIndex)
+	if pcrBank == "SHA1" {
+		for _, eventLogEntry := range pcrManifest.PcrEventLogMapNew.Sha1EventLogs {
+			if eventLogEntry.Pcr.Index == pI {
+				return &eventLogEntry.TpmEvent, nil
+			}
+		}
+	} else if pcrBank == "SHA256" {
+		for _, eventLogEntry := range pcrManifest.PcrEventLogMapNew.Sha256EventLogs {
+			if eventLogEntry.Pcr.Index == pI {
+				return &eventLogEntry.TpmEvent, nil
+			}
+		}
+	} else {
+		return nil, fmt.Errorf("unsupported sha algorithm %s", pcrBank)
+	}
+	return nil, fmt.Errorf("invalid PcrIndex %d", pcrIndex)
+}
+
+func (pcrManifest *PcrManifestFC) GetPcrEventLog(pcrBank SHAAlgorithm, pcrIndex PcrIndex) (*[]EventLogCriteria, error) {
 
 	log.Info("GetPcrEventLog pcrBank -> ", pcrBank)
 	log.Info("GetPcrEventLog pcrIndex -> ", pcrIndex)

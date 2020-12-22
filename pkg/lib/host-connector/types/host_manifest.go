@@ -21,14 +21,14 @@ type HostManifest struct {
 	MeasurementXmls       []string         `json:"measurement_xmls,omitempty"`
 }
 
-type HostManifestFC struct {
-	AIKCertificate        string           `json:"aik_certificate,omitempty"`
-	AssetTagDigest        string           `json:"asset_tag_digest,omitempty"`
-	HostInfo              taModel.HostInfo `json:"host_info"`
-	PcrManifest           PcrManifestFC    `json:"pcr_manifest"`
-	BindingKeyCertificate string           `json:"binding_key_certificate,omitempty"`
-	MeasurementXmls       []string         `json:"measurement_xmls,omitempty"`
-}
+// type HostManifestFC struct {
+// 	AIKCertificate        string           `json:"aik_certificate,omitempty"`
+// 	AssetTagDigest        string           `json:"asset_tag_digest,omitempty"`
+// 	HostInfo              taModel.HostInfo `json:"host_info"`
+// 	PcrManifest           PcrManifestFC    `json:"pcr_manifest"`
+// 	BindingKeyCertificate string           `json:"binding_key_certificate,omitempty"`
+// 	MeasurementXmls       []string         `json:"measurement_xmls,omitempty"`
+// }
 
 func (hostManifest *HostManifest) GetAIKCertificate() (*x509.Certificate, error) {
 

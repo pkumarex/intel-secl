@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	cf "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
 	cm "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
@@ -27,7 +28,7 @@ import (
 
 // LinuxPlatformFlavor is used to generate various Flavors for a Intel-based Linux host
 type LinuxPlatformFlavor struct {
-	HostManifest    *hcTypes.HostManifestFC      `json:"host_manifest"`
+	HostManifest    *hcTypes.HostManifest        `json:"host_manifest"`
 	HostInfo        *taModel.HostInfo            `json:"host_info"`
 	TagCertificate  *cm.X509AttributeCertificate `json:"tag_certificate"`
 	FlavorTemplates *[]hvs.FlavorTemplate
@@ -76,7 +77,7 @@ var pfutil util.PlatformFlavorUtil
 var sfutil util.SoftwareFlavorUtil
 
 // NewLinuxPlatformFlavor returns an instance of LinuxPlatformFlavor
-func NewLinuxPlatformFlavor(hostReport *hcTypes.HostManifestFC, tagCertificate *cm.X509AttributeCertificate, flavorTemplates *[]hvs.FlavorTemplate) PlatformFlavor {
+func NewLinuxPlatformFlavor(hostReport *hcTypes.HostManifest, tagCertificate *cm.X509AttributeCertificate, flavorTemplates *[]hvs.FlavorTemplate) PlatformFlavor {
 	log.Trace("flavor/types/linux_platform_flavor:NewLinuxPlatformFlavor() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:NewLinuxPlatformFlavor() Leaving")
 
@@ -573,26 +574,18 @@ func (rhelpf LinuxPlatformFlavor) getDefaultMeasurement() ([]string, error) {
 
 // GetPcrDetails extracts Pcr values and Event Logs from the HostManifest/PcrManifest and  returns
 // in a format suitable for inserting into the flavor
-func (rhelpf LinuxPlatformFlavor) GetPcrDetails(pcrManifest hcTypes.PcrManifestFC, pcrList map[hvs.PCR]hvs.PcrListRules, includeEventLog bool) []hcTypes.PCRS {
+func (rhelpf LinuxPlatformFlavor) GetPcrDetails(pcrManifest hcTypes.PcrManifest, pcrList map[hvs.PCR]hvs.PcrListRules, includeEventLog bool) []hcTypes.PCRS {
 	log.Trace("flavor/util/platform_flavor_util:GetPcrDetails() Entering")
 	defer log.Trace("flavor/util/platform_flavor_util:GetPcrDetails() Leaving")
 
 	var pcrCollection []hcTypes.PCRS
 
-	log.Trace("flavor/util/platform_flavor_util:GetPcrDetails() pcrLIST ", pcrList)
-	log.Trace("flavor/util/platform_flavor_util:GetPcrDetails() Len of pcrLIST ", len(pcrList))
-
 	// pull out the logs for the required PCRs from both banks
 	for pcr, rules := range pcrList {
-
-		log.Debug("pcr Index -> ", pcr.Index)
-		log.Debug("pcr Bank -> ", pcr.Bank)
 
 		pI := hcTypes.PcrIndex(pcr.Index)
 		var pcrInfo *hcTypes.Pcr
 		pcrInfo, _ = pcrManifest.GetPcrValue(hcTypes.SHAAlgorithm(pcr.Bank), pI)
-
-		log.Debug("pcrInfo Index-> ", pcrInfo.Index)
 
 		if pcrInfo != nil {
 
@@ -606,18 +599,11 @@ func (rhelpf LinuxPlatformFlavor) GetPcrDetails(pcrManifest hcTypes.PcrManifestF
 			// Populate Value
 			// Event logs if allowed
 			if includeEventLog {
-				var eventLogEqualEvents []hcTypes.EventLogCreteria
-				manifestPcrEventLogs, err := pcrManifest.GetPcrEventLog(hcTypes.SHAAlgorithm(pcr.Bank), pI)
-
-				log.Debug("manifestPcrEventLogs -> ", manifestPcrEventLogs)
-				log.Debug("err -> ", err)
+				var eventLogEqualEvents []hcTypes.EventLogCriteria
+				manifestPcrEventLogs, err := pcrManifest.GetPcrEventLogNew(hcTypes.SHAAlgorithm(pcr.Bank), pI)
 
 				// check if returned logset from PCR is nil
 				if manifestPcrEventLogs != nil && err == nil {
-
-					log.Debug("manifestPcrEventLogs -> ", manifestPcrEventLogs)
-					log.Debug("err -> ", err)
-					log.Debug("currPcrEx -> ", currPcrEx)
 
 					// Convert EventLog to flavor format
 					for _, manifestEventLog := range *manifestPcrEventLogs {
@@ -692,7 +678,9 @@ func UpdateMetaSectionDetails(flavorPart cf.FlavorPart, newMeta *cm.Meta, flavor
 	defer log.Trace("flavor/util/platform_flavor_util:UpdateMetaSectionDetails() Leaving")
 
 	log.Info("Check point A")
+	var flavorTemplateID []uuid.UUID
 	for _, flavorTemplate := range *flavorTemplates {
+		flavorTemplateID = append(flavorTemplateID, flavorTemplate.ID)
 		var flavor *hvs.FlavorPart
 		log.Info("Check point B")
 		switch flavorPart {
@@ -708,6 +696,7 @@ func UpdateMetaSectionDetails(flavorPart cf.FlavorPart, newMeta *cm.Meta, flavor
 		log.Info("Meta")
 		if flavor != nil {
 			log.Info(flavor.Meta)
+			newMeta.Description["flavor_Template_ID"] = flavorTemplateID
 			for key, value := range flavor.Meta {
 				log.Info("Check point D")
 				log.Info(key)

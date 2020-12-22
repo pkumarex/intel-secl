@@ -14,26 +14,28 @@ import (
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/binary"
-	"encoding/xml"
+	"encoding/json"
 	"fmt"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
-	"github.com/pkg/errors"
-	commLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
-	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
+	"io/ioutil"
 	"regexp"
 	"strconv"
 	"strings"
+
+	commLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
+	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
+	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
+	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
+	"github.com/pkg/errors"
 )
 
 var log = commLog.GetDefaultLogger()
 var secLog = commLog.GetSecurityLogger()
 
 const (
-	SHA1_SIZE   = 20
-	SHA256_SIZE = 32
-	SHA384_SIZE = 48
-	SHA512_SIZE = 64
+	SHA1_SIZE                 = 20
+	SHA256_SIZE               = 32
+	SHA384_SIZE               = 48
+	SHA512_SIZE               = 64
 	TPM_API_ALG_ID_SHA1       = 0x04
 	TPM_API_ALG_ID_SHA256     = 0x0B
 	TPM_API_ALG_ID_SHA384     = 0x0C
@@ -129,8 +131,8 @@ func VerifyQuoteAndGetPCRManifest(decodedEventLog string, verificationNonce []by
 	secLog.Debugf("util/aik_quote_verifier:VerifyQuoteAndGetPCRManifest()  PCR manifest digest: %v", tpm2bDigest)
 
 	/* PART 2: TPMT_SIGNATURE
-	   Skip the first 2 bytes having the quote info size and remaining bytes, which includes signer info, nonce, pcr selection
-	   and extra data. So jump to TPMT_SIGNATURE
+	Skip the first 2 bytes having the quote info size and remaining bytes, which includes signer info, nonce, pcr selection
+	and extra data. So jump to TPMT_SIGNATURE
 	*/
 
 	tpmtSigIndex := 2 + quoteInfoLen
@@ -191,8 +193,8 @@ func VerifyQuoteAndGetPCRManifest(decodedEventLog string, verificationNonce []by
 				"AIK Quote verification failed, Unsupported PCR banks, hash algorithm id : %s" + strconv.Itoa(int(hashAlg)))
 		}
 		/* For each pcr bank iterate through each pcr selection array.
-		   Here pcrSelection.pcrSelected byte array contains 3 elements, where each bit of this element corresponds to pcr entry.
-		   8 bits pcrSelection.pcrSelected value corresponds to 8 PCR entries.
+		Here pcrSelection.pcrSelected byte array contains 3 elements, where each bit of this element corresponds to pcr entry.
+		8 bits pcrSelection.pcrSelected value corresponds to 8 PCR entries.
 		*/
 		for pcr := 0; pcr < 8*pcrSelection[j].size; pcr++ {
 			pcrSelected := pcrSelection[j].pcrSelected
@@ -230,6 +232,8 @@ func VerifyQuoteAndGetPCRManifest(decodedEventLog string, verificationNonce []by
 			"verification failed, Digest of Concatenated PCR values does not match with PCR digest in the quote")
 	}
 	log.Info("util/aik_quote_verifier:VerifyQuoteAndGetPCRManifest()  Successfully verified AIK Quote")
+	log.Info("util/aik_quote_verifier:VerifyQuoteAndGetPCRManifest()  Successfully verified AIK Quote decodedEventLog -> ", decodedEventLog)
+	log.Info("util/aik_quote_verifier:VerifyQuoteAndGetPCRManifest()  Successfully verified AIK Quote len of decodedEventLog -> ", len(decodedEventLog))
 	pcrManifest, err := createPCRManifest(strings.Split(buffer.String(), "\n"), decodedEventLog)
 	if err != nil {
 		return types.PcrManifest{}, errors.Wrap(err, "util/aik_quote_verifier:VerifyQuoteAndGetPCRManifest() Error "+
@@ -315,9 +319,9 @@ func createPCRManifest(pcrList []string, eventLog string) (types.PcrManifest, er
 				} else if strings.EqualFold(pcrBank, "SHA1") {
 					pcrManifest.Sha1Pcrs = append(pcrManifest.Sha1Pcrs, types.Pcr{
 						DigestType: fmt.Sprintf(constants.PcrClassNamePrefix+"%d", 1),
-						Index:   pcrIndex,
-						Value:   pcrValue,
-						PcrBank: shaAlgorithm,
+						Index:      pcrIndex,
+						Value:      pcrValue,
+						PcrBank:    shaAlgorithm,
 					})
 				}
 			} else {
@@ -325,79 +329,87 @@ func createPCRManifest(pcrList []string, eventLog string) (types.PcrManifest, er
 			}
 		}
 	}
-	pcrManifest.PcrEventLogMap, err = getPcrEventLog(eventLog)
+	pcrManifest.PcrEventLogMapNew, err = getPcrEventLog(eventLog)
+	log.Trace("util/aik_quote_verifier:createPCRManifest() PcrEventLogMapNew 00 -> ", pcrManifest.PcrEventLogMapNew)
+
 	if err != nil {
 		log.Errorf("util/aik_quote_verifier:createPCRManifest() Error getting PCR event log : %s", err.Error())
-		return pcrManifest, errors.Wrap(err, "util/aik_quote_verifier:createPCRManifest() Error getting PCR " +
+		return pcrManifest, errors.Wrap(err, "util/aik_quote_verifier:createPCRManifest() Error getting PCR "+
 			"event log")
 	}
 	return pcrManifest, nil
 }
 
-func getPcrEventLog(eventLog string) (types.PcrEventLogMap, error) {
+func getPcrEventLog(eventLog string) (types.PcrEventLogMapFC, error) {
 
 	log.Trace("util/aik_quote_verifier:getPcrEventLog() Entering")
 	defer log.Trace("util/aik_quote_verifier:getPcrEventLog() Leaving")
-	var pcrEventLogMap types.PcrEventLogMap
-	var measureLog types.MeasureLog
-	err := xml.Unmarshal([]byte(eventLog), &measureLog)
-	if err != nil {
-		return types.PcrEventLogMap{}, errors.Wrap(err, "util/aik_quote_verifier:getPcrEventLog() Error "+
-			"unmarshalling measureLog")
+	var pcrEventLogMap types.PcrEventLogMapFC
+	var measureLogs []types.MeasureLog
+	log.Trace("util/aik_quote_verifier:getPcrEventLog() eventLog 00 -> ", eventLog)
+	log.Trace("util/aik_quote_verifier:getPcrEventLog() eventLog 00 -> ", len(eventLog))
+	err1 := ioutil.WriteFile("/tmp/eventLog.json", []byte(eventLog), 0644)
+	if err1 != nil {
+		log.Debug("util/aik_quote_verifier:getPcrEventLog() write error in eventlog")
 	}
-	for _, module := range measureLog.Txt.Modules.Module {
-		pcrEventLogMap = addPcrEntry(module, pcrEventLogMap)
+	err := json.Unmarshal([]byte(eventLog), &measureLogs)
+	if err != nil {
+		return types.PcrEventLogMapFC{}, errors.Wrap(err, "util/aik_quote_verifier:getPcrEventLog() Error unmarshalling measureLog")
+	}
+	for _, measureLog := range measureLogs {
+		pcrEventLogMap = addPcrEntry(measureLog, pcrEventLogMap)
 	}
 	return pcrEventLogMap, nil
 }
 
-func addPcrEntry(module types.Module, eventLogMap types.PcrEventLogMap) types.PcrEventLogMap {
+func addPcrEntry(module types.MeasureLog, eventLogMap types.PcrEventLogMapFC) types.PcrEventLogMapFC {
 
 	log.Trace("util/aik_quote_verifier:addPcrEntry() Entering")
 	defer log.Trace("util/aik_quote_verifier:addPcrEntry() Leaving")
 	pcrFound := false
 	index := 0
-	switch module.PcrBank {
+	switch module.Pcr.Bank {
 	case SHA1:
 		for _, entry := range eventLogMap.Sha1EventLogs {
-			if entry.PcrIndex == module.PcrNumber {
+			if entry.Pcr.Index == module.Pcr.Index {
 				pcrFound = true
 				break
 			}
 			index++
 		}
-		eventLog := types.EventLog{DigestType: EVENT_LOG_DIGEST_SHA1,
-			Value: module.Value, Label: module.Name}
-		eventLog.Info = make(map[string]string)
-		eventLog.Info["ComponentName"] = module.Name
-		eventLog.Info["EventName"] = EVENT_NAME
+
 		if !pcrFound {
-			eventLogMap.Sha1EventLogs = append(eventLogMap.Sha1EventLogs, types.EventLogEntry{PcrIndex:
-			module.PcrNumber, PcrBank: SHA1, EventLogs: []types.EventLog{eventLog}})
+			eventLogMap.Sha1EventLogs = append(eventLogMap.Sha1EventLogs, types.EventLogEntryFC{Pcr: types.PCR{Index: module.Pcr.Index, Bank: SHA1}, TpmEvent: module.TpmEvents})
 		} else {
-			eventLogMap.Sha1EventLogs[index].EventLogs = append(eventLogMap.Sha1EventLogs[index].EventLogs, eventLog)
+			for _, events := range module.TpmEvents {
+				eventLog := types.EventLogCriteria{Measurement: events.Measurement,
+					Tags: events.Tags, TypeID: events.TypeID, TypeName: events.TypeName}
+
+				eventLogMap.Sha1EventLogs[index].TpmEvent = append(eventLogMap.Sha1EventLogs[index].TpmEvent, eventLog)
+			}
 		}
+
 	case SHA256:
 		for _, entry := range eventLogMap.Sha256EventLogs {
-			if entry.PcrIndex == module.PcrNumber {
+			if entry.Pcr.Index == module.Pcr.Index {
 				pcrFound = true
 				break
 			}
 			index++
 		}
-		eventLog := types.EventLog{DigestType: EVENT_LOG_DIGEST_SHA256,
-			Value: module.Value, Label: module.Name}
-		eventLog.Info = make(map[string]string)
-		eventLog.Info["ComponentName"] = module.Name
-		eventLog.Info["EventName"] = EVENT_NAME
+
 		if !pcrFound {
-			eventLogMap.Sha256EventLogs = append(eventLogMap.Sha256EventLogs, types.EventLogEntry{PcrIndex:
-			module.PcrNumber, PcrBank: SHA256, EventLogs: []types.EventLog{eventLog}})
+			eventLogMap.Sha256EventLogs = append(eventLogMap.Sha256EventLogs, types.EventLogEntryFC{Pcr: types.PCR{Index: module.Pcr.Index, Bank: SHA256}, TpmEvent: module.TpmEvents})
 		} else {
-			eventLogMap.Sha256EventLogs[index].EventLogs = append(eventLogMap.Sha256EventLogs[index].EventLogs, eventLog)
+			for _, events := range module.TpmEvents {
+				eventLog := types.EventLogCriteria{Measurement: events.Measurement,
+					Tags: events.Tags, TypeID: events.TypeID, TypeName: events.TypeName}
+				eventLogMap.Sha256EventLogs[index].TpmEvent = append(eventLogMap.Sha256EventLogs[index].TpmEvent, eventLog)
+			}
 		}
+
 	}
-	log.Debugf("util/aik_quote_verifier:addPcrEntry() Successfully added PCR log entries for module : %s", module.Name)
+	log.Debugf("util/aik_quote_verifier:addPcrEntry() Successfully added PCR log entries")
 	return eventLogMap
 }
 
