@@ -1586,6 +1586,9 @@ func (fcon *FlavorController) Create(w http.ResponseWriter, r *http.Request) (in
 		if strings.Contains(err.Error(), "403") {
 			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Authorization with trust agent failed"}
 		}
+		if strings.Contains(err.Error(), "No templates found") {
+			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "No templates found to create flavors"}
+		}
 		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Error creating flavors, error connecting to trust agent"}
 	}
 
@@ -1628,23 +1631,17 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 			defaultLog.Error("controllers/flavor_controller:CreateFlavors() Error getting host manifest")
 			return nil, errors.Wrap(err, "Error getting host manifest")
 		}
-		defaultLog.Debug("Getting manifest from host...Hostmanifest -> ", hostManifest)
+		var flavorTemplates *[]hvs.FlavorTemplate
+		if !strings.EqualFold(hostManifest.HostInfo.OSName, "VMWARE ESXI") {
+			defaultLog.Debug("Getting flavor templates...")
+			flavorTemplates, err = fcon.findTemplatesToApply(hostManifest)
+			if err != nil || len(*flavorTemplates) == 0 {
+				defaultLog.WithError(err).Error("controllers/flavor_controller:CreateFlavors() No templates found to apply")
+				return nil, errors.Wrap(err, "No templates found to create flavors")
+			}
 
-		//var hostManifest *hcType.HostManifestFC
-		// err := json.Unmarshal([]byte(steffyHostManifest), &hostManifest)
-		// if err != nil {
-		// 	defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Search() Error in Unmarshal the host manifest")
-		// 	return nil, err
-		// }
-
-		flavorTemplates, err := fcon.findTemplatesToApply(hostManifest) // temp code
-		if err != nil || flavorTemplates == nil {
-			defaultLog.Error("controllers/flavor_controller:CreateFlavors() Error in finding the templates to apply")
-			return nil, errors.Wrap(err, "Error getting host manifest")
+			defaultLog.Debug("Matched Flavor templates ", flavorTemplates)
 		}
-
-		defaultLog.Debug("Getting flavorTemplates...flavorTemplates -> ", flavorTemplates)
-		defaultLog.Debug("Getting flavorTemplates...len flavorTemplates -> ", len(*flavorTemplates))
 
 		tagCertificate := hvs.TagCertificate{}
 		var tagX509Certificate *x509.Certificate
@@ -1864,6 +1861,10 @@ func (fcon *FlavorController) findTemplatesToApply(hostManifest *hcType.HostMani
 		if conditionEval == true {
 			filteredTemplates = append(filteredTemplates, flavorTemplate)
 		}
+	}
+
+	if len(filteredTemplates) == 0 {
+		return nil, errors.New("No templates found")
 	}
 
 	return &filteredTemplates, nil
