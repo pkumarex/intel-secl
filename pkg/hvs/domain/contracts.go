@@ -22,7 +22,7 @@ type (
 		Search(*models.FlavorGroupFilterCriteria) ([]hvs.FlavorGroup, error)
 		Delete(uuid.UUID) error
 		AddFlavors(uuid.UUID, []uuid.UUID) ([]uuid.UUID, error)
-		AddFlavorsFC(uuid.UUID, []uuid.UUID) ([]uuid.UUID, error)
+		//AddFlavorsFC(uuid.UUID, []uuid.UUID) ([]uuid.UUID, error)
 		RemoveFlavors(uuid.UUID, []uuid.UUID) error
 		SearchFlavors(uuid.UUID) ([]uuid.UUID, error)
 		RetrieveFlavor(uuid.UUID, uuid.UUID) (*hvs.FlavorgroupFlavorLink, error)

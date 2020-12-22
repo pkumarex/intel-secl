@@ -10,12 +10,13 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"encoding/xml"
+	"net/http"
+	"net/url"
+
 	"github.com/intel-secl/intel-secl/v3/pkg/clients/util"
 	commLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
-	"net/http"
-	"net/url"
 )
 
 type TAClient interface {
@@ -136,6 +137,11 @@ func (tc *taClient) GetAIK() ([]byte, error) {
 	log.Trace("clients/trust_agent_client:GetAIK() Entering")
 	defer log.Trace("clients/trust_agent_client:GetAIK() Leaving")
 
+	log.Trace("clients/trust_agent_client:GetAIK() Mahesh -> tc.AAS", tc.AasURL)
+	log.Trace("clients/trust_agent_client:GetAIK() Mahesh -> tc.BaSeURL", tc.BaseURL)
+
+	log.Trace("clients/trust_agent_client:GetAIK() Mahesh -> tc.", tc)
+
 	requestURL, err := url.Parse(tc.BaseURL.String() + "/aik")
 	if err != nil {
 		return []byte{}, errors.New("client/trust_agent_client:GetAIK() Error forming GET AIK certificate URL")
@@ -150,6 +156,7 @@ func (tc *taClient) GetAIK() ([]byte, error) {
 	log.Debugf("clients/trust_agent_client:GetAIK() TA AIK certificate retrieval GET request URL: %s", requestURL.String())
 
 	httpResponse, err := util.SendRequest(httpRequest, tc.AasURL, tc.ServiceUsername, tc.ServicePassword, tc.TrustedCaCerts)
+	log.Trace("clients/trust_agent_client:GetAIK() Mahesh -> httpResponse.", httpResponse)
 	if err != nil {
 		return []byte{}, errors.Wrap(err, "client/trust_agent_client:GetAIK() Error while getting response"+
 			" from Get AIK API")
