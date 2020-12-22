@@ -463,7 +463,7 @@ func (controller TagCertificateController) Deploy(w http.ResponseWriter, r *http
 	}
 
 	// Create AssetTag Flavor for the Host
-	fProvider, err := flavor.NewPlatformFlavorProvider(&hmanifest, nil, newX509TC, nil)
+	fProvider, err := flavor.NewPlatformFlavorProvider(&hmanifest, newX509TC, nil)
 	if err != nil {
 		defaultLog.WithField("Certid", dtcReq.CertID).Errorf("controllers/tagcertificate_controller:Deploy() %s : Failed to initialize FlavorProvider %s", commLogMsg.AppRuntimeErr, err.Error())
 		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Tag Certificate Deploy failure"}
