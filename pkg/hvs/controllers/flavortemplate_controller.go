@@ -29,17 +29,35 @@ type FlavorTemplateController struct {
 	Store domain.FlavorTemplateStore
 }
 
+type ErrorMessage struct {
+	Message string
+}
+
+type unsupportedMediaError ErrorMessage
+
+type badRequestError ErrorMessage
+
+func (e unsupportedMediaError) Error() string {
+	return fmt.Sprintf("%s", e.Message)
+}
+
+func (e badRequestError) Error() string {
+	return fmt.Sprintf("%s", e.Message)
+}
+
 func (ftc FlavorTemplateController) Create(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:Create() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Create() Leaving")
 
 	flavorTemplateReq, err := getFlavorTemplateCreateReq(r)
 	if err != nil {
-		if strings.Contains(err.Error(), "Invalid Content-Type") {
-			return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: "Invalid Content-Type"}
+		switch errorType := err.(type) {
+		case *unsupportedMediaError:
+			return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: errorType.Message}
+		case *badRequestError:
+			return nil, http.StatusBadRequest, &commErr.ResourceError{Message: errorType.Message}
 		}
 		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Create() Failed to complete create flavor template")
-		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: err.Error()}
 	}
 
 	//Store this template into database.
@@ -57,7 +75,6 @@ func (ftc FlavorTemplateController) Retrieve(w http.ResponseWriter, r *http.Requ
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Retrieve() Leaving")
 
 	templateID := uuid.MustParse(mux.Vars(r)["id"])
-	defaultLog.Debug("controllers/flavortemplate_controller:Retrieve() ID : ", templateID)
 
 	flavorTemplate, err := ftc.Store.Retrieve(templateID)
 	if err != nil {
@@ -74,21 +91,20 @@ func (ftc FlavorTemplateController) Retrieve(w http.ResponseWriter, r *http.Requ
 	return flavorTemplate, http.StatusOK, nil
 }
 
-func getQueryParameter(includeDeleted string) (bool, error) {
+func isIncludeDeleted(includeDeleted string) (bool, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:validateQueryParameter() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:validateQueryParameter() Leaving")
 
-	var included bool
-	if len(includeDeleted) > 0 && includeDeleted != "" {
+	if includeDeleted != "" {
 		if strings.EqualFold(includeDeleted, "true") {
-			included = true
+			return true, nil
 		} else if strings.EqualFold(includeDeleted, "false") {
-			included = false
+			return false, nil
 		} else {
 			return false, errors.New("Invalid query parameter given")
 		}
 	}
-	return included, nil
+	return false, nil
 }
 
 func (ftc FlavorTemplateController) Search(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
@@ -97,14 +113,14 @@ func (ftc FlavorTemplateController) Search(w http.ResponseWriter, r *http.Reques
 
 	includeDeleted := r.URL.Query().Get("include_deleted")
 
-	included, err := getQueryParameter(includeDeleted)
+	isIncludeDeleted, err := isIncludeDeleted(includeDeleted)
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Search() Invalid query parameter given")
 		return false, http.StatusBadRequest, &commErr.ResourceError{Message: "Invalid query parameter given"}
 	}
 
 	//call store function to retrieve all available templates from DB.
-	flavorTemplates, err := ftc.Store.Search(included)
+	flavorTemplates, err := ftc.Store.Search(isIncludeDeleted)
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Search() Error retrieving all flavor templates")
 		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: err.Error()}
@@ -126,29 +142,27 @@ func (ftc FlavorTemplateController) Delete(w http.ResponseWriter, r *http.Reques
 	}
 
 	return nil, http.StatusNoContent, nil
-
 }
 
 func getFlavorTemplateCreateReq(r *http.Request) (hvs.FlavorTemplate, error) {
-
 	defaultLog.Trace("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Leaving")
 
 	var createFlavorTemplateReq hvs.FlavorTemplate
 	if r.Header.Get("Content-Type") != constants.HTTPMediaTypeJson {
 		secLog.Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Invalid Content-Type")
-		return createFlavorTemplateReq, errors.New("Invalid Content-Type")
+		return createFlavorTemplateReq, &unsupportedMediaError{Message: "Invalid Content-Type"}
 	}
 
 	if r.ContentLength == 0 {
 		secLog.Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() The request body is not provided")
-		return createFlavorTemplateReq, errors.New("The request body is not provided")
+		return createFlavorTemplateReq, &badRequestError{Message: "The request body is not provided"}
 	}
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		secLog.Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to read the request body")
-		return createFlavorTemplateReq, errors.New("Unable to read request body")
+		return createFlavorTemplateReq, &badRequestError{Message: "Unable to read request body"}
 	}
 
 	//Restore the request body to it's original state
@@ -169,7 +183,7 @@ func getFlavorTemplateCreateReq(r *http.Request) (hvs.FlavorTemplate, error) {
 	err, errMsg := validateFlavorTemplateCreateRequest(createFlavorTemplateReq, string(body))
 	if err != nil {
 		secLog.WithError(err).Errorf("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() %s Invalid flavor template create criteria", commLogMsg.InvalidInputBadParam)
-		return createFlavorTemplateReq, errors.New(errMsg)
+		return createFlavorTemplateReq, &badRequestError{Message: errMsg}
 	}
 
 	return createFlavorTemplateReq, nil
