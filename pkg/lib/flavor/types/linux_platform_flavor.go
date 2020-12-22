@@ -8,6 +8,7 @@ import (
 	"encoding/xml"
 	"strings"
 
+	"github.com/google/uuid"
 	cf "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
 	cm "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
@@ -676,7 +677,9 @@ func UpdateMetaSectionDetails(flavorPart cf.FlavorPart, newMeta *cm.Meta, flavor
 	defer log.Trace("flavor/util/platform_flavor_util:UpdateMetaSectionDetails() Leaving")
 
 	log.Info("Check point A")
+	var flavorTemplateID []uuid.UUID
 	for _, flavorTemplate := range *flavorTemplates {
+		flavorTemplateID = append(flavorTemplateID, flavorTemplate.ID)
 		var flavor *hvs.FlavorPart
 		log.Info("Check point B")
 		switch flavorPart {
@@ -692,6 +695,7 @@ func UpdateMetaSectionDetails(flavorPart cf.FlavorPart, newMeta *cm.Meta, flavor
 		log.Info("Meta")
 		if flavor != nil {
 			log.Info(flavor.Meta)
+			newMeta.Description["flavor_Template_ID"] = flavorTemplateID
 			for key, value := range flavor.Meta {
 				log.Info("Check point D")
 				log.Info(key)
