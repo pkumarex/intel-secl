@@ -63,8 +63,8 @@ authservice-installer: authservice
 aas-manager:
 	cd tools/aas-manager && env GOOS=linux GOSUMDB=off GOPROXY=direct go build -o populate-users
 	cp tools/aas-manager/populate-users deployments/installer/populate-users.sh
-	cp build/linux/authservice/install_pgdb.sh deployments/installer/install_pgdb.sh
-	cp build/linux/authservice/create_db.sh deployments/installer/create_db.sh
+	cp build/linux/aas/install_pgdb.sh deployments/installer/install_pgdb.sh
+	cp build/linux/aas/create_db.sh deployments/installer/create_db.sh
 	chmod +x deployments/installer/install_pgdb.sh
 	chmod +x deployments/installer/create_db.sh
 
