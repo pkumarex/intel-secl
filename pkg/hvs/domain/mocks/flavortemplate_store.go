@@ -6,6 +6,7 @@ package mocks
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -89,8 +90,13 @@ func (store *MockFlavorTemplateStore) Create(ft *hvs.FlavorTemplate) (*hvs.Flavo
 
 // Retrieve a Flavortemplate
 func (store *MockFlavorTemplateStore) Retrieve(templateID uuid.UUID) (*hvs.FlavorTemplate, error) {
-	rec := hvs.FlavorTemplate{}
-	return &rec, nil
+
+	for _, template := range store.FlavorTemplateStore {
+		if template.ID == templateID {
+			return &template, nil
+		}
+	}
+	return nil, errors.New("no rows in result set")
 }
 
 // Search a Flavortemplate(s)
