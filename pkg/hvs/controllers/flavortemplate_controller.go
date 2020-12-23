@@ -57,7 +57,7 @@ func (ftc FlavorTemplateCreationController) Retrieve(w http.ResponseWriter, r *h
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Retrieve() Leaving")
 
 	templateID := uuid.MustParse(mux.Vars(r)["id"])
-	defaultLog.Debugf("controllers/flavortemplate_controller:Retrieve() ID : ", templateID)
+	defaultLog.Debugf("controllers/flavortemplate_controller:Retrieve() ID : %s", templateID)
 
 	flavorTemplate, err := ftc.Store.Retrieve(templateID)
 	if err != nil {
@@ -119,7 +119,7 @@ func (ftc FlavorTemplateCreationController) Delete(w http.ResponseWriter, r *htt
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Delete() Leaving")
 
 	templateId := uuid.MustParse(mux.Vars(r)["id"])
-	defaultLog.Debugf("controllers/flavortemplate_controller:Delete() ID : ", templateId)
+	defaultLog.Debugf("controllers/flavortemplate_controller:Delete() ID : %s", templateId)
 
 	//call store function to delete template from DB.
 	if err := ftc.Store.Delete(templateId); err != nil {

@@ -7,14 +7,16 @@ package mocks
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"reflect"
+
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
 	commErr "github.com/intel-secl/intel-secl/v3/pkg/lib/common/err"
 	cf "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
+	flavormodel "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/pkg/errors"
-	"io/ioutil"
-	"reflect"
 )
 
 // MockFlavorStore provides a mocked implementation of interface hvs.FlavorStore
@@ -422,7 +424,7 @@ func (store *MockFlavorStore) Search(criteria *models.FlavorVerificationFC) ([]h
 			f, _ := store.Retrieve(fId)
 			if f != nil {
 				var flvrPart cf.FlavorPart
-				(&flvrPart).Parse(f.Flavor.Meta.Description.FlavorPart)
+				(&flvrPart).Parse(f.Flavor.Meta.Description[flavormodel.FlavorPart].(string))
 				if f, _ := store.Retrieve(fId); flavorPartsWithLatestMap[flvrPart] == true {
 					sfs = append(sfs, *f)
 				}
