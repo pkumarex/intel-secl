@@ -8,8 +8,6 @@ package saml
 import (
 	"crypto/rsa"
 	"crypto/x509"
-	rtvalidator "github.com/mattermost/xml-roundtrip-validator"
-	"strings"
 	"time"
 	"unicode"
 
@@ -95,10 +93,6 @@ func ValidateSamlAssertion(sa SamlAssertion, root *x509.Certificate) (*etree.Ele
 	if docStr == "" ||
 		!isASCII(docStr) {
 		return nil, errors.New("Invalid XML string: non-ASCII charactors detected")
-	}
-	err := rtvalidator.Validate(strings.NewReader(docStr))
-	if err != nil {
-		return nil, errors.New("Invalid XML string: xml round-trip validation failed")
 	}
 	doc := etree.NewDocument()
 	if err := doc.ReadFromString(docStr); err != nil {
