@@ -25,11 +25,11 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
-type FlavorTemplateCreationController struct {
+type FlavorTemplateController struct {
 	Store domain.FlavorTemplateStore
 }
 
-func (ftc FlavorTemplateCreationController) Create(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+func (ftc FlavorTemplateController) Create(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 
 	defaultLog.Trace("controllers/flavortemplate_controller:Create() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Create() Leaving")
@@ -52,7 +52,7 @@ func (ftc FlavorTemplateCreationController) Create(w http.ResponseWriter, r *htt
 	return flavorTemplate, http.StatusOK, nil
 }
 
-func (ftc FlavorTemplateCreationController) Retrieve(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+func (ftc FlavorTemplateController) Retrieve(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:Retrieve() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Retrieve() Leaving")
 
@@ -92,7 +92,7 @@ func validateQueryParameter(includeDeleted string) (bool, error) {
 	return included, nil
 }
 
-func (ftc FlavorTemplateCreationController) Search(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+func (ftc FlavorTemplateController) Search(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:Search() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Search() Leaving")
 
@@ -114,7 +114,7 @@ func (ftc FlavorTemplateCreationController) Search(w http.ResponseWriter, r *htt
 	return flavorTemplates, http.StatusOK, nil
 }
 
-func (ftc FlavorTemplateCreationController) Delete(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+func (ftc FlavorTemplateController) Delete(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:Delete() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Delete() Leaving")
 
