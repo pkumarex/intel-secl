@@ -377,6 +377,7 @@ func (fcon *FlavorController) getHostManifest(cs string) (*hcType.HostManifest, 
 		return nil, errors.Wrap(err, "Could not instantiate host connector")
 	}
 	hostManifest, err := hostConnector.GetHostManifest()
+	defaultLog.Debug("controllers/flavor_controller:getHostManifest() hostmanifet", hostManifest.HostInfo.OSName)
 	hostManifestbytes, err1 := json.Marshal(hostManifest)
 	if err1 != nil {
 		defaultLog.Debug("controllers/flavor_controller:getHostManifest() erro in hostmanifet")
