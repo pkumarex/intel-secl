@@ -26,15 +26,25 @@ import (
 )
 
 type FlavorTemplateController struct {
-	Store domain.FlavorTemplateStore
+	Store                   domain.FlavorTemplateStore
+	CommonDefinitionsSchema string
+	FlavorTemplateSchema    string
 }
 
-func (ftc FlavorTemplateController) Create(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+func NewFlavorTemplateController(store domain.FlavorTemplateStore, commonDefinitionsSchema, flavorTemplateSchema string) *FlavorTemplateController {
+	return &FlavorTemplateController{
+		Store:                   store,
+		CommonDefinitionsSchema: commonDefinitionsSchema,
+		FlavorTemplateSchema:    flavorTemplateSchema,
+	}
+}
+
+func (ftc *FlavorTemplateController) Create(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 
 	defaultLog.Trace("controllers/flavortemplate_controller:Create() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Create() Leaving")
 
-	flavorTemplateReq, err := getFlavorTemplateCreateReq(r)
+	flavorTemplateReq, err := ftc.getFlavorTemplateCreateReq(r)
 	if err != nil {
 		if strings.Contains(err.Error(), "Invalid Content-Type") {
 			return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: "Invalid Content-Type"}
@@ -52,7 +62,7 @@ func (ftc FlavorTemplateController) Create(w http.ResponseWriter, r *http.Reques
 	return flavorTemplate, http.StatusOK, nil
 }
 
-func (ftc FlavorTemplateController) Retrieve(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+func (ftc *FlavorTemplateController) Retrieve(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:Retrieve() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Retrieve() Leaving")
 
@@ -92,7 +102,7 @@ func validateQueryParameter(includeDeleted string) (bool, error) {
 	return included, nil
 }
 
-func (ftc FlavorTemplateController) Search(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+func (ftc *FlavorTemplateController) Search(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:Search() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Search() Leaving")
 
@@ -114,7 +124,7 @@ func (ftc FlavorTemplateController) Search(w http.ResponseWriter, r *http.Reques
 	return flavorTemplates, http.StatusOK, nil
 }
 
-func (ftc FlavorTemplateController) Delete(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+func (ftc *FlavorTemplateController) Delete(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:Delete() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Delete() Leaving")
 
@@ -131,7 +141,7 @@ func (ftc FlavorTemplateController) Delete(w http.ResponseWriter, r *http.Reques
 
 }
 
-func getFlavorTemplateCreateReq(r *http.Request) (hvs.FlavorTemplate, error) {
+func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request) (hvs.FlavorTemplate, error) {
 
 	defaultLog.Trace("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Leaving")
@@ -175,7 +185,7 @@ func getFlavorTemplateCreateReq(r *http.Request) (hvs.FlavorTemplate, error) {
 	}
 
 	defaultLog.Debug("Validating create flavor request")
-	err, errMsg := validateFlavorTemplateCreateRequest(CreateFlavorTemplateReq, string(body))
+	err, errMsg := ftc.validateFlavorTemplateCreateRequest(CreateFlavorTemplateReq, string(body))
 	if err != nil {
 		secLog.WithError(err).Errorf("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() %s Invalid flavor template create criteria", commLogMsg.InvalidInputBadParam)
 		return CreateFlavorTemplateReq, errors.New(errMsg)
@@ -186,19 +196,19 @@ func getFlavorTemplateCreateReq(r *http.Request) (hvs.FlavorTemplate, error) {
 	return CreateFlavorTemplateReq, nil
 }
 
-func validateFlavorTemplateCreateRequest(FlvrTemp hvs.FlavorTemplate, template string) (error, string) {
+func (ftc *FlavorTemplateController) validateFlavorTemplateCreateRequest(FlvrTemp hvs.FlavorTemplate, template string) (error, string) {
 	defaultLog.Trace("controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Leaving")
 	// Check whether the template is adhering to the schema
 	schemaLoader := gojsonschema.NewSchemaLoader()
 
-	definitionsSchemaJson, err := readJson(consts.CommonDefinitionsSchema)
+	definitionsSchemaJson, err := readJson(ftc.CommonDefinitionsSchema)
 	if err != nil {
 		return errors.Wrap(err, "controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Unable to read the file"+consts.CommonDefinitionsSchema), "Unable to read the schema"
 	}
 
 	definitionsSchema := gojsonschema.NewStringLoader(definitionsSchemaJson)
-	templateSchemaJson, err := readJson(consts.FlavorTemplateSchema)
+	templateSchemaJson, err := readJson(ftc.FlavorTemplateSchema)
 	if err != nil {
 		return errors.Wrap(err, "controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Unable to read the file"+consts.FlavorTemplateSchema), "Unable to read the Schema"
 	}

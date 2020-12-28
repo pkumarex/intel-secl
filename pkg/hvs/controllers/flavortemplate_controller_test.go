@@ -30,9 +30,8 @@ var _ = Describe("FlavorTemplateController", func() {
 		router = mux.NewRouter()
 		flavorTemplateStore = mocks.NewFakeFlavorTemplateStore()
 
-		flavorTemplateController = &controllers.FlavorTemplateController{
-			Store: flavorTemplateStore,
-		}
+		flavorTemplateController = controllers.NewFlavorTemplateController(flavorTemplateStore,
+			"../domain/schema/common.schema.json", "../domain/schema/Flavor-template.json")
 	})
 
 	// Specs for HTTP Post to "/flavor-template"
@@ -399,37 +398,37 @@ var _ = Describe("FlavorTemplateController", func() {
 				Expect(len(ft)).To(Equal(1))
 			})
 		})
-	// 		It("Should get a single flavor entry", func() {
-	// 			router.Handle("/flavors", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Search))).Methods("GET")
-	// 			req, err := http.NewRequest("GET", "/flavors?id=c36b5412-8c02-4e08-8a74-8bfa40425cf3", nil)
-	// 			Expect(err).NotTo(HaveOccurred())
-	// 			req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-	// 			w = httptest.NewRecorder()
-	// 			router.ServeHTTP(w, req)
-	// 			Expect(w.Code).To(Equal(http.StatusOK))
+		// 		It("Should get a single flavor entry", func() {
+		// 			router.Handle("/flavors", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Search))).Methods("GET")
+		// 			req, err := http.NewRequest("GET", "/flavors?id=c36b5412-8c02-4e08-8a74-8bfa40425cf3", nil)
+		// 			Expect(err).NotTo(HaveOccurred())
+		// 			req.Header.Set("Accept", consts.HTTPMediaTypeJson)
+		// 			w = httptest.NewRecorder()
+		// 			router.ServeHTTP(w, req)
+		// 			Expect(w.Code).To(Equal(http.StatusOK))
 
-	// 			var sfs *hvs.SignedFlavorCollection
-	// 			err = json.Unmarshal(w.Body.Bytes(), &sfs)
-	// 			Expect(err).NotTo(HaveOccurred())
-	// 			Expect(len(sfs.SignedFlavors)).To(Equal(1))
-	// 		})
-	// 	})
-	// 	Context("When filtered by Flavor meta description key-value pair", func() {
-	// 		It("Should get a single flavor entry", func() {
-	// 			router.Handle("/flavors", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Search))).Methods("GET")
-	// 			req, err := http.NewRequest("GET", "/flavors?key=bios_name&&value=Intel Corporation", nil)
-	// 			Expect(err).NotTo(HaveOccurred())
-	// 			req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-	// 			w = httptest.NewRecorder()
-	// 			router.ServeHTTP(w, req)
-	// 			Expect(w.Code).To(Equal(http.StatusOK))
+		// 			var sfs *hvs.SignedFlavorCollection
+		// 			err = json.Unmarshal(w.Body.Bytes(), &sfs)
+		// 			Expect(err).NotTo(HaveOccurred())
+		// 			Expect(len(sfs.SignedFlavors)).To(Equal(1))
+		// 		})
+		// 	})
+		// 	Context("When filtered by Flavor meta description key-value pair", func() {
+		// 		It("Should get a single flavor entry", func() {
+		// 			router.Handle("/flavors", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Search))).Methods("GET")
+		// 			req, err := http.NewRequest("GET", "/flavors?key=bios_name&&value=Intel Corporation", nil)
+		// 			Expect(err).NotTo(HaveOccurred())
+		// 			req.Header.Set("Accept", consts.HTTPMediaTypeJson)
+		// 			w = httptest.NewRecorder()
+		// 			router.ServeHTTP(w, req)
+		// 			Expect(w.Code).To(Equal(http.StatusOK))
 
-	// 			var sfs *hvs.SignedFlavorCollection
-	// 			err = json.Unmarshal(w.Body.Bytes(), &sfs)
-	// 			Expect(err).NotTo(HaveOccurred())
-	// 			//TODO Requires changes in mock flavor search method for this criteria
-	// 			Expect(len(sfs.SignedFlavors)).To(Equal(0))
-	// 		})
-	// 	})
-	 })
+		// 			var sfs *hvs.SignedFlavorCollection
+		// 			err = json.Unmarshal(w.Body.Bytes(), &sfs)
+		// 			Expect(err).NotTo(HaveOccurred())
+		// 			//TODO Requires changes in mock flavor search method for this criteria
+		// 			Expect(len(sfs.SignedFlavors)).To(Equal(0))
+		// 		})
+		// 	})
+	})
 })
