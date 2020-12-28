@@ -23,9 +23,7 @@ func SetFlavorTemplateCreationRoutes(router *mux.Router, store *postgres.DataSto
 
 	flavorTemplateStore := postgres.NewFlavorTemplateStore(store)
 
-	flavorTemplateController := controllers.FlavorTemplateController{
-		Store: flavorTemplateStore,
-	}
+	flavorTemplateController := controllers.NewFlavorTemplateController(flavorTemplateStore, constants.CommonDefinitionsSchema, constants.FlavorTemplateSchema)
 
 	flavorTemplateIdExpr := fmt.Sprintf("%s%s", "/flavor-template/", validation.IdReg)
 
