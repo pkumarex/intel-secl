@@ -189,11 +189,11 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 			defaultLog.Error("controllers/flavor_controller:CreateFlavors() Error getting host manifest")
 			return nil, errors.Wrap(err, "Error getting host manifest")
 		}
-		var flavorTemplates *[]hvs.FlavorTemplate
+		var flavorTemplates []hvs.FlavorTemplate
 		if !strings.EqualFold(hostManifest.HostInfo.OSName, "VMWARE ESXI") {
 			defaultLog.Debug("Getting flavor templates...")
 			flavorTemplates, err = fcon.findTemplatesToApply(hostManifest)
-			if err != nil || len(*flavorTemplates) == 0 {
+			if err != nil || len(flavorTemplates) == 0 {
 				defaultLog.WithError(err).Error("controllers/flavor_controller:CreateFlavors() No templates found to apply")
 				return nil, errors.Wrap(err, "No templates found to create flavors")
 			}
@@ -388,7 +388,9 @@ func (fcon *FlavorController) getHostManifest(cs string) (*hcType.HostManifest, 
 	return &hostManifest, err
 }
 
-func (fcon *FlavorController) findTemplatesToApply(hostManifest *hcType.HostManifest) (*[]hvs.FlavorTemplate, error) {
+func (fcon *FlavorController) findTemplatesToApply(hostManifest *hcType.HostManifest) ([]hvs.FlavorTemplate, error) {
+	defaultLog.Trace("controllers/flavor_controller:findTemplatesToApply() Entering")
+	defer defaultLog.Trace("controllers/flavor_controller:findTemplatesToApply() Leaving")
 	var filteredTemplates []hvs.FlavorTemplate
 	flavorTemplates, err := fcon.FTStore.Search(false)
 	if err != nil {
@@ -425,7 +427,7 @@ func (fcon *FlavorController) findTemplatesToApply(hostManifest *hcType.HostMani
 		return nil, errors.New("No templates found")
 	}
 
-	return &filteredTemplates, nil
+	return filteredTemplates, nil
 }
 
 func (fcon *FlavorController) addFlavorToFlavorgroupFC(flavorFlavorPartMap map[fc.FlavorPart][]hvs.SignedFlavor, fgs []hvs.FlavorGroup) ([]hvs.SignedFlavor, error) {

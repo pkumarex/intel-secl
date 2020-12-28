@@ -309,7 +309,7 @@ func (pfutil PlatformFlavorUtil) GetPcrDetails(pcrManifest hcTypes.PcrManifest, 
 					// check if returned logset from PCR is nil
 					if manifestPcrEventLogs != nil && err == nil {
 						// Convert EventLog to flavor format
-						for _, manifestEventLog := range *manifestPcrEventLogs {
+						for _, manifestEventLog := range manifestPcrEventLogs {
 							var currPcrEvent hcTypes.EventLog
 							currPcrEvent = manifestEventLog
 							switch digestBank {

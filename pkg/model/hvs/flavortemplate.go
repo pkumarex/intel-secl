@@ -16,14 +16,14 @@ type PCR struct {
 
 //EventLogEquals - To store event log need be equal with specified PCR.
 type EventLogEquals struct {
-	ExculdingTags *[]string `json:"excluding_tags,omitempty"`
+	ExculdingTags []string `json:"excluding_tags,omitempty"`
 }
 
 type PcrRules struct {
 	Pcr              PCR             `json:"pcr"`
 	PcrMatches       *bool           `json:"pcr_matches,omitempty"`
 	EventlogEquals   *EventLogEquals `json:"eventlog_equals,omitempty"`
-	EventlogIncludes *[]string       `json:"eventlog_includes,omitempty"`
+	EventlogIncludes []string        `json:"eventlog_includes,omitempty"`
 }
 
 // swagger:parameters FlavorPart

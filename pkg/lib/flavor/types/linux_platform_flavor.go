@@ -30,14 +30,14 @@ type LinuxPlatformFlavor struct {
 	HostManifest    *hcTypes.HostManifest        `json:"host_manifest"`
 	HostInfo        *taModel.HostInfo            `json:"host_info"`
 	TagCertificate  *cm.X509AttributeCertificate `json:"tag_certificate"`
-	FlavorTemplates *[]hvs.FlavorTemplate
+	FlavorTemplates []hvs.FlavorTemplate
 }
 
 var pfutil util.PlatformFlavorUtil
 var sfutil util.SoftwareFlavorUtil
 
 // NewLinuxPlatformFlavor returns an instance of LinuxPlatformFlavor
-func NewLinuxPlatformFlavor(hostReport *hcTypes.HostManifest, tagCertificate *cm.X509AttributeCertificate, flavorTemplates *[]hvs.FlavorTemplate) PlatformFlavor {
+func NewLinuxPlatformFlavor(hostReport *hcTypes.HostManifest, tagCertificate *cm.X509AttributeCertificate, flavorTemplates []hvs.FlavorTemplate) PlatformFlavor {
 	log.Trace("flavor/types/linux_platform_flavor:NewLinuxPlatformFlavor() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:NewLinuxPlatformFlavor() Leaving")
 
@@ -82,12 +82,12 @@ func (rhelpf LinuxPlatformFlavor) GetFlavorPartNames() ([]cf.FlavorPart, error) 
 
 // GetPcrList Helper function to calculate the list of PCRs for the flavor part specified based
 // on the version of the TPM hardware.
-func (rhelpf LinuxPlatformFlavor) getPcrList(flavorPart cf.FlavorPart, flavorTemplates *[]hvs.FlavorTemplate) map[hvs.PCR]hvs.PcrListRules {
+func (rhelpf LinuxPlatformFlavor) getPcrList(flavorPart cf.FlavorPart, flavorTemplates []hvs.FlavorTemplate) map[hvs.PCR]hvs.PcrListRules {
 	log.Trace("flavor/types/linux_platform_flavor:getPcrList() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:getPcrList() Leaving")
 
 	pcrlistAndRules := make(map[hvs.PCR]hvs.PcrListRules)
-	for _, flavorTemplate := range *flavorTemplates {
+	for _, flavorTemplate := range flavorTemplates {
 		switch flavorPart {
 		case cf.FlavorPartPlatform:
 			pcrlistAndRules = getPCRListAndRules(flavorTemplate.FlavorParts.Platform, pcrlistAndRules)
@@ -130,7 +130,7 @@ func getPCRListAndRules(flavorPart *hvs.FlavorPart, pcrList map[hvs.PCR]hvs.PcrL
 			rulesList.PcrEquals.IsPcrEquals = true
 			if pcrRule.EventlogEquals.ExculdingTags != nil {
 				rulesList.PcrEquals.ExcludingTags = make(map[string]bool)
-				for _, tags := range *pcrRule.EventlogEquals.ExculdingTags {
+				for _, tags := range pcrRule.EventlogEquals.ExculdingTags {
 					if _, ok := rulesList.PcrEquals.ExcludingTags[tags]; !ok {
 						rulesList.PcrEquals.ExcludingTags[tags] = false
 					}
@@ -140,7 +140,7 @@ func getPCRListAndRules(flavorPart *hvs.FlavorPart, pcrList map[hvs.PCR]hvs.PcrL
 
 		if pcrRule.EventlogIncludes != nil {
 			rulesList.PcrIncludes = make(map[string]bool)
-			for _, tags := range *pcrRule.EventlogIncludes {
+			for _, tags := range pcrRule.EventlogIncludes {
 				if _, ok := rulesList.PcrIncludes[tags]; !ok {
 					rulesList.PcrIncludes[tags] = true
 				}
@@ -435,7 +435,7 @@ func (rhelpf LinuxPlatformFlavor) GetPcrDetails(pcrManifest hcTypes.PcrManifest,
 				if manifestPcrEventLogs != nil && err == nil {
 
 					// Convert EventLog to flavor format
-					for _, manifestEventLog := range *manifestPcrEventLogs {
+					for _, manifestEventLog := range manifestPcrEventLogs {
 						if len(manifestEventLog.Tags) == 0 {
 							if rules.PcrEquals.IsPcrEquals {
 								eventLogEqualEvents = append(eventLogEqualEvents, manifestEventLog)
@@ -471,12 +471,12 @@ func (rhelpf LinuxPlatformFlavor) GetPcrDetails(pcrManifest hcTypes.PcrManifest,
 	return pcrCollection
 }
 
-func UpdateMetaSectionDetails(flavorPart cf.FlavorPart, newMeta *cm.Meta, flavorTemplates *[]hvs.FlavorTemplate) *cm.Meta {
+func UpdateMetaSectionDetails(flavorPart cf.FlavorPart, newMeta *cm.Meta, flavorTemplates []hvs.FlavorTemplate) *cm.Meta {
 	log.Trace("flavor/util/platform_flavor_util:UpdateMetaSectionDetails() Entering")
 	defer log.Trace("flavor/util/platform_flavor_util:UpdateMetaSectionDetails() Leaving")
 
 	var flavorTemplateID []uuid.UUID
-	for _, flavorTemplate := range *flavorTemplates {
+	for _, flavorTemplate := range flavorTemplates {
 		flavorTemplateID = append(flavorTemplateID, flavorTemplate.ID)
 		var flavor *hvs.FlavorPart
 		switch flavorPart {

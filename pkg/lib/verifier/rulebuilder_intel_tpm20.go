@@ -91,7 +91,7 @@ func (builder *ruleBuilderIntelTpm20) GetPlatformRules() ([]rules.Rule, error) {
 	// Add 'PcrEventLogIntegrity' rules...
 	//
 	tbootInstalled := builder.signedFlavor.Flavor.Meta.Description[flavormodel.TbootInstalled]
-	if tbootInstalled != nil && tbootInstalled.(bool) {
+	if tbootInstalled != nil && tbootInstalled.(string) == "true" {
 		pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcrs, &builder.signedFlavor.Flavor, common.FlavorPartPlatform)
 		if err != nil {
 			return nil, err
@@ -158,7 +158,7 @@ func (builder *ruleBuilderIntelTpm20) GetOsRules() ([]rules.Rule, error) {
 	// Add 'PcrEventLogIntegrity' rules...
 	//
 	tbootInstalled := builder.signedFlavor.Flavor.Meta.Description[flavormodel.TbootInstalled]
-	if tbootInstalled != nil && tbootInstalled.(bool) {
+	if tbootInstalled != nil && tbootInstalled.(string) == "true" {
 		pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcr17, &builder.signedFlavor.Flavor, common.FlavorPartOs)
 		if err != nil {
 			return nil, err
@@ -204,7 +204,7 @@ func (builder *ruleBuilderIntelTpm20) GetHostUniqueRules() ([]rules.Rule, error)
 	// Add 'PcrEventLogIntegrity' rules...
 	//
 	tbootInstalled := builder.signedFlavor.Flavor.Meta.Description[flavormodel.TbootInstalled]
-	if tbootInstalled != nil && tbootInstalled.(bool) {
+	if tbootInstalled != nil && tbootInstalled.(string) == "true" {
 		pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcr17and18, &builder.signedFlavor.Flavor, common.FlavorPartHostUnique)
 		if err != nil {
 			return nil, err
