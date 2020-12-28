@@ -8,15 +8,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	commErr "github.com/intel-secl/intel-secl/v3/pkg/lib/common/err"
+
 	"github.com/google/uuid"
+	commErr "github.com/intel-secl/intel-secl/v3/pkg/lib/common/err"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
-	"github.com/pkg/errors"
 )
 
 // MockFlavorTemplateStore provides a mocked implementation of interface hvs.FlavorTemplate
 type MockFlavorTemplateStore struct {
-	FlavorTemplateStore []hvs.FlavorTemplate
+	FlavorTemplateStore   []hvs.FlavorTemplate
 	DeletedTemplatesStore []hvs.FlavorTemplate
 }
 
@@ -105,7 +105,7 @@ func (store *MockFlavorTemplateStore) Retrieve(templateID uuid.UUID) (*hvs.Flavo
 func (store *MockFlavorTemplateStore) Search(includeDeleted bool) ([]hvs.FlavorTemplate, error) {
 	rec := store.FlavorTemplateStore
 	if includeDeleted {
-		rec = append(rec,store.DeletedTemplatesStore...)
+		rec = append(rec, store.DeletedTemplatesStore...)
 	}
 	return rec, nil
 }
@@ -115,7 +115,7 @@ func (store *MockFlavorTemplateStore) Delete(templateID uuid.UUID) error {
 	flavorTemplates := store.FlavorTemplateStore
 	for i, template := range flavorTemplates {
 		if template.ID == templateID {
-			store.DeletedTemplatesStore = append(store.DeletedTemplatesStore,template)
+			store.DeletedTemplatesStore = append(store.DeletedTemplatesStore, template)
 			store.FlavorTemplateStore[i] = store.FlavorTemplateStore[len(store.FlavorTemplateStore)-1]
 			store.FlavorTemplateStore = store.FlavorTemplateStore[:len(store.FlavorTemplateStore)-1]
 			return nil

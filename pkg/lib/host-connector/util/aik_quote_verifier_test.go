@@ -10,10 +10,11 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"encoding/xml"
-	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"testing"
+
+	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestVerifyQuoteAndGetPCRManifest(t *testing.T) {
@@ -23,7 +24,7 @@ func TestVerifyQuoteAndGetPCRManifest(t *testing.T) {
 	err = xml.Unmarshal(b, &tpmQuoteResponse)
 	assert.NoError(t, err)
 
-	decodedEventLogBytes, err := ioutil.ReadFile("../test/sample_measure_log.xml")
+	decodedEventLogBytes, err := ioutil.ReadFile("../test/sample_measure_log.json")
 	assert.NoError(t, err)
 
 	aikCertInBytes, err := base64.StdEncoding.DecodeString(tpmQuoteResponse.Aik)
@@ -32,13 +33,13 @@ func TestVerifyQuoteAndGetPCRManifest(t *testing.T) {
 	aikCertificate, err := x509.ParseCertificate(aikPem.Bytes)
 	assert.NoError(t, err)
 
-	nonceInBytes, err := base64.StdEncoding.DecodeString("tHgfRQED1+pYgEZpq3dZC9ONmBCZKdx10LErTZs1k/k=")
+	nonceInBytes, err := base64.StdEncoding.DecodeString("ZGVhZGJlZWZkZWFkYmVlZmRlYWRiZWVmZGVhZGJlZWZkZWFkYmVlZiA=")
 	assert.NoError(t, err)
 	verificationNonce, err := GetVerificationNonce(nonceInBytes, tpmQuoteResponse)
 	assert.NoError(t, err)
 	verificationNonceInBytes, err := base64.StdEncoding.DecodeString(verificationNonce)
 
-	tpmQuoteInBytes , err := base64.StdEncoding.DecodeString(tpmQuoteResponse.Quote)
+	tpmQuoteInBytes, err := base64.StdEncoding.DecodeString(tpmQuoteResponse.Quote)
 
 	_, err = VerifyQuoteAndGetPCRManifest(string(decodedEventLogBytes), verificationNonceInBytes, tpmQuoteInBytes, aikCertificate)
 	assert.NoError(t, err)
@@ -66,7 +67,7 @@ func TestVerifyQuoteAndGetPCRManifestInvalidNonce(t *testing.T) {
 	assert.NoError(t, err)
 	verificationNonceInBytes, err := base64.StdEncoding.DecodeString(verificationNonce)
 
-	tpmQuoteInBytes , err := base64.StdEncoding.DecodeString(tpmQuoteResponse.Quote)
+	tpmQuoteInBytes, err := base64.StdEncoding.DecodeString(tpmQuoteResponse.Quote)
 
 	_, err = VerifyQuoteAndGetPCRManifest(string(decodedEventLogBytes), verificationNonceInBytes, tpmQuoteInBytes, aikCertificate)
 	assert.Error(t, err)
@@ -91,7 +92,3 @@ func TestGetVerificationNonceAssetTagProvisioned(t *testing.T) {
 	_, err = GetVerificationNonce(nonceInBytes, tpmQuoteResponse)
 	assert.NoError(t, err)
 }
-
-
-
-
