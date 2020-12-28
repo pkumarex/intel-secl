@@ -7,6 +7,10 @@ package controllers_test
 import (
 	"encoding/base64"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+
 	"github.com/gorilla/mux"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/controllers"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
@@ -18,9 +22,6 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"net/http"
-	"net/http/httptest"
-	"strings"
 )
 
 var _ = Describe("FlavorController", func() {
@@ -145,6 +146,19 @@ var _ = Describe("FlavorController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 			})
 		})
+
+		Context("Retrieve Flavor(created by template) by valid ID from data store", func() {
+			It("Should retrieve Flavor", func() {
+				router.Handle("/flavors/{id}", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorController.Retrieve))).Methods("GET")
+				req, err := http.NewRequest("GET", "/flavors/e6612219-bbd5-4259-8c7e-991e43729a86", nil)
+				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
+				w = httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				Expect(w.Code).To(Equal(http.StatusOK))
+			})
+		})
+
 		Context("Try to retrieve Flavor by non-existent ID from data store", func() {
 			It("Should fail to retrieve Flavor", func() {
 				router.Handle("/flavors/{id}", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorController.Retrieve))).Methods("GET")
@@ -645,7 +659,6 @@ var _ = Describe("FlavorController", func() {
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
 			})
 		})
-
 		Context("Provide a manually crafted Flavor request with an invalid field name", func() {
 			It("Should return 400 Error code", func() {
 				router.Handle("/flavors", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorController.Create))).Methods("POST")

@@ -42,15 +42,6 @@ type (
 		Signature  string          `json:"signature"`
 	}
 
-	flavorfc struct {
-		ID uuid.UUID `json:"id" gorm:"primary_key;type:uuid"`
-		//Content    PGFlavorContentFC `json:"flavorfc" sql:"type:JSONB"`
-		CreatedAt  time.Time `json:"created"`
-		Label      string    `gorm:"unique;not null"`
-		FlavorPart string    `json:"flavor_part"`
-		Signature  string    `json:"signature"`
-	}
-
 	host struct {
 		Id               uuid.UUID `gorm:"primary_key;type:uuid"`
 		Name             string    `gorm:"unique;type:varchar(255);not null"`
@@ -67,11 +58,6 @@ type (
 	flavorgroupFlavor struct {
 		FlavorgroupId uuid.UUID `gorm:"type:uuid REFERENCES flavor_group(Id) ON UPDATE CASCADE ON DELETE CASCADE;not null;unique_index:idx_flavor_flavorgroup"`
 		FlavorId      uuid.UUID `gorm:"type:uuid REFERENCES flavor(Id) ON UPDATE CASCADE ON DELETE CASCADE;not null;unique_index:idx_flavor_flavorgroup"`
-	}
-
-	flavorgroupFlavorfc struct {
-		FlavorgroupId uuid.UUID `gorm:"type:uuid REFERENCES flavor_group(Id) ON UPDATE CASCADE ON DELETE CASCADE;not null;unique_index:idx_flavor_flavorgroupfc"`
-		FlavorId      uuid.UUID `gorm:"type:uuid REFERENCES flavorfc(Id) ON UPDATE CASCADE ON DELETE CASCADE;not null;unique_index:idx_flavor_flavorgroupfc"`
 	}
 
 	trustCache struct {

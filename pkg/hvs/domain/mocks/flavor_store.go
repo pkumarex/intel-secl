@@ -367,6 +367,208 @@ var flavor = ` {
             "signature": "EyuFK0QurCblcI8uRjzpn21gxvBdR99qtLDC1MEVuZ0bqLG4GC9qz27IjBO3Laniuu6e8RaVTkl6T2abnv3N+93VpSYHPKxM/ly7pM16fZmnIq1vQf0cC84tP4udL32mkq2l7riYxl8TupVrjMH9cc39Nd5JW8aRfLMcqqG6V3AHJD4mFdi0FAGDRMIlVq7WMjkZbZ8scVMH0ytJymRAq53Z8/ontdcWbXy3i1Lwrh9yrQufQ67g05UDjQJQTv+YXW9s0wR55O1I+RaZaxb3+lsBbtt7O21oT1+9CwIHN6gPP9L8OP3UDRPFN3mUA8rSHu3btnH1K1gEO1Dz+TnXIZ9puattdvOUTLjIIOMJcH/Y4ED0R3Bhln0PpRPxcgaD/Ku2dZxZWdhYHAkvIA5d8HquuAw6SkVoA5CH8DUkihSrbdQszbfpXWhFiTamfj7wpQLcacNsXES9IWvHD14GytBBfZ5lJhZ2I7OLF9QSivZh9P489upgH8rdV3qxY1jj"
         }`
 
+var LatestFlavor = `{
+    "flavor": {
+        "meta": {
+            "id": "e6612219-bbd5-4259-8c7e-991e43729a86",
+            "description": {
+                "bios_name": "Intel Corporation",
+                "bios_version": "SE5C610.86B.01.01.0016.033120161139",
+                "cbnt_enabled": true,
+                "flavor_Template_ID": [
+                    "3cc60fc1-7bc0-4822-b932-40e13fae2ba4",
+                    "fe20cb78-4584-4635-a674-e9af2a9e5f76",
+                    "876593ef-4c1a-4519-9819-f069a319a653"
+                ],
+                "flavor_part": "PLATFORM",
+                "label": "INTEL_IntelCorporation_SE5C610.86B.01.01.0016.033120161139_TPM_TXT_2020-12-21T23:07:40.999219-08:00",
+                "source": "localhost.localdomain",
+                "tboot_installed": true,
+                "tpm_version": "2.0"
+            },
+            "vendor": "INTEL"
+        },
+        "bios": {
+            "bios_name": "Intel Corporation",
+            "bios_version": "SE5C610.86B.01.01.0016.033120161139"
+        },
+        "hardware": {
+            "processor_info": "F1 06 04 00 FF FB EB BF",
+            "processor_flags": "FPU VME DE PSE TSC MSR PAE MCE CX8 APIC SEP MTRR PGE MCA CMOV PAT PSE-36 CLFSH DS ACPI MMX FXSR SSE SSE2 SS HTT TM PBE",
+            "feature": {
+                "TXT": {
+                    "enabled": true
+                },
+                "TPM": {
+                    "enabled": true,
+                    "version": "2.0",
+                    "pcr_banks": [
+                        "SHA1",
+                        "SHA256"
+                    ]
+                }
+            }
+        },
+        "pcr_logs": [
+            {
+                "pcr": {
+                    "index": 0,
+                    "bank": "SHA256"
+                },
+                "measurement": "fad7981e1d16de3269667f4e84bf84a0a0c84f4f8a183e13ac5ba1c441bbfd3c",
+                "pcr_matches": true
+            },
+            {
+                "pcr": {
+                    "index": 7,
+                    "bank": "SHA256"
+                },
+                "measurement": "1d792e7db28fe00ca4a7e6ccb5bb28babf080a7ff11de3377240eee96c393fcc",
+                "pcr_matches": true
+            },
+            {
+                "pcr": {
+                    "index": 17,
+                    "bank": "SHA256"
+                },
+                "measurement": "8bc16f894471b5e53da2e799728d0187dae1951ef84ff95c347b7e53dab83695",
+                "pcr_matches": true,
+                "eventlog_equals": {
+                    "events": [
+                        {
+                            "type_id": "0x402",
+                            "type_name": "HASH_START",
+                            "tags": [
+                                "HASH_START"
+                            ],
+                            "measurement": "14fc51186adf98be977b9e9b65fc9ee26df0599c4f45804fcc45d0bdcf5025db"
+                        },
+                        {
+                            "type_id": "0x40a",
+                            "type_name": "BIOSAC_REG_DATA",
+                            "tags": [
+                                "BIOSAC_REG_DATA"
+                            ],
+                            "measurement": "c61aaa86c13133a0f1e661faf82e74ba199cd79cef652097e638a756bd194428"
+                        },
+                        {
+                            "type_id": "0x40b",
+                            "type_name": "CPU_SCRTM_STAT",
+                            "tags": [
+                                "CPU_SCRTM_STAT"
+                            ],
+                            "measurement": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+                        },
+                        {
+                            "type_id": "0x412",
+                            "type_name": "LCP_DETAILS_HASH",
+                            "tags": [
+                                "LCP_DETAILS_HASH"
+                            ],
+                            "measurement": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d"
+                        },
+                        {
+                            "type_id": "0x40e",
+                            "type_name": "STM_HASH",
+                            "tags": [
+                                "STM_HASH"
+                            ],
+                            "measurement": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d"
+                        },
+                        {
+                            "type_id": "0x40f",
+                            "type_name": "OSSINITDATA_CAP_HASH",
+                            "tags": [
+                                "OSSINITDATA_CAP_HASH"
+                            ],
+                            "measurement": "d81fe96dc500bc43e1cd5800bef9d72b3d030bdb7e860e10c522e4246b30bd93"
+                        },
+                        {
+                            "type_id": "0x404",
+                            "type_name": "MLE_HASH",
+                            "tags": [
+                                "MLE_HASH"
+                            ],
+                            "measurement": "125f11bd4fb1156a29fbac5357ac04d14429c866a37d10643b1599be77917f82"
+                        },
+                        {
+                            "type_id": "0x414",
+                            "type_name": "NV_INFO_HASH",
+                            "tags": [
+                                "NV_INFO_HASH"
+                            ],
+                            "measurement": "0f6e0c7a5944963d7081ea494ddff1e9afa689e148e39f684db06578869ea38b"
+                        }
+                    ],
+                    "exclude_tags": [
+                        "LCP_CONTROL_HASH",
+                        "initrd",
+                        "vmlinuz"
+                    ]
+                }
+            },
+            {
+                "pcr": {
+                    "index": 18,
+                    "bank": "SHA256"
+                },
+                "measurement": "6f33d58a1fc09382042d2fd650f4c26af20cf2b18ea3bc0fdb075af2fa04f6d9",
+                "pcr_matches": true,
+                "eventlog_equals": {
+                    "events": [
+                        {
+                            "type_id": "0x410",
+                            "type_name": "SINIT_PUBKEY_HASH",
+                            "tags": [
+                                "SINIT_PUBKEY_HASH"
+                            ],
+                            "measurement": "da256395df4046319ef0af857d377a729e5bc0693429ac827002ffafe485b2e7"
+                        },
+                        {
+                            "type_id": "0x40b",
+                            "type_name": "CPU_SCRTM_STAT",
+                            "tags": [
+                                "CPU_SCRTM_STAT"
+                            ],
+                            "measurement": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450"
+                        },
+                        {
+                            "type_id": "0x40f",
+                            "type_name": "OSSINITDATA_CAP_HASH",
+                            "tags": [
+                                "OSSINITDATA_CAP_HASH"
+                            ],
+                            "measurement": "d81fe96dc500bc43e1cd5800bef9d72b3d030bdb7e860e10c522e4246b30bd93"
+                        },
+                        {
+                            "type_id": "0x413",
+                            "type_name": "LCP_AUTHORITIES_HASH",
+                            "tags": [
+                                "LCP_AUTHORITIES_HASH"
+                            ],
+                            "measurement": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d"
+                        },
+                        {
+                            "type_id": "0x414",
+                            "type_name": "NV_INFO_HASH",
+                            "tags": [
+                                "NV_INFO_HASH"
+                            ],
+                            "measurement": "0f6e0c7a5944963d7081ea494ddff1e9afa689e148e39f684db06578869ea38b"
+                        }
+                    ],
+                    "exclude_tags": [
+                        "LCP_CONTROL_HASH",
+                        "initrd",
+                        "vmlinuz"
+                    ]
+                }
+            }
+        ]
+    },
+    "signature": "TZty4EZSn3HRfeOv+7nZUY6+jxKQTRWIDP6aseSTsZ/+wD0pSbP5jYH3TNnbzG8v6eOw45U/qKZklMgQkFX7h6nS10dT0yRjCXgT+eUCNCsIrOSwjL8VW0i3Tlcc/8wRpohOaje6CZlnXZCaMmRdLEa8nfSIeH5ahyc5k2I2bjpdPWxCwoXhUB3zIWxr1mKJYEguexAjomfZ3F6UoWKQ1jO4UJaLtmvis37yVON97nsLPoXv1W1705hfFWNYeNlNbdQ/1hvIIjS1tW5LTujb48CGNLh8o7CowpH0QfGFnvufAuh4Pd1hDpT+2pjREuSgmPu9t7oMk4UmNUXUMPbsfClLutBe2bBxvwru9G48s0rsOpmErsnwhsFALHDIxrbt3vr+z83E5p4pigSJksItrWGQIrc1a/3ZOtA4SlWwALffWJdhyP89wQAAHIcGAyV9LFv0ywW4UFA0fv7d4rYjgyzTKzfCNCnjCjxwv0DIrBUZ6QdJMhXL0RHzj9fLGrB6"
+}`
+
 // Delete Flavor
 func (store *MockFlavorStore) Delete(id uuid.UUID) error {
 	for i, f := range store.flavorStore {
@@ -508,12 +710,20 @@ func (store *MockFlavorStore) flavorgroupContainsFlavorType(flvrPart cf.FlavorPa
 func NewMockFlavorStore() *MockFlavorStore {
 	store := &MockFlavorStore{}
 
+	fmt.Println("Create Flavor")
+
 	var sf hvs.SignedFlavor
 	err := json.Unmarshal([]byte(flavor), &sf)
 	fmt.Println("error: ", err)
-
 	// add to store
 	store.Create(&sf)
+
+	var sf1 hvs.SignedFlavor
+	err = json.Unmarshal([]byte(LatestFlavor), &sf1)
+	fmt.Println("error: ", err)
+
+	// add to store
+	store.Create(&sf1)
 	return store
 }
 

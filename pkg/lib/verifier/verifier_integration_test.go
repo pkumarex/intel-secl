@@ -14,12 +14,15 @@ package verifier
 import (
 	"crypto/x509"
 	"encoding/json"
+	"io/ioutil"
+
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
+	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"io/ioutil"
+
 	//"sort"
 	"testing"
 )
@@ -143,7 +146,7 @@ func runVerifierIntegrationTest(t *testing.T,
 	// loop over all of the signed flavors and compare them against
 	// an actual trust-report from java/hvs.
 	for _, signedFlavor := range signedFlavors {
-		t.Logf("==> Verifying flavor %s...", signedFlavor.Flavor.Meta.Description.FlavorPart)
+		t.Logf("==> Verifying flavor %s...", signedFlavor.Flavor.Meta.Description[model.FlavorPart].(string))
 
 		// This test uses real data from java/hvs in the 'test_data' directory.  It will not
 		// be possible to apply the FlavorTrusted rule due to differences in json serialization

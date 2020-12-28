@@ -37,11 +37,11 @@ type FlavorProvider interface {
 type PlatformFlavorProvider struct {
 	hostManifest         *hcTypes.HostManifest
 	attributeCertificate *model.X509AttributeCertificate
-	FlavorTemplates      *[]hvs.FlavorTemplate
+	FlavorTemplates      []hvs.FlavorTemplate
 }
 
 // NewPlatformFlavorProvider returns an instance of PlaformFlavorProvider
-func NewPlatformFlavorProvider(hostManifest *hcTypes.HostManifest, tagCertificate *x509.Certificate, flvrTemplates *[]hvs.FlavorTemplate) (FlavorProvider, error) {
+func NewPlatformFlavorProvider(hostManifest *hcTypes.HostManifest, tagCertificate *x509.Certificate, flvrTemplates []hvs.FlavorTemplate) (FlavorProvider, error) {
 	log.Trace("flavor/platform_flavor_factory:NewPlatformFlavorProvider() Entering")
 	defer log.Trace("flavor/platform_flavor_factory:NewPlatformFlavorProvider() Leaving")
 
@@ -87,13 +87,6 @@ func (pff PlatformFlavorProvider) GetPlatformFlavor() (*types.PlatformFlavor, er
 		err = errors.New("Error while retrieving PlaformFlavor - missing HostManifest")
 		return nil, errors.Wrapf(err, common.INVALID_INPUT().Message)
 	}
-
-	// if pff.hostManifest != nil && strings.ToUpper(strings.TrimSpace(pff.hostManifest.HostInfo.OSName)) == constants.OsVMware {
-	// 	rp = types.NewESXPlatformFlavor(pff.hostManifest, pff.attributeCertificate)
-	// } else {
-	// 	err = errors.New("Error while retrieving PlaformFlavor - missing HostManifest")
-	// 	return nil, errors.Wrapf(err, common.INVALID_INPUT().Message)
-	// }
 
 	return &rp, err
 }

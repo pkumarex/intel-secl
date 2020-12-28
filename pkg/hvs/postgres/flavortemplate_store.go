@@ -68,7 +68,7 @@ func (ft *FlavorTemplateStore) Retrieve(templateID uuid.UUID) (*hvs.FlavorTempla
 		}
 	}
 	if flavorTemplate.ID == uuid.Nil {
-		return nil, errors.Errorf("postgres/flavortemplate_store:Retrieve() failed to retrieve record from db, ", commErr.RowsNotFound)
+		return nil, errors.Errorf("postgres/flavortemplate_store:Retrieve() failed to retrieve record from db, %s", commErr.RowsNotFound)
 	}
 	return &flavorTemplate, nil
 }
@@ -110,7 +110,7 @@ func (ft *FlavorTemplateStore) Delete(templateID uuid.UUID) error {
 
 	err := ft.Store.Db.Model(FlavorTemplate{}).Where(&FlavorTemplate{ID: templateID}).Update(&FlavorTemplate{Deleted: true}).Error
 	if err != nil {
-		return errors.Wrapf(err, "postgres/flavortemplate_store:Delete() - Could not Delete record ", templateID)
+		return errors.Wrapf(err, "postgres/flavortemplate_store:Delete() - Could not Delete record %s", templateID)
 	}
 
 	return nil
@@ -122,16 +122,16 @@ func (ft *FlavorTemplateStore) Recover(recoverTemplates []string) error {
 
 	templates, err := ft.Search(true)
 	if err != nil {
-		return errors.Wrapf(err, "postgres/flavortemplate_store:Recover() - Could not recover all records")
+		return errors.Wrap(err, "postgres/flavortemplate_store:Recover() - Could not recover all records")
 	}
 
 	for _, template := range templates {
 		for _, recover := range recoverTemplates {
 			if strings.EqualFold(recover, template.Label) {
-				defaultLog.Debugf("postgres/flavortemplate_store:Recover() Recover default template ID ", template.ID)
+				defaultLog.Debugf("postgres/flavortemplate_store:Recover() Recover default template ID %s", template.ID)
 				err := ft.Store.Db.Model(FlavorTemplate{}).Update("deleted", false).Where(&FlavorTemplate{ID: template.ID}).Error
 				if err != nil {
-					return errors.Wrapf(err, "postgres/flavortemplate_store:Recover() - Could not recover record ", template.ID)
+					return errors.Wrapf(err, "postgres/flavortemplate_store:Recover() - Could not recover record %s", template.ID)
 				}
 			}
 		}
