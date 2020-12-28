@@ -75,7 +75,7 @@ func (rhelpf LinuxPlatformFlavor) GetFlavorPartNames() ([]cf.FlavorPart, error) 
 	log.Trace("flavor/types/linux_platform_flavor:GetFlavorPartNames() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:GetFlavorPartNames() Leaving")
 
-	flavorPartList := []cf.FlavorPart{cf.FlavorPartPlatform, cf.FlavorPartOs, cf.FlavorPartHostUnique, cf.FlavorPartSoftware}
+	flavorPartList := []cf.FlavorPart{cf.FlavorPartPlatform, cf.FlavorPartOs, cf.FlavorPartHostUnique, cf.FlavorPartSoftware, cf.FlavorPartAssetTag}
 
 	return flavorPartList, nil
 }

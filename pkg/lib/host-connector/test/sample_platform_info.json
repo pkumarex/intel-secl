@@ -1,41 +1,38 @@
 {
-   "errorCode":0,
-   "os_name":"RedHatEnterprise",
-   "os_version":"8.1",
-   "bios_version":"SE5C620.86B.02.01.0009.092820190230",
-   "vmm_name":"Docker",
-   "vmm_version":"19.03.8",
-   "processor_info":"57 06 05 00 FF FB EB BF",
-   "host_name":"S19RU03",
-   "bios_name":"Intel Corporation",
-   "hardware_uuid":"e84df613-180c-49ca-b2c7-3e5517a3cfb5",
-   "process_flags":"FPU VME DE PSE TSC MSR PAE MCE CX8 APIC SEP MTRR PGE MCA CMOV PAT PSE-36 CLFSH DS ACPI MMX FXSR SSE SSE2 SS HTT TM PBE",
-   "tpm_version":"2.0",
-   "pcr_banks":[
-      "SHA1",
-      "SHA256"
+   "errorCode": 0,
+   "os_name": "RedHatEnterprise",
+   "os_version": "8.1",
+   "bios_version": "SE5C610.86B.01.01.0016.033120161139",
+   "vmm_name": "",
+   "vmm_version": "",
+   "processor_info": "F1 06 04 00 FF FB EB BF",
+   "host_name": "localhost.localdomain",
+   "bios_name": "Intel Corporation",
+   "hardware_uuid": "0009e54e-642f-e511-906e-0012795d96dd",
+   "process_flags": "FPU VME DE PSE TSC MSR PAE MCE CX8 APIC SEP MTRR PGE MCA CMOV PAT PSE-36 CLFSH DS ACPI MMX FXSR SSE SSE2 SS HTT TM PBE",
+   "tpm_version": "2.0",
+   "pcr_banks": [
+       "SHA1",
+       "SHA256"
    ],
-   "no_of_sockets":"2",
-   "tpm_enabled":"true",
-   "txt_enabled":"true",
-   "tboot_installed":"false",
-   "is_docker_env":"false",
-   "hardware_features":{
-      "TXT":{
-         "enabled":"true"
-      },
-      "TPM":{
-         "enabled":"true",
-         "meta":{
-            "tpm_version":"2.0",
-            "pcr_banks":"SHA1_SHA256"
-         }
-      },
-      "SUEFI":{
-         "enabled":"true"
-      }
+   "no_of_sockets": "2",
+   "tpm_enabled": "true",
+   "txt_enabled": "true",
+   "tboot_installed": "true",
+   "is_docker_env": "false",
+   "hardware_features": {
+       "TXT": {
+           "enabled": "true"
+       },
+       "TPM": {
+           "enabled": "true",
+           "meta": {
+               "tpm_version": "2.0",
+               "pcr_banks": "SHA1_SHA256"
+           }
+       }
    },
-   "installed_components":[
-      "tagent"
+   "installed_components": [
+       "tagent"
    ]
 }

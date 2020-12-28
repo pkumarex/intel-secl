@@ -9,14 +9,15 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"encoding/xml"
+	"io/ioutil"
+	"net/url"
+	"testing"
+
 	"github.com/intel-secl/intel-secl/v3/pkg/clients/ta"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"io/ioutil"
-	"net/url"
-	"testing"
 )
 
 func TestGetHostDetails(t *testing.T) {
@@ -84,7 +85,7 @@ func TestCreateHostManifestFromSampleData(t *testing.T) {
 	}
 
 	// the sample data in ./test used this nonce which needs to be provided to GetHostManifest...
-	nonce := "tHgfRQED1+pYgEZpq3dZC9ONmBCZKdx10LErTZs1k/k="
+	nonce := "ZGVhZGJlZWZkZWFkYmVlZmRlYWRiZWVmZGVhZGJlZWZkZWFkYmVlZiA="
 
 	hostManifest, err := intelConnector.GetHostManifestAcceptNonce(nonce)
 	assert.NoError(t, err)
