@@ -47,9 +47,11 @@ type EventLogCriteria struct {
 }
 
 type EventLogEntry struct {
-	PcrIndex  PcrIndex     `json:"pcr_index"`
-	EventLogs []EventLog   `json:"event_log"`
-	PcrBank   SHAAlgorithm `json:"pcr_bank"`
+	PcrIndex     PcrIndex           `json:"pcr_index"`
+	EventLogs    []EventLog         `json:"event_log"`
+	PcrEventLogs []EventLogCriteria `json:"events,omitempty"`
+	PcrBank      SHAAlgorithm       `json:"pcr_bank"`
+	ExcludeTags  []string           `json:"exclude_tags,omitempty"`
 }
 
 type EventLogEntryFC struct {
@@ -335,14 +337,14 @@ func (pcrEventLogMap *PcrEventLogMap) GetEventLog(pcrBank SHAAlgorithm, pcrIndex
 // the original ('eventLogEntry') but not in 'eventsToSubtract'.  Returns an error
 // if the bank/index of 'eventLogEntry' and 'eventsToSubtract' do not match.
 // Note: 'eventLogEntry' and 'eventsToSubract' are not altered.
-func (eventLogEntry *EventLogEntry) Subtract(eventsToSubtract *EventLogEntry) (*EventLogEntry, error) {
+func (eventLogEntry *EventLogEntry) Subtract(eventsToSubtract *EventLogEntry) (*EventLogEntry, *EventLogEntry, error) {
 
 	if eventLogEntry.PcrBank != eventsToSubtract.PcrBank {
-		return nil, errors.Errorf("The PCR banks do not match: '%s' != '%s'", eventLogEntry.PcrBank, eventsToSubtract.PcrBank)
+		return nil, nil, errors.Errorf("The PCR banks do not match: '%s' != '%s'", eventLogEntry.PcrBank, eventsToSubtract.PcrBank)
 	}
 
 	if eventLogEntry.PcrIndex != eventsToSubtract.PcrIndex {
-		return nil, errors.Errorf("The PCR indexes do not match: '%d' != '%d'", eventLogEntry.PcrIndex, eventsToSubtract.PcrIndex)
+		return nil, nil, errors.Errorf("The PCR indexes do not match: '%d' != '%d'", eventLogEntry.PcrIndex, eventsToSubtract.PcrIndex)
 	}
 
 	// build a new EventLogEntry that will be populated by the event log entries
@@ -352,18 +354,64 @@ func (eventLogEntry *EventLogEntry) Subtract(eventsToSubtract *EventLogEntry) (*
 		PcrIndex: eventLogEntry.PcrIndex,
 	}
 
-	index := make(map[string]int)
-	for i, eventLog := range eventsToSubtract.EventLogs {
-		index[eventLog.Value] = i
+	fieldMismatch := EventLogEntry{
+		PcrBank:  eventLogEntry.PcrBank,
+		PcrIndex: eventLogEntry.PcrIndex,
 	}
 
-	for _, eventLog := range eventLogEntry.EventLogs {
-		if _, ok := index[eventLog.Value]; !ok {
-			difference.EventLogs = append(difference.EventLogs, eventLog)
+	if !reflect.DeepEqual(eventLogEntry.PcrEventLogs, []EventLogCriteria{}) && !reflect.DeepEqual(eventsToSubtract.PcrEventLogs, []EventLogCriteria{}) {
+		index := make(map[string]EventLogCriteria)
+		for _, eventLog := range eventsToSubtract.PcrEventLogs {
+			index[eventLog.Measurement] = eventLog
+		}
+
+		//Compare event log entries value (measurement) .If mismatched,raise faults
+		//else proceed to compare type_id ,type_name and tags.
+		//If these fields are mismatched,then add the mismatch entry details to report(not a fault)
+		misMatch := false
+		for _, eventLog := range eventLogEntry.PcrEventLogs {
+			if events, ok := index[eventLog.Measurement]; ok {
+
+				if len(events.TypeName) != 0 && len(eventLog.TypeName) != 0 {
+					if events.TypeName != eventLog.TypeName {
+						misMatch = true
+
+					}
+				}
+				if len(events.TypeID) != 0 && len(eventLog.TypeID) != 0 {
+					if events.TypeID != eventLog.TypeID {
+						misMatch = true
+
+					}
+				}
+				if events.Tags != nil && len(events.Tags) != 0 && len(eventLog.Tags) != 0 {
+					if !reflect.DeepEqual(events.Tags, eventLog.Tags) {
+						misMatch = true
+					}
+				}
+
+				if misMatch {
+					fieldMismatch.PcrEventLogs = append(fieldMismatch.PcrEventLogs, eventLog)
+					misMatch = false
+				}
+			} else {
+				difference.PcrEventLogs = append(difference.PcrEventLogs, eventLog)
+			}
+		}
+	} else {
+		index := make(map[string]int)
+		for i, eventLog := range eventsToSubtract.EventLogs {
+			index[eventLog.Value] = i
+		}
+
+		for _, eventLog := range eventLogEntry.EventLogs {
+			if _, ok := index[eventLog.Value]; !ok {
+				difference.EventLogs = append(difference.EventLogs, eventLog)
+			}
 		}
 	}
 
-	return &difference, nil
+	return &difference, &fieldMismatch, nil
 }
 
 // Returns the string value of the "cumulative" hash of the
@@ -383,27 +431,50 @@ func (eventLogEntry *EventLogEntry) Replay() (string, error) {
 	} else {
 		return "", errors.Errorf("Invalid sha algorithm '%s'", eventLogEntry.PcrBank)
 	}
+	if eventLogEntry.PcrEventLogs != nil {
+		for i, eventLog := range eventLogEntry.PcrEventLogs {
+			var hash hash.Hash
+			if eventLogEntry.PcrBank == SHA1 {
+				hash = sha1.New()
+			} else if eventLogEntry.PcrBank == SHA256 {
+				hash = sha256.New()
+			} else if eventLogEntry.PcrBank == SHA384 {
+				hash = sha512.New384()
+			} else if eventLogEntry.PcrBank == SHA512 {
+				hash = sha512.New()
+			}
 
-	for i, eventLog := range eventLogEntry.EventLogs {
-		var hash hash.Hash
-		if eventLogEntry.PcrBank == SHA1 {
-			hash = sha1.New()
-		} else if eventLogEntry.PcrBank == SHA256 {
-			hash = sha256.New()
-		} else if eventLogEntry.PcrBank == SHA384 {
-			hash = sha512.New384()
-		} else if eventLogEntry.PcrBank == SHA512 {
-			hash = sha512.New()
+			eventHash, err := hex.DecodeString(eventLog.Measurement)
+			if err != nil {
+				return "", errors.Wrapf(err, "Failed to decode event log %d using hex string '%s'", i, eventLog.Measurement)
+			}
+
+			hash.Write(cumulativeHash)
+			hash.Write(eventHash)
+			cumulativeHash = hash.Sum(nil)
 		}
+	} else {
+		for i, eventLog := range eventLogEntry.EventLogs {
+			var hash hash.Hash
+			if eventLogEntry.PcrBank == SHA1 {
+				hash = sha1.New()
+			} else if eventLogEntry.PcrBank == SHA256 {
+				hash = sha256.New()
+			} else if eventLogEntry.PcrBank == SHA384 {
+				hash = sha512.New384()
+			} else if eventLogEntry.PcrBank == SHA512 {
+				hash = sha512.New()
+			}
 
-		eventHash, err := hex.DecodeString(eventLog.Value)
-		if err != nil {
-			return "", errors.Wrapf(err, "Failed to decode event log %d using hex string '%s'", i, eventLog.Value)
+			eventHash, err := hex.DecodeString(eventLog.Value)
+			if err != nil {
+				return "", errors.Wrapf(err, "Failed to decode event log %d using hex string '%s'", i, eventLog.Value)
+			}
+
+			hash.Write(cumulativeHash)
+			hash.Write(eventHash)
+			cumulativeHash = hash.Sum(nil)
 		}
-
-		hash.Write(cumulativeHash)
-		hash.Write(eventHash)
-		cumulativeHash = hash.Sum(nil)
 	}
 
 	cumulativeHashString := hex.EncodeToString(cumulativeHash)

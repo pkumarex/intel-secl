@@ -9,10 +9,10 @@ package verifier
 //
 
 import (
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
-	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
+	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/verifier/rules"
+	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 )
 
 type ruleBuilderVMWare20 struct {
@@ -23,10 +23,10 @@ type ruleBuilderVMWare20 struct {
 }
 
 func newRuleBuilderVMWare20(verifierCertificates VerifierCertificates, hostManifest *types.HostManifest, signedFlavor *hvs.SignedFlavor) (ruleBuilder, error) {
-	builder := ruleBuilderVMWare20 {
+	builder := ruleBuilderVMWare20{
 		verifierCertificates: verifierCertificates,
-		hostManifest: hostManifest,
-		signedFlavor: signedFlavor,
+		hostManifest:         hostManifest,
+		signedFlavor:         signedFlavor,
 	}
 
 	return &builder, nil
@@ -37,7 +37,7 @@ func (builder *ruleBuilderVMWare20) GetName() string {
 }
 
 // From 'design' repo at isecl/libraries/verifier/verifier.md...
-// TagCertificateTrusted  
+// TagCertificateTrusted
 // AssetTag Matches
 func (builder *ruleBuilderVMWare20) GetAssetTagRules() ([]rules.Rule, error) {
 
@@ -67,8 +67,8 @@ func (builder *ruleBuilderVMWare20) GetAssetTagRules() ([]rules.Rule, error) {
 }
 
 // From 'design' repo at isecl/libraries/verifier/verifier.md...
-// PcrMatchesConstant rule for PCR 0, 17, 18  
-// PcrEventLogEquals for 17,18  
+// PcrMatchesConstant rule for PCR 0, 17, 18
+// PcrEventLogEquals for 17,18
 // PcrEventLogIntegrity rule for 17,18
 func (builder *ruleBuilderVMWare20) GetPlatformRules() ([]rules.Rule, error) {
 
@@ -80,7 +80,7 @@ func (builder *ruleBuilderVMWare20) GetPlatformRules() ([]rules.Rule, error) {
 	//
 	// Add 'PcrMatchesConstant' rules...
 	//
-	pcrMatchesContantsRules, err := getPcrMatchesConstantRules(pcrsZero17and18, &builder.signedFlavor.Flavor, common.FlavorPartPlatform)
+	pcrMatchesContantsRules, err := getPcrMatchesConstantRules(pcrsZero17and18, &builder.signedFlavor.Flavor, nil, common.FlavorPartPlatform)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +90,7 @@ func (builder *ruleBuilderVMWare20) GetPlatformRules() ([]rules.Rule, error) {
 	//
 	// Add 'PcrEventLogEquals' rules...
 	//
-	pcrEventLogEqualsRules, err := getPcrEventLogEqualsRules(pcrs17and18, &builder.signedFlavor.Flavor, common.FlavorPartPlatform)
+	pcrEventLogEqualsRules, err := getPcrEventLogEqualsRules(pcrs17and18, nil, &builder.signedFlavor.Flavor, common.FlavorPartPlatform)
 	if err != nil {
 		return nil, err
 	}
@@ -99,11 +99,11 @@ func (builder *ruleBuilderVMWare20) GetPlatformRules() ([]rules.Rule, error) {
 
 	//
 	// Add 'PcrEventLogIntegrity' rules...
-	//  
-	pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcrs17and18, &builder.signedFlavor.Flavor, common.FlavorPartPlatform)
+	//
+	pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcrs17and18, &builder.signedFlavor.Flavor, nil, common.FlavorPartPlatform)
 	if err != nil {
 		return nil, err
-	}		
+	}
 
 	results = append(results, pcrEventLogIntegrityRules...)
 
@@ -111,22 +111,22 @@ func (builder *ruleBuilderVMWare20) GetPlatformRules() ([]rules.Rule, error) {
 }
 
 // From 'design' repo at isecl/libraries/verifier/verifier.md...
-// PcrMatchesConstant rule for PCR 19  
-// PcrEventLogEquals rule for PCR 19  
-// PcrEventLogIntegrity rule for PCR 19, 20, 21  
+// PcrMatchesConstant rule for PCR 19
+// PcrEventLogEquals rule for PCR 19
+// PcrEventLogIntegrity rule for PCR 19, 20, 21
 // PcrEventLogEqualsExcluding rule for PCR 20,21
 func (builder *ruleBuilderVMWare20) GetOsRules() ([]rules.Rule, error) {
 
 	var results []rules.Rule
 
-	pcr19 := []types.PcrIndex {types.PCR19}	
-	pcrs20and21 := []types.PcrIndex {types.PCR20, types.PCR21}
+	pcr19 := []types.PcrIndex{types.PCR19}
+	pcrs20and21 := []types.PcrIndex{types.PCR20, types.PCR21}
 	pcrs19thru21 := append(pcr19, pcrs20and21...)
 
 	//
 	// Add 'PcrMatchesConstant' rules...
 	//
-	pcrMatchesContantsRules, err := getPcrMatchesConstantRules(pcr19, &builder.signedFlavor.Flavor, common.FlavorPartOs)
+	pcrMatchesContantsRules, err := getPcrMatchesConstantRules(pcr19, &builder.signedFlavor.Flavor, nil, common.FlavorPartOs)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func (builder *ruleBuilderVMWare20) GetOsRules() ([]rules.Rule, error) {
 	//
 	// Add 'PcrEventLogEquals' rules...
 	//
-	pcrEventLogEqualsRules, err := getPcrEventLogEqualsRules(pcr19, &builder.signedFlavor.Flavor, common.FlavorPartOs)
+	pcrEventLogEqualsRules, err := getPcrEventLogEqualsRules(pcr19, nil, &builder.signedFlavor.Flavor, common.FlavorPartOs)
 	if err != nil {
 		return nil, err
 	}
@@ -145,18 +145,18 @@ func (builder *ruleBuilderVMWare20) GetOsRules() ([]rules.Rule, error) {
 
 	//
 	// Add 'PcrEventLogIntegrity' rules...
-	//  
-	pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcrs19thru21, &builder.signedFlavor.Flavor, common.FlavorPartOs)
+	//
+	pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcrs19thru21, &builder.signedFlavor.Flavor, nil, common.FlavorPartOs)
 	if err != nil {
 		return nil, err
-	}		
+	}
 
 	results = append(results, pcrEventLogIntegrityRules...)
 
 	//
 	// Add 'PcrEventLogEqualsExcluding' rules...
 	//
-	pcrEventLogEqualsExcludingRules, err := getPcrEventLogEqualsExcludingRules(pcrs20and21, &builder.signedFlavor.Flavor, common.FlavorPartOs)
+	pcrEventLogEqualsExcludingRules, err := getPcrEventLogEqualsExcludingRules(pcrs20and21, nil, &builder.signedFlavor.Flavor, common.FlavorPartOs)
 	if err != nil {
 		return nil, err
 	}
@@ -167,17 +167,17 @@ func (builder *ruleBuilderVMWare20) GetOsRules() ([]rules.Rule, error) {
 }
 
 // From 'design' repo at isecl/libraries/verifier/verifier.md...
-// PcrEventLogIncludes rule for PCR 20,21  
+// PcrEventLogIncludes rule for PCR 20,21
 // PcrEventLogIntegrity rule for PCR 20,21
 func (builder *ruleBuilderVMWare20) GetHostUniqueRules() ([]rules.Rule, error) {
 
 	var results []rules.Rule
-	pcrs20and21 := []types.PcrIndex {types.PCR20, types.PCR21}
+	pcrs20and21 := []types.PcrIndex{types.PCR20, types.PCR21}
 
 	//
 	// Add 'PcrEventLogIncludes' rules...
-	//  
-	pcrEventLogIncludesRules, err := getPcrEventLogIncludesRules(pcrs20and21, &builder.signedFlavor.Flavor, common.FlavorPartHostUnique)
+	//
+	pcrEventLogIncludesRules, err := getPcrEventLogIncludesRules(pcrs20and21, &builder.signedFlavor.Flavor, nil, common.FlavorPartHostUnique)
 	if err != nil {
 		return nil, err
 	}
@@ -186,11 +186,11 @@ func (builder *ruleBuilderVMWare20) GetHostUniqueRules() ([]rules.Rule, error) {
 
 	//
 	// Add 'PcrEventLogIntegrity' rules...
-	//  
-	pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcrs20and21, &builder.signedFlavor.Flavor, common.FlavorPartHostUnique)
+	//
+	pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcrs20and21, &builder.signedFlavor.Flavor, nil, common.FlavorPartHostUnique)
 	if err != nil {
 		return nil, err
-	}		
+	}
 
 	results = append(results, pcrEventLogIntegrityRules...)
 
