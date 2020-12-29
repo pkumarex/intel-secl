@@ -156,7 +156,6 @@ func (ftc *FlavorTemplateController) Delete(w http.ResponseWriter, r *http.Reque
 }
 
 func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request) (hvs.FlavorTemplate, error) {
-
 	defaultLog.Trace("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Leaving")
 
