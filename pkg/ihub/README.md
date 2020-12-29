@@ -11,7 +11,7 @@
 - Run below scripts to build the Integration hub
 
 ```shell
-git clone https://gitlab.devtools.intel.com/sst/isecl/intel-secl
+git clone https://github.com/intel-secl/intel-secl.git
 cd intel-isecl
 make ihub-installer
 ```

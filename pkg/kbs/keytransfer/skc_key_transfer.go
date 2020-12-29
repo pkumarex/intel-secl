@@ -75,8 +75,8 @@ func GetKeyInfo() *KeyDetails {
 }
 
 func (keyInfo *KeyDetails) PopulateStmLabels(acceptChallenge, stmLabel string) {
-	defaultLog.Trace("keytransfer/skc_key_transfer:populatestmlabels() entering")
-	defer defaultLog.Trace("keytransfer/skc_key_transfer:populatestmlabels() leaving")
+	defaultLog.Trace("keytransfer/skc_key_transfer:Populatestmlabels() entering")
+	defer defaultLog.Trace("keytransfer/skc_key_transfer:Populatestmlabels() leaving")
 
 	var labels, requestedStmLabels []string
 	if strings.Contains(stmLabel, ",") {

@@ -96,7 +96,7 @@ func (controller CertificatesController) GetCertificates(httpWriter http.Respons
 		slog.Warning(commLogMsg.InvalidInputBadEncoding)
 		log.WithError(err).Error("resource/certificates:GetCertificates() Failed to decode pem block containing certificate")
 		httpWriter.WriteHeader(http.StatusBadRequest)
-		httpWriter.Write([]byte("Failed to decode pem" + err.Error()))
+		httpWriter.Write([]byte("Failed to decode pem"))
 		return
 	}
 
@@ -105,7 +105,7 @@ func (controller CertificatesController) GetCertificates(httpWriter http.Respons
 		slog.Warning(commLogMsg.InvalidInputBadParam)
 		log.WithError(err).Error("resource/certificates:GetCertificates() Invalid CSR provided")
 		httpWriter.WriteHeader(http.StatusBadRequest)
-		httpWriter.Write([]byte("Invalid CSR provided: " + err.Error()))
+		httpWriter.Write([]byte("Invalid CSR provided"))
 		return
 	}
 	err = clientCSR.CheckSignature()
@@ -113,7 +113,7 @@ func (controller CertificatesController) GetCertificates(httpWriter http.Respons
 		slog.Warning(commLogMsg.InvalidInputBadParam)
 		log.WithError(err).Error("resource/certificates:GetCertificates() CSR signature does not match")
 		httpWriter.WriteHeader(http.StatusBadRequest)
-		httpWriter.Write([]byte("Invalid CSR provided: " + err.Error()))
+		httpWriter.Write([]byte("Invalid CSR provided"))
 		return
 	}
 
@@ -122,7 +122,7 @@ func (controller CertificatesController) GetCertificates(httpWriter http.Respons
 		slog.Warning(commLogMsg.InvalidInputBadParam)
 		log.WithError(err).Error("resource/certificates:GetCertificates() Invalid CSR provided")
 		httpWriter.WriteHeader(http.StatusBadRequest)
-		httpWriter.Write([]byte("Invalid CSR provided: " + err.Error()))
+		httpWriter.Write([]byte("Invalid CSR provided"))
 		return
 	}
 	log.Debug("resource/certificates:GetCertificates() Received valid CSR")
@@ -131,7 +131,7 @@ func (controller CertificatesController) GetCertificates(httpWriter http.Respons
 	if err != nil {
 		log.WithError(err).Error("resource/certificates:GetCertificates() Failed to read next Serial Number")
 		httpWriter.WriteHeader(http.StatusInternalServerError)
-		httpWriter.Write([]byte("Failed to read next Serial Number" + err.Error()))
+		httpWriter.Write([]byte("Failed to read next Serial Number"))
 		return
 	}
 

@@ -70,8 +70,6 @@ func (km *KmipManager) RegisterKey(request *kbs.KeyRequest) (*models.KeyAttribut
 	keyAttributes := &models.KeyAttributes{
 		ID:               uuid.New(),
 		Algorithm:        request.KeyInformation.Algorithm,
-		KeyLength:        request.KeyInformation.KeyLength,
-		CurveType:        request.KeyInformation.CurveType,
 		KmipKeyID:        request.KeyInformation.KmipKeyID,
 		TransferPolicyId: request.TransferPolicyID,
 		CreatedAt:        time.Now().UTC(),
