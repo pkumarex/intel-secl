@@ -28,9 +28,12 @@ type CreateDefaultTemplate struct {
 }
 
 var defaultFlavorTemplateNames = []string{
+	"default-linux-tpm20-tboot",
+	"default-linux-tpm20-suefi",
+	"default-linux-tpm20-cbnt",
 	"default-uefi",
-	"default-pfr",
 	"default-bmc",
+	"default-pfr",
 }
 
 func (t *CreateDefaultTemplate) Run() error {
@@ -42,10 +45,10 @@ func (t *CreateDefaultTemplate) Run() error {
 	}
 
 	if len(t.deleted) != 0 {
-		// Recover delete default template.
+		// Recover deleted default template.
 		err := ftStore.Recover(t.deleted)
 		if err != nil {
-			return errors.Wrapf(err, "failed to recover default flavor template(s) %s", t.deleted)
+			return errors.Wrapf(err, "failed to recover default flavor template(s) %s ", t.deleted)
 		}
 		t.deleted = []string{}
 		return nil
@@ -57,7 +60,6 @@ func (t *CreateDefaultTemplate) Run() error {
 	}
 
 	for _, ft := range templates {
-		// create default flavortemplates ONLY if it does not exist already
 		_, err := ftStore.Create(&ft)
 		if err != nil {
 			return errors.Wrap(err, "failed to create default flavor template with ID \""+ft.ID.String()+"\"")
@@ -145,106 +147,313 @@ func getTemplates() ([]hvs.FlavorTemplate, error) {
 
 var defaultFlavorTemplatesRaw = []string{
 	`{
-	 "label": "default-uefi",
-	 "condition": [
-		 "//host_info/vendor='Linux'",
-		 "//host_info/tpm_version='2.0'",
-		 "//host_info/uefi_enabled='true'",
-		 "//host_info/suefi_enabled='true'"
-	 ],
-	 "flavor_parts": {
-		 "PLATFORM": {
-			 "meta": {
-				 "vendor":"Linux",
-				 "tpm_version": "2.0",
-				 "uefi_enabled": true
-			 },
-			 "pcr_rules": [
-				 {
-					 "pcr": {
-						 "index": 0,
-						 "bank": "SHA256"
-					 },
-					 "pcr_matches": true,
-					 "eventlog_equals": { }
-				 }
-			 ]
-		 },
-		 "OS": {
-			 "meta": {
-				 "vendor":"Linux",
-				 "tpm_version": "2.0",
-				 "uefi_enabled": true
-			 },
-			 "pcr_rules": [
-				 {
-					 "pcr": {
-						 "index": 7,
-						 "bank": "SHA256"
-					 },
-					 "pcr_matches": true,
-					 "eventlog_includes": [
-						 "shim", "db", "kek", "vmlinuz"
-					 ]
-				 }
-			 ]
-		 }
-	 }
- }`,
+		"label": "default-linux-tpm20-tboot",
+		"condition": [
+			"//host_info/vendor/*[text()='Linux']",
+			"//host_info/tpm_version/*[text()='2.0']",
+			"//host_info/tboot_installed/*[text()='true']"
+		],
+		"flavor_parts": {
+			"PLATFORM": {
+				"meta": {
+					"tpm_version": "2.0",
+					"tboot_installed": true
+				},
+				"pcr_rules": [
+					{
+					"pcr": {
+							"index": 0,
+							"bank": "SHA256"
+					},
+					"pcr_matches": true
+					},
+					{
+						"pcr": {
+							"index": 17,
+							"bank": "SHA256"
+						},
+						"pcr_matches": true,
+						"eventlog_equals": {
+							"excluding_tags": [
+								"LCP_CONTROL_HASH",
+								"initrd",
+								"vmlinuz"
+							]
+						}
+					},
+					{
+						"pcr": {
+							"index": 18,
+							"bank": "SHA256"
+						},
+						"pcr_matches": true,
+						"eventlog_equals": {
+							"excluding_tags": [
+								"LCP_CONTROL_HASH",
+								"initrd",
+								"vmlinuz"
+							]
+						}
+					}
+				]
+			},
+			"OS": {
+				"meta": {
+					"tpm_version": "2.0",
+					"tboot_installed": true
+				},
+				"pcr_rules": [
+					{
+						"pcr": {
+							"index": 17,
+							"bank": "SHA256"
+						},
+						"pcr_matches": true,
+						"eventlog_includes": [
+							"vmlinuz"
+						]
+					}
+				]
+			},
+			"HOST_UNIQUE": {
+				"meta": {
+					"tpm_version": "2.0",
+					"tboot_installed": true
+				},
+				"pcr_rules": [
+					{
+						"pcr": {
+							"index": 17,
+							"bank": "SHA256"
+						},
+						"pcr_matches": true,
+						"eventlog_includes": [
+							"LCP_CONTROL_HASH",
+							"initrd"
+						]
+					},
+					{
+						"pcr": {
+							"index": 18,
+							"bank": "SHA256"
+						},
+						"pcr_matches": true,
+						"eventlog_includes": [
+							"LCP_CONTROL_HASH"
+						]
+					}
+				]
+			}
+		}
+	}
+	`,
 	`{
-	 "label": "default-pfr",
-	 "condition": [
-		 "//host_info/vendor='Linux'",
-		 "//host_info/tpm_version='2.0'" 
-	 ],
-	 "flavor_parts": {
-		 "PLATFORM": {
-			 "meta": {
-				 "vendor":"Linux",
-				 "tpm_version": "2.0",
-				 "uefi_enabled": true
-			 },
-			 "pcr_rules": [
-				 {
-					 "pcr": {
-						 "index": 0,
-						 "bank": "SHA256"
-					 },
-					 "pcr_matches": true,
-					 "eventlog_includes": [
-						 "Intel PFR"
-					 ]
-				 }
-			 ]
-		 }
-	 }
- }`,
+		"label": "default-linux-tpm20-suefi",
+		"condition": [
+			"//host_info/vendor/*[text()='Linux']",
+			"//host_info/tpm_version//*[text()='2.0']",
+			"//host_info/hardware_features/UEFI/secure_boot_enabled/*[text()='true']"
+		],
+		"flavor_parts": {
+			"PLATFORM": {
+				"meta": {
+					"tpm_version": "2.0",
+					"suefi_enabled": true
+				},
+				"pcr_rules": [
+					{
+						"pcr": {
+							"index": 0,
+							"bank": "SHA256"
+						},
+						"pcr_matches": true
+					},
+					{
+						"pcr": {
+							"index": 1,
+							"bank": "SHA256"
+						},
+						"pcr_matches": true
+					},
+					{
+						"pcr": {
+							"index": 2,
+							"bank": "SHA256"
+						},
+						"pcr_matches": true
+					},
+					{
+						"pcr": {
+							"index": 3,
+							"bank": "SHA256"
+						},
+						"pcr_matches": true
+					},
+					{
+						"pcr": {
+							"index": 4,
+							"bank": "SHA256"
+						},
+						"pcr_matches": true
+					},
+					{
+						"pcr": {
+							"index": 5,
+							"bank": "SHA256"
+						},
+						"pcr_matches": true
+					},
+					{
+						"pcr": {
+							"index": 6,
+							"bank": "SHA256"
+						},
+						"pcr_matches": true
+					},
+					{
+						"pcr": {
+							"index": 7,
+							"bank": "SHA256"
+						},
+						"pcr_matches": true
+					}
+				]
+			}
+		}
+	}
+	`,
 	`{
-	 "label": "default-bmc",
-	 "condition": [
-		 "//host_info/vendor='Linux'",
-		 "//host_info/tpm_version='2.0'" 
-	 ],
-	 "flavor_parts": {
-		 "PLATFORM": {
-			 "meta": {
-				 "vendor":"Linux",
-				 "tpm_version": "2.0",
-				 "uefi_enabled": true
-			 },
-			 "pcr_rules": [
-				 {
-					 "pcr": {
-						 "index": 0,
-						 "bank": "SHA256"
-					 },
-					 "pcr_matches": true,
-					 "eventlog_includes": [
-						 "Firmware Hash"
-					 ]
-				 }
-			 ]
-		 }
-	 }
- }`,
+		"label": "default-linux-tpm20-cbnt",
+		"condition": [
+			"//host_info/vendor/*[text()='Linux']",
+			"//host_info/tpm_version/*[text()='2.0']",
+			"//host_info/hardware_features/CBNT/enabled/*[text()='true']"
+		],
+		"flavor_parts": {
+			"PLATFORM": {
+				"meta": {
+					"tpm_version": "2.0",
+					"cbnt_enabled": true
+				},
+				"pcr_rules": [
+					{
+						"pcr": {
+							"index": 0,
+							"bank": "SHA256"
+						},
+						"pcr_matches": true
+					},
+					{
+						"pcr": {
+							"index": 7,
+							"bank": "SHA256"
+						},
+						"pcr_matches": true
+					}
+				]
+			}
+		}
+	}
+	`,
+	`{
+		"label": "default-uefi",
+		"condition": [
+			"//host_info/vendor/*[text()='Linux']",
+			"//host_info/tpm_version/*[text()='2.0']",
+			"//host_info/hardware_features/UEFI/enabled/*[text()='true'] or //host_info/hardware_features/UEFI/secure_boot_enabled/*[text()='true']"
+		],
+		"flavor_parts": {
+			"PLATFORM": {
+				"meta": {
+					"vendor": "Linux",
+					"tpm_version": "2.0",
+					"uefi_enabled": true
+				},
+				"pcr_rules": [{
+					"pcr": {
+						"index": 0,
+						"bank": "SHA256"
+					},
+					"pcr_matches": true,
+					"eventlog_equals": {}
+				}]
+			},
+			"OS": {
+				"meta": {
+					"vendor": "Linux",
+					"tpm_version": "2.0",
+					"uefi_enabled": true
+				},
+				"pcr_rules": [{
+					"pcr": {
+						"index": 7,
+						"bank": "SHA256"
+					},
+					"pcr_matches": true,
+					"eventlog_includes": [
+						"shim", "db", "kek", "vmlinuz"
+					]
+				}]
+			}
+		}
+	}`,
+	`{
+		"label": "default-bmc",
+		"condition": [
+			"//meta/vendor='Linux'",
+			"//meta/tpm_version/='2.0'",
+			"//SHA256/*[./pcr/Index/text()=0 and ./event_log/*/tags/*/text()='AMI/BMC']"
+		],
+		"flavor_parts": {
+			"PLATFORM": {
+				"meta": {
+					"vendor":"Linux",
+					"tpm_version": "2.0",
+					"bmc_enabled": true
+				},
+				"pcr_rules": [
+					{
+						"pcr": {
+							"index": 0,
+							"bank": "SHA256"
+						},
+						"pcr_matches": true,
+						"eventlog_includes": [
+							"AMI/BMC"
+						]
+					}
+				]
+			}
+		}
+	}
+	`,
+	`{
+		"label": "default-pfr",
+		"condition": [
+			"//meta/vendor='Linux'",
+			"//meta/tpm_version/='2.0'",
+			"//SHA256/*[./pcr/Index/text()=0 and ./event_log/*/tags/*/text()='Intel PFR']"
+		],
+		"flavor_parts": {
+			"PLATFORM": {
+				"meta": {
+					"vendor":"Linux",
+					"tpm_version": "2.0",
+					"pfr_enabled": true
+				},
+				"pcr_rules": [
+					{
+						"pcr": {
+							"index": 0,
+							"bank": "SHA256"
+						},
+						"pcr_matches": true,
+						"eventlog_includes": [
+							"Intel PFR"
+						]
+					}
+				]
+			}
+		}
+	}`,
 }
