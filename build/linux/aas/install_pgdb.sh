@@ -1,10 +1,12 @@
 #!/bin/bash
 
-# Check OS
+# Check OS and VERSION
 OS=$(cat /etc/os-release | grep ^ID= | cut -d'=' -f2)
 temp="${OS%\"}"
 temp="${temp#\"}"
 OS="$temp"
+VER=$(cat /etc/os-release | grep ^VERSION_ID | tr -d 'VERSION_ID="')
+OS_FLAVOUR="$OS""$VER"
 
 # read from environment variables file if it exists
 if [ -f ./iseclpgdb.env ]; then
@@ -58,12 +60,13 @@ if [ -z $SAVE_DB_INSTALL_LOG ] ; then
 fi
 
 # Install postgresql
-if [ "$OS" == "rhel" ]
-then
+if [[ "$OS" == "rhel" && "$VER" == "8.1" || "$VER" == "8.2" ]]; then
    yum install postgresql11 postgresql11-server postgresql11-contrib postgresql11-libs -y &>> $log_file
-elif [ "$OS" == "ubuntu" ]
-then
+elif [[ "$OS" == "ubuntu" && "$VER" == "18.04" ]]; then   
    apt-get -y install postgresql-11 &>> $log_file
+else
+    echo "Unsupported OS. Please use RHEL 8.1/8.2 or Ubuntu 18.04"
+    exit 1
 fi
 
 if [ $? -ne 0 ] ; then
@@ -93,12 +96,13 @@ if [ ! -f $PGDATA/pg_hba.conf ] ; then
 	mkdir -p /usr/local/pgsql/data
     chown -R postgres:postgres /usr/local/pgsql
 
-if [ "$OS" == "rhel" ]
-then
+if [[ "$OS" == "rhel" && "$VER" == "8.1" || "$VER" == "8.2" ]]; then    
     sudo -u postgres /usr/pgsql-11/bin/pg_ctl initdb -D $PGDATA &>> $log_file
-elif [ "$OS" == "ubuntu" ]
-then
+elif [[ "$OS" == "ubuntu" && "$VER" == "18.04" ]]; then    
     sudo -u postgres /usr/lib/postgresql/11/bin/pg_ctl initdb -D $PGDATA &>> $log_file
+else
+    echo "Unsupported OS. Please use RHEL 8.1/8.2 or Ubuntu 18.04"
+    exit 1
 fi
 
     # make certificate and key files for TLS
@@ -148,12 +152,17 @@ fi
 echo "Setting up systemctl for postgres database ..."
 
 # setup systemd startup for postgresql
-if [ "$OS" == "rhel" ]
-then
+if [[ "$OS" == "rhel" && "$VER" == "8.1" || "$VER" == "8.2" ]]; then
 pg_systemd=/usr/lib/systemd/system/postgresql-11.service
-elif [ "$OS" == "ubuntu" ]
-then
+elif [[ "$OS" == "ubuntu" && "$VER" == "18.04" ]]; then
+   if [ -f "/etc/init.d/postgresql" ]; then
+           systemctl stop postgresql && systemctl disable postgresql
+           rm -rf /lib/systemd/system/postgresql.service
+   fi
 pg_systemd=/lib/systemd/system/postgresql-11.service
+else
+    echo "Unsupported OS. Please use RHEL 8.1/8.2 or Ubuntu 18.04"
+    exit 1
 fi
 rm -rf $pg_systemd
 echo "[Unit]" >> $pg_systemd
