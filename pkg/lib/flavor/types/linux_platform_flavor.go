@@ -6,7 +6,6 @@ package types
 
 import (
 	"encoding/xml"
-	"strings"
 
 	"github.com/google/uuid"
 	cf "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
@@ -18,6 +17,7 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
+	"strings"
 )
 
 /**
