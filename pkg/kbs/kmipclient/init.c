@@ -55,11 +55,11 @@ int kmipw_init(const char *address, const char *port, const char *certificate, c
         goto final;
     }
 
-    strncpy(server_address, address, strnlen(address, sizeof(server_address)));
-    strncpy(server_port, port, strnlen(port, sizeof(server_port)));
-    strncpy(client_certificate, certificate, strnlen(certificate, sizeof(client_certificate)));
-    strncpy(client_key, key, strnlen(key, sizeof(client_key)));
-    strncpy(ca_certificate, ca, strnlen(ca, sizeof(ca_certificate)));
+    strncpy(server_address, address, strnlen(address, sizeof(server_address)-1));
+    strncpy(server_port, port, strnlen(port, sizeof(server_port)-1));
+    strncpy(client_certificate, certificate, strnlen(certificate, sizeof(client_certificate)-1));
+    strncpy(client_key, key, strnlen(key, sizeof(client_key)-1));
+    strncpy(ca_certificate, ca, strnlen(ca, sizeof(ca_certificate)-1));
 
     SSL_CTX *ctx = NULL;
     BIO *bio = NULL;

@@ -58,8 +58,8 @@ func (kc *SKCController) TransferApplicationKey(responseWriter http.ResponseWrit
 	keyInfo.PopulateStmLabels(stmChallenge, kc.config.Skc.StmLabel)
 
 	if len(keyInfo.FinalStmLabels) == 0 {
-		secLog.Errorf("controllers/skc_controller:TransferApplicationKey() %s :Stm module requested by workload not supported by kbs", commLogMsg.InvalidInputBadParam)
-		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: "Stm module requested by workload not supported by kbs"}
+		secLog.Errorf("controllers/skc_controller:TransferApplicationKey() %s :Stm module requested by skc_library not supported by kbs", commLogMsg.InvalidInputBadParam)
+		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: "Stm module requested by skc_library not supported by kbs"}
 	}
 
 	if len(sessionId) != 0 {
@@ -103,6 +103,23 @@ func (kc *SKCController) TransferApplicationKey(responseWriter http.ResponseWrit
 		return nil, http.StatusUnauthorized, &commErr.ResourceError{Message: "client is not valid"}
 	}
 
+	if len(sessionId) == 0 {
+		challenge, err := keyInfo.BuildChallengeJsonRequest(kc.config)
+		if err != nil {
+			secLog.WithError(err).Errorf("controllers/skc_controller:TransferApplicationKey() Failed to generate challenge")
+			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Error in building the challenge request"}
+		} else if !(reflect.DeepEqual(challenge, kbs.ChallengeRequest{})) {
+			var t kbs.Fault ///if session is  not valid then NOt Authorized.
+			t.Type = "not-authorized"
+			challenge.Faults = append(challenge.Faults, t)
+			challenge.Operation = constants.KeyTransferOpertaion
+			challenge.Status = constants.FailureStatus
+
+			secLog.Info("controllers/skc_controller:TransferApplicationKey() Unauthorized: Generated Challenge")
+			return challenge, http.StatusUnauthorized, nil
+		}
+	}
+
 	///check for return value also.
 	isValidSession, isValidSGXAttributes := keyInfo.IsValidSession()
 	if isValidSession {
@@ -141,9 +158,6 @@ func (kc *SKCController) TransferApplicationKey(responseWriter http.ResponseWrit
 		outputKeyData.KeyInfo.KeyLength = key.KeyInformation.KeyLength
 		outputKeyData.KeyInfo.Policy.Link.KeyTransfer.Href = url
 		outputKeyData.KeyInfo.Policy.Link.KeyTransfer.Method = "get"
-		///This needs to be hardcoded and usage policy is removed from KBS but not from client application.
-		outputKeyData.KeyInfo.Policy.Link.KeyUsage.Href = "https://kbshostname:9443/v1/key-usage-policies/31bed8c1-2473-4f05-a877-f554f63ecbe5"
-		outputKeyData.KeyInfo.Policy.Link.KeyUsage.Method = "get"
 		outputKeyData.Operation = constants.KeyTransferOpertaion
 		outputKeyData.Status = constants.SuccessStatus
 
@@ -157,21 +171,6 @@ func (kc *SKCController) TransferApplicationKey(responseWriter http.ResponseWrit
 		secLog.WithField("Key", keyID).Infof("controllers/skc_controller:TransferApplicationKey(): Successfully transferred the key: %s", request.RemoteAddr)
 		delete(keyInfo.SessionIDMap, keyInfo.ActiveStmLabel+keyInfo.ActiveSessionID)
 		return outputKeyData, http.StatusOK, nil
-	} else {
-		challenge, err := keyInfo.BuildChallengeJsonRequest(kc.config)
-		if err != nil {
-			secLog.WithError(err).Errorf("controllers/skc_controller:TransferApplicationKey() Failed to generate challenge")
-			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Error in building the challenge request"}
-		} else if !(reflect.DeepEqual(challenge, kbs.ChallengeRequest{})) {
-			var t kbs.Fault ///if session is  not valid then NOt Authorized.
-			t.Type = "not-authorized"
-			challenge.Faults = append(challenge.Faults, t)
-			challenge.Operation = constants.KeyTransferOpertaion
-			challenge.Status = constants.FailureStatus
-
-			secLog.Info("controllers/skc_controller:TransferApplicationKey() Unauthorized: Generated Challenge")
-			return challenge, http.StatusUnauthorized, nil
-		}
 	}
 	return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Error in transferring the application key"}
 }
@@ -181,6 +180,7 @@ func validateKeyTransferRequest(header http.Header) (string, string, error) {
 	defer defaultLog.Trace("controllers/skc_controller:validateKeyTransferRequest() Leaving")
 
 	acceptChallenge := header.Get("Accept-Challenge")
+
 	if len(acceptChallenge) == 0 {
 		return "", "", errors.New("Accept-Challenge cannot be empty")
 	}
