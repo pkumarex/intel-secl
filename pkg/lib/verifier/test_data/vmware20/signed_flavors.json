@@ -266,6 +266,18 @@
                 "bios_name": "Intel Corporation",
                 "bios_version": "SE5C620.86B.00.01.0014.070920180847"
             },
+            "hardware": {
+                "processor_info": "Skylake",
+                "feature": {
+                    "txt": {
+                        "enabled": true
+                    },
+                    "tpm": {
+                        "enabled": true,
+                        "version": "2.0"
+                    }
+                }
+            },
             "pcrs": {
                 "SHA1": {},
                 "SHA256": {
@@ -312,6 +324,18 @@
             "bios": {
                 "bios_name": "Intel Corporation",
                 "bios_version": "SE5C620.86B.00.01.0014.070920180847"
+            },
+            "hardware": {
+                "processor_info": "Skylake",
+                "feature": {
+                    "txt": {
+                        "enabled": true
+                    },
+                    "tpm": {
+                        "enabled": true,
+                        "version": "2.0"
+                    }
+                }
             },
             "pcrs": {
                 "SHA1": {},
