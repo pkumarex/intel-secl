@@ -6,6 +6,7 @@ package types
 
 import (
 	"encoding/xml"
+
 	"strings"
 
 	"github.com/google/uuid"
@@ -128,9 +129,9 @@ func getPCRListAndRules(flavorPart *hvs.FlavorPart, pcrList map[hvs.PCR]hvs.PcrL
 
 		if pcrRule.EventlogEquals != nil {
 			rulesList.PcrEquals.IsPcrEquals = true
-			if pcrRule.EventlogEquals.ExculdingTags != nil {
+			if pcrRule.EventlogEquals.ExcludingTags != nil {
 				rulesList.PcrEquals.ExcludingTags = make(map[string]bool)
-				for _, tags := range pcrRule.EventlogEquals.ExculdingTags {
+				for _, tags := range pcrRule.EventlogEquals.ExcludingTags {
 					if _, ok := rulesList.PcrEquals.ExcludingTags[tags]; !ok {
 						rulesList.PcrEquals.ExcludingTags[tags] = false
 					}
