@@ -64,6 +64,18 @@
                 "bios_name": "Intel Corporation",
                 "bios_version": "SE5C610.86B.01.01.1008.031920151331"
             },
+            "hardware": {
+                "processor_info": "Haswell",
+                "feature": {
+                    "txt": {
+                        "enabled": true
+                    },
+                    "tpm": {
+                        "enabled": true,
+                        "version": "1.2"
+                    }
+                }
+            },
             "pcrs": {
                 "SHA1": {
                     "pcr_19": {
@@ -107,6 +119,18 @@
             "bios": {
                 "bios_name": "Intel Corporation",
                 "bios_version": "SE5C610.86B.01.01.1008.031920151331"
+            },
+            "hardware": {
+                "processor_info": "Haswell",
+                "feature": {
+                    "txt": {
+                        "enabled": true
+                    },
+                    "tpm": {
+                        "enabled": true,
+                        "version": "1.2"
+                    }
+                }
             },
             "pcrs": {
                 "SHA1": {
