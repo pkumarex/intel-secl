@@ -149,9 +149,9 @@ var defaultFlavorTemplatesRaw = []string{
 	`{
 		"label": "default-linux-tpm20-tboot",
 		"condition": [
-			"//host_info/vendor/*[text()='Linux']",
-			"//host_info/tpm_version/*[text()='2.0']",
-			"//host_info/tboot_installed/*[text()='true']"
+			"//host_info/os_name//*[text()='RedHatEnterprise']",
+			"//host_info/hardware_features/TPM/meta/tpm_version//*[text()='2.0']",
+			"//host_info/tboot_installed//*[text()='true']"
 		],
 		"flavor_parts": {
 			"PLATFORM": {
@@ -250,9 +250,9 @@ var defaultFlavorTemplatesRaw = []string{
 	`{
 		"label": "default-linux-tpm20-suefi",
 		"condition": [
-			"//host_info/vendor/*[text()='Linux']",
-			"//host_info/tpm_version//*[text()='2.0']",
-			"//host_info/hardware_features/UEFI/secure_boot_enabled/*[text()='true']"
+			"//host_info/os_name//*[text()='RedHatEnterprise']",
+			"//host_info/hardware_features/TPM/meta/tpm_version//*[text()='2.0']",
+			"//host_info/hardware_features/UEFI/secure_boot_enabled//*[text()='true']"
 		],
 		"flavor_parts": {
 			"PLATFORM": {
@@ -325,9 +325,9 @@ var defaultFlavorTemplatesRaw = []string{
 	`{
 		"label": "default-linux-tpm20-cbnt",
 		"condition": [
-			"//host_info/vendor/*[text()='Linux']",
-			"//host_info/tpm_version/*[text()='2.0']",
-			"//host_info/hardware_features/CBNT/enabled/*[text()='true']"
+			"//host_info/os_name//*[text()='RedHatEnterprise']",
+			"//host_info/hardware_features/TPM/meta/tpm_version//*[text()='2.0']",
+			"//host_info/hardware_features/CBNT/enabled//*[text()='true']"
 		],
 		"flavor_parts": {
 			"PLATFORM": {
@@ -358,9 +358,9 @@ var defaultFlavorTemplatesRaw = []string{
 	`{
 		"label": "default-uefi",
 		"condition": [
-			"//host_info/vendor/*[text()='Linux']",
-			"//host_info/tpm_version/*[text()='2.0']",
-			"//host_info/hardware_features/UEFI/enabled/*[text()='true'] or //host_info/hardware_features/UEFI/secure_boot_enabled/*[text()='true']"
+			"//host_info/os_name//*[text()='RedHatEnterprise']",
+			"//host_info/hardware_features/TPM/meta/tpm_version//*[text()='2.0']",
+			"//host_info/hardware_features/UEFI/enabled//*[text()='true'] or //host_info/hardware_features/UEFI/secure_boot_enabled//*[text()='true']"
 		],
 		"flavor_parts": {
 			"PLATFORM": {
@@ -400,8 +400,8 @@ var defaultFlavorTemplatesRaw = []string{
 	`{
 		"label": "default-bmc",
 		"condition": [
-			"//meta/vendor='Linux'",
-			"//meta/tpm_version/='2.0'",
+			"//host_info/os_name//*[text()='RedHatEnterprise']",
+			"//host_info/hardware_features/TPM/meta/tpm_version//*[text()='2.0']",
 			"//SHA256/*[./pcr/Index/text()=0 and ./event_log/*/tags/*/text()='AMI/BMC']"
 		],
 		"flavor_parts": {
@@ -430,8 +430,8 @@ var defaultFlavorTemplatesRaw = []string{
 	`{
 		"label": "default-pfr",
 		"condition": [
-			"//meta/vendor='Linux'",
-			"//meta/tpm_version/='2.0'",
+			"//host_info/os_name//*[text()='RedHatEnterprise']",
+			"//host_info/hardware_features/TPM/meta/tpm_version/*[text()='2.0']",
 			"//SHA256/*[./pcr/Index/text()=0 and ./event_log/*/tags/*/text()='Intel PFR']"
 		],
 		"flavor_parts": {
