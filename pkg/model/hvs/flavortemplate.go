@@ -26,7 +26,6 @@ type PcrRules struct {
 	EventlogIncludes []string        `json:"eventlog_includes,omitempty"`
 }
 
-// swagger:parameters FlavorPart
 type FlavorPart struct {
 	Meta     map[string]interface{} `json:"meta,omitempty"`
 	PcrRules []PcrRules             `json:"pcr_rules"`
