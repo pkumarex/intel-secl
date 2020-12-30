@@ -252,7 +252,7 @@ var defaultFlavorTemplatesRaw = []string{
 		"condition": [
 			"//host_info/os_name//*[text()='RedHatEnterprise']",
 			"//host_info/hardware_features/TPM/meta/tpm_version//*[text()='2.0']",
-			"//host_info/hardware_features/UEFI/secure_boot_enabled//*[text()='true']"
+			"//host_info/hardware_features/UEFI/meta/secure_boot_enabled//*[text()='true']"
 		],
 		"flavor_parts": {
 			"PLATFORM": {
@@ -360,7 +360,7 @@ var defaultFlavorTemplatesRaw = []string{
 		"condition": [
 			"//host_info/os_name//*[text()='RedHatEnterprise']",
 			"//host_info/hardware_features/TPM/meta/tpm_version//*[text()='2.0']",
-			"//host_info/hardware_features/UEFI/enabled//*[text()='true'] or //host_info/hardware_features/UEFI/secure_boot_enabled//*[text()='true']"
+			"//host_info/hardware_features/UEFI/enabled//*[text()='true'] or //host_info/hardware_features/UEFI/meta/secure_boot_enabled//*[text()='true']"
 		],
 		"flavor_parts": {
 			"PLATFORM": {
