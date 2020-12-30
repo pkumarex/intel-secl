@@ -63,7 +63,6 @@ func addJWTToken(req *http.Request, aasURL, serviceUsername, servicePassword str
 		aasRWLock.Unlock()
 	}
 	secLog.Debug("clients/send_http_request:addJWTToken() successfully added jwt bearer token")
-	secLog.Debug("clients/send_http_request:addJWTToken() successfully added jwt bearer token ", string(jwtToken))
 	req.Header.Set("Authorization", "Bearer "+string(jwtToken))
 	return nil
 }
