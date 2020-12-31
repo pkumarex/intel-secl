@@ -202,7 +202,7 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 	err = dec.Decode(&createFlavorTemplateReq)
 	if err != nil {
 		secLog.WithError(err).Errorf("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Failed to decode request body as flavor template  %s", commLogMsg.InvalidInputBadEncoding)
-		return createFlavorTemplateReq, errors.New("Unable to decode JSON request body")
+		return createFlavorTemplateReq, &badRequestError{Message: "Unable to decode JSON request body"}
 	}
 
 	if createFlavorTemplateReq.ID != uuid.Nil {
