@@ -244,11 +244,6 @@ func (builder *ruleBuilderIntelTpm20) GetSoftwareRules() ([]rules.Rule, error) {
 		return nil, errors.New("'Meta' was not present in the flavor")
 	}
 
-	//To-Do add comparsion for maps
-	// if reflect.DeepEqual(meta.Description, flavormodel.Description{}) {
-	// 	return nil, errors.New("'Description' was not present in the flavor")
-	// }
-
 	xmlMeasurementLogDigestEqualsRule, err := rules.NewXmlMeasurementLogDigestEquals(meta.Description[flavormodel.DigestAlgorithm].(string), meta.ID)
 	if err != nil {
 		return nil, err
