@@ -34,17 +34,6 @@ func (gpf GenericPlatformFlavor) GetFlavorPartRaw(name cf.FlavorPart) ([]cm.Flav
 	return nil, errors.New("Unknown flavor part specified by the user")
 }
 
-func (gpf GenericPlatformFlavor) GetFlavorPartRawFC(name cf.FlavorPart) ([]cm.Flavor, error) {
-	log.Trace("flavor/types/generic_platform_flavor:GetFlavorPartRaw() Entering")
-	defer log.Trace("flavor/types/generic_platform_flavor:GetFlavorPartRaw() Leaving")
-
-	// if name == cf.FlavorPartAssetTag {
-	// 	return gpf.getAssetTagFlavor()
-	// }
-
-	return nil, errors.New("Unknown flavor part specified by the user")
-}
-
 // GetFlavorPartNames retrieves the list of flavor parts that can be obtained using the GetFlavorPartRaw function
 func (gpf GenericPlatformFlavor) GetFlavorPartNames() ([]cf.FlavorPart, error) {
 	log.Trace("flavor/types/generic_platform_flavor:GetFlavorPartNames() Entering")

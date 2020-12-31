@@ -73,7 +73,7 @@ func (ftc *FlavorTemplateController) Create(w http.ResponseWriter, r *http.Reque
 	flavorTemplate, err := ftc.Store.Create(&flavorTemplateReq)
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Create() Failed to create flavor template")
-		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: err.Error()}
+		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to create flavor template"}
 	}
 
 	return flavorTemplate, http.StatusOK, nil
@@ -133,7 +133,7 @@ func (ftc *FlavorTemplateController) Search(w http.ResponseWriter, r *http.Reque
 	flavorTemplates, err := ftc.Store.Search(isIncludeDeleted)
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Search() Error retrieving all flavor templates")
-		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: err.Error()}
+		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Error retrieving all flavor templates"}
 	}
 
 	return flavorTemplates, http.StatusOK, nil
@@ -143,12 +143,16 @@ func (ftc *FlavorTemplateController) Delete(w http.ResponseWriter, r *http.Reque
 	defaultLog.Trace("controllers/flavortemplate_controller:Delete() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Delete() Leaving")
 
-	templateId := uuid.MustParse(mux.Vars(r)["id"])
+	templateID := uuid.MustParse(mux.Vars(r)["id"])
 
 	//call store function to delete template from DB.
-	if err := ftc.Store.Delete(templateId); err != nil {
+	if err := ftc.Store.Delete(templateID); err != nil {
+		if strings.Contains(err.Error(), commErr.RowsNotFound) {
+			defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Delete() Flavor template with given ID does not exist")
+			return nil, http.StatusNotFound, &commErr.ResourceError{Message: "Flavor template with given ID does not exist or has been deleted"}
+		}
 		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Delete() Failed to delete flavor template with given ID")
-		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: err.Error()}
+		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to delete flavor template with given ID"}
 	}
 
 	return nil, http.StatusNoContent, nil
