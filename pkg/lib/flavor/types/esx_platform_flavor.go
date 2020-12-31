@@ -73,27 +73,6 @@ func (esxpf ESXPlatformFlavor) GetFlavorPartRaw(name cf.FlavorPart) ([]cm.Flavor
 	return nil, cf.UNKNOWN_FLAVOR_PART()
 }
 
-// // GetFlavorPartRaw extracts the details of the flavor part requested by the
-// // caller from the host report used during the creation of the PlatformFlavor instance
-// func (esxpf ESXPlatformFlavor) GetFlavorPartRawFC(name cf.FlavorPart) ([]cm.Flavor, error) {
-// 	log.Trace("flavor/types/linux_platform_flavor:GetFlavorPartRaw() Entering")
-// 	defer log.Trace("flavor/types/linux_platform_flavor:GetFlavorPartRaw() Leaving")
-
-// 	// switch name {
-// 	// case cf.FlavorPartPlatform:
-// 	// 	return rhelpf.getPlatformFlavor()
-// 	// case cf.FlavorPartOs:
-// 	// 	return rhelpf.getOsFlavor()
-// 	// case cf.FlavorPartAssetTag:
-// 	// 	return rhelpf.getAssetTagFlavor()
-// 	// case cf.FlavorPartHostUnique:
-// 	// 	return rhelpf.getHostUniqueFlavor()
-// 	// case cf.FlavorPartSoftware:
-// 	// 	return rhelpf.getDefaultSoftwareFlavor()
-// 	// }
-// 	return nil, cf.UNKNOWN_FLAVOR_PART()
-// }
-
 // GetFlavorPartNames retrieves the list of flavor parts that can be obtained using the GetFlavorPartRaw function
 func (esxpf ESXPlatformFlavor) GetFlavorPartNames() ([]cf.FlavorPart, error) {
 	log.Trace("flavor/types/esx_platform_flavor:GetFlavorPartNames() Entering")
