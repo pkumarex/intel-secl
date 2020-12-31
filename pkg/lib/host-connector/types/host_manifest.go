@@ -7,7 +7,6 @@ package types
 import (
 	"crypto/x509"
 	"encoding/base64"
-
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
 )

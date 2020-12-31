@@ -9,14 +9,13 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
-	"strings"
-
 	client "github.com/intel-secl/intel-secl/v3/pkg/clients/ta"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/util"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
 	"github.com/vmware/govmomi/vim25/mo"
+	"strings"
 )
 
 type IntelConnector struct {
@@ -119,8 +118,8 @@ func (ic *IntelConnector) GetHostManifestAcceptNonce(nonce string) (types.HostMa
 		return types.HostManifest{}, errors.Wrap(err, "intel_host_connector:GetHostManifestAcceptNonce() Error converting "+
 			"event log to bytes")
 	}
-
 	decodedEventLog := string(eventLogBytes)
+	log.Info("intel_host_connector:GetHostManifestAcceptNonce() Retrieved event log from TPM quote response")
 
 	tpmQuoteInBytes, err := base64.StdEncoding.DecodeString(tpmQuoteResponse.Quote)
 	if err != nil {
