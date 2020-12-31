@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/antchfx/jsonquery"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	consts "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants"
@@ -22,7 +23,6 @@ import (
 	commLogMsg "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log/message"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/pkg/errors"
-	"github.com/antchfx/jsonquery"
 	"github.com/xeipuuv/gojsonschema"
 )
 
@@ -35,7 +35,7 @@ type ErrorMessage struct {
 	Message string
 }
 
-// This method is used to initialize the flavorTemplateController
+// NewFlavorTemplateController This method is used to initialize the flavorTemplateController
 func NewFlavorTemplateController(store domain.FlavorTemplateStore, commonDefinitionsSchema, flavorTemplateSchema string) *FlavorTemplateController {
 	return &FlavorTemplateController{
 		Store:                   store,
@@ -56,7 +56,7 @@ func (e badRequestError) Error() string {
 	return fmt.Sprintf("%s", e.Message)
 }
 
-// This method is used to create the flavor template and store it in the database
+// Create This method is used to create the flavor template and store it in the database
 func (ftc *FlavorTemplateController) Create(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:Create() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Create() Leaving")
@@ -82,6 +82,7 @@ func (ftc *FlavorTemplateController) Create(w http.ResponseWriter, r *http.Reque
 	return flavorTemplate, http.StatusOK, nil
 }
 
+// Retrieve This method is used to retrieve a flavor template
 func (ftc *FlavorTemplateController) Retrieve(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:Retrieve() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Retrieve() Leaving")
@@ -103,7 +104,7 @@ func (ftc *FlavorTemplateController) Retrieve(w http.ResponseWriter, r *http.Req
 	return flavorTemplate, http.StatusOK, nil
 }
 
-// This method is used to return boolean value of query parameter
+// isIncludeDeleted This method is used to return boolean value of query parameter
 func isIncludeDeleted(includeDeleted string) (bool, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:isIncludeDeleted() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:isIncludeDeleted() Leaving")
@@ -121,7 +122,7 @@ func isIncludeDeleted(includeDeleted string) (bool, error) {
 	return false, nil
 }
 
-// This method is used to retrieve all the flavor templates
+// Search This method is used to retrieve all the flavor templates
 func (ftc *FlavorTemplateController) Search(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:Search() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Search() Leaving")
@@ -144,7 +145,7 @@ func (ftc *FlavorTemplateController) Search(w http.ResponseWriter, r *http.Reque
 	return flavorTemplates, http.StatusOK, nil
 }
 
-// This method is used to delete a flavor template
+// Delete This method is used to delete a flavor template
 func (ftc *FlavorTemplateController) Delete(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:Delete() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Delete() Leaving")
@@ -164,7 +165,7 @@ func (ftc *FlavorTemplateController) Delete(w http.ResponseWriter, r *http.Reque
 	return nil, http.StatusNoContent, nil
 }
 
-// This method is used to get the body content of Flavor Template Create Request
+// getFlavorTemplateCreateReq This method is used to get the body content of Flavor Template Create Request
 func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request) (hvs.FlavorTemplate, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Leaving")
@@ -209,7 +210,7 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 	return createFlavorTemplateReq, nil
 }
 
-// This method is used to validate the flavor template
+// validateFlavorTemplateCreateRequest This method is used to validate the flavor template
 func (ftc *FlavorTemplateController) validateFlavorTemplateCreateRequest(FlvrTemp hvs.FlavorTemplate, template string) (string, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Leaving")
@@ -253,17 +254,17 @@ func (ftc *FlavorTemplateController) validateFlavorTemplateCreateRequest(FlvrTem
 
 	//Validation the syntax of the conditions
 	tempDoc, _ := jsonquery.Parse(strings.NewReader(""))
-	for _,condition := range FlvrTemp.Condition {
-	_, err := jsonquery.Query(tempDoc, condition)
+	for _, condition := range FlvrTemp.Condition {
+		_, err := jsonquery.Query(tempDoc, condition)
 		if err != nil {
-			return "Invalid syntax in condition statement", errors.Wrapf(err, "controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Invalid syntax in condition : %s",condition)
-	    }
-    }
+			return "Invalid syntax in condition statement", errors.Wrapf(err, "controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Invalid syntax in condition : %s", condition)
+		}
+	}
 
 	//Check whether each pcr index is associated with not more than one bank.
 	pcrMap := make(map[*hvs.FlavorPart][]hvs.PCR)
-	Flavors := []*hvs.FlavorPart{FlvrTemp.FlavorParts.Platform, FlvrTemp.FlavorParts.OS, FlvrTemp.FlavorParts.HostUnique, FlvrTemp.FlavorParts.Software}
-	for _, flavor := range Flavors {
+	flavors := []*hvs.FlavorPart{FlvrTemp.FlavorParts.Platform, FlvrTemp.FlavorParts.OS, FlvrTemp.FlavorParts.HostUnique, FlvrTemp.FlavorParts.Software}
+	for _, flavor := range flavors {
 		if flavor != nil {
 			if _, ok := pcrMap[flavor]; !ok {
 				var pcrs []hvs.PCR
@@ -289,7 +290,7 @@ func (ftc *FlavorTemplateController) validateFlavorTemplateCreateRequest(FlvrTem
 	return "", nil
 }
 
-// This method is used to read the json file
+// readJson This method is used to read the json file
 func readJson(jsonFilePath string) (string, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:readJson() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:readJson() Leaving")
