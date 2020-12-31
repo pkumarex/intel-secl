@@ -25,11 +25,6 @@ func NewXmlMeasurementLogEquals(softwareFlavor *hvs.Flavor) (Rule, error) {
 		return nil, errors.New("'Meta' was not provided in the software flavor")
 	}
 
-	//To-Do comparsion for maps
-	// if reflect.DeepEqual(meta.Description, flavormodel.Meta.Description) {
-	// 	return nil, errors.New("'Meta.Description' was not provided in the software flavor")
-	// }
-
 	if len(meta.Description[flavormodel.Label].(string)) == 0 {
 		return nil, errors.New("The software flavor label was not provided")
 	}
