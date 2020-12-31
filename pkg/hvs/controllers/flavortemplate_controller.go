@@ -63,13 +63,19 @@ func (ftc *FlavorTemplateController) Create(w http.ResponseWriter, r *http.Reque
 
 	flavorTemplateReq, err := ftc.getFlavorTemplateCreateReq(r)
 	if err != nil {
+		if strings.Contains(err.Error(), "given template ID already exists") {
+			defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Create() Failed to complete create flavor template,given template ID already exists")
+			return nil, http.StatusBadRequest, &commErr.ResourceError{Message: "Failed to create flavor template, given template ID already exists"}
+		}
+
+		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Create() Failed to complete create flavor template")
 		switch errorType := err.(type) {
 		case *unsupportedMediaError:
 			return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: errorType.Message}
 		case *badRequestError:
 			return nil, http.StatusBadRequest, &commErr.ResourceError{Message: errorType.Message}
 		}
-		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Create() Failed to complete create flavor template")
+		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: "Failed to create flavor template"}
 	}
 
 	//Store this template into database.
@@ -198,6 +204,17 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 	if err != nil {
 		secLog.WithError(err).Errorf("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Failed to decode request body as flavor template  %s", commLogMsg.InvalidInputBadEncoding)
 		return createFlavorTemplateReq, &badRequestError{Message: "Unable to decode JSON request body"}
+	}
+
+	if createFlavorTemplateReq.ID != uuid.Nil {
+		template, err := ftc.Store.Retrieve(createFlavorTemplateReq.ID)
+		if err != nil {
+			return hvs.FlavorTemplate{}, errors.Wrap(err, "controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Failed to retrieve falvor template")
+		}
+		if template != nil {
+			return hvs.FlavorTemplate{}, errors.New("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() FlavorTemplate with given template ID already exists")
+		}
+
 	}
 
 	defaultLog.Debug("Validating create flavor request")
