@@ -149,7 +149,7 @@ func getPCRListAndRules(flavorPart *hvs.FlavorPart, pcrList map[hvs.PCR]hvs.PcrL
 		}
 		pcrList[pcrRule.Pcr] = rulesList
 	}
-	log.Debug("flavor/types/linux_platform_flavor:getPCRListAndRules() pcrList ended ", pcrList)
+
 	return pcrList
 }
 
@@ -304,7 +304,7 @@ func (rhelpf LinuxPlatformFlavor) getHostUniqueFlavor() ([]cm.Flavor, error) {
 	// Assemble the Host Unique Flavor
 	hostUniqueFlavor := cm.NewFlavor(newMeta, newBios, nil, nil, allPcrDetails, nil, nil)
 
-	log.Debugf("flavor/types/esx_platform_flavor:getHostUniqueFlavor() New PlatformFlavor: %v", hostUniqueFlavor)
+	log.Debugf("flavor/types/linux_platform_flavor:getHostUniqueFlavor() New PlatformFlavor: %v", hostUniqueFlavor)
 
 	return []cm.Flavor{*hostUniqueFlavor}, nil
 }
@@ -346,7 +346,7 @@ func (rhelpf LinuxPlatformFlavor) getAssetTagFlavor() ([]cm.Flavor, error) {
 	// Assemble the Asset Tag Flavor
 	assetTagFlavor := cm.NewFlavor(newMeta, newBios, nil, nil, nil, newExt, nil)
 
-	log.Debugf("flavor/types/esx_platform_flavor:getPlatformFlavor() New Asset Tag Flavor: %v", assetTagFlavor)
+	log.Debugf("flavor/types/linux_platform_flavor:getPlatformFlavor() New Asset Tag Flavor: %v", assetTagFlavor)
 
 	return []cm.Flavor{*assetTagFlavor}, nil
 }
@@ -391,12 +391,12 @@ func (rhelpf LinuxPlatformFlavor) getDefaultMeasurement() ([]string, error) {
 		var measurement taModel.Measurement
 		err = xml.Unmarshal([]byte(measurementXML), &measurement)
 		if err != nil {
-			return nil, errors.Wrapf(err, "Error unmarshalling measurement XML: %s", err.Error())
+			return nil, errors.Wrapf(err, "flavor/types/linux_platform_flavor:getDefaultMeasurement() Error unmarshalling measurement XML: %s", err.Error())
 		}
 		if strings.Contains(measurement.Label, constants.DefaultSoftwareFlavorPrefix) ||
 			strings.Contains(measurement.Label, constants.DefaultWorkloadFlavorPrefix) {
 			measurementXmlCollection = append(measurementXmlCollection, measurementXML)
-			log.Debugf("flavor/types/esx_platform_flavor:getDefaultMeasurement() Measurement XML: %s", measurementXML)
+			log.Debugf("flavor/types/linux_platform_flavor:getDefaultMeasurement() Measurement XML: %s", measurementXML)
 		}
 	}
 	return measurementXmlCollection, nil
@@ -405,8 +405,8 @@ func (rhelpf LinuxPlatformFlavor) getDefaultMeasurement() ([]string, error) {
 // GetPcrDetails extracts Pcr values and Event Logs from the HostManifest/PcrManifest and  returns
 // in a format suitable for inserting into the flavor
 func (rhelpf LinuxPlatformFlavor) GetPcrDetails(pcrManifest hcTypes.PcrManifest, pcrList map[hvs.PCR]hvs.PcrListRules, includeEventLog bool) []hcTypes.PCRS {
-	log.Trace("flavor/util/platform_flavor_util:GetPcrDetails() Entering")
-	defer log.Trace("flavor/util/platform_flavor_util:GetPcrDetails() Leaving")
+	log.Trace("flavor/types/linux_platform_flavor:GetPcrDetails() Entering")
+	defer log.Trace("flavor/types/linux_platform_flavor:GetPcrDetails() Leaving")
 
 	var pcrCollection []hcTypes.PCRS
 
@@ -472,9 +472,10 @@ func (rhelpf LinuxPlatformFlavor) GetPcrDetails(pcrManifest hcTypes.PcrManifest,
 	return pcrCollection
 }
 
+// UpdateMetaSectionDetails This method is used to update the meta section in flavor part
 func UpdateMetaSectionDetails(flavorPart cf.FlavorPart, newMeta *cm.Meta, flavorTemplates []hvs.FlavorTemplate) *cm.Meta {
-	log.Trace("flavor/util/platform_flavor_util:UpdateMetaSectionDetails() Entering")
-	defer log.Trace("flavor/util/platform_flavor_util:UpdateMetaSectionDetails() Leaving")
+	log.Trace("flavor/types/linux_platform_flavor:UpdateMetaSectionDetails() Entering")
+	defer log.Trace("flavor/types/linux_platform_flavor:UpdateMetaSectionDetails() Leaving")
 
 	var flavorTemplateID []uuid.UUID
 	for _, flavorTemplate := range flavorTemplates {
