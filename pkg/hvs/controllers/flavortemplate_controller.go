@@ -20,7 +20,6 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/constants"
 	commErr "github.com/intel-secl/intel-secl/v3/pkg/lib/common/err"
-	commLogMsg "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log/message"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/pkg/errors"
 	"github.com/xeipuuv/gojsonschema"
@@ -122,7 +121,7 @@ func isIncludeDeleted(includeDeleted string) (bool, error) {
 		case "false":
 			return false, nil
 		default:
-			return false, errors.New("controllers/flavortemplate_controller:isIncludeDeleted Invalid query parameter given")
+			return false, errors.New("controllers/flavortemplate_controller:isIncludeDeleted() Invalid query parameter given")
 		}
 	}
 	return false, nil
@@ -178,19 +177,16 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 
 	var createFlavorTemplateReq hvs.FlavorTemplate
 	if r.Header.Get("Content-Type") != constants.HTTPMediaTypeJson {
-		secLog.Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Invalid Content-Type")
-		return createFlavorTemplateReq, &unsupportedMediaError{Message: "Invalid Content-Type"}
+		return createFlavorTemplateReq, errors.New("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Invalid Content-Type")
 	}
 
 	if r.ContentLength == 0 {
-		secLog.Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() The request body is not provided")
-		return createFlavorTemplateReq, &badRequestError{Message: "The request body is not provided"}
+		return createFlavorTemplateReq, errors.New("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() The request body is not provided")
 	}
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		secLog.Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to read the request body")
-		return createFlavorTemplateReq, &badRequestError{Message: "Unable to read request body"}
+		return createFlavorTemplateReq, errors.Wrap(err, "controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to read request body")
 	}
 
 	//Restore the request body to it's original state
@@ -202,8 +198,7 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 
 	err = dec.Decode(&createFlavorTemplateReq)
 	if err != nil {
-		secLog.WithError(err).Errorf("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Failed to decode request body as flavor template  %s", commLogMsg.InvalidInputBadEncoding)
-		return createFlavorTemplateReq, &badRequestError{Message: "Unable to decode JSON request body"}
+		return createFlavorTemplateReq, errors.Wrap(err, "controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to decode JSON request body")
 	}
 
 	if createFlavorTemplateReq.ID != uuid.Nil {
@@ -220,8 +215,7 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 	defaultLog.Debug("Validating create flavor request")
 	errMsg, err := ftc.validateFlavorTemplateCreateRequest(createFlavorTemplateReq, string(body))
 	if err != nil {
-		secLog.WithError(err).Errorf("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Invalid flavor template requested  %s", commLogMsg.InvalidInputBadParam)
-		return createFlavorTemplateReq, &badRequestError{Message: errMsg}
+		return createFlavorTemplateReq, errors.Wrap(err, errMsg)
 	}
 
 	return createFlavorTemplateReq, nil
