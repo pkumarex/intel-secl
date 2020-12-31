@@ -186,7 +186,6 @@ func (a *App) setupTaskRunner() (*setup.Runner, error) {
 	})
 
 	return runner, nil
-
 }
 
 func (a *App) downloadCertTask(certType string) setup.Task {

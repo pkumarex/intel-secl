@@ -35,7 +35,7 @@ type Flavor struct {
 }
 
 // NewFlavor returns a new instance of Flavor
-func NewFlavor(meta *Meta, bios *Bios, hardware *Hardware, pcrs map[crypt.DigestAlgorithm]map[types.PcrIndex]PcrEx, pcrlogs []types.PCRS, external *External, software *Software) *Flavor {
+func NewFlavor(meta *Meta, bios *Bios, hardware *Hardware, pcrs map[crypt.DigestAlgorithm]map[types.PcrIndex]PcrEx, pcrLogs []types.PCRS, external *External, software *Software) *Flavor {
 	// Since maps are hard to marshal as JSON, let's try to convert the DigestAlgorithm and PcrIndex to strings
 	pcrx := make(map[string]map[string]PcrEx)
 	for dA, shaBank := range pcrs {
@@ -49,7 +49,7 @@ func NewFlavor(meta *Meta, bios *Bios, hardware *Hardware, pcrs map[crypt.Digest
 		Bios:     bios,
 		Hardware: hardware,
 		Pcrs:     pcrx,
-		PcrLogs:  pcrlogs,
+		PcrLogs:  pcrLogs,
 		External: external,
 		Software: software,
 	}

@@ -16,10 +16,10 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/validation"
 )
 
-// SetFlavorTemplateCreationRoutes registers routes for flavor template creation
-func SetFlavorTemplateCreationRoutes(router *mux.Router, store *postgres.DataStore, flavorGroupStore *postgres.FlavorGroupStore, certStore *models.CertificatesStore, hostTrustManager domain.HostTrustManager, flavorControllerConfig domain.HostControllerConfig) *mux.Router {
-	defaultLog.Trace("router/flavortemplate_creation:SetFlavorTemplateCreationRoutes() Entering")
-	defer defaultLog.Trace("router/flavortemplate_creation:SetFlavorTemplateCreationRoutes() Leaving")
+// SetFlavorTemplateRoutes registers routes for flavor template creation
+func SetFlavorTemplateRoutes(router *mux.Router, store *postgres.DataStore, flavorGroupStore *postgres.FlavorGroupStore, certStore *models.CertificatesStore, hostTrustManager domain.HostTrustManager, flavorControllerConfig domain.HostControllerConfig) *mux.Router {
+	defaultLog.Trace("router/flavortemplate_creation:SetFlavorTemplateRoutes() Entering")
+	defer defaultLog.Trace("router/flavortemplate_creation:SetFlavorTemplateRoutes() Leaving")
 
 	flavorTemplateStore := postgres.NewFlavorTemplateStore(store)
 

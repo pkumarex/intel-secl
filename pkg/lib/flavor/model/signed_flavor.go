@@ -9,7 +9,6 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"encoding/base64"
-
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )

@@ -469,8 +469,6 @@ func (fcon *FlavorController) addFlavorToFlavorgroup(flavorFlavorPartMap map[fc.
 					// get hostId
 					var hostHardwareUUID uuid.UUID
 					if !reflect.DeepEqual(signedFlavorCreated.Flavor.Meta, fm.Meta{}) &&
-						// TODO :
-						//!reflect.DeepEqual(signedFlavorCreated.Flavor.Meta.Description, fm.Description{}) &&
 						signedFlavorCreated.Flavor.Meta.Description[fm.HardwareUUID] != nil {
 						hostHardwareUUID = uuid.MustParse(signedFlavorCreated.Flavor.Meta.Description[fm.HardwareUUID].(string))
 					} else {
