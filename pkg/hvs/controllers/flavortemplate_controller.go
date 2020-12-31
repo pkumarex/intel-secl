@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/antchfx/jsonquery"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	consts "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants"
@@ -22,7 +23,6 @@ import (
 	commLogMsg "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log/message"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/pkg/errors"
-	"github.com/antchfx/jsonquery"
 	"github.com/xeipuuv/gojsonschema"
 )
 
@@ -63,13 +63,19 @@ func (ftc *FlavorTemplateController) Create(w http.ResponseWriter, r *http.Reque
 
 	flavorTemplateReq, err := ftc.getFlavorTemplateCreateReq(r)
 	if err != nil {
+		if strings.Contains(err.Error(), "given template ID already exists") {
+			defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Create() Failed to complete create flavor template,given template ID already exists")
+			return nil, http.StatusBadRequest, &commErr.ResourceError{Message: "Failed to create flavor template, given template ID already exists"}
+		}
+
+		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Create() Failed to complete create flavor template")
 		switch errorType := err.(type) {
 		case *unsupportedMediaError:
 			return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: errorType.Message}
 		case *badRequestError:
 			return nil, http.StatusBadRequest, &commErr.ResourceError{Message: errorType.Message}
 		}
-		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Create() Failed to complete create flavor template")
+		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: "Failed to create flavor template"}
 	}
 
 	//Store this template into database.
@@ -199,6 +205,17 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 		return createFlavorTemplateReq, errors.New("Unable to decode JSON request body")
 	}
 
+	if createFlavorTemplateReq.ID != uuid.Nil {
+		template, err := ftc.Store.Retrieve(createFlavorTemplateReq.ID)
+		if err != nil {
+			return hvs.FlavorTemplate{}, errors.Wrap(err, "controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Failed to retrieve falvor template")
+		}
+		if template != nil {
+			return hvs.FlavorTemplate{}, errors.New("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() FlavorTemplate with given template ID already exists")
+		}
+
+	}
+
 	defaultLog.Debug("Validating create flavor request")
 	errMsg, err := ftc.validateFlavorTemplateCreateRequest(createFlavorTemplateReq, string(body))
 	if err != nil {
@@ -253,12 +270,12 @@ func (ftc *FlavorTemplateController) validateFlavorTemplateCreateRequest(FlvrTem
 
 	//Validation the syntax of the conditions
 	tempDoc, _ := jsonquery.Parse(strings.NewReader(""))
-	for _,condition := range FlvrTemp.Condition {
-	_, err := jsonquery.Query(tempDoc, condition)
+	for _, condition := range FlvrTemp.Condition {
+		_, err := jsonquery.Query(tempDoc, condition)
 		if err != nil {
-			return "Invalid syntax in condition statement", errors.Wrapf(err, "controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Invalid syntax in condition : %s",condition)
-	    }
-    }
+			return "Invalid syntax in condition statement", errors.Wrapf(err, "controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Invalid syntax in condition : %s", condition)
+		}
+	}
 
 	//Check whether each pcr index is associated with not more than one bank.
 	pcrMap := make(map[*hvs.FlavorPart][]hvs.PCR)
