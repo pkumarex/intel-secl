@@ -111,7 +111,15 @@ func (ft *FlavorTemplateStore) Delete(templateID uuid.UUID) error {
 	defaultLog.Trace("postgres/flavortemplate_store:Delete() Entering")
 	defer defaultLog.Trace("postgres/flavortemplate_store:Delete() Leaving")
 
-	err := ft.Store.Db.Model(flavorTemplate{}).Where(&flavorTemplate{ID: templateID}).Update(&flavorTemplate{Deleted: true}).Error
+	_, err := ft.Retrieve(templateID)
+	if err != nil {
+		if strings.Contains(err.Error(), commErr.RowsNotFound) {
+			return errors.Wrap(err, "postgres/flavortemplate_store:Delete() Flavor template with given ID does not exist or has been deleted")
+		}
+		return errors.New("postgres/flavortemplate_store:Delete() Failed to retrieve FlavorTemplate with the given ID")
+	}
+
+	err = ft.Store.Db.Model(flavorTemplate{}).Where(&flavorTemplate{ID: templateID}).Update(&flavorTemplate{Deleted: true}).Error
 	if err != nil {
 		return errors.Wrap(err, "postgres/flavortemplate_store:Delete() - Could not Delete record "+templateID.String())
 	}
