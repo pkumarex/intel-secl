@@ -98,7 +98,7 @@ func (rule *xmlMeasurementLogIntegrity) Apply(hostManifest *types.HostManifest) 
 				labelToMatch := rule.flavorLabel + "-" + rule.flavorId.String()
 
 				// now check the pcr event logs...
-				if !reflect.ValueOf(hostManifest.PcrManifest.PcrEventLogMapNew).IsZero() {
+				if !reflect.DeepEqual(hostManifest.PcrManifest.PcrEventLogMapNew, types.PcrEventLogMapFC{}) {
 					pcrNewEventLogs, err := hostManifest.PcrManifest.GetPcrEventLogNew(types.SHA256, types.PcrIndex(types.PCR15))
 					if err != nil {
 						// the event log was missing from the manifest...
@@ -106,15 +106,20 @@ func (rule *xmlMeasurementLogIntegrity) Apply(hostManifest *types.HostManifest) 
 						result.Faults = append(result.Faults, fault)
 					} else {
 						for _, eventLog := range pcrNewEventLogs {
-							if eventLog.TypeName == labelToMatch {
-								pcrEventLogMeasurement = eventLog.Measurement
-								break
+							for _, tag := range eventLog.Tags {
+								if tag == labelToMatch {
+									pcrEventLogMeasurement = eventLog.Measurement
+									break
+								}
 							}
-							if (strings.Contains(rule.flavorLabel, constants.DefaultSoftwareFlavorPrefix) ||
-								strings.Contains(rule.flavorLabel, constants.DefaultWorkloadFlavorPrefix)) &&
-								strings.HasPrefix(eventLog.TypeName, rule.flavorLabel) {
-								pcrEventLogMeasurement = eventLog.Measurement
-								break
+							if strings.Contains(rule.flavorLabel, constants.DefaultSoftwareFlavorPrefix) ||
+								strings.Contains(rule.flavorLabel, constants.DefaultWorkloadFlavorPrefix) {
+								for _, tag := range eventLog.Tags {
+									if strings.HasPrefix(tag, rule.flavorLabel) {
+										pcrEventLogMeasurement = eventLog.Measurement
+										break
+									}
+								}
 							}
 						}
 					}

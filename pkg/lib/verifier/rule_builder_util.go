@@ -9,6 +9,7 @@ import (
 	"crypto/x509"
 	"encoding/asn1"
 
+	"github.com/google/uuid"
 	asset_tag "github.com/intel-secl/intel-secl/v3/pkg/lib/asset-tag"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
@@ -112,7 +113,7 @@ func getPcrEventLogEqualsExcludingRules(pcrs []types.PcrIndex, pcrLogData *types
 			PcrEventLogs: pcrLogData.EventlogEqual.Events,
 			ExcludeTags:  pcrLogData.EventlogEqual.ExcludeTags,
 		}
-		rule, err := rules.NewPcrEventLogEqualsExcluding(&expectedEventLogEntry, nil, pcrLogData.EventlogEqual.ExcludeTags, flavor.Meta.ID, marker)
+		rule, err := rules.NewPcrEventLogEqualsExcluding(&expectedEventLogEntry, nil, pcrLogData.EventlogEqual.ExcludeTags, uuid.Nil, marker)
 		if err != nil {
 			return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogEqualsExcluding rule for bank '%s', index '%d'", pcrLogData.PCR.Bank, pcrLogData.PCR.Index)
 		}
