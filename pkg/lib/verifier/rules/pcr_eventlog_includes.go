@@ -83,11 +83,11 @@ func (rule *pcrEventLogIncludes) Apply(hostManifest *types.HostManifest) (*hvs.R
 					return nil, errors.Wrap(err, "Error subtracting event logs in pcr eventlog includes rule.")
 				}
 
-				if len(missingEvents.EventLogs) > 0 {
+				if len(missingEvents.PcrEventLogs) > 0 {
 					result.Faults = append(result.Faults, newPcrEventLogMissingExpectedEntries(missingEvents))
 				}
 
-				if len(missingAttr.EventLogs) > 0 {
+				if len(missingAttr.PcrEventLogs) > 0 {
 					Pi := types.PcrIndex(rule.expectedEventLogEntry.PcrIndex)
 
 					mismatchInfo := hvs.MismatchField{
