@@ -141,11 +141,11 @@ func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.Rul
 				}
 
 				// if there are any remaining events, then there were unexpected entries...
-				if len(unexpectedEventLogs.EventLogs) > 0 {
+				if len(unexpectedEventLogs.PcrEventLogs) > 0 {
 					result.Faults = append(result.Faults, newPcrEventLogContainsUnexpectedEntries(unexpectedEventLogs))
 				}
 
-				if len(unexpectedFields.EventLogs) > 0 {
+				if len(unexpectedFields.PcrEventLogs) > 0 {
 					Pi := types.PcrIndex(actualEventLog.PcrIndex)
 
 					mismatchInfo := hvs.MismatchField{
@@ -165,11 +165,11 @@ func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.Rul
 					return nil, err
 				}
 
-				if len(missingEventLogs.EventLogs) > 0 {
+				if len(missingEventLogs.PcrEventLogs) > 0 {
 					result.Faults = append(result.Faults, newPcrEventLogMissingExpectedEntries(missingEventLogs))
 				}
 
-				if len(missingFields.EventLogs) > 0 {
+				if len(missingFields.PcrEventLogs) > 0 {
 					Pi := types.PcrIndex(rule.expectedEventLogEntry.PcrIndex)
 
 					mismatchInfo := hvs.MismatchField{
