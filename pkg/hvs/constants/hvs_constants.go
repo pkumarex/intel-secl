@@ -177,5 +177,5 @@ const (
 
 const (
 	CommonDefinitionsSchema = "/etc/hvs/schema/common.schema.json"
-	FlavorTemplateSchema    = "/etc/hvs/schema/Flavor-template.json"
+	FlavorTemplateSchema    = "/etc/hvs/schema/flavor-template.json"
 )

@@ -35,7 +35,7 @@ type Flavor struct {
 }
 
 // NewFlavor returns a new instance of Flavor
-func NewFlavor(meta *Meta, bios *Bios, hardware *Hardware, pcrs map[crypt.DigestAlgorithm]map[types.PcrIndex]PcrEx, pcrlogs []types.PCRS, external *External, software *Software) *Flavor {
+func NewFlavor(meta *Meta, bios *Bios, hardware *Hardware, pcrs map[crypt.DigestAlgorithm]map[types.PcrIndex]PcrEx, pcrLogs []types.PCRS, external *External, software *Software) *Flavor {
 	// Since maps are hard to marshal as JSON, let's try to convert the DigestAlgorithm and PcrIndex to strings
 	pcrx := make(map[string]map[string]PcrEx)
 	for dA, shaBank := range pcrs {
@@ -49,24 +49,11 @@ func NewFlavor(meta *Meta, bios *Bios, hardware *Hardware, pcrs map[crypt.Digest
 		Bios:     bios,
 		Hardware: hardware,
 		Pcrs:     pcrx,
-		PcrLogs:  pcrlogs,
+		PcrLogs:  pcrLogs,
 		External: external,
 		Software: software,
 	}
 }
-
-// // NewFlavorFV returns a new instance of Flavor
-// func NewFlavorFC(meta *Meta, bios *Bios, hardware *Hardware, Pcrs []types.PCRS, external *External, software *Software) *FlavorFC {
-
-// 	return &FlavorFC{
-// 		Meta:     *meta,
-// 		Bios:     bios,
-// 		Hardware: hardware,
-// 		Pcrs:     Pcrs,
-// 		External: external,
-// 		Software: software,
-// 	}
-// }
 
 // Utility function for retrieving the PcrEx value at 'bank', 'index'.  Returns
 // an error if the pcr cannot be found.
@@ -104,23 +91,3 @@ func (flavor *Flavor) getFlavorDigest() ([]byte, error) {
 
 	return hashEntity.Sum(nil), nil
 }
-
-// func (flavor *FlavorFC) getFlavorDigest() ([]byte, error) {
-// 	// account for a differences in properties set at runtime
-// 	tempFlavor := *flavor
-// 	tempFlavor.Meta.ID = uuid.Nil
-
-// 	flavorJSON, err := json.Marshal(tempFlavor)
-// 	if err != nil {
-// 		return nil, errors.Wrap(err, "An error occurred attempting to convert the flavor to json")
-// 	}
-
-// 	if flavorJSON == nil || len(flavorJSON) == 0 {
-// 		return nil, errors.New("The flavor json was not provided")
-// 	}
-
-// 	hashEntity := sha512.New384()
-// 	hashEntity.Write(flavorJSON)
-
-// 	return hashEntity.Sum(nil), nil
-// }

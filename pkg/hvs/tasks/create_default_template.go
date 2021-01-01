@@ -41,14 +41,14 @@ func (t *CreateDefaultTemplate) Run() error {
 
 	ftStore, err := t.flavorTemplateStore()
 	if err != nil {
-		return errors.Wrap(err, "failed to initialize flavor template store instance")
+		return errors.Wrap(err, "Failed to initialize flavor template store instance")
 	}
 
 	if len(t.deleted) != 0 {
 		// Recover deleted default template.
 		err := ftStore.Recover(t.deleted)
 		if err != nil {
-			return errors.Wrapf(err, "failed to recover default flavor template(s) %s ", t.deleted)
+			return errors.Wrapf(err, "Failed to recover default flavor template(s) %s", t.deleted)
 		}
 		t.deleted = []string{}
 		return nil
@@ -62,7 +62,7 @@ func (t *CreateDefaultTemplate) Run() error {
 	for _, ft := range templates {
 		_, err := ftStore.Create(&ft)
 		if err != nil {
-			return errors.Wrap(err, "failed to create default flavor template with ID \""+ft.ID.String()+"\"")
+			return errors.Wrap(err, "Failed to create default flavor template with ID \""+ft.ID.String()+"\"")
 		}
 	}
 
@@ -72,7 +72,7 @@ func (t *CreateDefaultTemplate) Run() error {
 func (t *CreateDefaultTemplate) Validate() error {
 	ftStore, err := t.flavorTemplateStore()
 	if err != nil {
-		return errors.Wrap(err, "failed to initialize flavor template store instance")
+		return errors.Wrap(err, "Failed to initialize flavor template store instance")
 	}
 	var ftList []hvs.FlavorTemplate
 	defaultFlavorTemplateMap := map[string]bool{}
@@ -101,7 +101,7 @@ func (t *CreateDefaultTemplate) Validate() error {
 	}
 
 	if len(t.deleted) != 0 {
-		return errors.New(t.commandName + ": failed to create default flavor template(s) \"" + strings.Join(t.deleted, " "))
+		return errors.New(t.commandName + ": Failed to create default flavor template(s) \"" + strings.Join(t.deleted, " "))
 	}
 	return nil
 }
@@ -121,12 +121,12 @@ func (t *CreateDefaultTemplate) flavorTemplateStore() (*postgres.FlavorTemplateS
 	if t.TemplateStore == nil {
 		dataStore, err = postgres.NewDataStore(postgres.NewDatabaseConfig(constants.DBTypePostgres, &t.DBConf))
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to connect database")
+			return nil, errors.Wrap(err, "Failed to connect database")
 		}
 		t.TemplateStore = postgres.NewFlavorTemplateStore(dataStore)
 	}
 	if t.TemplateStore.Store == nil {
-		return nil, errors.New("failed to create FlavorTemplateStore")
+		return nil, errors.New("Failed to create FlavorTemplateStore")
 	}
 	return t.TemplateStore, nil
 }
@@ -252,7 +252,7 @@ var defaultFlavorTemplatesRaw = []string{
 		"condition": [
 			"//host_info/os_name//*[text()='RedHatEnterprise']",
 			"//host_info/hardware_features/TPM/meta/tpm_version//*[text()='2.0']",
-			"//host_info/hardware_features/UEFI/secure_boot_enabled//*[text()='true']"
+			"//host_info/hardware_features/UEFI/meta/secure_boot_enabled//*[text()='true']"
 		],
 		"flavor_parts": {
 			"PLATFORM": {
@@ -360,7 +360,7 @@ var defaultFlavorTemplatesRaw = []string{
 		"condition": [
 			"//host_info/os_name//*[text()='RedHatEnterprise']",
 			"//host_info/hardware_features/TPM/meta/tpm_version//*[text()='2.0']",
-			"//host_info/hardware_features/UEFI/enabled//*[text()='true'] or //host_info/hardware_features/UEFI/secure_boot_enabled//*[text()='true']"
+			"//host_info/hardware_features/UEFI/enabled//*[text()='true'] or //host_info/hardware_features/UEFI/meta/secure_boot_enabled//*[text()='true']"
 		],
 		"flavor_parts": {
 			"PLATFORM": {
