@@ -113,14 +113,18 @@ func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.Rul
 			result.Faults = append(result.Faults, newPcrManifestMissingFault())
 		} else {
 
-			actualEventLog, err := hostManifest.PcrManifest.PcrEventLogMap.GetEventLog(rule.expectedEventLogEntry.PcrBank, rule.expectedEventLogEntry.PcrIndex)
+			actualEventLogCriteria, pIndex, bank, err := hostManifest.PcrManifest.PcrEventLogMapNew.GetEventLogNew(rule.expectedEventLogEntry.PcrBank, rule.expectedEventLogEntry.PcrIndex)
 			if err != nil {
 				return nil, err
 			}
 
-			if actualEventLog == nil {
+			if actualEventLogCriteria == nil {
 				result.Faults = append(result.Faults, newPcrEventLogMissingFault(types.PcrIndex(rule.expectedEventLogEntry.PcrIndex), rule.expectedEventLogEntry.PcrBank))
 			} else {
+				actualEventLog := &types.EventLogEntry{}
+				actualEventLog.PcrEventLogs = *actualEventLogCriteria
+				actualEventLog.PcrIndex = pIndex
+				actualEventLog.PcrBank = bank
 
 				// when component excludes are present, strip out the events
 				if rule.excludeTags != nil {

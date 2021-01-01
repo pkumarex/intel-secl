@@ -61,14 +61,18 @@ func (rule *pcrEventLogIncludes) Apply(hostManifest *types.HostManifest) (*hvs.R
 			result.Faults = append(result.Faults, newPcrManifestMissingFault())
 		} else {
 
-			actualEventLog, err := hostManifest.PcrManifest.PcrEventLogMap.GetEventLog(rule.expectedEventLogEntry.PcrBank, rule.expectedEventLogEntry.PcrIndex)
+			actualEventLogCriteria, pIndex, bank, err := hostManifest.PcrManifest.PcrEventLogMapNew.GetEventLogNew(rule.expectedEventLogEntry.PcrBank, rule.expectedEventLogEntry.PcrIndex)
 			if err != nil {
 				return nil, err
 			}
 
-			if actualEventLog == nil {
+			if actualEventLogCriteria == nil {
 				result.Faults = append(result.Faults, newPcrEventLogMissingFault(types.PcrIndex(rule.expectedEventLogEntry.PcrIndex), rule.expectedEventLogEntry.PcrBank))
 			} else {
+				actualEventLog := &types.EventLogEntry{}
+				actualEventLog.PcrEventLogs = *actualEventLogCriteria
+				actualEventLog.PcrIndex = pIndex
+				actualEventLog.PcrBank = bank
 
 				// subtract the 'actual' event log measurements from 'expected'.
 				// if there are any left in 'expected', then 'actual' did not include all entries

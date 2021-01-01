@@ -71,14 +71,19 @@ func (rule *pcrEventLogIntegrity) Apply(hostManifest *types.HostManifest) (*hvs.
 			if actualPcr == nil {
 				result.Faults = append(result.Faults, newPcrValueMissingFault(types.SHAAlgorithm(rule.expectedPcrLog.PCR.Bank), types.PcrIndex(rule.expectedPcrLog.PCR.Index)))
 			} else {
-				actualEventLog, err := hostManifest.PcrManifest.PcrEventLogMap.GetEventLog(types.SHAAlgorithm(rule.expectedPcrLog.PCR.Bank), types.PcrIndex(rule.expectedPcrLog.PCR.Index))
+				actualEventLogCriteria, pIndex, bank, err := hostManifest.PcrManifest.PcrEventLogMapNew.GetEventLogNew(types.SHAAlgorithm(rule.expectedPcrLog.PCR.Bank), types.PcrIndex(rule.expectedPcrLog.PCR.Index))
 				if err != nil {
 					return nil, errors.Wrap(err, "Error in getting actual eventlogs in Pcr Eventlog Integrity rule")
 				}
 
-				if actualEventLog == nil {
+				if actualEventLogCriteria == nil {
 					result.Faults = append(result.Faults, newPcrEventLogMissingFault(types.PcrIndex(rule.expectedPcrLog.PCR.Index), types.SHAAlgorithm(rule.expectedPcrLog.PCR.Bank)))
 				} else {
+					actualEventLog := &types.EventLogEntry{}
+					actualEventLog.PcrEventLogs = *actualEventLogCriteria
+					actualEventLog.PcrIndex = pIndex
+					actualEventLog.PcrBank = bank
+
 					calculatedValue, err := actualEventLog.Replay()
 					if err != nil {
 						return nil, errors.Wrap(err, "Error in calculating replay in Pcr Eventlog Integrity rule")

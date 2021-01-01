@@ -100,7 +100,7 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 
 			for i := 0; i < value.NumField(); i++ {
 
-				if value.Type().Field(i).Name == "EventlogEqual" && !reflect.ValueOf(rule.EventlogEqual).IsZero() {
+				if value.Type().Field(i).Name == "EventlogEqual" && rule.EventlogEqual != nil {
 					eventsPresent = true
 					//call method to create pcr event log equals rule
 					if len(rule.EventlogEqual.ExcludeTags) == 0 {
@@ -110,7 +110,7 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 					}
 					requiredRules = append(requiredRules, PcrRule...)
 					log.Info("Rule added :", value.Type().Field(i).Name)
-				} else if value.Type().Field(i).Name == "EventlogIncludes" && !reflect.ValueOf(rule.EventlogIncludes).IsZero() {
+				} else if value.Type().Field(i).Name == "EventlogIncludes" && len(rule.EventlogIncludes) > 0 {
 					eventsPresent = true
 					//call method to create pcr event log includes rule
 					PcrRule, err = getPcrEventLogIncludesRules(nil, nil, &rule, flavorPart)

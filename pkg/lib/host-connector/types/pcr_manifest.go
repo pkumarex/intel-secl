@@ -332,6 +332,40 @@ func (pcrEventLogMap *PcrEventLogMap) GetEventLog(pcrBank SHAAlgorithm, pcrIndex
 	return eventLogEntry, nil
 }
 
+// Finds the EventLogEntry in a PcrEventLogMap provided the pcrBank and index.  Returns
+// null if not found.  Returns an error if the pcrBank is not supported
+// by intel-secl (currently supports SHA1 and SHA256).
+func (pcrEventLogMap *PcrEventLogMapFC) GetEventLogNew(pcrBank SHAAlgorithm, pcrIndex PcrIndex) (*[]EventLogCriteria, PcrIndex, SHAAlgorithm, error) {
+
+	var eventLog *[]EventLogCriteria
+	var pIndex PcrIndex
+	var bank SHAAlgorithm
+
+	if pcrBank == SHA1 {
+		for _, entry := range pcrEventLogMap.Sha1EventLogs {
+			if entry.Pcr.Index == int(pcrIndex) {
+				eventLog = &entry.TpmEvent
+				pIndex = PcrIndex(entry.Pcr.Index)
+				bank = SHAAlgorithm(entry.Pcr.Bank)
+				break
+			}
+		}
+	} else if pcrBank == SHA256 {
+		for _, entry := range pcrEventLogMap.Sha256EventLogs {
+			if entry.Pcr.Index == int(pcrIndex) {
+				eventLog = &entry.TpmEvent
+				pIndex = PcrIndex(entry.Pcr.Index)
+				bank = SHAAlgorithm(entry.Pcr.Bank)
+				break
+			}
+		}
+	} else {
+		return nil, 0, "", errors.Errorf("Unsupported sha algorithm %s", pcrBank)
+	}
+
+	return eventLog, pIndex, bank, nil
+}
+
 // Provided an EventLogEntry that contains an array of EventLogs, this function
 // will return a new EventLogEntry that contains the events that existed in
 // the original ('eventLogEntry') but not in 'eventsToSubtract'.  Returns an error
