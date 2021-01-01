@@ -62,11 +62,6 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 		return nil, "", errors.Wrap(err, "Could not retrieve rule builder")
 	}
 
-	//To-Do add comparsion for map
-	// if reflect.DeepEqual(factory.signedFlavor.Flavor.Meta.Description, flavormodel.Description{}) {
-	// 	return nil, "", errors.New("The flavor's description cannot be nil")
-	// }
-
 	err = (&flavorPart).Parse(factory.signedFlavor.Flavor.Meta.Description[flavormodel.FlavorPart].(string))
 	if err != nil {
 		return nil, "", errors.Wrap(err, "Could not retrieve flavor part name")

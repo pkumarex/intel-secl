@@ -231,6 +231,8 @@ func VerifyQuoteAndGetPCRManifest(decodedEventLog string, verificationNonce []by
 			"verification failed, Digest of Concatenated PCR values does not match with PCR digest in the quote")
 	}
 
+	log.Info("util/aik_quote_verifier:VerifyQuoteAndGetPCRManifest()  Successfully verified AIK Quote")
+
 	pcrManifest, err := createPCRManifest(strings.Split(buffer.String(), "\n"), decodedEventLog)
 	if err != nil {
 		return types.PcrManifest{}, errors.Wrap(err, "util/aik_quote_verifier:VerifyQuoteAndGetPCRManifest() Error "+

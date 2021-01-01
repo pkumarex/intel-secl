@@ -123,16 +123,6 @@ func (controller FlavorFromAppManifestController) CreateSoftwareFlavor(w http.Re
 		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Error creating new SOFTWARE flavor"}
 	}
 
-	//To-do add another create Software flavor for ESXI
-	// _, err = controller.FlavorController.createFlavors(models.FlavorCreateRequest{FlavorCollection: hvs.FlavorCollection{Flavors: []hvs.Flavors{{Flavor: *softwareFlavor}}}, FlavorgroupNames: appManifestRequest.FlavorGroupNames})
-	// if err != nil {
-	// 	defaultLog.WithError(err).Errorf("controllers/flavor_from_app_manifest_controller:"+
-	// 		"CreateSoftwareFlavor() %s : Error creating new SOFTWARE flavor", commLogMsg.AppRuntimeErr)
-	// 	if strings.Contains(err.Error(), "duplicate key") {
-	// 		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: "Flavor with same id/label already exists"}
-	// 	}
-	// 	return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Error creating new SOFTWARE flavor"}
-	// }
 	return softwareFlavor, http.StatusCreated, nil
 }
 

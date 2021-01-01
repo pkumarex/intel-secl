@@ -70,7 +70,7 @@ type (
 		FlavorId uuid.UUID `gorm:"type:uuid REFERENCES flavor(Id) ON UPDATE CASCADE ON DELETE CASCADE;not null;unique_index:idx_hostunique_flavor"`
 	}
 
-	//FlavorTemplate - To maintain all values keep together inorder to maintain flavor template.
+	//FlavorTemplate - Table to store flavor templates
 	flavorTemplate struct {
 		ID      uuid.UUID               `gorm:"column:id;not null;primary_key;type:uuid"`
 		Content PGFlavorTemplateContent `gorm:"column:content" sql:"type:JSONB NOT NULL"`
@@ -246,18 +246,6 @@ func (fl *PGFlavorContent) Scan(value interface{}) error {
 	}
 	return json.Unmarshal(b, &fl)
 }
-
-// func (fl PGFlavorContentFC) Value() (driver.Value, error) {
-// 	return json.Marshal(fl)
-// }
-
-// func (fl *PGFlavorContentFC) Scan(value interface{}) error {
-// 	b, ok := value.([]byte)
-// 	if !ok {
-// 		return errors.New("postgres/models:PGFlavorContent_Scan() - type assertion to []byte failed")
-// 	}
-// 	return json.Unmarshal(b, &fl)
-// }
 
 func (fl PGFlavorTemplateContent) Value() (driver.Value, error) {
 	return json.Marshal(fl)

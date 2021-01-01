@@ -6,15 +6,14 @@ package postgres
 
 import (
 	"fmt"
-	"strings"
-	"sync"
-
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
 	fc "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
+	"strings"
+	"sync"
 )
 
 type FlavorGroupStore struct {
@@ -173,32 +172,6 @@ func (f *FlavorGroupStore) AddFlavors(fgId uuid.UUID, fIds []uuid.UUID) ([]uuid.
 
 	return fIds, nil
 }
-
-// // AddFlavors creates a FlavorGroup-Flavor link
-// func (f *FlavorGroupStore) AddFlavorsFC(fgId uuid.UUID, fIds []uuid.UUID) ([]uuid.UUID, error) {
-// 	defaultLog.Trace("postgres/flavorgroup_store:AddFlavors() Entering")
-// 	defer defaultLog.Trace("postgres/flavorgroup_store:AddFlavors() Leaving")
-// 	if len(fIds) <= 0 || fgId == uuid.Nil {
-// 		return nil, errors.New("postgres/flavorgroup_store:AddFlavors()- invalid input : must have flavorId and flavorgroupId to associate flavorgroup with the flavor")
-// 	}
-
-// 	fgfValues := []string{}
-// 	fgfValueArgs := []interface{}{}
-// 	for _, fId := range fIds {
-// 		fgfValues = append(fgfValues, "(?, ?)")
-// 		fgfValueArgs = append(fgfValueArgs, fgId)
-// 		fgfValueArgs = append(fgfValueArgs, fId)
-// 	}
-// 	insertQuery := fmt.Sprintf("INSERT INTO flavorgroup_flavorfc VALUES %s", strings.Join(fgfValues, ","))
-// 	err := f.Store.Db.Model(flavorgroupFlavor{}).Exec(insertQuery, fgfValueArgs...).Error
-// 	if err != nil {
-// 		return nil, errors.Wrap(err, "postgres/flavorgroup_store:AddFlavors() failed to create flavorgroup-flavor association")
-// 	}
-// 	// remove cache entry if it exists as the entry is stale with addition of a flavor
-// 	f.removeFlavorTypesCacheEntry(fgId)
-
-// 	return fIds, nil
-// }
 
 // RemoveFlavors deletes one or more FlavorGroup-Flavor links
 func (f *FlavorGroupStore) RemoveFlavors(fgId uuid.UUID, fIds []uuid.UUID) error {

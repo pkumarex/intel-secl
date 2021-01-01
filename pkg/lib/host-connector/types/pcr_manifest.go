@@ -256,33 +256,6 @@ func (pcrManifest *PcrManifest) GetPcrValue(pcrBank SHAAlgorithm, pcrIndex PcrIn
 	return pcrValue, nil
 }
 
-// func (pcrManifest *PcrManifestFC) GetPcrValue(pcrBank SHAAlgorithm, pcrIndex PcrIndex) (*Pcr, error) {
-// 	// TODO: Is this the right data model for the PcrManifest?  Two things...
-// 	// - Flavor API returns a map[bank]map[pcrindex]
-// 	// - Finding the PCR by bank/index is a linear search.
-// 	var pcrValue *Pcr
-
-// 	if pcrBank == SHA1 {
-// 		for _, pcr := range pcrManifest.Sha1Pcrs {
-// 			if pcr.Index == pcrIndex {
-// 				pcrValue = &pcr
-// 				break
-// 			}
-// 		}
-// 	} else if pcrBank == SHA256 {
-// 		for _, pcr := range pcrManifest.Sha256Pcrs {
-// 			if pcr.Index == pcrIndex {
-// 				pcrValue = &pcr
-// 				break
-// 			}
-// 		}
-// 	} else {
-// 		return nil, errors.Errorf("Unsupported sha algorithm %s", pcrBank)
-// 	}
-
-// 	return pcrValue, nil
-// }
-
 // Utility function that uses GetPcrValue but also returns an error if
 // the Pcr was not found.
 func (pcrManifest *PcrManifest) GetRequiredPcrValue(bank SHAAlgorithm, pcrIndex PcrIndex) (*Pcr, error) {
@@ -532,9 +505,9 @@ func (pcrManifest *PcrManifest) GetPcrEventLog(pcrBank SHAAlgorithm, pcrIndex Pc
 			}
 		}
 	} else {
-		return nil, fmt.Errorf("unsupported sha algorithm %s", pcrBank)
+		return nil, fmt.Errorf("Unsupported sha algorithm %s", pcrBank)
 	}
-	return nil, fmt.Errorf("invalid PcrIndex %d", pcrIndex)
+	return nil, fmt.Errorf("Invalid PcrIndex %d", pcrIndex)
 }
 
 // GetPcrEventLogNew returns the EventLogs for a specific PcrBank/PcrIndex, as per latest hostmanifest
@@ -554,9 +527,9 @@ func (pcrManifest *PcrManifest) GetPcrEventLogNew(pcrBank SHAAlgorithm, pcrIndex
 			}
 		}
 	} else {
-		return nil, fmt.Errorf("unsupported sha algorithm %s", pcrBank)
+		return nil, fmt.Errorf("Unsupported sha algorithm %s", pcrBank)
 	}
-	return nil, fmt.Errorf("invalid PcrIndex %d", pcrIndex)
+	return nil, fmt.Errorf("Invalid PcrIndex %d", pcrIndex)
 }
 
 func (pcrManifest *PcrManifest) GetPcrValueForLinux(pcrBank string, pcrIndex int) (*Pcr, error) {
@@ -600,20 +573,6 @@ func (pcrManifest *PcrManifest) GetPcrBanks() []SHAAlgorithm {
 	}
 	return bankList
 }
-
-// // GetPcrBanks returns the list of banks currently supported by the PcrManifest
-// func (pm *PcrManifestFC) GetPcrBanks() []SHAAlgorithm {
-// 	var bankList []SHAAlgorithm
-// 	// check if each known digest algorithm is present and return
-// 	if len(pm.Sha1Pcrs) > 0 {
-// 		bankList = append(bankList, SHA1)
-// 	}
-// 	// check if each known digest algorithm is present and return
-// 	if len(pm.Sha256Pcrs) > 0 {
-// 		bankList = append(bankList, SHA256)
-// 	}
-// 	return bankList
-// }
 
 type c interface {
 	GetPcrBanks() []SHAAlgorithm
