@@ -6,7 +6,6 @@ package rules
 
 import (
 	"fmt"
-	"reflect"
 
 	constants "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants/verifier-rules-and-faults"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
@@ -15,16 +14,18 @@ import (
 	"github.com/pkg/errors"
 )
 
-func NewPcrEventLogIncludes(expectedEventLogEntry *types.EventLogEntry, expectedPcr *types.Pcr, marker common.FlavorPart) (Rule, error) {
+//NewPcrEventLogIncludes creates the rule that will check
+//if all the actual event log measurements included in expected
+func NewPcrEventLogIncludes(expectedEventLogEntry *types.EventLogEntry, expectedPcrEventLogEntry *types.EventLogEntryFC, expectedPcr *types.Pcr, marker common.FlavorPart) (Rule, error) {
 
 	var rule pcrEventLogIncludes
 
-	if !reflect.DeepEqual(expectedEventLogEntry.PcrEventLogs, []types.EventLogCriteria{}) {
+	if expectedPcrEventLogEntry != nil {
 		rule = pcrEventLogIncludes{
-			expectedEventLogEntry: expectedEventLogEntry,
-			marker:                marker,
+			expectedPcrEventLogEntry: expectedPcrEventLogEntry,
+			marker:                   marker,
 		}
-	} else if !reflect.DeepEqual(expectedEventLogEntry.EventLogs, []types.EventLog{}) {
+	} else if expectedEventLogEntry != nil {
 		rule = pcrEventLogIncludes{
 			expectedEventLogEntry: expectedEventLogEntry,
 			expectedPcr:           expectedPcr,
@@ -37,9 +38,10 @@ func NewPcrEventLogIncludes(expectedEventLogEntry *types.EventLogEntry, expected
 }
 
 type pcrEventLogIncludes struct {
-	expectedEventLogEntry *types.EventLogEntry
-	expectedPcr           *types.Pcr
-	marker                common.FlavorPart
+	expectedEventLogEntry    *types.EventLogEntry
+	expectedPcrEventLogEntry *types.EventLogEntryFC
+	expectedPcr              *types.Pcr
+	marker                   common.FlavorPart
 }
 
 // - If the PcrManifest is not present in the host manifest, raise PcrManifestMissing fault.
@@ -53,50 +55,51 @@ func (rule *pcrEventLogIncludes) Apply(hostManifest *types.HostManifest) (*hvs.R
 	result.Trusted = true
 	result.Rule.Name = constants.RulePcrEventLogIncludes
 
-	if !reflect.DeepEqual(rule.expectedEventLogEntry.PcrEventLogs, []types.EventLogCriteria{}) {
+	if rule.expectedPcrEventLogEntry != nil {
 		result.Rule.Markers = append(result.Rule.Markers, rule.marker)
-		result.Rule.ExpectedEventLogEntry = rule.expectedEventLogEntry
+		result.Rule.ExpectedPcrEventLogEntry = rule.expectedPcrEventLogEntry
 
 		if hostManifest.PcrManifest.IsEmpty() {
 			result.Faults = append(result.Faults, newPcrManifestMissingFault())
 		} else {
 
-			actualEventLogCriteria, pIndex, bank, err := hostManifest.PcrManifest.PcrEventLogMapNew.GetEventLogNew(rule.expectedEventLogEntry.PcrBank, rule.expectedEventLogEntry.PcrIndex)
+			actualEventLogCriteria, pIndex, bank, err := hostManifest.PcrManifest.PcrEventLogMapNew.GetEventLogNew(rule.expectedPcrEventLogEntry.Pcr.Bank, rule.expectedPcrEventLogEntry.Pcr.Index)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "Error in retrieving the actual event log values in pcr event log includes rule")
 			}
 
 			if actualEventLogCriteria == nil {
-				result.Faults = append(result.Faults, newPcrEventLogMissingFault(types.PcrIndex(rule.expectedEventLogEntry.PcrIndex), rule.expectedEventLogEntry.PcrBank))
+				result.Faults = append(result.Faults, newPcrEventLogMissingFault(types.PcrIndex(rule.expectedPcrEventLogEntry.Pcr.Index), types.SHAAlgorithm(rule.expectedPcrEventLogEntry.Pcr.Bank)))
 			} else {
-				actualEventLog := &types.EventLogEntry{}
-				actualEventLog.PcrEventLogs = *actualEventLogCriteria
-				actualEventLog.PcrIndex = pIndex
-				actualEventLog.PcrBank = bank
+				actualEventLog := &types.EventLogEntryFC{}
+				actualEventLog.TpmEvent = actualEventLogCriteria
+				actualEventLog.Pcr.Index = pIndex
+				actualEventLog.Pcr.Bank = bank
 
 				// subtract the 'actual' event log measurements from 'expected'.
 				// if there are any left in 'expected', then 'actual' did not include all entries
 
-				missingEvents, missingAttr, err := rule.expectedEventLogEntry.Subtract(actualEventLog)
+				missingEvents, missingAttr, err := rule.expectedPcrEventLogEntry.Subtract(actualEventLog)
 
 				if err != nil {
-					return nil, errors.Wrap(err, "Error subtracting event logs in pcr eventlog includes rule.")
+					return nil, errors.Wrap(err, "Error subtracting actual from expected event logs in pcr eventlog includes rule.")
 				}
 
-				if len(missingEvents.PcrEventLogs) > 0 {
-					result.Faults = append(result.Faults, newPcrEventLogMissingExpectedEntries(missingEvents))
+				if len(missingEvents.TpmEvent) > 0 {
+					result.Faults = append(result.Faults, newPcrEventLogMissingExpectedEntries(nil, missingEvents))
 				}
 
-				if len(missingAttr.PcrEventLogs) > 0 {
-					Pi := types.PcrIndex(rule.expectedEventLogEntry.PcrIndex)
+				if len(missingAttr.TpmEvent) > 0 {
+					index := types.PcrIndex(rule.expectedPcrEventLogEntry.Pcr.Index)
+					bank := types.SHAAlgorithm(rule.expectedPcrEventLogEntry.Pcr.Bank)
 
 					mismatchInfo := hvs.MismatchField{
 
 						Name:           constants.PcrEventLogMissingFields,
-						Description:    fmt.Sprintf("Module manifest for PCR %d of %s value contains %d missing entries", rule.expectedEventLogEntry.PcrIndex, rule.expectedEventLogEntry.PcrBank, len(missingAttr.PcrEventLogs)),
-						PcrIndex:       &Pi,
-						PcrBank:        &rule.expectedEventLogEntry.PcrBank,
-						MissingEntries: missingAttr.EventLogs,
+						Description:    fmt.Sprintf("Module manifest for PCR %d of %s value contains %d missing entries", rule.expectedPcrEventLogEntry.Pcr.Index, rule.expectedPcrEventLogEntry.Pcr.Bank, len(missingAttr.TpmEvent)),
+						PcrIndex:       &index,
+						PcrBank:        &bank,
+						MissingEntries: missingAttr.TpmEvent,
 					}
 					result.MismatchField = append(result.MismatchField, mismatchInfo)
 				}
@@ -112,7 +115,7 @@ func (rule *pcrEventLogIncludes) Apply(hostManifest *types.HostManifest) (*hvs.R
 		} else {
 			actualEventLog, err := hostManifest.PcrManifest.PcrEventLogMap.GetEventLog(rule.expectedEventLogEntry.PcrBank, rule.expectedEventLogEntry.PcrIndex)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "Error in retrieving the actual event log values in pcr event log includes rule")
 			}
 
 			if actualEventLog == nil {
@@ -121,13 +124,13 @@ func (rule *pcrEventLogIncludes) Apply(hostManifest *types.HostManifest) (*hvs.R
 				// subtract the 'actual' event log measurements from 'expected'.
 				// if there are any left in 'expected', then 'actual' did not include all entries
 
-				missingEvents, _, err := rule.expectedEventLogEntry.Subtract(actualEventLog)
+				missingEvents, err := rule.expectedEventLogEntry.Subtract(actualEventLog)
 				if err != nil {
-					return nil, errors.Wrap(err, "Error subtracting event logs in pcr eventlog includes rule.")
+					return nil, errors.Wrap(err, "Error subtracting actual from expected event logs in pcr eventlog includes rule.")
 				}
 
 				if len(missingEvents.EventLogs) > 0 {
-					result.Faults = append(result.Faults, newPcrEventLogMissingExpectedEntries(missingEvents))
+					result.Faults = append(result.Faults, newPcrEventLogMissingExpectedEntries(missingEvents, nil))
 				}
 			}
 		}

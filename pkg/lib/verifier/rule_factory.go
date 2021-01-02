@@ -55,7 +55,7 @@ func NewRuleFactory(verifierCertificates VerifierCertificates,
 func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error) {
 
 	var flavorPart common.FlavorPart
-	var requiredRules, PcrRule []rules.Rule
+	var requiredRules, pcrRule []rules.Rule
 
 	ruleBuilder, err := factory.getRuleBuilder()
 	if err != nil {
@@ -90,7 +90,7 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 		for _, rule := range flavorPcrs {
 
 			eventsPresent := false
-			IntegrityRuleAdded := false
+			integrityRuleAdded := false
 			value := reflect.Indirect(reflect.ValueOf(rule))
 
 			for i := 0; i < value.NumField(); i++ {
@@ -99,31 +99,27 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 					eventsPresent = true
 					//call method to create pcr event log equals rule
 					if len(rule.EventlogEqual.ExcludeTags) == 0 {
-						PcrRule, err = getPcrEventLogEqualsRules(nil, &rule, nil, flavorPart)
+						pcrRule, err = getPcrEventLogEqualsRules(nil, &rule, nil, flavorPart)
 					} else {
-						PcrRule, err = getPcrEventLogEqualsExcludingRules(nil, &rule, nil, flavorPart)
+						pcrRule, err = getPcrEventLogEqualsExcludingRules(nil, &rule, nil, flavorPart)
 					}
-					requiredRules = append(requiredRules, PcrRule...)
-					log.Info("Rule added :", value.Type().Field(i).Name)
+					requiredRules = append(requiredRules, pcrRule...)
 				} else if value.Type().Field(i).Name == "EventlogIncludes" && len(rule.EventlogIncludes) > 0 {
 					eventsPresent = true
 					//call method to create pcr event log includes rule
-					PcrRule, err = getPcrEventLogIncludesRules(nil, nil, &rule, flavorPart)
-					requiredRules = append(requiredRules, PcrRule...)
-					log.Info("Rule added :", value.Type().Field(i).Name)
+					pcrRule, err = getPcrEventLogIncludesRules(nil, nil, &rule, flavorPart)
+					requiredRules = append(requiredRules, pcrRule...)
 				} else if value.Type().Field(i).Name == "PCRMatches" && rule.PCRMatches {
 					//call method to create pcr matches constant rule
-					PcrRule, err = getPcrMatchesConstantRules(nil, nil, &rule, flavorPart)
-					requiredRules = append(requiredRules, PcrRule...)
-					log.Info("Rule added :", value.Type().Field(i).Name)
+					pcrRule, err = getPcrMatchesConstantRules(nil, nil, &rule, flavorPart)
+					requiredRules = append(requiredRules, pcrRule...)
 				}
 
-				if eventsPresent == true && IntegrityRuleAdded == false {
+				if eventsPresent == true && integrityRuleAdded == false {
 					//add Integrity rules//
-					IntegrityRuleAdded = true
-					PcrRule, err = getPcrEventLogIntegrityRules(nil, nil, &rule, flavorPart)
-					requiredRules = append(requiredRules, PcrRule...)
-					log.Info("Rule added :", value.Type().Field(i).Name)
+					integrityRuleAdded = true
+					pcrRule, err = getPcrEventLogIntegrityRules(nil, nil, &rule, flavorPart)
+					requiredRules = append(requiredRules, pcrRule...)
 				}
 				if err != nil {
 					return nil, "", errors.Wrapf(err, "Error creating trust requiredRules for flavor '%s'", factory.signedFlavor.Flavor.Meta.ID)

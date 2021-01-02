@@ -33,9 +33,9 @@ func TestPcrEventLogEqualsNoFault(t *testing.T) {
 		},
 	}
 
-	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, testHostManifestPcrEventLogEntry)
+	hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs, testHostManifestPcrEventLogEntry)
 
-	rule, err := NewPcrEventLogEquals(&testHostManifestPcrEventLogEntry, uuid.New(), common.FlavorPartPlatform)
+	rule, err := NewPcrEventLogEquals(nil, &testHostManifestPcrEventLogEntry, uuid.New(), common.FlavorPartPlatform)
 
 	result, err := rule.Apply(&hostManifest)
 	assert.NoError(t, err)
@@ -58,7 +58,7 @@ func TestPcrEventLogEqualsNoFault(t *testing.T) {
 
 	vmHostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(vmHostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, testHostManifestEventLogEntry)
 
-	rule, err = NewPcrEventLogEquals(&testHostManifestEventLogEntry, uuid.New(), common.FlavorPartPlatform)
+	rule, err = NewPcrEventLogEquals(&testHostManifestEventLogEntry, nil, uuid.New(), common.FlavorPartPlatform)
 
 	result, err = rule.Apply(&vmHostManifest)
 	assert.NoError(t, err)
@@ -89,9 +89,9 @@ func TestPcrEventLogEqualsExcludingNoFault(t *testing.T) {
 		},
 	}
 
-	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, testExpectedPcrEventLogEntry)
+	hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs, testExpectedPcrEventLogEntry)
 
-	rule, err := NewPcrEventLogEqualsExcluding(&testExpectedPcrEventLogEntry, nil, excludetag, uuid.New(), common.FlavorPartPlatform)
+	rule, err := NewPcrEventLogEqualsExcluding(nil, &testExpectedPcrEventLogEntry, nil, excludetag, uuid.New(), common.FlavorPartPlatform)
 
 	result, err := rule.Apply(&hostManifest)
 	assert.NoError(t, err)
@@ -113,7 +113,7 @@ func TestPcrEventLogEqualsExcludingNoFault(t *testing.T) {
 	}
 	vmHostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(vmHostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, testExpectedEventLogEntry)
 
-	rule, err = NewPcrEventLogEqualsExcluding(&testExpectedEventLogEntry, nil, nil, uuid.New(), common.FlavorPartPlatform)
+	rule, err = NewPcrEventLogEqualsExcluding(&testExpectedEventLogEntry, nil, nil, nil, uuid.New(), common.FlavorPartPlatform)
 
 	result, err = rule.Apply(&vmHostManifest)
 	assert.NoError(t, err)
@@ -141,12 +141,15 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingFault(t *testing.T) {
 		},
 	}
 
-	flavorEventsLog := types.EventLogEntry{
+	flavorEventsLog := types.EventLogEntryFC{
 
-		PcrIndex: 0,
-		PcrBank:  types.SHA256,
+		Pcr: types.PCR{
 
-		PcrEventLogs: []types.EventLogCriteria{
+			Index: 0,
+			Bank:  "SHA256",
+		},
+
+		TpmEvent: []types.EventLogCriteria{
 			{
 				TypeName:    util.EVENT_LOG_DIGEST_SHA256,
 				Measurement: zeros,
@@ -155,11 +158,14 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingFault(t *testing.T) {
 	}
 
 	// Put something in PCR1 (not PCR0) to invoke PcrMissingEventLog fault
-	hostEventsLog := types.EventLogEntry{
-		PcrIndex: 1,
-		PcrBank:  types.SHA256,
+	hostEventsLog := types.EventLogEntryFC{
 
-		PcrEventLogs: []types.EventLogCriteria{
+		Pcr: types.PCR{
+			Index: 1,
+			Bank:  "SHA256",
+		},
+
+		TpmEvent: []types.EventLogCriteria{
 			{
 				TypeName:    util.EVENT_LOG_DIGEST_SHA256,
 				Measurement: ones,
@@ -167,9 +173,9 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingFault(t *testing.T) {
 		},
 	}
 
-	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, hostEventsLog)
+	hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs, hostEventsLog)
 
-	rule, err := NewPcrEventLogEqualsExcluding(&flavorEventsLog, nil, excludetag, uuid.New(), common.FlavorPartPlatform)
+	rule, err := NewPcrEventLogEqualsExcluding(nil, &flavorEventsLog, nil, excludetag, uuid.New(), common.FlavorPartPlatform)
 
 	result, err := rule.Apply(&hostManifest)
 	assert.NoError(t, err)
@@ -217,7 +223,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingFault(t *testing.T) {
 
 	vmHostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(vmHostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, hostEvents)
 
-	rule, err = NewPcrEventLogEqualsExcluding(&flavorEvents, nil, nil, uuid.New(), common.FlavorPartPlatform)
+	rule, err = NewPcrEventLogEqualsExcluding(&flavorEvents, nil, nil, nil, uuid.New(), common.FlavorPartPlatform)
 
 	result, err = rule.Apply(&vmHostManifest)
 	assert.NoError(t, err)
@@ -246,20 +252,21 @@ func TestPcrEventLogEqualsExcludingPcrEventLogContainsUnexpectedEntriesFault(t *
 		},
 	}
 
-	unexpectedEventLogs := types.EventLogEntry{
-		PcrIndex:  testHostManifestPcrEventLogEntry.PcrIndex,
-		PcrBank:   testHostManifestPcrEventLogEntry.PcrBank,
-		EventLogs: []types.EventLog{},
+	unexpectedPcrEventLogs := types.EventLogEntryFC{
+		Pcr: types.PCR{
+			Index: testHostManifestPcrEventLogEntry.Pcr.Index,
+			Bank:  testHostManifestPcrEventLogEntry.Pcr.Bank,
+		},
 	}
-	unexpectedEventLogs.PcrEventLogs = append(unexpectedEventLogs.PcrEventLogs, testHostManifestPcrEventLogEntry.PcrEventLogs...)
-	unexpectedEventLogs.PcrEventLogs = append(unexpectedEventLogs.PcrEventLogs, types.EventLogCriteria{
+	unexpectedPcrEventLogs.TpmEvent = append(unexpectedPcrEventLogs.TpmEvent, testHostManifestPcrEventLogEntry.TpmEvent...)
+	unexpectedPcrEventLogs.TpmEvent = append(unexpectedPcrEventLogs.TpmEvent, types.EventLogCriteria{
 		TypeName:    util.EVENT_LOG_DIGEST_SHA256,
 		Measurement: "x",
 	})
 
-	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, unexpectedEventLogs)
+	hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs, unexpectedPcrEventLogs)
 
-	rule, err := NewPcrEventLogEqualsExcluding(&testExpectedPcrEventLogEntry, nil, excludetag, uuid.New(), common.FlavorPartPlatform)
+	rule, err := NewPcrEventLogEqualsExcluding(nil, &testExpectedPcrEventLogEntry, nil, excludetag, uuid.New(), common.FlavorPartPlatform)
 
 	result, err := rule.Apply(&hostManifest)
 	assert.NoError(t, err)
@@ -281,10 +288,9 @@ func TestPcrEventLogEqualsExcludingPcrEventLogContainsUnexpectedEntriesFault(t *
 			},
 		},
 	}
-	unexpectedEventLogs = types.EventLogEntry{
-		PcrIndex:     testHostManifestEventLogEntry.PcrIndex,
-		PcrBank:      testHostManifestEventLogEntry.PcrBank,
-		PcrEventLogs: []types.EventLogCriteria{},
+	unexpectedEventLogs := types.EventLogEntry{
+		PcrIndex: testHostManifestEventLogEntry.PcrIndex,
+		PcrBank:  testHostManifestEventLogEntry.PcrBank,
 	}
 	unexpectedEventLogs.EventLogs = append(unexpectedEventLogs.EventLogs, testHostManifestEventLogEntry.EventLogs...)
 	unexpectedEventLogs.EventLogs = append(unexpectedEventLogs.EventLogs, types.EventLog{
@@ -294,7 +300,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogContainsUnexpectedEntriesFault(t *
 
 	vmHostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(vmHostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, unexpectedEventLogs)
 
-	rule, err = NewPcrEventLogEqualsExcluding(&testExpectedEventLogEntry, nil, nil, uuid.New(), common.FlavorPartPlatform)
+	rule, err = NewPcrEventLogEqualsExcluding(&testExpectedEventLogEntry, nil, nil, nil, uuid.New(), common.FlavorPartPlatform)
 
 	result, err = rule.Apply(&vmHostManifest)
 	assert.NoError(t, err)
@@ -324,17 +330,18 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingExpectedEntriesFault(t *tes
 		},
 	}
 
-	unexpectedEventLogs := types.EventLogEntry{
-		PcrIndex:  testHostManifestPcrEventLogEntry.PcrIndex,
-		PcrBank:   testHostManifestPcrEventLogEntry.PcrBank,
-		EventLogs: []types.EventLog{},
+	unexpectedPcrEventLogs := types.EventLogEntryFC{
+		Pcr: types.PCR{
+			Index: testHostManifestPcrEventLogEntry.Pcr.Index,
+			Bank:  testHostManifestPcrEventLogEntry.Pcr.Bank,
+		},
 	}
 
-	unexpectedEventLogs.PcrEventLogs = append(unexpectedEventLogs.PcrEventLogs, testHostManifestPcrEventLogEntry.PcrEventLogs[1:]...)
+	unexpectedPcrEventLogs.TpmEvent = append(unexpectedPcrEventLogs.TpmEvent, testHostManifestPcrEventLogEntry.TpmEvent[1:]...)
 
-	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, unexpectedEventLogs)
+	hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs, unexpectedPcrEventLogs)
 
-	rule, err := NewPcrEventLogEqualsExcluding(&testExpectedPcrEventLogEntry, nil, excludetag, uuid.New(), common.FlavorPartPlatform)
+	rule, err := NewPcrEventLogEqualsExcluding(nil, &testExpectedPcrEventLogEntry, nil, excludetag, uuid.New(), common.FlavorPartPlatform)
 
 	result, err := rule.Apply(&hostManifest)
 	assert.NoError(t, err)
@@ -356,17 +363,16 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingExpectedEntriesFault(t *tes
 			},
 		},
 	}
-	unexpectedEventLogs = types.EventLogEntry{
-		PcrIndex:     testHostManifestEventLogEntry.PcrIndex,
-		PcrBank:      testHostManifestEventLogEntry.PcrBank,
-		PcrEventLogs: []types.EventLogCriteria{},
+	unexpectedEventLogs := types.EventLogEntry{
+		PcrIndex: testHostManifestEventLogEntry.PcrIndex,
+		PcrBank:  testHostManifestEventLogEntry.PcrBank,
 	}
 
 	unexpectedEventLogs.EventLogs = append(unexpectedEventLogs.EventLogs, testHostManifestEventLogEntry.EventLogs[1:]...)
 
 	vmHostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(vmHostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, unexpectedEventLogs)
 
-	rule, err = NewPcrEventLogEqualsExcluding(&testExpectedEventLogEntry, nil, nil, uuid.New(), common.FlavorPartPlatform)
+	rule, err = NewPcrEventLogEqualsExcluding(&testExpectedEventLogEntry, nil, nil, nil, uuid.New(), common.FlavorPartPlatform)
 
 	result, err = rule.Apply(&vmHostManifest)
 	assert.NoError(t, err)
