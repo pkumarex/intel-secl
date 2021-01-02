@@ -53,6 +53,8 @@ type pcrMatchesConstant struct {
 	marker         common.FlavorPart
 }
 
+//Compare both the final hash of the expected and actual values
+//If it mismatches,raise the faults
 func (rule *pcrMatchesConstant) Apply(hostManifest *types.HostManifest) (*hvs.RuleResult, error) {
 
 	result := hvs.RuleResult{}
@@ -90,7 +92,7 @@ func (rule *pcrMatchesConstant) Apply(hostManifest *types.HostManifest) (*hvs.Ru
 
 			actualPcr, err := hostManifest.PcrManifest.GetPcrValue(rule.expectedPcr.PcrBank, rule.expectedPcr.Index)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "Error in retrieving the actual pcr value")
 			}
 
 			if actualPcr == nil {

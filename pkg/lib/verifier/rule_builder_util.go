@@ -62,13 +62,15 @@ func getPcrEventLogEqualsRules(pcrs []types.PcrIndex, pcrLogData *types.PCRS, fl
 	var results []rules.Rule
 
 	if pcrLogData != nil {
-		expectedEventLogEntry := types.EventLogEntry{
-			PcrIndex:     types.PcrIndex(pcrLogData.PCR.Index),
-			PcrBank:      types.SHAAlgorithm(pcrLogData.PCR.Bank),
-			PcrEventLogs: pcrLogData.EventlogEqual.Events,
+		expectedPcrEventLogEntry := types.EventLogEntryFC{
+			Pcr: types.PCR{
+				Index: pcrLogData.PCR.Index,
+				Bank:  pcrLogData.PCR.Bank,
+			},
+			TpmEvent: pcrLogData.EventlogEqual.Events,
 		}
 
-		rule, err := rules.NewPcrEventLogEquals(&expectedEventLogEntry, flavor.Meta.ID, marker)
+		rule, err := rules.NewPcrEventLogEquals(nil, &expectedPcrEventLogEntry, flavor.Meta.ID, marker)
 		if err != nil {
 			return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogEquals rule for bank '%s', index '%d'", pcrLogData.PCR.Bank, pcrLogData.PCR.Index)
 		}
@@ -87,7 +89,7 @@ func getPcrEventLogEqualsRules(pcrs []types.PcrIndex, pcrLogData *types.PCRS, fl
 						EventLogs: expectedPcrEx.Event,
 					}
 
-					rule, err := rules.NewPcrEventLogEquals(&expectedEventLogEntry, flavor.Meta.ID, marker)
+					rule, err := rules.NewPcrEventLogEquals(&expectedEventLogEntry, nil, flavor.Meta.ID, marker)
 					if err != nil {
 						return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogEqualsExcluding rule for bank '%s', index '%s'", bank, index)
 					}
@@ -107,13 +109,14 @@ func getPcrEventLogEqualsExcludingRules(pcrs []types.PcrIndex, pcrLogData *types
 	var results []rules.Rule
 
 	if pcrLogData != nil {
-		expectedEventLogEntry := types.EventLogEntry{
-			PcrIndex:     types.PcrIndex(pcrLogData.PCR.Index),
-			PcrBank:      types.SHAAlgorithm(pcrLogData.PCR.Bank),
-			PcrEventLogs: pcrLogData.EventlogEqual.Events,
-			ExcludeTags:  pcrLogData.EventlogEqual.ExcludeTags,
+		expectedPcrEventLogEntry := types.EventLogEntryFC{
+			Pcr: types.PCR{
+				Index: pcrLogData.PCR.Index,
+				Bank:  pcrLogData.PCR.Bank,
+			},
+			TpmEvent: pcrLogData.EventlogEqual.Events,
 		}
-		rule, err := rules.NewPcrEventLogEqualsExcluding(&expectedEventLogEntry, nil, pcrLogData.EventlogEqual.ExcludeTags, uuid.Nil, marker)
+		rule, err := rules.NewPcrEventLogEqualsExcluding(nil, &expectedPcrEventLogEntry, nil, pcrLogData.EventlogEqual.ExcludeTags, uuid.Nil, marker)
 		if err != nil {
 			return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogEqualsExcluding rule for bank '%s', index '%d'", pcrLogData.PCR.Bank, pcrLogData.PCR.Index)
 		}
@@ -132,7 +135,7 @@ func getPcrEventLogEqualsExcludingRules(pcrs []types.PcrIndex, pcrLogData *types
 						EventLogs: expectedPcrEx.Event,
 					}
 					expectedPcr, _ := rules.FlavorPcr2ManifestPcr(&expectedPcrEx, types.SHAAlgorithm(bank), index)
-					rule, err := rules.NewPcrEventLogEqualsExcluding(&expectedEventLogEntry, expectedPcr, nil, flavor.Meta.ID, marker)
+					rule, err := rules.NewPcrEventLogEqualsExcluding(&expectedEventLogEntry, nil, expectedPcr, nil, flavor.Meta.ID, marker)
 					if err != nil {
 						return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogEqualsExcluding rule for bank '%s', index '%s'", bank, index)
 					}
@@ -249,13 +252,15 @@ func getPcrEventLogIncludesRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcrL
 	var results []rules.Rule
 
 	if pcrLogData != nil {
-		expectedEventLogEntry := types.EventLogEntry{
-			PcrIndex:     types.PcrIndex(pcrLogData.PCR.Index),
-			PcrBank:      types.SHAAlgorithm(pcrLogData.PCR.Bank),
-			PcrEventLogs: pcrLogData.EventlogIncludes,
+		expectedPcrEventLogEntry := types.EventLogEntryFC{
+			Pcr: types.PCR{
+				Index: pcrLogData.PCR.Index,
+				Bank:  pcrLogData.PCR.Bank,
+			},
+			TpmEvent: pcrLogData.EventlogIncludes,
 		}
 
-		rule, err := rules.NewPcrEventLogIncludes(&expectedEventLogEntry, nil, marker)
+		rule, err := rules.NewPcrEventLogIncludes(nil, &expectedPcrEventLogEntry, nil, marker)
 		if err != nil {
 			return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogIncludes rule for bank '%s', index '%d'", pcrLogData.PCR.Bank, pcrLogData.PCR.Index)
 		}
@@ -273,7 +278,7 @@ func getPcrEventLogIncludesRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcrL
 					}
 
 					expectedPcr, _ := rules.FlavorPcr2ManifestPcr(&expectedPcrEx, types.SHAAlgorithm(bank), index)
-					rule, err := rules.NewPcrEventLogIncludes(&expectedEventLogEntry, expectedPcr, marker)
+					rule, err := rules.NewPcrEventLogIncludes(&expectedEventLogEntry, nil, expectedPcr, marker)
 					if err != nil {
 						return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogEqualsExcluding rule for bank '%s', index '%s'", bank, index)
 					}

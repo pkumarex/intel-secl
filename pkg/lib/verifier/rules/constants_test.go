@@ -37,12 +37,13 @@ var (
 		Measurement: PCR_VALID_256,
 	}
 
-	testExpectedPcrEventLogEntry = types.EventLogEntry{
+	testExpectedPcrEventLogEntry = types.EventLogEntryFC{
+		Pcr: types.PCR{
+			Index: 0,
+			Bank:  "SHA256",
+		},
 
-		PcrIndex: 0,
-		PcrBank:  types.SHA256,
-
-		PcrEventLogs: []types.EventLogCriteria{
+		TpmEvent: []types.EventLogCriteria{
 			{
 				TypeName:    util.EVENT_LOG_DIGEST_SHA256,
 				Measurement: zeros,
@@ -52,7 +53,7 @@ var (
 				Measurement: ones,
 			},
 		},
-		EventLogs: []types.EventLog{},
+		//EventLogs: []types.EventLog{},
 	}
 )
 
@@ -70,16 +71,18 @@ var (
 				Value:      ones,
 			},
 		},
-		PcrEventLogs: []types.EventLogCriteria{},
+		//	PcrEventLogs: []types.EventLogCriteria{},
 	}
 )
 
 var (
-	testHostManifestPcrEventLogEntry = types.EventLogEntry{
-		PcrIndex: 0,
-		PcrBank:  "SHA256",
+	testHostManifestPcrEventLogEntry = types.EventLogEntryFC{
+		Pcr: types.PCR{
+			Index: 0,
+			Bank:  "SHA256",
+		},
 
-		PcrEventLogs: []types.EventLogCriteria{
+		TpmEvent: []types.EventLogCriteria{
 			{
 				TypeName:    util.EVENT_LOG_DIGEST_SHA256,
 				Measurement: zeros,
@@ -129,7 +132,7 @@ var (
 				Measurement: "h",
 			},
 		},
-		EventLogs: []types.EventLog{},
+		//EventLogs: []types.EventLog{},
 	}
 )
 
@@ -204,7 +207,7 @@ var (
 				},
 			},
 		},
-		PcrEventLogs: []types.EventLogCriteria{},
+		//PcrEventLogs: []types.EventLogCriteria{},
 	}
 )
 

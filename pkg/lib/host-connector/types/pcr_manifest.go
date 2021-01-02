@@ -47,11 +47,9 @@ type EventLogCriteria struct {
 }
 
 type EventLogEntry struct {
-	PcrIndex     PcrIndex           `json:"pcr_index"`
-	EventLogs    []EventLog         `json:"event_log"`
-	PcrEventLogs []EventLogCriteria `json:"events,omitempty"`
-	PcrBank      SHAAlgorithm       `json:"pcr_bank"`
-	ExcludeTags  []string           `json:"exclude_tags,omitempty"`
+	PcrIndex  PcrIndex     `json:"pcr_index"`
+	EventLogs []EventLog   `json:"event_log"`
+	PcrBank   SHAAlgorithm `json:"pcr_bank"`
 }
 
 type EventLogEntryFC struct {
@@ -308,27 +306,27 @@ func (pcrEventLogMap *PcrEventLogMap) GetEventLog(pcrBank SHAAlgorithm, pcrIndex
 // Finds the EventLogEntry in a PcrEventLogMap provided the pcrBank and index.  Returns
 // null if not found.  Returns an error if the pcrBank is not supported
 // by intel-secl (currently supports SHA1 and SHA256).
-func (pcrEventLogMap *PcrEventLogMapFC) GetEventLogNew(pcrBank SHAAlgorithm, pcrIndex PcrIndex) (*[]EventLogCriteria, PcrIndex, SHAAlgorithm, error) {
+func (pcrEventLogMap *PcrEventLogMapFC) GetEventLogNew(pcrBank string, pcrIndex int) ([]EventLogCriteria, int, string, error) {
 
-	var eventLog *[]EventLogCriteria
-	var pIndex PcrIndex
-	var bank SHAAlgorithm
+	var eventLog []EventLogCriteria
+	var pIndex int
+	var bank string
 
-	if pcrBank == SHA1 {
+	if SHAAlgorithm(pcrBank) == SHA1 {
 		for _, entry := range pcrEventLogMap.Sha1EventLogs {
-			if entry.Pcr.Index == int(pcrIndex) {
-				eventLog = &entry.TpmEvent
-				pIndex = PcrIndex(entry.Pcr.Index)
-				bank = SHAAlgorithm(entry.Pcr.Bank)
+			if entry.Pcr.Index == pcrIndex {
+				eventLog = entry.TpmEvent
+				pIndex = entry.Pcr.Index
+				bank = entry.Pcr.Bank
 				break
 			}
 		}
-	} else if pcrBank == SHA256 {
+	} else if SHAAlgorithm(pcrBank) == SHA256 {
 		for _, entry := range pcrEventLogMap.Sha256EventLogs {
-			if entry.Pcr.Index == int(pcrIndex) {
-				eventLog = &entry.TpmEvent
-				pIndex = PcrIndex(entry.Pcr.Index)
-				bank = SHAAlgorithm(entry.Pcr.Bank)
+			if entry.Pcr.Index == pcrIndex {
+				eventLog = entry.TpmEvent
+				pIndex = entry.Pcr.Index
+				bank = entry.Pcr.Bank
 				break
 			}
 		}
@@ -344,14 +342,14 @@ func (pcrEventLogMap *PcrEventLogMapFC) GetEventLogNew(pcrBank SHAAlgorithm, pcr
 // the original ('eventLogEntry') but not in 'eventsToSubtract'.  Returns an error
 // if the bank/index of 'eventLogEntry' and 'eventsToSubtract' do not match.
 // Note: 'eventLogEntry' and 'eventsToSubract' are not altered.
-func (eventLogEntry *EventLogEntry) Subtract(eventsToSubtract *EventLogEntry) (*EventLogEntry, *EventLogEntry, error) {
+func (eventLogEntry *EventLogEntry) Subtract(eventsToSubtract *EventLogEntry) (*EventLogEntry, error) {
 
 	if eventLogEntry.PcrBank != eventsToSubtract.PcrBank {
-		return nil, nil, errors.Errorf("The PCR banks do not match: '%s' != '%s'", eventLogEntry.PcrBank, eventsToSubtract.PcrBank)
+		return nil, errors.Errorf("The PCR banks do not match: '%s' != '%s'", eventLogEntry.PcrBank, eventsToSubtract.PcrBank)
 	}
 
 	if eventLogEntry.PcrIndex != eventsToSubtract.PcrIndex {
-		return nil, nil, errors.Errorf("The PCR indexes do not match: '%d' != '%d'", eventLogEntry.PcrIndex, eventsToSubtract.PcrIndex)
+		return nil, errors.Errorf("The PCR indexes do not match: '%d' != '%d'", eventLogEntry.PcrIndex, eventsToSubtract.PcrIndex)
 	}
 
 	// build a new EventLogEntry that will be populated by the event log entries
@@ -361,60 +359,87 @@ func (eventLogEntry *EventLogEntry) Subtract(eventsToSubtract *EventLogEntry) (*
 		PcrIndex: eventLogEntry.PcrIndex,
 	}
 
-	fieldMismatch := EventLogEntry{
-		PcrBank:  eventLogEntry.PcrBank,
-		PcrIndex: eventLogEntry.PcrIndex,
+	index := make(map[string]int)
+	for i, eventLog := range eventsToSubtract.EventLogs {
+		index[eventLog.Value] = i
 	}
 
-	if !reflect.DeepEqual(eventLogEntry.PcrEventLogs, []EventLogCriteria{}) && !reflect.DeepEqual(eventsToSubtract.PcrEventLogs, []EventLogCriteria{}) {
-		index := make(map[string]EventLogCriteria)
-		for _, eventLog := range eventsToSubtract.PcrEventLogs {
-			index[eventLog.Measurement] = eventLog
+	for _, eventLog := range eventLogEntry.EventLogs {
+		if _, ok := index[eventLog.Value]; !ok {
+			difference.EventLogs = append(difference.EventLogs, eventLog)
 		}
+	}
 
-		//Compare event log entries value (measurement) .If mismatched,raise faults
-		//else proceed to compare type_id ,type_name and tags.
-		//If these fields are mismatched,then add the mismatch entry details to report(not a fault)
-		misMatch := false
-		for _, eventLog := range eventLogEntry.PcrEventLogs {
-			if events, ok := index[eventLog.Measurement]; ok {
+	return &difference, nil
+}
 
-				if len(events.TypeName) != 0 && len(eventLog.TypeName) != 0 {
-					if events.TypeName != eventLog.TypeName {
-						misMatch = true
+// Provided an EventLogEntry that contains an array of EventLogs, this function
+// will return a new EventLogEntry that contains the events that existed in
+// the original ('eventLogEntry') but not in 'eventsToSubtract'.  Returns an error
+// if the bank/index of 'eventLogEntry' and 'eventsToSubtract' do not match.
+// Note: 'eventLogEntry' and 'eventsToSubract' are not altered.
+func (eventLogEntry *EventLogEntryFC) Subtract(eventsToSubtract *EventLogEntryFC) (*EventLogEntryFC, *EventLogEntryFC, error) {
 
-					}
+	if eventLogEntry.Pcr.Bank != eventsToSubtract.Pcr.Bank {
+		return nil, nil, errors.Errorf("The PCR banks do not match: '%s' != '%s'", eventLogEntry.Pcr.Bank, eventsToSubtract.Pcr.Bank)
+	}
+
+	if eventLogEntry.Pcr.Index != eventsToSubtract.Pcr.Index {
+		return nil, nil, errors.Errorf("The PCR indexes do not match: '%d' != '%d'", eventLogEntry.Pcr.Index, eventsToSubtract.Pcr.Index)
+	}
+
+	// build a new EventLogEntry that will be populated by the event log entries
+	// in the source less those 'eventsToSubtract'.
+	difference := EventLogEntryFC{
+		Pcr: PCR{
+			Bank:  eventLogEntry.Pcr.Bank,
+			Index: eventLogEntry.Pcr.Index,
+		},
+	}
+
+	fieldMismatch := EventLogEntryFC{
+		Pcr: PCR{
+			Bank:  eventLogEntry.Pcr.Bank,
+			Index: eventLogEntry.Pcr.Index,
+		},
+	}
+
+	index := make(map[string]EventLogCriteria)
+	for _, eventLog := range eventsToSubtract.TpmEvent {
+		index[eventLog.Measurement] = eventLog
+	}
+
+	//Compare event log entries value (measurement) .If mismatched,raise faults
+	//else proceed to compare type_id ,type_name and tags.
+	//If these fields are mismatched,then add the mismatch entry details to report(not a fault)
+	misMatch := false
+	for _, eventLog := range eventLogEntry.TpmEvent {
+		if events, ok := index[eventLog.Measurement]; ok {
+
+			if len(events.TypeName) != 0 && len(eventLog.TypeName) != 0 {
+				if events.TypeName != eventLog.TypeName {
+					misMatch = true
+
 				}
-				if len(events.TypeID) != 0 && len(eventLog.TypeID) != 0 {
-					if events.TypeID != eventLog.TypeID {
-						misMatch = true
-
-					}
-				}
-				if events.Tags != nil && len(events.Tags) != 0 && len(eventLog.Tags) != 0 {
-					if !reflect.DeepEqual(events.Tags, eventLog.Tags) {
-						misMatch = true
-					}
-				}
-
-				if misMatch {
-					fieldMismatch.PcrEventLogs = append(fieldMismatch.PcrEventLogs, eventLog)
-					misMatch = false
-				}
-			} else {
-				difference.PcrEventLogs = append(difference.PcrEventLogs, eventLog)
 			}
-		}
-	} else {
-		index := make(map[string]int)
-		for i, eventLog := range eventsToSubtract.EventLogs {
-			index[eventLog.Value] = i
-		}
+			if len(events.TypeID) != 0 && len(eventLog.TypeID) != 0 {
+				if events.TypeID != eventLog.TypeID {
+					misMatch = true
 
-		for _, eventLog := range eventLogEntry.EventLogs {
-			if _, ok := index[eventLog.Value]; !ok {
-				difference.EventLogs = append(difference.EventLogs, eventLog)
+				}
 			}
+			if events.Tags != nil && len(events.Tags) != 0 && len(eventLog.Tags) != 0 {
+				if !reflect.DeepEqual(events.Tags, eventLog.Tags) {
+					misMatch = true
+				}
+			}
+
+			if misMatch {
+				fieldMismatch.TpmEvent = append(fieldMismatch.TpmEvent, eventLog)
+				misMatch = false
+			}
+		} else {
+			difference.TpmEvent = append(difference.TpmEvent, eventLog)
 		}
 	}
 
@@ -438,50 +463,70 @@ func (eventLogEntry *EventLogEntry) Replay() (string, error) {
 	} else {
 		return "", errors.Errorf("Invalid sha algorithm '%s'", eventLogEntry.PcrBank)
 	}
-	if eventLogEntry.PcrEventLogs != nil {
-		for i, eventLog := range eventLogEntry.PcrEventLogs {
-			var hash hash.Hash
-			if eventLogEntry.PcrBank == SHA1 {
-				hash = sha1.New()
-			} else if eventLogEntry.PcrBank == SHA256 {
-				hash = sha256.New()
-			} else if eventLogEntry.PcrBank == SHA384 {
-				hash = sha512.New384()
-			} else if eventLogEntry.PcrBank == SHA512 {
-				hash = sha512.New()
-			}
 
-			eventHash, err := hex.DecodeString(eventLog.Measurement)
-			if err != nil {
-				return "", errors.Wrapf(err, "Failed to decode event log %d using hex string '%s'", i, eventLog.Measurement)
-			}
-
-			hash.Write(cumulativeHash)
-			hash.Write(eventHash)
-			cumulativeHash = hash.Sum(nil)
+	for i, eventLog := range eventLogEntry.EventLogs {
+		var hash hash.Hash
+		if eventLogEntry.PcrBank == SHA1 {
+			hash = sha1.New()
+		} else if eventLogEntry.PcrBank == SHA256 {
+			hash = sha256.New()
+		} else if eventLogEntry.PcrBank == SHA384 {
+			hash = sha512.New384()
+		} else if eventLogEntry.PcrBank == SHA512 {
+			hash = sha512.New()
 		}
+
+		eventHash, err := hex.DecodeString(eventLog.Value)
+		if err != nil {
+			return "", errors.Wrapf(err, "Failed to decode event log %d using hex string '%s'", i, eventLog.Value)
+		}
+
+		hash.Write(cumulativeHash)
+		hash.Write(eventHash)
+		cumulativeHash = hash.Sum(nil)
+	}
+
+	cumulativeHashString := hex.EncodeToString(cumulativeHash)
+	return cumulativeHashString, nil
+}
+
+// Returns the string value of the "cumulative" hash of the
+// an event log.
+func (eventLogEntry *EventLogEntryFC) Replay() (string, error) {
+
+	var cumulativeHash []byte
+
+	if SHAAlgorithm(eventLogEntry.Pcr.Bank) == SHA1 {
+		cumulativeHash = make([]byte, sha1.Size)
+	} else if SHAAlgorithm(eventLogEntry.Pcr.Bank) == SHA256 {
+		cumulativeHash = make([]byte, sha256.Size)
+	} else if SHAAlgorithm(eventLogEntry.Pcr.Bank) == SHA384 {
+		cumulativeHash = make([]byte, sha512.Size384)
+	} else if SHAAlgorithm(eventLogEntry.Pcr.Bank) == SHA512 {
+		cumulativeHash = make([]byte, sha512.Size)
 	} else {
-		for i, eventLog := range eventLogEntry.EventLogs {
-			var hash hash.Hash
-			if eventLogEntry.PcrBank == SHA1 {
-				hash = sha1.New()
-			} else if eventLogEntry.PcrBank == SHA256 {
-				hash = sha256.New()
-			} else if eventLogEntry.PcrBank == SHA384 {
-				hash = sha512.New384()
-			} else if eventLogEntry.PcrBank == SHA512 {
-				hash = sha512.New()
-			}
-
-			eventHash, err := hex.DecodeString(eventLog.Value)
-			if err != nil {
-				return "", errors.Wrapf(err, "Failed to decode event log %d using hex string '%s'", i, eventLog.Value)
-			}
-
-			hash.Write(cumulativeHash)
-			hash.Write(eventHash)
-			cumulativeHash = hash.Sum(nil)
+		return "", errors.Errorf("Invalid sha algorithm '%s'", eventLogEntry.Pcr.Bank)
+	}
+	for i, eventLog := range eventLogEntry.TpmEvent {
+		var hash hash.Hash
+		if SHAAlgorithm(eventLogEntry.Pcr.Bank) == SHA1 {
+			hash = sha1.New()
+		} else if SHAAlgorithm(eventLogEntry.Pcr.Bank) == SHA256 {
+			hash = sha256.New()
+		} else if SHAAlgorithm(eventLogEntry.Pcr.Bank) == SHA384 {
+			hash = sha512.New384()
+		} else if SHAAlgorithm(eventLogEntry.Pcr.Bank) == SHA512 {
+			hash = sha512.New()
 		}
+
+		eventHash, err := hex.DecodeString(eventLog.Measurement)
+		if err != nil {
+			return "", errors.Wrapf(err, "Failed to decode event log %d using hex string '%s'", i, eventLog.Measurement)
+		}
+
+		hash.Write(cumulativeHash)
+		hash.Write(eventHash)
+		cumulativeHash = hash.Sum(nil)
 	}
 
 	cumulativeHashString := hex.EncodeToString(cumulativeHash)

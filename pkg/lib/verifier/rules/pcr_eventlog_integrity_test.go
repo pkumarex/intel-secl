@@ -38,7 +38,7 @@ func TestPcrEventLogIntegrityNoFault(t *testing.T) {
 	}
 
 	hostManifest := types.HostManifest{}
-	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, testExpectedPcrEventLogEntry)
+	hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs, testExpectedPcrEventLogEntry)
 	hostManifest.PcrManifest.Sha256Pcrs = append(hostManifest.PcrManifest.Sha256Pcrs, expectedPcrLog1)
 
 	rule, err := NewPcrEventLogIntegrity(&expectedPcrLog, nil, common.FlavorPartPlatform)
@@ -75,6 +75,7 @@ func TestPcrEventLogIntegrityNoFault(t *testing.T) {
 
 func TestPcrEventLogIntegrityPcrValueMissingFault(t *testing.T) {
 
+	//linux
 	hostManifest := types.HostManifest{
 		PcrManifest: types.PcrManifest{
 			Sha256Pcrs: []types.Pcr{
@@ -87,7 +88,6 @@ func TestPcrEventLogIntegrityPcrValueMissingFault(t *testing.T) {
 		},
 	}
 
-	//linux
 	expectedCumulativeHash, err := testExpectedPcrEventLogEntry.Replay()
 	assert.NoError(t, err)
 
@@ -100,7 +100,7 @@ func TestPcrEventLogIntegrityPcrValueMissingFault(t *testing.T) {
 		Measurement: expectedCumulativeHash,
 	}
 
-	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, testExpectedPcrEventLogEntry)
+	hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs, testExpectedPcrEventLogEntry)
 
 	// if the pcr is no incuded, the PcrEventLogIntegrity rule should return
 	// a PcrMissingFault
@@ -118,6 +118,18 @@ func TestPcrEventLogIntegrityPcrValueMissingFault(t *testing.T) {
 	t.Logf("Intel Host Trust Policy - Fault description: %s", result.Faults[0].Description)
 
 	//vmware
+	vmHostManifest := types.HostManifest{
+		PcrManifest: types.PcrManifest{
+			Sha256Pcrs: []types.Pcr{
+				{
+					Index:   1,
+					Value:   PCR_VALID_256,
+					PcrBank: types.SHA256,
+				},
+			},
+		},
+	}
+
 	expectedCumulativeHash, err = testExpectedEventLogEntry.Replay()
 	assert.NoError(t, err)
 
@@ -127,15 +139,15 @@ func TestPcrEventLogIntegrityPcrValueMissingFault(t *testing.T) {
 		Value:   expectedCumulativeHash,
 	}
 
-	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, testExpectedEventLogEntry)
+	vmHostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(vmHostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, testExpectedEventLogEntry)
 
 	// if the pcr is no incuded, the PcrEventLogIntegrity rule should return
 	// a PcrMissingFault
-	// hostManifest.PcrManifest.Sha256Pcrs = ...not set
+	// vmHostManifest.PcrManifest.Sha256Pcrs = ...not set
 
 	rule, err = NewPcrEventLogIntegrity(nil, &expectedPcr, common.FlavorPartPlatform)
 
-	result, err = rule.Apply(&hostManifest)
+	result, err = rule.Apply(&vmHostManifest)
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, len(result.Faults))
@@ -224,11 +236,13 @@ func TestPcrEventLogIntegrityPcrEventLogInvalidFault(t *testing.T) {
 		Measurement: expectedCumulativeHash,
 	}
 
-	invalidPcrEventLogEntry := types.EventLogEntry{
-		PcrIndex: 0,
-		PcrBank:  types.SHA256,
+	invalidPcrEventLogEntry := types.EventLogEntryFC{
+		Pcr: types.PCR{
+			Index: 0,
+			Bank:  "SHA256",
+		},
 
-		PcrEventLogs: []types.EventLogCriteria{
+		TpmEvent: []types.EventLogCriteria{
 			{
 				TypeName:    util.EVENT_LOG_DIGEST_SHA256,
 				Measurement: zeros,
@@ -246,7 +260,7 @@ func TestPcrEventLogIntegrityPcrEventLogInvalidFault(t *testing.T) {
 	}
 
 	hostManifest := types.HostManifest{}
-	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, invalidPcrEventLogEntry)
+	hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs, invalidPcrEventLogEntry)
 	hostManifest.PcrManifest.Sha256Pcrs = append(hostManifest.PcrManifest.Sha256Pcrs, invalidPcrLog)
 
 	rule, err := NewPcrEventLogIntegrity(&expectedPcrLog, nil, common.FlavorPartPlatform)

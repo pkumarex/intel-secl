@@ -32,31 +32,32 @@ type RuleResult struct {
 }
 
 type MismatchField struct {
-	Name              string              `json:"name"`
-	Description       string              `json:"description"`
-	PcrIndex          *types.PcrIndex     `json:"pcr_index,omitempty"`
-	PcrBank           *types.SHAAlgorithm `json:"pcr_bank,omitempty"`
-	MissingEntries    []types.EventLog    `json:"missing_entries,omitempty"`
-	UnexpectedEntries []types.EventLog    `json:"unexpected_entries,omitempty"`
+	Name              string                   `json:"name"`
+	Description       string                   `json:"description"`
+	PcrIndex          *types.PcrIndex          `json:"pcr_index,omitempty"`
+	PcrBank           *types.SHAAlgorithm      `json:"pcr_bank,omitempty"`
+	MissingEntries    []types.EventLogCriteria `json:"missing_entries,omitempty"`
+	UnexpectedEntries []types.EventLogCriteria `json:"unexpected_entries,omitempty"`
 }
 
 type RuleInfo struct {
-	Name                  string                 `json:"rule_name,omitempty"`
-	Markers               []common.FlavorPart    `json:"markers,omitempty"`
-	ExpectedPcr           *types.Pcr             `json:"expected_pcr,omitempty"`
-	ExpectedPcrLog        *types.PCRS            `json:"pcr_logs,omitempty"`
-	PCR                   *types.PCR             `json:"pcr,omitempty"`
-	Measurement           string                 `json:"measurement,omitempty"` //required
-	PCRMatches            bool                   `json:"pcr_matches,omitempty"`
-	FlavorID              *uuid.UUID             `json:"flavor_id,omitempty"`
-	FlavorName            *string                `json:"flavor_name,omitempty"`
-	ExpectedValue         *string                `json:"expected_value,omitempty"`
-	ExpectedEventLogs     []types.EventLog       `json:"expected,omitempty"`
-	ExpectedMeasurements  []ta.FlavorMeasurement `json:"expected_measurements,omitempty"`
-	ExpectedEventLogEntry *types.EventLogEntry   `json:"expected_values,omitempty"`
-	Exclude_Tags          []string               `json:"excluding_tag,omitempty"`
-	ExpectedTag           []byte                 `json:"expected_tag,omitempty"`
-	Tags                  map[string]string      `json:"tags,omitempty"`
+	Name                     string                 `json:"rule_name,omitempty"`
+	Markers                  []common.FlavorPart    `json:"markers,omitempty"`
+	ExpectedPcr              *types.Pcr             `json:"expected_pcr,omitempty"`
+	ExpectedPcrLog           *types.PCRS            `json:"pcr_logs,omitempty"`
+	PCR                      *types.PCR             `json:"pcr,omitempty"`
+	Measurement              string                 `json:"measurement,omitempty"` //required
+	PCRMatches               bool                   `json:"pcr_matches,omitempty"`
+	FlavorID                 *uuid.UUID             `json:"flavor_id,omitempty"`
+	FlavorName               *string                `json:"flavor_name,omitempty"`
+	ExpectedValue            *string                `json:"expected_value,omitempty"`
+	ExpectedEventLogs        []types.EventLog       `json:"expected,omitempty"`
+	ExpectedMeasurements     []ta.FlavorMeasurement `json:"expected_measurements,omitempty"`
+	ExpectedEventLogEntry    *types.EventLogEntry   `json:"expected_values,omitempty"`
+	ExpectedPcrEventLogEntry *types.EventLogEntryFC `json:"expected_pcrvalues,omitempty"`
+	Exclude_Tags             []string               `json:"excluding_tag,omitempty"`
+	ExpectedTag              []byte                 `json:"expected_tag,omitempty"`
+	Tags                     map[string]string      `json:"tags,omitempty"`
 }
 
 type Fault struct {

@@ -48,7 +48,7 @@ type pcrEventLogIntegrity struct {
 // - If the hostmanifest does not have an event log at 'expected' bank/index, create a
 //   PcrEventLogMissing fault.
 // - Otherwise, replay the hostmanifest's event log at 'expected' bank/index and verify the
-//   the calculated hash matches the pcr value in the host-manifest.  If not, crete a PcrEventLogInvalid fault.
+//   the calculated hash matches the pcr value in the host-manifest.  If not, create a PcrEventLogInvalid fault.
 func (rule *pcrEventLogIntegrity) Apply(hostManifest *types.HostManifest) (*hvs.RuleResult, error) {
 
 	result := hvs.RuleResult{}
@@ -71,7 +71,7 @@ func (rule *pcrEventLogIntegrity) Apply(hostManifest *types.HostManifest) (*hvs.
 			if actualPcr == nil {
 				result.Faults = append(result.Faults, newPcrValueMissingFault(types.SHAAlgorithm(rule.expectedPcrLog.PCR.Bank), types.PcrIndex(rule.expectedPcrLog.PCR.Index)))
 			} else {
-				actualEventLogCriteria, pIndex, bank, err := hostManifest.PcrManifest.PcrEventLogMapNew.GetEventLogNew(types.SHAAlgorithm(rule.expectedPcrLog.PCR.Bank), types.PcrIndex(rule.expectedPcrLog.PCR.Index))
+				actualEventLogCriteria, pIndex, bank, err := hostManifest.PcrManifest.PcrEventLogMapNew.GetEventLogNew(rule.expectedPcrLog.PCR.Bank, rule.expectedPcrLog.PCR.Index)
 				if err != nil {
 					return nil, errors.Wrap(err, "Error in getting actual eventlogs in Pcr Eventlog Integrity rule")
 				}
@@ -79,10 +79,10 @@ func (rule *pcrEventLogIntegrity) Apply(hostManifest *types.HostManifest) (*hvs.
 				if actualEventLogCriteria == nil {
 					result.Faults = append(result.Faults, newPcrEventLogMissingFault(types.PcrIndex(rule.expectedPcrLog.PCR.Index), types.SHAAlgorithm(rule.expectedPcrLog.PCR.Bank)))
 				} else {
-					actualEventLog := &types.EventLogEntry{}
-					actualEventLog.PcrEventLogs = *actualEventLogCriteria
-					actualEventLog.PcrIndex = pIndex
-					actualEventLog.PcrBank = bank
+					actualEventLog := &types.EventLogEntryFC{}
+					actualEventLog.TpmEvent = actualEventLogCriteria
+					actualEventLog.Pcr.Index = pIndex
+					actualEventLog.Pcr.Bank = bank
 
 					calculatedValue, err := actualEventLog.Replay()
 					if err != nil {
@@ -114,7 +114,7 @@ func (rule *pcrEventLogIntegrity) Apply(hostManifest *types.HostManifest) (*hvs.
 
 			actualPcr, err := hostManifest.PcrManifest.GetPcrValue(rule.expectedPcr.PcrBank, rule.expectedPcr.Index)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "Error in retrieving the actual pcr values in pcr event log integrity rule")
 			}
 
 			if actualPcr == nil {
@@ -122,7 +122,7 @@ func (rule *pcrEventLogIntegrity) Apply(hostManifest *types.HostManifest) (*hvs.
 			} else {
 				actualEventLog, err := hostManifest.PcrManifest.PcrEventLogMap.GetEventLog(rule.expectedPcr.PcrBank, rule.expectedPcr.Index)
 				if err != nil {
-					return nil, err
+					return nil, errors.Wrap(err, "Error in retrieving the actual event log values in pcr event log integrity rule")
 				}
 
 				if actualEventLog == nil {
@@ -130,7 +130,7 @@ func (rule *pcrEventLogIntegrity) Apply(hostManifest *types.HostManifest) (*hvs.
 				} else {
 					calculatedValue, err := actualEventLog.Replay()
 					if err != nil {
-						return nil, err
+						return nil, errors.Wrap(err, "Error is getting the cumulative hash of the an event log in pcr event log integrity rule")
 					}
 
 					if calculatedValue != actualPcr.Value {
