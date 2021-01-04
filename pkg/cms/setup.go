@@ -7,8 +7,6 @@ package cms
 import (
 	"fmt"
 	"github.com/intel-secl/intel-secl/v3/pkg/cms/config"
-	"os/user"
-	"strconv"
 	"strings"
 
 	"github.com/intel-secl/intel-secl/v3/pkg/cms/constants"
@@ -96,7 +94,7 @@ func (a *App) setup(args []string) error {
 	if err != nil {
 		return errors.Wrap(err, "Error saving config")
 	}
-	return a.configDirChown()
+	return cos.ConfigDirChown(constants.ServiceUserName, a.configDir())
 }
 
 // a helper function for setting up the task runner
@@ -156,24 +154,4 @@ func (a *App) setupTaskRunner() (*setup.Runner, error) {
 	})
 
 	return runner, nil
-}
-
-func (a *App) configDirChown() error {
-	svcUser, err := user.Lookup(constants.ServiceUserName)
-	if err != nil {
-		return errors.Wrapf(err, "configDirChown: could not find user '%s'", constants.ServiceUserName)
-	}
-	uid, err := strconv.Atoi(svcUser.Uid)
-	if err != nil {
-		return errors.Wrapf(err, "configDirChown: could not parse cms user uid '%s'", svcUser.Uid)
-	}
-	gid, err := strconv.Atoi(svcUser.Gid)
-	if err != nil {
-		return errors.Wrapf(err, "configDirChown: could not parse cms user gid '%s'", svcUser.Gid)
-	}
-	err = cos.ChownR(a.configDir(), uid, gid)
-	if err != nil {
-		return errors.Wrap(err, "Error while changing ownership of files inside config directory")
-	}
-	return nil
 }
