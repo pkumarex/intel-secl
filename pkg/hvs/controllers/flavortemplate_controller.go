@@ -264,7 +264,11 @@ func (ftc *FlavorTemplateController) validateFlavorTemplateCreateRequest(FlvrTem
 	defaultLog.Info("controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() The provided template is valid")
 
 	//Validation the syntax of the conditions
-	tempDoc, _ := jsonquery.Parse(strings.NewReader(""))
+	tempDoc, err := jsonquery.Parse(strings.NewReader("{}"))
+	if err != nil {
+		return "", errors.Wrap(err, "controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Unable to parse json query")
+	}
+
 	for _, condition := range FlvrTemp.Condition {
 		_, err := jsonquery.Query(tempDoc, condition)
 		if err != nil {

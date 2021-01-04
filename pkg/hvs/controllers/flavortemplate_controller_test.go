@@ -31,7 +31,7 @@ var _ = Describe("FlavorTemplateController", func() {
 		flavorTemplateStore = mocks.NewFakeFlavorTemplateStore()
 
 		flavorTemplateController = controllers.NewFlavorTemplateController(flavorTemplateStore,
-			"../domain/schema/common.schema.json", "../domain/schema/Flavor-template.json")
+			"../domain/schema/common.schema.json", "../domain/schema/flavor-template.json")
 	})
 
 	// Specs for HTTP Post to "/flavor-template"
@@ -295,7 +295,7 @@ var _ = Describe("FlavorTemplateController", func() {
 				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
-				Expect(w.Code).To(Equal(http.StatusUnsupportedMediaType))
+				Expect(w.Code).To(Equal(http.StatusBadRequest))
 			})
 		})
 
@@ -368,7 +368,7 @@ var _ = Describe("FlavorTemplateController", func() {
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
-				Expect(w.Code).To(Equal(http.StatusInternalServerError))
+				Expect(w.Code).To(Equal(http.StatusNotFound))
 			})
 		})
 		Context("Delete a template", func() {
