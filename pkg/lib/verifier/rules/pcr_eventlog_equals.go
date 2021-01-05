@@ -182,7 +182,7 @@ func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.Rul
 				}
 
 				if len(missingFields.TpmEvent) > 0 {
-					pcrIndex := types.PcrIndex(rule.expectedEventLogEntry.PcrIndex)
+					pcrIndex := types.PcrIndex(rule.expectedPcrEventLogEntry.Pcr.Index)
 					pcrBank := types.SHAAlgorithm(rule.expectedPcrEventLogEntry.Pcr.Bank)
 
 					mismatchInfo := hvs.MismatchField{
