@@ -92,15 +92,15 @@ func GetDirFileContents(dir, pattern string) ([][]byte, error) {
 func ConfigDirChown(serviceUserName, configDir string) error {
 	svcUser, err := user.Lookup(serviceUserName)
 	if err != nil {
-		return errors.Wrapf(err, "configDirChown: could not find user '%s'", serviceUserName)
+		return errors.Wrapf(err, "Could not find service user '%s'", serviceUserName)
 	}
 	uid, err := strconv.Atoi(svcUser.Uid)
 	if err != nil {
-		return errors.Wrapf(err, "configDirChown: could not parse aas user uid '%s'", svcUser.Uid)
+		return errors.Wrapf(err, "Could not parse service user uid '%s'", svcUser.Uid)
 	}
 	gid, err := strconv.Atoi(svcUser.Gid)
 	if err != nil {
-		return errors.Wrapf(err, "configDirChown: could not parse aas user gid '%s'", svcUser.Gid)
+		return errors.Wrapf(err, "Could not parse service user gid '%s'", svcUser.Gid)
 	}
 	err = ChownR(configDir, uid, gid)
 	if err != nil {
