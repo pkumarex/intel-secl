@@ -177,16 +177,16 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 
 	var createFlavorTemplateReq hvs.FlavorTemplate
 	if r.Header.Get("Content-Type") != constants.HTTPMediaTypeJson {
-		return createFlavorTemplateReq, errors.New("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Invalid Content-Type")
+		return createFlavorTemplateReq, &unsupportedMediaError{Message: "Invalid Content-Type"}
 	}
 
 	if r.ContentLength == 0 {
-		return createFlavorTemplateReq, errors.New("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() The request body is not provided")
+		return createFlavorTemplateReq, &badRequestError{Message: "The request body is not provided"}
 	}
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		return createFlavorTemplateReq, errors.Wrap(err, "controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to read request body")
+		return createFlavorTemplateReq, &badRequestError{Message: "Unable to read request body"}
 	}
 
 	//Restore the request body to it's original state
@@ -198,16 +198,16 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 
 	err = dec.Decode(&createFlavorTemplateReq)
 	if err != nil {
-		return createFlavorTemplateReq, errors.Wrap(err, "controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to decode JSON request body")
+		return createFlavorTemplateReq, &badRequestError{Message: "Unable to read request body"}
 	}
 
 	if createFlavorTemplateReq.ID != uuid.Nil {
 		template, err := ftc.Store.Retrieve(createFlavorTemplateReq.ID)
 		if err != nil {
-			return hvs.FlavorTemplate{}, errors.Wrap(err, "controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Failed to retrieve falvor template")
+			return hvs.FlavorTemplate{}, &badRequestError{Message: "Failed to retrieve flavor template"}
 		}
 		if template != nil {
-			return hvs.FlavorTemplate{}, errors.New("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() FlavorTemplate with given template ID already exists")
+			return hvs.FlavorTemplate{}, &badRequestError{Message: "FlavorTemplate with given template ID already exists"}
 		}
 
 	}
@@ -215,7 +215,7 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 	defaultLog.Debug("Validating create flavor request")
 	errMsg, err := ftc.validateFlavorTemplateCreateRequest(createFlavorTemplateReq, string(body))
 	if err != nil {
-		return createFlavorTemplateReq, errors.Wrap(err, errMsg)
+		return createFlavorTemplateReq, &badRequestError{Message: errMsg}
 	}
 
 	return createFlavorTemplateReq, nil
