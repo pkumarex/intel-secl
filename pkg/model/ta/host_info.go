@@ -7,14 +7,13 @@ package model
 type CBNT struct {
 	HardwareFeature
 	Meta struct {
-		//ForceBit bool   `json:"force_bit,string"`
 		Profile string `json:"profile"`
 		MSR     string `json:"msr"`
 	} `json:"meta"`
 }
 
 type HardwareFeature struct {
-	Enabled bool `json:"enabled,string"`
+	Enabled bool `json:"enabled,omitempty"`
 }
 
 type TPM struct {
@@ -50,7 +49,7 @@ type HostInfo struct {
 }
 
 type HardwareFeatures struct {
-	TXT  *HardwareFeature `json:"TXT"`
+	TXT  *HardwareFeature `json:"TXT,omitempty"`
 	TPM  *TPM             `json:"TPM,omitempty"`
 	CBNT *CBNT            `json:"CBNT,omitempty"`
 	UEFI *UEFI            `json:"UEFI,omitempty"`
