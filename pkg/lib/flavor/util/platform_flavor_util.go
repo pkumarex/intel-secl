@@ -209,9 +209,11 @@ func (pfutil PlatformFlavorUtil) GetHardwareSectionDetails(hostInfo *taModel.Hos
 		tpm.PcrBanks = strings.Split(hostInfo.HardwareFeatures.TPM.Meta.PCRBanks, constants.PCRBankSeparator)
 		feature.TPM = &tpm
 
+		txt := cm.HardwareFeature{}
 		if hostInfo.HardwareFeatures.TXT != nil {
 			// Set TXT Feature presence
-			feature.TXT.Enabled = hostInfo.HardwareFeatures.TXT.Enabled
+			txt.Enabled = hostInfo.HardwareFeatures.TXT.Enabled
+			feature.TXT = &txt
 		}
 
 		cbnt := cm.CBNT{}
@@ -219,6 +221,7 @@ func (pfutil PlatformFlavorUtil) GetHardwareSectionDetails(hostInfo *taModel.Hos
 		if hostInfo.HardwareFeatures.CBNT != nil {
 			cbnt.Enabled = hostInfo.HardwareFeatures.CBNT.Enabled
 			cbnt.Meta.Profile = hostInfo.HardwareFeatures.CBNT.Meta.Profile
+			cbnt.Meta.MSR = hostInfo.HardwareFeatures.CBNT.Meta.MSR
 			feature.CBNT = &cbnt
 		}
 
