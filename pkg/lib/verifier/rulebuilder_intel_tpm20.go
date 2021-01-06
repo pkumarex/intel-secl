@@ -312,13 +312,13 @@ func (builder *ruleBuilderIntelTpm20) getPlatformPcrsFromHardwareMeta() ([]types
 
 	if feature.CBNT != nil {
 		if feature.CBNT.Enabled {
-			if feature.CBNT.Profile == "BTGP5" {
+			if feature.CBNT.Meta.Profile == "BTGP5" {
 				pcrs = append(pcrs, types.PCR7)
 			}
 		}
 	}
 
-	if feature.UEFI != nil && feature.UEFI.SecureBootEnabled {
+	if feature.UEFI != nil && feature.UEFI.Meta.SecureBootEnabled {
 		suefiPcrs := []types.PcrIndex{
 			types.PCR1,
 			types.PCR2,
