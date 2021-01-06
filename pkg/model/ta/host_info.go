@@ -13,7 +13,7 @@ type CBNT struct {
 }
 
 type HardwareFeature struct {
-	Enabled bool `json:"enabled,omitempty"`
+	Enabled bool `json:"enabled,string,omitempty"`
 }
 
 type TPM struct {
