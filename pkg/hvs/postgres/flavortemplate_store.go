@@ -21,7 +21,6 @@ func NewFlavorTemplateStore(store *DataStore) *FlavorTemplateStore {
 	return &FlavorTemplateStore{Store: store}
 }
 
-// create
 func (ft *FlavorTemplateStore) Create(flvrTemplate *hvs.FlavorTemplate) (*hvs.FlavorTemplate, error) {
 	defaultLog.Trace("postgres/flavortemplate_store:Create() Entering")
 	defer defaultLog.Trace("postgres/flavortemplate_store:Create() Leaving")
@@ -59,7 +58,6 @@ func (ft *FlavorTemplateStore) Retrieve(templateID uuid.UUID) (*hvs.FlavorTempla
 	flavorTemplate := hvs.FlavorTemplate{}
 
 	if !sf.Deleted {
-
 		flavorTemplate = hvs.FlavorTemplate{
 			ID:          sf.ID,
 			Label:       sf.Content.Label,
@@ -90,7 +88,6 @@ func (ft *FlavorTemplateStore) Search(includeDeleted bool) ([]hvs.FlavorTemplate
 		if err := rows.Scan(&template.ID, (*PGFlavorTemplateContent)(&template.Content), &template.Deleted); err != nil {
 			return nil, errors.Wrap(err, "postgres/flavortemplate_store:Search() - Could not scan record ")
 		}
-		//if (included && template.Deleted) || (!included && !template.Deleted) {
 		if includeDeleted || (!includeDeleted && !template.Deleted) {
 			flavorTemplate := hvs.FlavorTemplate{
 				ID:          template.ID,
