@@ -123,7 +123,7 @@ func (ftc FlavorTemplateController) Search(w http.ResponseWriter, r *http.Reques
 	flavorTemplates, err := ftc.Store.Search(isIncludeDeleted)
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Search() Error retrieving all flavor templates")
-		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: err.Error()}
+		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to retireve all templates"}
 	}
 
 	return flavorTemplates, http.StatusOK, nil
@@ -138,7 +138,7 @@ func (ftc FlavorTemplateController) Delete(w http.ResponseWriter, r *http.Reques
 	//call store function to delete template from DB.
 	if err := ftc.Store.Delete(templateId); err != nil {
 		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Delete() Error delete flavor templates")
-		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: err.Error()}
+		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to delete flavor template"}
 	}
 
 	return nil, http.StatusNoContent, nil
