@@ -40,9 +40,19 @@ func getFlavorTemplates(osName string, templatePath string) []hvs.FlavorTemplate
 
 	// load hostmanifest
 	if templatePath != "" {
-		templateFile, _ := os.Open(templatePath)
-		templateFileBytes, _ := ioutil.ReadAll(templateFile)
-		_ = json.Unmarshal(templateFileBytes, &template)
+		templateFile, err := os.Open(templatePath)
+		if err != nil {
+			fmt.Printf("flavor/util/linux_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to open template path %s", err)
+		}
+
+		templateFileBytes, err := ioutil.ReadAll(templateFile)
+		if err != nil {
+			fmt.Printf("flavor/util/linux_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to read template file %s", err)
+		}
+		err = json.Unmarshal(templateFileBytes, &template)
+		if err != nil {
+			fmt.Printf("flavor/util/linux_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to unmarshall flavor template %s", err)
+		}
 		templates = append(templates, template)
 	}
 	return templates
@@ -67,12 +77,24 @@ func TestLinuxPlatformFlavor_GetPcrDetails(t *testing.T) {
 	if TagCertPath != "" {
 		// load tagCert
 		// read the test tag cert
-		tagCertFile, _ := os.Open(TagCertPath)
-		tagCertPathBytes, _ := ioutil.ReadAll(tagCertFile)
+		tagCertFile, err := os.Open(TagCertPath)
+		if err != nil {
+			fmt.Printf("flavor/util/linux_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to open tagcert path %s", err)
+		}
+		tagCertPathBytes, err := ioutil.ReadAll(tagCertFile)
+		if err != nil {
+			fmt.Printf("flavor/util/linux_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to read tagcert file %s", err)
+		}
 
 		// convert pem to cert
-		pemBlock, _ := pem.Decode(tagCertPathBytes)
-		tagCertificate, _ := x509.ParseCertificate(pemBlock.Bytes)
+		pemBlock, rest := pem.Decode(tagCertPathBytes)
+		if len(rest) > 0 {
+			fmt.Printf("flavor/util/linux_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to decode tagcert %s", err)
+		}
+		tagCertificate, err := x509.ParseCertificate(pemBlock.Bytes)
+		if err != nil {
+			fmt.Printf("flavor/util/linux_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to parse tagcert %s", err)
+		}
 
 		if tagCertificate != nil {
 			tagCert, err = model.NewX509AttributeCertificate(tagCertificate)
