@@ -310,26 +310,22 @@ func (builder *ruleBuilderIntelTpm20) getPlatformPcrsFromHardwareMeta() ([]types
 		return nil, errors.New("The flavor's Feature information is not present")
 	}
 
-	if feature.CBNT != nil {
-		if feature.CBNT.Enabled {
-			if feature.CBNT.Meta.Profile == "BTGP5" {
-				pcrs = append(pcrs, types.PCR7)
-			}
+	if feature.CBNT.Enabled {
+		if feature.CBNT.Meta.Profile == "BTGP5" {
+			pcrs = append(pcrs, types.PCR7)
 		}
 	}
 
-	if feature.UEFI != nil && feature.UEFI.Meta.SecureBootEnabled {
-		suefiPcrs := []types.PcrIndex{
-			types.PCR1,
-			types.PCR2,
-			types.PCR3,
-			types.PCR4,
-			types.PCR5,
-			types.PCR6,
-			types.PCR7,
-		}
-		pcrs = append(pcrs, suefiPcrs...)
+	suefiPcrs := []types.PcrIndex{
+		types.PCR1,
+		types.PCR2,
+		types.PCR3,
+		types.PCR4,
+		types.PCR5,
+		types.PCR6,
+		types.PCR7,
 	}
+	pcrs = append(pcrs, suefiPcrs...)
 
 	return pcrs, nil
 }

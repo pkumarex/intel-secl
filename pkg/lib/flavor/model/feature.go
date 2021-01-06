@@ -15,13 +15,10 @@ type AES_NI struct {
 }
 
 // TPM
-type TPM struct {
-	HardwareFeature
-	Version  string   `json:"version,omitempty"`
-	PcrBanks []string `json:"pcr_banks,omitempty"`
+type HardwareFeature struct {
+	Enabled bool `json:"enabled,string"`
 }
 
-// CBNT
 type CBNT struct {
 	HardwareFeature
 	Meta struct {
@@ -30,23 +27,28 @@ type CBNT struct {
 	} `json:"meta"`
 }
 
-type HardwareFeature struct {
-	Enabled bool `json:"enabled,string,omitempty"`
+type TPM struct {
+	HardwareFeature
+	Meta struct {
+		TPMVersion string   `json:"tpm_version"`
+		PCRBanks   []string `json:"pcr_banks"`
+	} `json:"meta"`
 }
 
-// UEFI
 type UEFI struct {
 	HardwareFeature
 	Meta struct {
-		SecureBootEnabled bool `json:"secure_boot_enabled,omitempty"`
+		SecureBootEnabled bool `json:"secure_boot_enabled"`
 	} `json:"meta"`
 }
 
 // Feature encapsulates the presence of various Platform security features on the Host hardware
 type Feature struct {
-	AES_NI *AES_NI          `json:"AES_NI,omitempty"`
-	TXT    *HardwareFeature `json:"TXT,omitempty"`
-	TPM    *TPM             `json:"TPM,omitempty"`
-	CBNT   *CBNT            `json:"CBNT,omitempty"`
-	UEFI   *UEFI            `json:"SUEFI,omitempty"`
+	AES_NI *AES_NI         `json:"AES_NI,omitempty"`
+	TXT    HardwareFeature `json:"TXT"`
+	TPM    TPM             `json:"TPM"`
+	CBNT   CBNT            `json:"CBNT"`
+	UEFI   UEFI            `json:"UEFI"`
+	PFR    HardwareFeature `json:"PFR"`
+	BMC    HardwareFeature `json:"BMC"`
 }

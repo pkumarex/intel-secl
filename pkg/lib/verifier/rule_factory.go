@@ -129,7 +129,7 @@ func (factory *ruleFactory) getRuleBuilder() (ruleBuilder, error) {
 			return nil, errors.Wrap(err, "There was an error creating the Intel rule builder")
 		}
 	case constants.VendorVMware:
-		tpmVersionString := factory.signedFlavor.Flavor.Hardware.Feature.TPM.Version
+		tpmVersionString := factory.signedFlavor.Flavor.Hardware.Feature.TPM.Meta.TPMVersion
 		if len(tpmVersionString) == 0 {
 			tpmVersionString = factory.hostManifest.HostInfo.HardwareFeatures.TPM.Meta.TPMVersion
 		}
