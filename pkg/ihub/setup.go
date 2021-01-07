@@ -154,8 +154,9 @@ func (app *App) setupTaskRunner() (*setup.Runner, error) {
 	})
 
 	runner.AddTask("download-saml-cert", "", &tasks.DownloadSamlCert{
-		Config:       app.Config,
-		SamlCertPath: constants.SamlCertFilePath,
+		AttestationConfig: &app.Config.AttestationService,
+		SamlCertPath:      constants.SamlCertFilePath,
+		ConsoleWriter:     app.consoleWriter(),
 	})
 
 	return runner, nil
