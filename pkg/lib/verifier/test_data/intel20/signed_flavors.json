@@ -22,10 +22,10 @@
                 "processor_info": "54 06 05 00 FF FB EB BF",
                 "feature": {
                     "txt": {
-                        "enabled": true
+                        "enabled": "true"
                     },
                     "tpm": {
-                        "enabled": true,
+                        "enabled": "true",
                         "version": "2.0",
                         "pcr_banks": [
                             "SHA1",
