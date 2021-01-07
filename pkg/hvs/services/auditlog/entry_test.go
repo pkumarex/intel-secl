@@ -6,6 +6,7 @@
 package auditlog
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 
 	"github.com/google/uuid"
@@ -15,46 +16,75 @@ import (
 )
 
 func TestStructDiff(t *testing.T) {
-	idNoChange := uuid.New()
+	idNoChange, err := uuid.NewRandom()
+	assert.NoError(t, err)
+	hostId, err := uuid.NewRandom()
+	assert.NoError(t, err)
+	policyId, err := uuid.NewRandom()
+	assert.NoError(t, err)
+	aikId, err := uuid.NewRandom()
+	assert.NoError(t, err)
+	bkId, err := uuid.NewRandom()
+	assert.NoError(t, err)
 	rx := &models.HVSReport{
 		ID:     idNoChange,
-		HostID: uuid.New(),
+		HostID: hostId,
 		TrustReport: hvs.TrustReport{
-			PolicyName: uuid.New().String(),
+			PolicyName: policyId.String(),
 			HostManifest: types.HostManifest{
-				AIKCertificate:        uuid.New().String(),
-				BindingKeyCertificate: uuid.New().String(),
+				AIKCertificate:        aikId.String(),
+				BindingKeyCertificate: bkId.String(),
 			},
 		},
 	}
+	hostId, err = uuid.NewRandom()
+	assert.NoError(t, err)
+	policyId, err = uuid.NewRandom()
+	assert.NoError(t, err)
+	aikId, err = uuid.NewRandom()
+	assert.NoError(t, err)
+	bkId, err = uuid.NewRandom()
+	assert.NoError(t, err)
 	ry := &models.HVSReport{
 		ID:     idNoChange,
-		HostID: uuid.New(),
+		HostID: hostId,
 		TrustReport: hvs.TrustReport{
-			PolicyName: uuid.New().String(),
+			PolicyName: policyId.String(),
 			HostManifest: types.HostManifest{
-				AIKCertificate:        uuid.New().String(),
-				BindingKeyCertificate: uuid.New().String(),
+				AIKCertificate:        aikId.String(),
+				BindingKeyCertificate: bkId.String(),
 			},
 		},
 	}
+	newId, err := uuid.NewRandom()
+	assert.NoError(t, err)
+	aikId, err = uuid.NewRandom()
+	assert.NoError(t, err)
+	bkId, err = uuid.NewRandom()
+	assert.NoError(t, err)
 	hssx := &hvs.HostStatus{
-		ID:     uuid.New(),
+		ID:     newId,
 		HostID: idNoChange,
 		HostManifest: types.HostManifest{
-			AIKCertificate:        uuid.New().String(),
-			BindingKeyCertificate: uuid.New().String(),
+			AIKCertificate:        aikId.String(),
+			BindingKeyCertificate: bkId.String(),
 		},
 		HostStatusInformation: hvs.HostStatusInformation{
 			HostState: hvs.HostStateInvalid,
 		},
 	}
+	newId, err = uuid.NewRandom()
+	assert.NoError(t, err)
+	aikId, err = uuid.NewRandom()
+	assert.NoError(t, err)
+	bkId, err = uuid.NewRandom()
+	assert.NoError(t, err)
 	hssy := &hvs.HostStatus{
-		ID:     uuid.New(),
+		ID:     newId,
 		HostID: idNoChange,
 		HostManifest: types.HostManifest{
-			AIKCertificate:        uuid.New().String(),
-			BindingKeyCertificate: uuid.New().String(),
+			AIKCertificate:        aikId.String(),
+			BindingKeyCertificate: bkId.String(),
 		},
 		HostStatusInformation: hvs.HostStatusInformation{
 			HostState: hvs.HostStateInvalid,

@@ -51,22 +51,22 @@ func (rule *pcrEventLogIncludes) Apply(hostManifest *types.HostManifest) (*hvs.R
 		if err != nil {
 			return nil, err
 		}
-	
+
 		if actualEventLog == nil {
 			result.Faults = append(result.Faults, newPcrEventLogMissingFault(rule.expectedEventLogEntry.PcrIndex))
 		} else {
 			// subtract the 'actual' event log measurements from 'expected'.
 			// if there are any left in 'expected', then 'actual' did not include all entries
-	
+
 			missingEvents, err := rule.expectedEventLogEntry.Subtract(actualEventLog)
 			if err != nil {
 				return nil, errors.Wrap(err, "Error subtracting event logs in pcr eventlog includes rule.")
 			}
-	
+
 			if len(missingEvents.EventLogs) > 0 {
 				result.Faults = append(result.Faults, newPcrEventLogMissingExpectedEntries(missingEvents))
 			}
-		}	
+		}
 	}
 
 	return &result, nil

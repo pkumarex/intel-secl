@@ -82,7 +82,7 @@ func ValidateCertificateRequest(conf *config.Configuration, csr *x509.Certificat
 						}
 					}
 					if isSanPresentInToken {
-						log.Debugf("validation/validate_CSR:ValidateCertificateRequest() San list requested in CSR is part of Token is valid", )
+						log.Debugf("validation/validate_CSR:ValidateCertificateRequest() San list requested in CSR is part of Token is valid")
 						return nil
 					}
 				}

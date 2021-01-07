@@ -16,7 +16,7 @@ import (
 	commLogMsg "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log/message"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/pkg/errors"
-        "github.com/spf13/viper"
+	"github.com/spf13/viper"
 	"net/http"
 )
 
@@ -183,7 +183,7 @@ func ReadCertificates(certType string, certStore *models.CertificatesStore) (*hv
 		return nil, errors.Errorf("%s Certificates have not been loaded", certType)
 	}
 	for _, cert := range cs.Certificates {
-		certificate := hvs.CaCertificate {
+		certificate := hvs.CaCertificate{
 			Name:        cert.Subject.CommonName,
 			Certificate: cert.Raw,
 		}
@@ -203,7 +203,7 @@ func ReadCertificate(certType string, certStore *models.CertificatesStore) (*hvs
 			"'%s' certificates"+certType)
 	}
 
-        if len(certCollection.CaCerts) > 0 {
+	if len(certCollection.CaCerts) > 0 {
 		if certType == models.CaCertTypesEndorsementCa.String() {
 			cert, err := certStore.RetrieveCertificate(certType, viper.GetString("endorsement-ca-common-name"))
 			if err != nil || cert == nil {
@@ -212,7 +212,7 @@ func ReadCertificate(certType string, certStore *models.CertificatesStore) (*hvs
 			}
 			hvsCert := hvs.CaCertificate{
 				Name:        cert.Subject.CommonName,
-                                Type:        models.CaCertTypesEndorsementCa.String(),
+				Type:        models.CaCertTypesEndorsementCa.String(),
 				Certificate: cert.Raw,
 			}
 			return &hvsCert, nil

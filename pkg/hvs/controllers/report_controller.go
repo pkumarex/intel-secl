@@ -146,7 +146,7 @@ func (controller ReportController) CreateSaml(w http.ResponseWriter, r *http.Req
 	hvsReport, err := controller.createReport(reqReportCreateRequest)
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/report_controller:CreateSaml() Error while creating SAML report")
-		return nil, http.StatusBadRequest, &commErr.ResourceError{Message:  err.Error()}
+		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: err.Error()}
 	}
 	if hvsReport == nil {
 		defaultLog.WithError(err).Error("controllers/report_controller:CreateSaml() The report was not created")

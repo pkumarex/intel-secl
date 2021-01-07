@@ -19,32 +19,61 @@ func TestRootCACertCreation(t *testing.T) {
 	log.Trace("tasks/rootca_test:TestRootCACertCreation() Entering")
 	defer log.Trace("tasks/rootca_test:TestRootCACertCreation() Leaving")
 
-	assert := assert.New(t)
+	assertions := assert.New(t)
 	CreateSerialNumberFileAndJWTDir()
 
-	temp, _ := ioutil.TempFile("", "config.yml")
-	temp.WriteString("keyalgorithm: rsa\nkeyalgorithmlength: 3072\n")
-	defer os.Remove(temp.Name())
-	c, _ := config.Load()
+	temp, err := ioutil.TempFile("", "config.yml")
+	if err != nil {
+		log.WithError(err).Error("tasks/rootca_test:TestRootCACertCreation() Error creating temp file")
+	}
+	_, err = temp.WriteString("keyalgorithm: rsa\nkeyalgorithmlength: 3072\n")
+	if err != nil {
+		log.WithError(err).Error("tasks/rootca_test:TestRootCACertCreation() Error writing to file")
+	}
+	defer func() {
+		derr := os.Remove(temp.Name())
+		if derr != nil {
+			log.WithError(derr).Error("Error removing temporary file")
+		}
+	}()
+	c, err := config.Load()
+	if err != nil {
+		log.WithError(err).Error("tasks/rootca_test:TestRootCACertCreation() Error loading config")
+	}
 
 	_, certData, err := createRootCACert(&c.CACert)
-	assert.NoError(err)
+	assertions.NoError(err)
 	cert, err := x509.ParseCertificate(certData)
-	assert.NoError(err)
-	assert.True(cert.IsCA)
+	assertions.NoError(err)
+	assertions.True(cert.IsCA)
 }
 
 func TestRootCASetupTaskRun(t *testing.T) {
 	log.Trace("tasks/rootca_test:TestRootCASetupTaskRun() Entering")
 	defer log.Trace("tasks/rootca_test:TestRootCASetupTaskRun() Leaving")
 
-	assert := assert.New(t)
+	assertions := assert.New(t)
 	CreateSerialNumberFileAndJWTDir()
 
-	temp, _ := ioutil.TempFile("", "config.yml")
-	temp.WriteString("keyalgorithm: rsa\nkeyalgorithmlength: 3072\n")
-	defer os.Remove(temp.Name())
-	c, _ := config.Load()
+	temp, err := ioutil.TempFile("", "config.yml")
+	if err != nil {
+		log.WithError(err).Error("tasks/rootca_test:TestRootCASetupTaskRun() Error creating temp file")
+	}
+
+	_, err = temp.WriteString("keyalgorithm: rsa\nkeyalgorithmlength: 3072\n")
+	if err != nil {
+		log.WithError(err).Error("tasks/rootca_test:TestRootCASetupTaskRun() Error writing to file")
+	}
+	defer func() {
+		derr := os.Remove(temp.Name())
+		if derr != nil {
+			log.WithError(derr).Error("Error removing temporary file")
+		}
+	}()
+	c, err := config.Load()
+	if err != nil {
+		log.WithError(err).Error("tasks/rootca_test:TestRootCASetupTaskRun() Error loading config")
+	}
 
 	ca := RootCa{
 		ConsoleWriter:   os.Stdout,
@@ -52,6 +81,6 @@ func TestRootCASetupTaskRun(t *testing.T) {
 		CACertConfig:    c.CACert,
 	}
 
-	err := ca.Run()
-	assert.NoError(err)
+	err = ca.Run()
+	assertions.NoError(err)
 }

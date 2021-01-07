@@ -37,7 +37,7 @@ func (controller TpmEndorsementController) Create(w http.ResponseWriter, r *http
 	defaultLog.Trace("controllers/tpm_endorsement_controller:Create() Entering")
 	defer defaultLog.Trace("controllers/tpm_endorsement_controller:Create() Leaving")
 
-	if r.Header.Get("Content-Type") != constants.HTTPMediaTypeJson{
+	if r.Header.Get("Content-Type") != constants.HTTPMediaTypeJson {
 		return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: "Invalid Content-Type"}
 	}
 
@@ -106,7 +106,7 @@ func (controller TpmEndorsementController) Update(w http.ResponseWriter, r *http
 	defaultLog.Trace("controllers/tpm_endorsement_controller:Update() Entering")
 	defer defaultLog.Trace("controllers/tpm_endorsement_controller:Update() Leaving")
 
-	if r.Header.Get("Content-Type") != constants.HTTPMediaTypeJson{
+	if r.Header.Get("Content-Type") != constants.HTTPMediaTypeJson {
 		return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: "Invalid Content-Type"}
 	}
 
@@ -347,7 +347,7 @@ func getAndValidateFilterCriteria(params url.Values) (*models.TpmEndorsementFilt
 	if revokedEqualTo != "" {
 		if revoked, err := strconv.ParseBool(revokedEqualTo); err != nil {
 			return nil, errors.Wrap(err, "Valid contents for RevokedEqualTo must be specified")
-		}else {
+		} else {
 			criteria.RevokedEqualTo = revoked
 		}
 	}

@@ -21,6 +21,9 @@ func (v VersionController) GetVersion() http.HandlerFunc {
 		verStr := fmt.Sprintf("%s-%s", version.Version, version.GitHash)
 		log.Debugf("resource/version:getVersion() CMS version : %v", verStr)
 		w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
-		w.Write([]byte(verStr))
+		_, err := w.Write([]byte(verStr))
+		if err != nil {
+			log.WithError(err).Error("Could not write version to response")
+		}
 	}
 }

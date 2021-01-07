@@ -205,8 +205,14 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 
 		tagCertificate := hvs.TagCertificate{}
 		var tagX509Certificate *x509.Certificate
+
+		hardwareUUID, err := uuid.Parse(hostManifest.HostInfo.HardwareUUID)
+		if err != nil {
+			defaultLog.Errorf("controllers/flavor_controller: Failed to parse hardware UUID %s", hostManifest.HostInfo.HardwareUUID)
+			return nil, errors.Wrapf(err, "Failed to parse hardware UUID %s", hostManifest.HostInfo.HardwareUUID)
+		}
 		tcFilterCriteria := dm.TagCertificateFilterCriteria{
-			HardwareUUID: uuid.MustParse(hostManifest.HostInfo.HardwareUUID),
+			HardwareUUID: hardwareUUID,
 		}
 		tagCertificates, err := fcon.TCStore.Search(&tcFilterCriteria)
 		if err != nil {
@@ -248,7 +254,6 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 		// create flavors from flavor content
 		// TODO: currently checking only the unsigned flavors
 		for _, flavor := range flavorReq.FlavorCollection.Flavors {
-			// TODO : check if BIOS flavor part name is still accepted, if it is update the flavorpart to PLATFORM
 			defaultLog.Debug("Validating flavor meta content for flavor part")
 			if err := validateFlavorMetaContent(&flavor.Flavor.Meta); err != nil {
 				defaultLog.Error("controllers/flavor_controller:createFlavors() Valid flavor content must be given, invalid flavor meta data")
@@ -792,7 +797,7 @@ func (fcon *FlavorController) Retrieve(w http.ResponseWriter, r *http.Request) (
 	defer defaultLog.Trace("controllers/flavor_controller:Retrieve() Leaving")
 
 	id := uuid.MustParse(mux.Vars(r)["id"])
-	flavor, err := fcon.FStore.Retrieve(id)
+	signedFlavor, err := fcon.FStore.Retrieve(id)
 	if err != nil {
 		if strings.Contains(err.Error(), commErr.RowsNotFound) {
 			flavor, err := fcon.FStore.Retrieve(id)
@@ -808,7 +813,7 @@ func (fcon *FlavorController) Retrieve(w http.ResponseWriter, r *http.Request) (
 			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to retrieve Flavor with the given ID"}
 		}
 	}
-	return flavor, http.StatusOK, nil
+	return signedFlavor, http.StatusOK, nil
 }
 
 func (fcon *FlavorController) RetrieveEsxiFlavor(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {

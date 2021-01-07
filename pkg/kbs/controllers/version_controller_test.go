@@ -5,7 +5,7 @@
 package controllers_test
 
 import (
-	"encoding/json"
+	kbsRoutes "github.com/intel-secl/intel-secl/v3/pkg/kbs/router"
 	"net/http"
 	"net/http/httptest"
 
@@ -28,7 +28,7 @@ var _ = Describe("VersionController", func() {
 	Describe("Get Version", func() {
 		Context("Get version details", func() {
 			It("Should return version", func() {
-				router.Handle("/version", versionController.GetVersion()).Methods("GET")
+				router.Handle("/version", kbsRoutes.ErrorHandler(kbsRoutes.ResponseHandler(versionController.GetVersion))).Methods("GET")
 				req, err := http.NewRequest("GET", "/version", nil)
 				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
@@ -36,8 +36,8 @@ var _ = Describe("VersionController", func() {
 				Expect(w.Code).To(Equal(200))
 
 				var version string
-				json.Unmarshal(w.Body.Bytes(), &version)
-				Expect(version).To(Equal(""))
+				version = string(w.Body.Bytes())
+				Expect(version).NotTo(Equal(""))
 			})
 		})
 	})

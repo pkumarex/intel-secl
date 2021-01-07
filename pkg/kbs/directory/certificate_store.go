@@ -36,8 +36,12 @@ func (cs *CertificateStore) Create(certificate *kbs.Certificate) (*kbs.Certifica
 	defaultLog.Trace("directory/certificate_store:Create() Entering")
 	defer defaultLog.Trace("directory/certificate_store:Create() Leaving")
 
-	certificate.ID = uuid.New()
-	err := ioutil.WriteFile(filepath.Join(cs.dir, certificate.ID.String()), certificate.Certificate, 0644)
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "directory/certificate_store:Create() failed to create new UUID")
+	}
+	certificate.ID = newUuid
+	err = ioutil.WriteFile(filepath.Join(cs.dir, certificate.ID.String()), certificate.Certificate, 0644)
 	if err != nil {
 		return nil, errors.Wrap(err, "directory/certificate_store:Create() Failed to store certificate")
 	}
@@ -104,9 +108,13 @@ func (cs *CertificateStore) Search(criteria *models.CertificateFilterCriteria) (
 	}
 
 	for _, certFile := range certFiles {
-		certificate, err := cs.Retrieve(uuid.MustParse(certFile.Name()))
+		filename, err := uuid.Parse(certFile.Name())
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "directory/certificate_store:Search() Error in parsing certificate file name : %s", certFile.Name())
+		}
+		certificate, err := cs.Retrieve(filename)
+		if err != nil {
+			return nil, errors.Wrapf(err, "directory/certificate_store:Search() Error in retrieving certificate from file : %s", certFile.Name())
 		}
 
 		certificates = append(certificates, *certificate)

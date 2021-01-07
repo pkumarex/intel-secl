@@ -11,7 +11,7 @@ import (
 )
 
 //-------------------------------------------------------------------------------------------------
-// Mocked Client Factory:  Assumes that unit tests will populate the factory with mocked 
+// Mocked Client Factory:  Assumes that unit tests will populate the factory with mocked
 // implementations of the clients as needed.
 //-------------------------------------------------------------------------------------------------
 type MockedVSClientFactory struct {

@@ -11,12 +11,12 @@ import (
 )
 
 const (
-	sampleValidSamlCertPath   = "test/resources/saml_certificate.pem"
-	sampleValidSamlReportPath = "test/resources/saml_report.xml"
-	sampleInvalidSamlReportPath = "test/resources/invalid_saml_report.xml"
+	sampleValidSamlCertPath         = "test/resources/saml_certificate.pem"
+	sampleValidSamlReportPath       = "test/resources/saml_report.xml"
+	sampleInvalidSamlReportPath     = "test/resources/invalid_saml_report.xml"
 	sampleInvalidSamlWithoutSigPath = "test/resources/invalid_saml_without_sig.xml"
-	sampleInvalidSamlCertPath = "test/resources/invalid_samlCert.pem"
-	sampleRootCertDirPath = "test/resources/trustedCACert"
+	sampleInvalidSamlCertPath       = "test/resources/invalid_samlCert.pem"
+	sampleRootCertDirPath           = "test/resources/trustedCACert"
 )
 
 func TestSAMLSignatureVerification(t *testing.T) {

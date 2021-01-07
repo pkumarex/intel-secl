@@ -22,7 +22,7 @@ func NewPcrEventLogIntegrity(expectedPcr *types.Pcr, marker common.FlavorPart) (
 
 	rule := pcrEventLogIntegrity{
 		expectedPcr: expectedPcr,
-		marker: marker,
+		marker:      marker,
 	}
 	return &rule, nil
 }
@@ -34,9 +34,9 @@ type pcrEventLogIntegrity struct {
 
 // - If the hostmanifest's PcrManifest is not present, create PcrManifestMissing fault.
 // - If the hostmanifest does not contain a pcr at 'expected' bank/index, create a PcrValueMissing fault.
-// - If the hostmanifest does not have an event log at 'expected' bank/index, create a 
+// - If the hostmanifest does not have an event log at 'expected' bank/index, create a
 //   PcrEventLogMissing fault.
-// - Otherwise, replay the hostmanifest's event log at 'expected' bank/index and verify the 
+// - Otherwise, replay the hostmanifest's event log at 'expected' bank/index and verify the
 //   the calculated hash matches the pcr value in the host-manifest.  If not, crete a PcrEventLogInvalid fault.
 func (rule *pcrEventLogIntegrity) Apply(hostManifest *types.HostManifest) (*hvs.RuleResult, error) {
 
@@ -62,7 +62,7 @@ func (rule *pcrEventLogIntegrity) Apply(hostManifest *types.HostManifest) (*hvs.
 			if err != nil {
 				return nil, err
 			}
-		
+
 			if actualEventLog == nil {
 				result.Faults = append(result.Faults, newPcrEventLogMissingFault(rule.expectedPcr.Index))
 			} else {

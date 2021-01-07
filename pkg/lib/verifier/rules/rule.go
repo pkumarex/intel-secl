@@ -5,9 +5,9 @@
 package rules
 
 import (
+	commLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
-	commLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
 )
 
 // This is the interface that a rule must implement to perform

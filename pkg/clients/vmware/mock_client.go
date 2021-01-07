@@ -32,8 +32,7 @@ func (vm *MockVMWareClient) GetTPMAttestationReport() (*types.QueryTpmAttestatio
 	return args.Get(0).(*types.QueryTpmAttestationReportResponse), args.Error(1)
 }
 
-func (vm *MockVMWareClient) GetVmwareClusterReference (string) ([]mo.HostSystem, error) {
+func (vm *MockVMWareClient) GetVmwareClusterReference(string) ([]mo.HostSystem, error) {
 	args := vm.Called()
 	return args.Get(0).([]mo.HostSystem), args.Error(1)
 }
-

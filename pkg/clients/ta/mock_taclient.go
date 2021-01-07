@@ -7,8 +7,8 @@ package ta
 //go:generate mockgen -destination=mock_taclient.go -package=ta github.com/intel-secl/intel-secl/v3/pkg/lib/clients/ta TAClient
 
 import (
-	"github.com/stretchr/testify/mock"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
+	"github.com/stretchr/testify/mock"
 	"net/url"
 )
 
@@ -56,7 +56,7 @@ func (ta *MockTAClient) GetMeasurementFromManifest(manifest taModel.Manifest) (t
 	return args.Get(0).(taModel.Measurement), args.Error(1)
 }
 
-func (ta *MockTAClient) GetBaseURL() (*url.URL) {
+func (ta *MockTAClient) GetBaseURL() *url.URL {
 	args := ta.Called()
 	return args.Get(0).(*url.URL)
 }

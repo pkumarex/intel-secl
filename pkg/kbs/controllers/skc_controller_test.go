@@ -91,7 +91,7 @@ var _ = Describe("SKCKeyTransferController", func() {
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
 			})
-			It("Should transfer an existing Key", func() {
+			It("Should fail to transfer an existing Key", func() {
 				router.Handle("/keys/{id}/dhsm2-transfer", kbsRoutes.ErrorHandler(kbsRoutes.JsonResponseHandler(skcController.TransferApplicationKey))).Methods("GET")
 				req, err := http.NewRequest("GET", "/keys/ee37c360-7eae-4250-a677-6ee12adce8e2/dhsm2-transfer", nil)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
@@ -101,7 +101,7 @@ var _ = Describe("SKCKeyTransferController", func() {
 				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
-				Expect(w.Code).To(Equal(http.StatusNotFound))
+				Expect(w.Code).To(Equal(http.StatusInternalServerError))
 			})
 		})
 		Context("Provide a Transfer request without Accept-Challenge Header", func() {

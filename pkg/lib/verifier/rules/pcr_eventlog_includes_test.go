@@ -19,11 +19,11 @@ func TestPcrEventLogIncludesNoFault(t *testing.T) {
 
 	hostManifest := types.HostManifest{
 		PcrManifest: types.PcrManifest{
-			Sha256Pcrs : []types.Pcr {
+			Sha256Pcrs: []types.Pcr{
 				{
-					Index: 0,
-					Value: PCR_VALID_256,
-					PcrBank:  types.SHA256,
+					Index:   0,
+					Value:   PCR_VALID_256,
+					PcrBank: types.SHA256,
 				},
 			},
 		},
@@ -40,43 +40,43 @@ func TestPcrEventLogIncludesNoFault(t *testing.T) {
 }
 
 // Create an event log for the rule with two measurements and only provide
-// one to the host manifest.  Expect a 'FaultPcrEventlogMissingExpectedEntries' 
+// one to the host manifest.  Expect a 'FaultPcrEventlogMissingExpectedEntries'
 // fault.
 func TestPcrEventLogIncludesMissingMeasurement(t *testing.T) {
 
-	flavorEvents := types.EventLogEntry {
+	flavorEvents := types.EventLogEntry{
 		PcrIndex: types.PCR0,
-		PcrBank: types.SHA256,
-		EventLogs: []types.EventLog {
+		PcrBank:  types.SHA256,
+		EventLogs: []types.EventLog{
 			{
 				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value: zeros,
+				Value:      zeros,
 			},
 			{
 				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value: ones,
+				Value:      ones,
 			},
 		},
 	}
 
-	hostEvents := types.EventLogEntry {
+	hostEvents := types.EventLogEntry{
 		PcrIndex: types.PCR0,
-		PcrBank: types.SHA256,
-		EventLogs: []types.EventLog {
+		PcrBank:  types.SHA256,
+		EventLogs: []types.EventLog{
 			{
 				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value: zeros,
+				Value:      zeros,
 			},
 		},
 	}
 
 	hostManifest := types.HostManifest{
 		PcrManifest: types.PcrManifest{
-			Sha256Pcrs : []types.Pcr {
+			Sha256Pcrs: []types.Pcr{
 				{
-					Index: 0,
-					Value: PCR_VALID_256,
-					PcrBank:  types.SHA256,
+					Index:   0,
+					Value:   PCR_VALID_256,
+					PcrBank: types.SHA256,
 				},
 			},
 		},
@@ -102,36 +102,36 @@ func TestPcrEventLogIncludesMissingMeasurement(t *testing.T) {
 // fault.
 func TestPcrEventLogIncludesDifferentMeasurement(t *testing.T) {
 
-	flavorEvents := types.EventLogEntry {
+	flavorEvents := types.EventLogEntry{
 		PcrIndex: types.PCR0,
-		PcrBank: types.SHA256,
-		EventLogs: []types.EventLog {
+		PcrBank:  types.SHA256,
+		EventLogs: []types.EventLog{
 			{
 				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value: zeros,
+				Value:      zeros,
 			},
 		},
 	}
 
 	// host manifest has 'ones' for the measurement (not 'zeros')
-	hostEvents := types.EventLogEntry {
+	hostEvents := types.EventLogEntry{
 		PcrIndex: types.PCR0,
-		PcrBank: types.SHA256,
-		EventLogs: []types.EventLog {
+		PcrBank:  types.SHA256,
+		EventLogs: []types.EventLog{
 			{
 				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value: ones,
+				Value:      ones,
 			},
 		},
 	}
 
 	hostManifest := types.HostManifest{
 		PcrManifest: types.PcrManifest{
-			Sha256Pcrs : []types.Pcr {
+			Sha256Pcrs: []types.Pcr{
 				{
-					Index: 0,
-					Value: PCR_VALID_256,
-					PcrBank:  types.SHA256,
+					Index:   0,
+					Value:   PCR_VALID_256,
+					PcrBank: types.SHA256,
 				},
 			},
 		},
@@ -156,36 +156,36 @@ func TestPcrEventLogIncludesDifferentMeasurement(t *testing.T) {
 // in the flavor event log to invoke a 'PcrEventLogMissing' fault.
 func TestPcrEventLogIncludesPcrEventLogMissingFault(t *testing.T) {
 
-	flavorEvents := types.EventLogEntry {
+	flavorEvents := types.EventLogEntry{
 		PcrIndex: types.PCR0,
-		PcrBank: types.SHA256,
-		EventLogs: []types.EventLog {
+		PcrBank:  types.SHA256,
+		EventLogs: []types.EventLog{
 			{
 				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value: zeros,
+				Value:      zeros,
 			},
 		},
 	}
 
 	// Put something in PCR1 (not PCR0) to invoke PcrMissingEventLog fault
-	hostEvents := types.EventLogEntry {
+	hostEvents := types.EventLogEntry{
 		PcrIndex: types.PCR1,
-		PcrBank: types.SHA256,
-		EventLogs: []types.EventLog {
+		PcrBank:  types.SHA256,
+		EventLogs: []types.EventLog{
 			{
 				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value: ones,
+				Value:      ones,
 			},
 		},
 	}
 
 	hostManifest := types.HostManifest{
 		PcrManifest: types.PcrManifest{
-			Sha256Pcrs : []types.Pcr {
+			Sha256Pcrs: []types.Pcr{
 				{
-					Index: 0,
-					Value: PCR_VALID_256,
-					PcrBank:  types.SHA256,
+					Index:   0,
+					Value:   PCR_VALID_256,
+					PcrBank: types.SHA256,
 				},
 			},
 		},
@@ -203,17 +203,17 @@ func TestPcrEventLogIncludesPcrEventLogMissingFault(t *testing.T) {
 	t.Logf("Fault description: %s", result.Faults[0].Description)
 }
 
-// Create a host event log that wihtout an event log to invoke a 
+// Create a host event log that wihtout an event log to invoke a
 // 'PcrEventLogMissing' fault.
 func TestPcrEventLogIncludesNoEventLogInHostManifest(t *testing.T) {
 
-	flavorEvents := types.EventLogEntry {
+	flavorEvents := types.EventLogEntry{
 		PcrIndex: types.PCR0,
-		PcrBank: types.SHA256,
-		EventLogs: []types.EventLog {
+		PcrBank:  types.SHA256,
+		EventLogs: []types.EventLog{
 			{
 				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value: zeros,
+				Value:      zeros,
 			},
 		},
 	}
@@ -221,11 +221,11 @@ func TestPcrEventLogIncludesNoEventLogInHostManifest(t *testing.T) {
 	// Create a HostManifest without any event logs to invoke PcrEventLogMissing fault.
 	hostManifest := types.HostManifest{
 		PcrManifest: types.PcrManifest{
-			Sha256Pcrs : []types.Pcr {
+			Sha256Pcrs: []types.Pcr{
 				{
-					Index: 0,
-					Value: PCR_VALID_256,
-					PcrBank:  types.SHA256,
+					Index:   0,
+					Value:   PCR_VALID_256,
+					PcrBank: types.SHA256,
 				},
 			},
 		},

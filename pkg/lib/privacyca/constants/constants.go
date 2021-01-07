@@ -6,10 +6,10 @@
 package constants
 
 const (
-	TPM2AlgorithmSymmetricAES = "AES"
-	SymmetricKeyBits128       = 128
-	TPM_ALG_AES               = 0x6
-	TPM_ES_NONE               = 0x1
+	TPM2AlgorithmSymmetricAES   = "AES"
+	SymmetricKeyBits128         = 128
+	TPM_ALG_AES                 = 0x6
+	TPM_ES_NONE                 = 0x1
 	SHORT_BYTES                 = 2
 	TPM_ALG_RSA                 = 1
 	TPM_SS_NONE                 = 1
@@ -24,5 +24,5 @@ const (
 	Tpm2NameDigestSuffixPadding = "00000000000000000000000000000000000000000000000000000000000000000000"
 )
 
-var Tpm2CertifiedKeyType  = [2]byte{0x80, 0x17}
+var Tpm2CertifiedKeyType = [2]byte{0x80, 0x17}
 var Tpm2CertifiedKeyMagic = [4]byte{0xff, 0x54, 0x43, 0x47}

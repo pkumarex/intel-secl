@@ -470,7 +470,7 @@ func (controller UsersController) QueryUserPermissions(w http.ResponseWriter, r 
 	userPermissions, err := controller.Database.UserStore().GetPermissions(types.User{ID: id}, roleSearchFilter)
 	if err != nil {
 		defaultLog.WithError(err).WithField("id", id).Error("error while obtaining permissions for user")
-		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Database error : querying user permissions",}
+		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Database error : querying user permissions"}
 	}
 
 	userPermissionsBytes, err := json.Marshal(userPermissions)

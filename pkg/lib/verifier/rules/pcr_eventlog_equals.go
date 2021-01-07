@@ -13,9 +13,9 @@ import (
 )
 
 var (
-	// This is a map of component names to remove the host manifest's list of events.  The 
+	// This is a map of component names to remove the host manifest's list of events.  The
 	// map value (int) is not relevant, just use the map key for efficient lookups.
-	defaultExcludeComponents = map[string]int {
+	defaultExcludeComponents = map[string]int{
 		"commandLine.":              0,
 		"LCP_CONTROL_HASH":          0,
 		"initrd":                    0,
@@ -25,17 +25,17 @@ var (
 	}
 
 	// map of 'labels' to exclude during the evaluation of the host manifest
-	defaultExcludeLabels = map[string]int {
+	defaultExcludeLabels = map[string]int{
 		"0x4fe": 0,
 	}
 )
 
-// This rule implements both PcrEventLogEquals and PcrEventLogEqualsExcluding.  Only 
+// This rule implements both PcrEventLogEquals and PcrEventLogEqualsExcluding.  Only
 // the 'new' functions are different, populating the rule name and 'excludes'.
 
 func NewPcrEventLogEquals(expectedEventLogEntry *types.EventLogEntry, flavorID uuid.UUID, marker common.FlavorPart) (Rule, error) {
 
-	// create the rule without the defaultExcludeComponents/labels so that all 
+	// create the rule without the defaultExcludeComponents/labels so that all
 	// events are evaluated (i.e. no 'excludes').
 	rule := pcrEventLogEquals{
 		expectedEventLogEntry: expectedEventLogEntry,
@@ -46,7 +46,6 @@ func NewPcrEventLogEquals(expectedEventLogEntry *types.EventLogEntry, flavorID u
 
 	return &rule, nil
 }
-
 
 func NewPcrEventLogEqualsExcluding(expectedEventLogEntry *types.EventLogEntry, expectedPcr *types.Pcr, flavorID uuid.UUID, marker common.FlavorPart) (Rule, error) {
 
@@ -77,10 +76,10 @@ type pcrEventLogEquals struct {
 
 // - If the PcrManifest is not present in the host manifest, raise PcrEventLogMissing fault.
 // - If the PcrManifest's event log is not present in the host manifest, raise PcrEventLogMissing fault.
-// - Otherwise, strip out pre-defined events from the host manifest's event log (when 'excludes' are 
-//   present) and then subtract 'expected' from 'actual'. If the results are not empty, raise a 
-//   PcrEventLogContainsUnexpectedEntries fault.  
-// - Also report the missing events by subtracting 'actual' from 'expected' and raising a 
+// - Otherwise, strip out pre-defined events from the host manifest's event log (when 'excludes' are
+//   present) and then subtract 'expected' from 'actual'. If the results are not empty, raise a
+//   PcrEventLogContainsUnexpectedEntries fault.
+// - Also report the missing events by subtracting 'actual' from 'expected' and raising a
 //   PcrEventLogMissingExpectedEntries fault.
 func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.RuleResult, error) {
 
@@ -89,7 +88,7 @@ func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.Rul
 	result.Rule.Name = rule.ruleName
 	result.Rule.ExpectedPcr = rule.expectedPcr
 	result.Rule.ExpectedEventLogEntry = rule.expectedEventLogEntry
-	result.Rule.Markers = append(result.Rule.Markers, rule.marker)	
+	result.Rule.Markers = append(result.Rule.Markers, rule.marker)
 
 	if hostManifest.PcrManifest.IsEmpty() {
 		result.Faults = append(result.Faults, newPcrManifestMissingFault())
@@ -101,7 +100,7 @@ func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.Rul
 		}
 
 		if actualEventLog == nil {
-			result.Faults  = append(result.Faults , newPcrEventLogMissingFault(rule.expectedEventLogEntry.PcrIndex))
+			result.Faults = append(result.Faults, newPcrEventLogMissingFault(rule.expectedEventLogEntry.PcrIndex))
 		} else {
 
 			// when component excludes are present, strip out the events with the component names
@@ -128,7 +127,7 @@ func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.Rul
 
 			// if there are any remaining events, then there were unexpected entries...
 			if len(unexpectedEventLogs.EventLogs) > 0 {
-				result.Faults  = append(result.Faults , newPcrEventLogContainsUnexpectedEntries(unexpectedEventLogs))
+				result.Faults = append(result.Faults, newPcrEventLogContainsUnexpectedEntries(unexpectedEventLogs))
 			}
 
 			// now, look the other way -- find events that are in actual but not expected (i.e. missing)
@@ -138,7 +137,7 @@ func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.Rul
 			}
 
 			if len(missingEventLogs.EventLogs) > 0 {
-				result.Faults  = append(result.Faults , newPcrEventLogMissingExpectedEntries(missingEventLogs))
+				result.Faults = append(result.Faults, newPcrEventLogMissingExpectedEntries(missingEventLogs))
 			}
 		}
 	}
@@ -146,7 +145,7 @@ func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.Rul
 	return &result, nil
 }
 
-// Creates a new EventLogEntry without events where the EventLog.Info["ComponentName"] 
+// Creates a new EventLogEntry without events where the EventLog.Info["ComponentName"]
 // is in 'componentNamesToExclude'
 func (rule *pcrEventLogEquals) removeExcludedEvents(eventLogEntry *types.EventLogEntry) (*types.EventLogEntry, error) {
 
@@ -155,7 +154,7 @@ func (rule *pcrEventLogEquals) removeExcludedEvents(eventLogEntry *types.EventLo
 	// Loop through the each eventlog and see if it contains a ComponentName key/value.
 	// If it does, see if the ComponentName exists in the 'componentNamesToExclude' map,
 	// and if so, do not add it to the results eventlog.
-	for _, eventLog := range(eventLogEntry.EventLogs) {
+	for _, eventLog := range eventLogEntry.EventLogs {
 		if componentName, ok := eventLog.Info["ComponentName"]; ok {
 			if _, ok := rule.excludeComponents[componentName]; ok {
 				log.Debugf("Excluding the evaluation of event log '%s' with component name '%s'", eventLog.Label, componentName)
@@ -165,7 +164,7 @@ func (rule *pcrEventLogEquals) removeExcludedEvents(eventLogEntry *types.EventLo
 
 		// Also, do not add event logs where the PackageName and PackageVendor are present
 		// but empty (ex. {"Packagename":""}).
-		if packageName, ok := eventLog.Info["PackageName"];ok  && len(packageName) == 0 {
+		if packageName, ok := eventLog.Info["PackageName"]; ok && len(packageName) == 0 {
 			if packageVendor, ok := eventLog.Info["PackageVendor"]; ok && len(packageVendor) == 0 {
 				log.Debugf("Excluding the evaluation of event log '%s' with empty package name and vendor", eventLog.Label)
 				continue
@@ -175,9 +174,9 @@ func (rule *pcrEventLogEquals) removeExcludedEvents(eventLogEntry *types.EventLo
 		eventsWithoutComponentName = append(eventsWithoutComponentName, eventLog)
 	}
 
-	return &types.EventLogEntry {
-		PcrIndex: eventLogEntry.PcrIndex,
-		PcrBank: eventLogEntry.PcrBank,
+	return &types.EventLogEntry{
+		PcrIndex:  eventLogEntry.PcrIndex,
+		PcrBank:   eventLogEntry.PcrBank,
 		EventLogs: eventsWithoutComponentName,
 	}, nil
 }
@@ -187,7 +186,7 @@ func (rule *pcrEventLogEquals) removeEventsWithLabel(eventLogEntry *types.EventL
 
 	var eventsWithoutLabel []types.EventLog
 
-	for _, eventLog := range(eventLogEntry.EventLogs) {
+	for _, eventLog := range eventLogEntry.EventLogs {
 		if _, ok := rule.excludeLabels[eventLog.Label]; ok {
 			log.Debugf("Excluding the evaluation of event log with label '%s'", eventLog.Label)
 			continue
@@ -196,9 +195,9 @@ func (rule *pcrEventLogEquals) removeEventsWithLabel(eventLogEntry *types.EventL
 		eventsWithoutLabel = append(eventsWithoutLabel, eventLog)
 	}
 
-	return &types.EventLogEntry {
-		PcrIndex: eventLogEntry.PcrIndex,
-		PcrBank: eventLogEntry.PcrBank,
+	return &types.EventLogEntry{
+		PcrIndex:  eventLogEntry.PcrIndex,
+		PcrBank:   eventLogEntry.PcrBank,
 		EventLogs: eventsWithoutLabel,
 	}, nil
 }

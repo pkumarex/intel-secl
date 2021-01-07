@@ -91,7 +91,10 @@ func NewTokenAuth(signingCertsDir, trustedCAsDir string, fnGetJwtCerts RetriveJw
 				if err != nil && !looped {
 					switch err.(type) {
 					case *jwtauth.MatchingCertNotFoundError, *jwtauth.MatchingCertJustExpired:
-						fnGetJwtCerts()
+						err = fnGetJwtCerts()
+						if err != nil {
+							log.WithError(err).Error("failed to get jwt certificate")
+						}
 						retryNeeded = true
 					case *jwtauth.VerifierExpiredError:
 						retryNeeded = true

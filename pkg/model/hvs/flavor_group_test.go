@@ -48,7 +48,6 @@ var flavorgroupJson = `{
    }
 }`
 
-
 var _ = Describe("FlavorGroup", func() {
 
 	// Parse flavorgroup object

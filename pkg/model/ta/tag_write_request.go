@@ -10,6 +10,6 @@ package model
 //     "hardware_uuid"   : "7a569dad-2d82-49e4-9156-069b0065b262"
 // }
 type TagWriteRequest struct {
-	Tag          []byte	`json:"tag"`
-	HardwareUUID string	`json:"hardware_uuid"`
+	Tag          []byte `json:"tag"`
+	HardwareUUID string `json:"hardware_uuid"`
 }

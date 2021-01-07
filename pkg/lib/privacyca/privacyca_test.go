@@ -232,7 +232,9 @@ func TestIsCertifiedKeySignatureValidWithBadSignature(t *testing.T) {
 func TestValidatePublicKey(t *testing.T) {
 	certifyKey20, err := privacyca.NewCertifyKey(regKeyInfoPayload)
 	assert.NoError(t, err)
-	assert.Equal(t, certifyKey20.ValidatePublicKey(), true)
+	isKeyValid, err := certifyKey20.ValidatePublicKey()
+	assert.NoError(t, err)
+	assert.Equal(t, isKeyValid, true)
 }
 
 func TestIsTpmGeneratedKey(t *testing.T) {

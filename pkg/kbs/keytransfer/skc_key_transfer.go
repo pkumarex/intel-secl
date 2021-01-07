@@ -74,27 +74,41 @@ func GetKeyInfo() *KeyDetails {
 	return keyInfo
 }
 
+// iterate throuh the slice and append only if value is not present
+func appendIfUnique(slice []string, element string) []string {
+	for _, sliceElement := range slice {
+		if sliceElement == element {
+			return slice
+		}
+	}
+	return append(slice, element)
+}
+
+// this function selects common key transfer modes between kbs and skc_library
 func (keyInfo *KeyDetails) PopulateStmLabels(acceptChallenge, stmLabel string) {
 	defaultLog.Trace("keytransfer/skc_key_transfer:Populatestmlabels() entering")
 	defer defaultLog.Trace("keytransfer/skc_key_transfer:Populatestmlabels() leaving")
+
+	// start with nil list for negotiated key transfer mode between kbs and skc_library
+	keyInfo.FinalStmLabels = nil
 
 	var labels, requestedStmLabels []string
 	if strings.Contains(stmLabel, ",") {
 		labels = strings.Split(stmLabel, ",")
 	} else {
-		labels = append(labels, stmLabel)
+		labels = appendIfUnique(labels, stmLabel)
 	}
 
 	if strings.Contains(acceptChallenge, ",") {
 		requestedStmLabels = strings.Split(acceptChallenge, ",")
 	} else {
-		requestedStmLabels = append(requestedStmLabels, acceptChallenge)
+		requestedStmLabels = appendIfUnique(requestedStmLabels, acceptChallenge)
 	}
 
 	for _, defaultStmLabel := range labels {
 		for _, requestedStmLabel := range requestedStmLabels {
 			if defaultStmLabel == requestedStmLabel {
-				keyInfo.FinalStmLabels = append(keyInfo.FinalStmLabels, requestedStmLabel)
+				keyInfo.FinalStmLabels = appendIfUnique(keyInfo.FinalStmLabels, requestedStmLabel)
 			}
 		}
 	}
@@ -103,13 +117,13 @@ func (keyInfo *KeyDetails) PopulateStmLabels(acceptChallenge, stmLabel string) {
 func (keyInfo *KeyDetails) PopulateSessionId(sessionId string) {
 	defaultLog.Trace("keytransfer/skc_key_transfer:PopulateSessionId() entering")
 	defer defaultLog.Trace("keytransfer/skc_key_transfer:PopulateSessionId() leaving")
+
 	var stmSessionList []string
-	if len(sessionId) != 0 {
-		if strings.Contains(sessionId, ",") {
-			stmSessionList = strings.Split(sessionId, ",")
-		} else {
-			stmSessionList = append(stmSessionList, sessionId)
-		}
+
+	if strings.Contains(sessionId, ",") {
+		stmSessionList = strings.Split(sessionId, ",")
+	} else {
+		stmSessionList = appendIfUnique(stmSessionList, sessionId)
 	}
 
 	for _, stmSessionStr := range stmSessionList {
@@ -328,7 +342,7 @@ func (keyInfo KeyDetails) doesCertcontextListMatchKeyTransferPolicy() bool {
 	return false
 }
 
-func (keyInfo *KeyDetails) IsValidSession() (validSession, validSGXAttributes bool) {
+func (keyInfo *KeyDetails) IsValidSession(stmLabel string) (validSession, validSGXAttributes bool) {
 	defaultLog.Trace("keytransfer/skc_key_transfer:IsValidSession() entering")
 	defer defaultLog.Trace("keytransfer/skc_key_transfer:IsValidSession() leaving")
 
@@ -337,8 +351,11 @@ func (keyInfo *KeyDetails) IsValidSession() (validSession, validSGXAttributes bo
 	sessionFound := false
 	for _, value := range keyInfo.SessionIDMap {
 		sessionID = value
-		_, sessionFound = keyInfo.SessionMap[sessionID]
-		if sessionFound {
+		_, session := keyInfo.SessionMap[sessionID]
+		// ensure that session id and the stmlabel in key transfer request
+		// are the same as in session map
+		if session && keyInfo.SessionMap[sessionID].Stmlabel == stmLabel {
+			sessionFound = true
 			break
 		}
 	}
@@ -356,7 +373,6 @@ func (keyInfo *KeyDetails) IsValidSession() (validSession, validSGXAttributes bo
 				if keyInfo.validateSgxEnclaveIssuer(attributes.EnclaveIssuer) &&
 					keyInfo.validateSgxEnclaveIssuerProdId(attributes.EnclaveIssuerProductID) &&
 					keyInfo.validateSgxEnclaveIssuerExtProdId(attributes.EnclaveIssuerExtendedProductID) &&
-					///TODO: This will be done in 3.3
 					//keyInfo.validateSgxEnclaveMeasurement(attributes.EnclaveMeasurement) &&
 					keyInfo.validateSgxConfigId(attributes.ConfigID) &&
 					keyInfo.validateSgxIsvSvn(attributes.IsvSvn) &&
@@ -386,8 +402,11 @@ func (keyInfo *KeyDetails) BuildChallengeJsonRequest(cfg *config.Configuration) 
 
 	challengeReq.ChallengeType = keyInfo.ActiveStmLabel
 
-	challengeReq.Challenge = keyInfo.generateStmChallenge()
-
+	challenge, err := keyInfo.generateStmChallenge()
+	if err != nil {
+		return challengeReq, errors.Wrap(err, "Failed to generate challenge")
+	}
+	challengeReq.Challenge = challenge
 	url := cfg.EndpointURL + "/session"
 
 	challengeReq.Link.ChallengeReply.Href = url
@@ -546,11 +565,15 @@ func (keyInfo KeyDetails) validateSgxConfigIdSvn(stmSgxConfigSvn string) bool {
 }
 
 // generateStmChallenge - Function to generate stm challenge
-func (keyInfo KeyDetails) generateStmChallenge() string {
+func (keyInfo KeyDetails) generateStmChallenge() (string, error) {
 	defaultLog.Trace("keytransfer/skc_key_transfer:generateStmChallenge() Entering")
 	defer defaultLog.Trace("keytransfer/skc_key_transfer:generateStmChallenge() Leaving")
 
-	encSessionID := base64.StdEncoding.EncodeToString([]byte(uuid.New().String()))
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return "", errors.Wrap(err, "keytransfer/skc_key_transfer:generateStmChallenge() failed to create new UUID")
+	}
+	encSessionID := base64.StdEncoding.EncodeToString([]byte(newUuid.String()))
 
 	var keytransfer kbs.KeyTransferSession
 	keytransfer.SessionId = encSessionID
@@ -559,7 +582,7 @@ func (keyInfo KeyDetails) generateStmChallenge() string {
 
 	keyInfo.SessionMap[encSessionID] = keytransfer
 
-	return encSessionID
+	return encSessionID, nil
 }
 
 // FetchApplicationKey - Function to fetch the application key

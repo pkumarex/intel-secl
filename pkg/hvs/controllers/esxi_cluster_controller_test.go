@@ -202,9 +202,9 @@ var _ = Describe("ESXiClusterController", func() {
 					"cluster_name": "New Cluster"
 				}`
 				req, err := http.NewRequest("POST", "/esxi-cluster", strings.NewReader(esxiClusterRequestJson))
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusCreated))

@@ -8,6 +8,7 @@ package setup
 import (
 	"bufio"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"os"
 	"strings"
@@ -36,7 +37,10 @@ func ReadAnswerFileToEnv(filename string) error {
 			val := line[equalSign+1:]
 			if key != "" &&
 				val != "" {
-				os.Setenv(key, val)
+				err = os.Setenv(key, val)
+				if err != nil {
+					return errors.Wrap(err, "Failed to set ENV")
+				}
 			}
 		}
 	}
@@ -77,7 +81,12 @@ func PrintEnvHelp(w io.Writer, prompt, envPrefix string, keysAndHelp map[string]
 	fmt.Fprintln(w, prompt)
 
 	tabW := new(tabwriter.Writer)
-	defer tabW.Flush()
+	defer func() {
+		derr := tabW.Flush()
+		if derr != nil {
+			log.WithError(derr).Error("Error flushing tab")
+		}
+	}()
 	tabW.Init(w, tabWidth, tabWidth, 2, '\t', 0)
 
 	for k, d := range keysAndHelp {

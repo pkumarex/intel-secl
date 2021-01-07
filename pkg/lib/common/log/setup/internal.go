@@ -34,7 +34,11 @@ func GetLogger(name string) *log.Entry {
 	if ret, ok := loggers[name]; ok {
 		return ret
 	}
-	AddLogger(name, "name", log.New())
+	err := AddLogger(name, "name", log.New())
+	if err != nil {
+		log.WithError(err).Error("failed to add logger")
+	}
+
 	ret, _ := loggers[name]
 	return ret
 }
