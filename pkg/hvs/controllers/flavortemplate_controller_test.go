@@ -295,7 +295,7 @@ var _ = Describe("FlavorTemplateController", func() {
 				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
-				Expect(w.Code).To(Equal(http.StatusBadRequest))
+				Expect(w.Code).To(Equal(http.StatusUnsupportedMediaType))
 			})
 		})
 

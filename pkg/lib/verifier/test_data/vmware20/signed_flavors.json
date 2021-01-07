@@ -21,10 +21,10 @@
                 "processor_info": "Skylake",
                 "feature": {
                     "txt": {
-                        "enabled": true
+                        "enabled": "true"
                     },
                     "tpm": {
-                        "enabled": true,
+                        "enabled": "true",
                         "version": "2.0"
                     }
                 }
@@ -270,10 +270,10 @@
                 "processor_info": "Skylake",
                 "feature": {
                     "txt": {
-                        "enabled": true
+                        "enabled": "true"
                     },
                     "tpm": {
-                        "enabled": true,
+                        "enabled": "true",
                         "version": "2.0"
                     }
                 }
@@ -329,10 +329,10 @@
                 "processor_info": "Skylake",
                 "feature": {
                     "txt": {
-                        "enabled": true
+                        "enabled": "true"
                     },
                     "tpm": {
-                        "enabled": true,
+                        "enabled": "true",
                         "version": "2.0"
                     }
                 }
