@@ -23,7 +23,10 @@ func createPermission(db domain.AASDatabase, rule string) (*types.Permission, er
 		Rule: rule,
 	})
 	if err != nil {
-		uuid, _ := postgres.UUID()
+		uuid, err := postgres.UUID()
+		if err != nil {
+			return nil, err
+		}
 		permission, err = db.PermissionStore().Create(types.Permission{ID: uuid, Rule: rule})
 	}
 	return permission, err
@@ -83,8 +86,11 @@ func addDBUser(db domain.AASDatabase, username string, password string, roles []
 
 	userInDB, err := db.UserStore().Retrieve(types.User{Name: username})
 	userExist := err == nil
-	hash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		defaultLog.WithError(err).Error("failed to generate hash from password")
+		return err
+	}
 	var uuid string
 	if userExist && userInDB != nil {
 		uuid = userInDB.ID

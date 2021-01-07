@@ -53,8 +53,10 @@ func InitDatabase(cfg *commConfig.DBConfig) (*PostgresDatabase, error) {
 		return nil, errors.Wrap(err, "Error instantiating Database")
 	}
 	defaultLog.Info("Migrating Database")
-	dataStore.Migrate()
-
+	err = dataStore.Migrate()
+	if err != nil {
+		return nil, errors.Wrap(err, "Error migrating Database")
+	}
 	return dataStore, nil
 }
 
@@ -144,7 +146,6 @@ func New(cfg *Config) (*PostgresDatabase, error) {
 }
 
 func (pd *PostgresDatabase) ExecuteSql(sql *string) error {
-
 	defaultLog.Trace("ExecuteSql", sql)
 	defer defaultLog.Trace("ExecuteSql done")
 
@@ -156,7 +157,6 @@ func (pd *PostgresDatabase) ExecuteSql(sql *string) error {
 }
 
 func (pd *PostgresDatabase) ExecuteSqlFile(file string) error {
-
 	defaultLog.Trace("ExecuteSqlFile", file)
 	defer defaultLog.Trace("ExecuteSqlFile done")
 
@@ -172,7 +172,6 @@ func (pd *PostgresDatabase) ExecuteSqlFile(file string) error {
 }
 
 func (pd *PostgresDatabase) Migrate() error {
-
 	defaultLog.Trace("Migrate")
 	defer defaultLog.Trace("Migrate done")
 
@@ -194,12 +193,14 @@ func (pd *PostgresDatabase) PermissionStore() domain.PermissionStore {
 
 func (pd *PostgresDatabase) Close() {
 	if pd.Db != nil {
-		pd.Db.Close()
+		err := pd.Db.Close()
+		if err != nil {
+			defaultLog.WithError(err).Error("Error closing DB connection")
+		}
 	}
 }
 
 func Open(host string, port int, dbname, user, password, sslMode, sslCert string) (*PostgresDatabase, error) {
-
 	defaultLog.Trace("Open DB")
 	defer defaultLog.Trace("Open DB done")
 

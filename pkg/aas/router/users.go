@@ -52,4 +52,3 @@ func SetUsersNoAuthRoutes(r *mux.Router, db domain.AASDatabase) *mux.Router {
 
 	return r
 }
-

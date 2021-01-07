@@ -9,10 +9,10 @@ package verifier
 //
 
 import (
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
-	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
+	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/verifier/rules"
+	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 )
 
 type ruleBuilderVMWare12 struct {
@@ -23,10 +23,10 @@ type ruleBuilderVMWare12 struct {
 }
 
 func newRuleBuilderVMWare12(verifierCertificates VerifierCertificates, hostManifest *types.HostManifest, signedFlavor *hvs.SignedFlavor) (ruleBuilder, error) {
-	builder := ruleBuilderVMWare12 {
+	builder := ruleBuilderVMWare12{
 		verifierCertificates: verifierCertificates,
-		hostManifest: hostManifest,
-		signedFlavor: signedFlavor,
+		hostManifest:         hostManifest,
+		signedFlavor:         signedFlavor,
 	}
 
 	return &builder, nil
@@ -37,7 +37,7 @@ func (builder *ruleBuilderVMWare12) GetName() string {
 }
 
 // From 'design' repo at isecl/libraries/verifier/verifier.md...
-// TagCertificateTrusted  
+// TagCertificateTrusted
 // PcrMatchesConstant rule for PCR 22
 func (builder *ruleBuilderVMWare12) GetAssetTagRules() ([]rules.Rule, error) {
 
@@ -90,8 +90,8 @@ func (builder *ruleBuilderVMWare12) GetPlatformRules() ([]rules.Rule, error) {
 }
 
 // From 'design' repo at isecl/libraries/verifier/verifier.md...
-// PcrMatchesConstant rule for PCR 18, 20  
-// PcrEventLogEqualsExcluding rule for PCR 19 (excludes dynamic modules based on component name)  
+// PcrMatchesConstant rule for PCR 18, 20
+// PcrEventLogEqualsExcluding rule for PCR 19 (excludes dynamic modules based on component name)
 // PcrEventLogIntegrity rule for PCR 19
 func (builder *ruleBuilderVMWare12) GetOsRules() ([]rules.Rule, error) {
 
@@ -122,11 +122,11 @@ func (builder *ruleBuilderVMWare12) GetOsRules() ([]rules.Rule, error) {
 
 	//
 	// Add 'PcrEventLogIntegrity' rules...
-	//  
+	//
 	pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcr19, &builder.signedFlavor.Flavor, common.FlavorPartOs)
 	if err != nil {
 		return nil, err
-	}		
+	}
 
 	results = append(results, pcrEventLogIntegrityRules...)
 
@@ -134,7 +134,7 @@ func (builder *ruleBuilderVMWare12) GetOsRules() ([]rules.Rule, error) {
 }
 
 // From 'design' repo at isecl/libraries/verifier/verifier.md...
-// PcrEventLogIncludes rule for PCR 19  
+// PcrEventLogIncludes rule for PCR 19
 // PcrEventLogIntegrity rule for PCR 19
 func (builder *ruleBuilderVMWare12) GetHostUniqueRules() ([]rules.Rule, error) {
 
@@ -143,7 +143,7 @@ func (builder *ruleBuilderVMWare12) GetHostUniqueRules() ([]rules.Rule, error) {
 
 	//
 	// Add 'PcrEventLogIncludes' rules...
-	//  
+	//
 	pcrEventLogIncludesRules, err := getPcrEventLogIncludesRules(pcr19, &builder.signedFlavor.Flavor, common.FlavorPartHostUnique)
 	if err != nil {
 		return nil, err
@@ -153,11 +153,11 @@ func (builder *ruleBuilderVMWare12) GetHostUniqueRules() ([]rules.Rule, error) {
 
 	//
 	// Add 'PcrEventLogIntegrity' rules...
-	//  
+	//
 	pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcr19, &builder.signedFlavor.Flavor, common.FlavorPartHostUnique)
 	if err != nil {
 		return nil, err
-	}		
+	}
 
 	results = append(results, pcrEventLogIntegrityRules...)
 

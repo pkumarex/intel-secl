@@ -190,23 +190,31 @@ func NewMockHostStore() *MockHostStore {
 	uuid1 := uuid.MustParse("e57e5ea0-d465-461e-882d-1600090caa0d")
 	uuid2 := uuid.MustParse("ee37c360-7eae-4250-a677-6ee12adce8e2")
 
-	store.Create(&hvs.Host{
+	_, err := store.Create(&hvs.Host{
 		Id:               uuid.MustParse("ee37c360-7eae-4250-a677-6ee12adce8e2"),
 		HostName:         "localhost1",
 		HardwareUuid:     &uuid1,
 		ConnectionString: "intel:https://ta.ip.com:1443",
 		Description:      "Intel Host",
 	})
+	if err != nil {
+		defaultLog.WithError(err).Errorf("Error creating Host")
+	}
 
-	store.Create(&hvs.Host{
+	_, err = store.Create(&hvs.Host{
 		Id:               uuid.MustParse("e57e5ea0-d465-461e-882d-1600090caa0d"),
 		HostName:         "localhost2",
 		HardwareUuid:     &uuid2,
 		ConnectionString: "vmware:https://vsphere.com:443/sdk;h=hostName;u=admin.local;p=password",
 		Description:      "Vmware Host",
 	})
+	if err != nil {
+		defaultLog.WithError(err).Errorf("Error creating Host")
+	}
 
-	store.AddFlavorgroups(uuid2, []uuid.UUID{uuid1})
-
+	err = store.AddFlavorgroups(uuid2, []uuid.UUID{uuid1})
+	if err != nil {
+		defaultLog.WithError(err).Errorf("Error adding host to flavorgroup")
+	}
 	return store
 }

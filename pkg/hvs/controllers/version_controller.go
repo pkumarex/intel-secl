@@ -17,14 +17,8 @@ var secLog = log.GetSecurityLogger()
 type VersionController struct {
 }
 
-func (v VersionController) GetVersion() http.HandlerFunc {
-	defaultLog.Trace("controllers/version_controller:GetVersion() Entering")
-	defer defaultLog.Trace("controllers/version_controller:GetVersion() Leaving")
-
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		verStr := fmt.Sprintf("%s-%s", version.Version, version.GitHash)
-		w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(verStr))
-	})
+func (controller VersionController) GetVersion(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
+	verStr := fmt.Sprintf("%s-%s", version.Version, version.GitHash)
+	w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
+	return verStr, http.StatusOK, nil
 }

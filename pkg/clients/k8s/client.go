@@ -7,6 +7,7 @@ package k8s
 import (
 	"crypto/x509"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -87,8 +88,8 @@ func (k8sClient *Client) validateKubernetesDetails() error {
 	}
 
 	if k8sClient.CertPath != "" {
-		if _, err := os.Stat(k8sClient.CertPath); os.IsNotExist(err) {
-			return errors.Wrap(err, "K8s/client:validateKubernetesDetails() K8s Cert File does not exist")
+		if _, err := os.Stat(k8sClient.CertPath); err != nil {
+			return errors.Wrap(err, "K8s/client:validateKubernetesDetails() K8s cert file cannot be read")
 		}
 	}
 
@@ -126,7 +127,15 @@ func (k8sClient *Client) SendRequest(reqParams *RequestParams) (*http.Response, 
 		return nil, errors.Wrap(err, "K8s/client:SendRequest() Error in receiving response")
 	}
 
-	return res, err
+	if res.StatusCode == http.StatusOK || res.StatusCode == http.StatusCreated || res.StatusCode == http.StatusNoContent || res.StatusCode == http.StatusNotFound {
+		return res, nil
+	}
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, errors.Wrap(err, "K8s/client:SendRequest() Error while reading response body")
+	}
+	return res, errors.Errorf("K8s/client:SendRequest(): Error in receiving response from k8s %s", string(body))
 
 }
 

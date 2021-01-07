@@ -35,7 +35,11 @@ func (f *FlavorStore) Create(signedFlavor *hvs.SignedFlavor) (*hvs.SignedFlavor,
 	}
 
 	if signedFlavor.Flavor.Meta.ID == uuid.Nil {
-		signedFlavor.Flavor.Meta.ID = uuid.New()
+		newUuid, err := uuid.NewRandom()
+		if err != nil {
+			return nil, errors.Wrap(err, "postgres/flavor_store:Create() failed to create new UUID")
+		}
+		signedFlavor.Flavor.Meta.ID = newUuid
 	}
 
 	dbf := flavor{
@@ -91,7 +95,12 @@ func (f *FlavorStore) Search(flavorFilter *models.FlavorVerificationFC) ([]hvs.S
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/flavor_store:Search() failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	signedFlavors := []hvs.SignedFlavor{}
 
@@ -259,7 +268,15 @@ func buildFlavorPartQueryStringWithFlavorParts(flavorpart, flavorgroupId string,
 	defaultLog.Trace("postgres/flavor_store:buildFlavorPartQueryStringWithFlavorParts() Entering")
 	defer defaultLog.Trace("postgres/flavor_store:buildFlavorPartQueryStringWithFlavorParts() Leaving")
 
-	if flavorgroupId != "" && uuid.MustParse(flavorgroupId) != uuid.Nil {
+	var flavorgroupUuid uuid.UUID
+	if flavorgroupId != "" {
+		fgUuid, err := uuid.Parse(flavorgroupId)
+		if err != nil {
+			defaultLog.WithError(err).Error("Failed to parse flavor group ID")
+		}
+		flavorgroupUuid = fgUuid
+	}
+	if flavorgroupUuid != uuid.Nil {
 		subQuery := buildFlavorPartQueryStringWithFlavorgroup(flavorgroupId, tx)
 		tx = subQuery.Where(convertToPgJsonqueryString("f.content", "meta.description.flavor_part")+" = ?", flavorpart)
 	} else {

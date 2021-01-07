@@ -134,7 +134,11 @@ func (rule *xmlMeasurementLogIntegrity) Apply(hostManifest *types.HostManifest) 
 						calculatedSha384Bytes, _ := hex.DecodeString(calculatedHash)
 
 						hash := sha256.New()
-						hash.Write(calculatedSha384Bytes)
+						_, err = hash.Write(calculatedSha384Bytes)
+						if err != nil {
+							return nil, errors.Wrapf(err, "Failed to write calculated hash")
+						}
+
 						calculatedSha256Bytes := hash.Sum(nil)
 
 						calculatedSha256String := hex.EncodeToString(calculatedSha256Bytes)
@@ -175,8 +179,15 @@ func (rule *xmlMeasurementLogIntegrity) replay(measurementsXml []byte) (string, 
 			return "", errors.Wrapf(err, "Invalid measurement in xml: '%s'", measurement)
 		}
 
-		hash.Write(cumulativeHash)
-		hash.Write(measurementBytes)
+		_, err = hash.Write(cumulativeHash)
+		if err != nil {
+			return "", errors.Wrapf(err, "Failed to write cumulative hash")
+		}
+		_, err = hash.Write(measurementBytes)
+		if err != nil {
+			return "", errors.Wrapf(err, "Failed to write measurements")
+		}
+
 		cumulativeHash = hash.Sum(nil)
 	}
 

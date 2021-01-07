@@ -80,9 +80,24 @@ func main() {
 			LogWriter: os.Stdout,
 		}
 	} else {
-		defer logFile.Close()
-		defer httpLogFile.Close()
-		defer secLogFile.Close()
+		defer func() {
+			err = logFile.Close()
+			if err != nil {
+				fmt.Println("Failed close log file:", err.Error())
+			}
+		}()
+		defer func() {
+			err = httpLogFile.Close()
+			if err != nil {
+				fmt.Println("Failed close log file:", err.Error())
+			}
+		}()
+		defer func() {
+			err = secLogFile.Close()
+			if err != nil {
+				fmt.Println("Failed close log file:", err.Error())
+			}
+		}()
 		app = &kbs.App{
 			LogWriter:     logFile,
 			HTTPLogWriter: httpLogFile,

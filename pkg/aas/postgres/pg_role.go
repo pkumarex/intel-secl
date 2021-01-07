@@ -19,7 +19,6 @@ type PostgresRoleStore struct {
 // var defaultLog = commLog.GetDefaultLogger()
 
 func (r *PostgresRoleStore) Create(role types.Role) (*types.Role, error) {
-
 	defaultLog.Trace("role Create")
 	defer defaultLog.Trace("role Create done")
 
@@ -36,7 +35,6 @@ func (r *PostgresRoleStore) Create(role types.Role) (*types.Role, error) {
 }
 
 func (r *PostgresRoleStore) Retrieve(rs *types.RoleSearch) (*types.Role, error) {
-
 	defaultLog.Trace("role Retrieve")
 	defer defaultLog.Trace("role Retrieve done")
 
@@ -54,7 +52,6 @@ func (r *PostgresRoleStore) Retrieve(rs *types.RoleSearch) (*types.Role, error) 
 
 // helper function to build the query object for a role search.
 func buildRoleSearchQuery(tx *gorm.DB, rs *types.RoleSearch) *gorm.DB {
-
 	defaultLog.Trace("role buildRoleSearchQuery")
 	defer defaultLog.Trace("role buildRoleSearchQuery done")
 
@@ -92,11 +89,9 @@ func buildRoleSearchQuery(tx *gorm.DB, rs *types.RoleSearch) *gorm.DB {
 		tx = tx.Where("service in (?) ", rs.ServiceFilter)
 	}
 	return tx
-
 }
 
 func (r *PostgresRoleStore) RetrieveAll(rs *types.RoleSearch) (types.Roles, error) {
-
 	defaultLog.Trace("role RetrieveAll")
 	defer defaultLog.Trace("role RetrieveAll done")
 
@@ -138,7 +133,6 @@ func (r *PostgresRoleStore) Delete(role types.Role) error {
 }
 
 func (r *PostgresPermissionStore) AddPermissions(role types.Role, permissions types.Permissions, mustAddAllPermissions bool) error {
-
 	defaultLog.Trace("role AddPermisisons")
 	defer defaultLog.Trace("role AddPermissions done")
 
@@ -149,7 +143,6 @@ func (r *PostgresPermissionStore) AddPermissions(role types.Role, permissions ty
 }
 
 func (r *PostgresPermissionStore) DeletePermission(role types.Role, permissionID string) error {
-
 	defaultLog.Trace("user DeletePermission")
 	defer defaultLog.Trace("user DeletePermission done")
 

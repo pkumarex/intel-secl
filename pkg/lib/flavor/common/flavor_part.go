@@ -41,12 +41,11 @@ func GetFlavorTypesString(flavorParts []FlavorPart) []string {
 	log.Trace("flavor/common/flavor_part:GetFlavorTypesString() Entering")
 	defer log.Trace("flavor/common/flavor_part:GetFlavorTypesString() Leaving")
 	var flavorTypes []string
-	for _, flavorPart := range flavorParts{
+	for _, flavorPart := range flavorParts {
 		flavorTypes = append(flavorTypes, flavorPart.String())
 	}
 	return flavorTypes
 }
-
 
 func (fp FlavorPart) String() string {
 	return string(fp)
@@ -59,8 +58,8 @@ func (flavorPart *FlavorPart) Parse(flavorPartString string) error {
 
 	var result FlavorPart
 	var err error
-	
-	switch(strings.ToUpper(flavorPartString)) {
+
+	switch strings.ToUpper(flavorPartString) {
 	case string(FlavorPartPlatform):
 		result = FlavorPartPlatform
 	case string(FlavorPartOs):

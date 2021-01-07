@@ -79,9 +79,9 @@ var _ = Describe("DeploySoftwareManifestController", func() {
 					"/rpc/deploy-software-manifest",
 					strings.NewReader(deployManifestRequestJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusOK))
@@ -104,9 +104,9 @@ var _ = Describe("DeploySoftwareManifestController", func() {
 					"/rpc/deploy-software-manifest",
 					strings.NewReader(deployManifestRequestJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -129,9 +129,9 @@ var _ = Describe("DeploySoftwareManifestController", func() {
 					"/rpc/deploy-software-manifest",
 					strings.NewReader(deployManifestRequestJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -153,9 +153,9 @@ var _ = Describe("DeploySoftwareManifestController", func() {
 					"/rpc/deploy-software-manifest",
 					strings.NewReader(deployManifestRequestJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -177,9 +177,9 @@ var _ = Describe("DeploySoftwareManifestController", func() {
 					"/rpc/deploy-software-manifest",
 					strings.NewReader(deployManifestRequestJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -202,9 +202,9 @@ var _ = Describe("DeploySoftwareManifestController", func() {
 					"/rpc/deploy-software-manifest",
 					strings.NewReader(deployManifestRequestJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -226,9 +226,9 @@ var _ = Describe("DeploySoftwareManifestController", func() {
 					"/rpc/deploy-software-manifest",
 					strings.NewReader(deployManifestRequestJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -250,9 +250,9 @@ var _ = Describe("DeploySoftwareManifestController", func() {
 					"/rpc/deploy-software-manifest",
 					strings.NewReader(deployManifestRequestJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))

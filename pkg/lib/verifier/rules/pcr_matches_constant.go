@@ -27,7 +27,7 @@ func NewPcrMatchesConstant(expectedPcr *types.Pcr, marker common.FlavorPart) (Ru
 
 	rule := pcrMatchesConstant{
 		expectedPcr: *expectedPcr,
-		marker: marker,
+		marker:      marker,
 	}
 	return &rule, nil
 }

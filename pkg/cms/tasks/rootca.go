@@ -28,8 +28,8 @@ type RootCa struct {
 	ConsoleWriter   io.Writer
 	CACertConfigPtr *config.CACertConfig
 	config.CACertConfig
-	envPrefix       string
-	commandName     string
+	envPrefix   string
+	commandName string
 }
 
 const rootCAEnvHelpPrompt = "Following environment variables are required for root_ca setup:"
@@ -69,7 +69,7 @@ func GetCACertDefaultTemplate(cfg *config.CACertConfig, cn string, parent string
 	return tmplt, errors.Wrap(err, "tasks/rootca:GetCACertDefaultTemplate() Could not get next serial number for certificate")
 }
 
-func getCACertTemplate(cfg *config.CACertConfig, cn string, parCn string, pubKey crypto.PublicKey, ) (x509.Certificate, error) {
+func getCACertTemplate(cfg *config.CACertConfig, cn string, parCn string, pubKey crypto.PublicKey) (x509.Certificate, error) {
 	log.Trace("tasks/rootca:getCACertTemplate() Entering")
 	defer log.Trace("tasks/rootca:getCACertTemplate() Leaving")
 
@@ -132,7 +132,7 @@ func (ca RootCa) Run() error {
 	fmt.Fprintln(ca.ConsoleWriter, "Running Root CA setup...")
 
 	err := ca.updateConfig()
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	privKey, cert, err := createRootCACert(&ca.CACertConfig)

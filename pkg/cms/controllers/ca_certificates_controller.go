@@ -17,13 +17,17 @@ type CACertificatesController struct {
 }
 
 //GetCACertificates is used to get the root CA certificate upon JWT validation
-func (controller CACertificatesController)GetCACertificates(httpWriter http.ResponseWriter, httpRequest *http.Request) {
+func (controller CACertificatesController) GetCACertificates(httpWriter http.ResponseWriter, httpRequest *http.Request) {
 	log.Trace("resource/ca_certificates:GetCACertificates() Entering")
 	defer log.Trace("resource/ca_certificates:GetCACertificates() Leaving")
 
+	httpWriter.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
 	if httpRequest.Header.Get("Accept") != "application/x-pem-file" {
 		httpWriter.WriteHeader(http.StatusNotAcceptable)
-		httpWriter.Write([]byte("Accept type not supported"))
+		_, err := httpWriter.Write([]byte("Accept type not supported"))
+		if err != nil {
+			log.WithError(err).Errorf("resource/ca_certificates:GetCACertificates() Failed to write response")
+		}
 		return
 	}
 
@@ -38,16 +42,25 @@ func (controller CACertificatesController)GetCACertificates(httpWriter http.Resp
 		if strings.Contains(err.Error(), "Invalid Query parameter") {
 			slog.Warning(commLogMsg.InvalidInputBadParam)
 			httpWriter.WriteHeader(http.StatusBadRequest)
-			httpWriter.Write([]byte("Invalid Query parameter provided"))
+			_, err = httpWriter.Write([]byte("Invalid Query parameter provided"))
+			if err != nil {
+				log.WithError(err).Errorf("resource/ca_certificates:GetCACertificates() Failed to write response")
+			}
 		} else {
 			httpWriter.WriteHeader(http.StatusInternalServerError)
-			httpWriter.Write([]byte("Cannot load Issuing CA"))
+			_, err = httpWriter.Write([]byte("Cannot load Issuing CA"))
+			if err != nil {
+				log.WithError(err).Errorf("resource/ca_certificates:GetCACertificates() Failed to write response")
+			}
 		}
 		return
 	}
 	httpWriter.Header().Set("Content-Type", "application/x-pem-file")
 	httpWriter.WriteHeader(http.StatusOK)
-	httpWriter.Write(caCertificateBytes)
+	_, err = httpWriter.Write(caCertificateBytes)
+	if err != nil {
+		log.WithError(err).Errorf("resource/ca_certificates:GetCACertificates() Failed to write response")
+	}
 	log.Infof("resource/ca_certificates:GetCACertificates() Returned requested %v CA certificate", issuingCa)
 	return
 }

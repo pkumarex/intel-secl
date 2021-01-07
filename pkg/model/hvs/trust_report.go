@@ -31,17 +31,17 @@ type RuleResult struct {
 }
 
 type RuleInfo struct {
-	Name                  string                     `json:"rule_name,omitempty"`
-	Markers               []common.FlavorPart        `json:"markers,omitempty"`
-	ExpectedPcr           *types.Pcr                 `json:"expected_pcr,omitempty"`
-	FlavorID              *uuid.UUID                 `json:"flavor_id,omitempty"`
-	FlavorName            *string                    `json:"flavor_name,omitempty"`
-	ExpectedValue         *string                    `json:"expected_value,omitempty"`
-	ExpectedMeasurements  []ta.FlavorMeasurement     `json:"expected_measurements,omitempty"`
-	ExpectedEventLogs     []types.EventLog           `json:"expected,omitempty"`
-	ExpectedEventLogEntry *types.EventLogEntry       `json:"expected,omitempty"`
-	ExpectedTag           []byte                     `json:"expected_tag,omitempty"`
-	Tags                  map[string]string          `json:"tags,omitempty"`
+	Name                  string                 `json:"rule_name,omitempty"`
+	Markers               []common.FlavorPart    `json:"markers,omitempty"`
+	ExpectedPcr           *types.Pcr             `json:"expected_pcr,omitempty"`
+	FlavorID              *uuid.UUID             `json:"flavor_id,omitempty"`
+	FlavorName            *string                `json:"flavor_name,omitempty"`
+	ExpectedValue         *string                `json:"expected_value,omitempty"`
+	ExpectedMeasurements  []ta.FlavorMeasurement `json:"expected_measurements,omitempty"`
+	ExpectedEventLogs     []types.EventLog       `json:"expected,omitempty"`
+	ExpectedEventLogEntry *types.EventLogEntry   `json:"expected,omitempty"`
+	ExpectedTag           []byte                 `json:"expected_tag,omitempty"`
+	Tags                  map[string]string      `json:"tags,omitempty"`
 }
 
 type Fault struct {
@@ -116,7 +116,7 @@ func (t *TrustReport) CheckResultExists(targetRuleResult RuleResult) bool {
 				constants.RulePcrMatchesConstant:
 				// Compare pcrs for only these rules, all other rules will have pcr expected entry = nil
 				// We need to take care same rule does not get repeated in report, hence exclude value for PCR match
-				// as in case of rules like RulePcrEventLogIncludes, RulePcrEventLogEqualsExcluding etc actual PCR value can be different	
+				// as in case of rules like RulePcrEventLogIncludes, RulePcrEventLogEqualsExcluding etc actual PCR value can be different
 				if targetRuleResult.Rule.ExpectedPcr == nil {
 					return false
 				} else if targetRuleResult.Rule.ExpectedPcr.EqualsWithoutValue(*ruleResult.Rule.ExpectedPcr) {
