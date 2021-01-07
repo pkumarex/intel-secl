@@ -660,8 +660,8 @@ func NewMockFlavorStore() *MockFlavorStore {
 	err := json.Unmarshal([]byte(flavor), &sf)
 	fmt.Println("error: ", err)
 	// add to store
-    -,err = store.Create(&sf)
-    if err != nil {
+	_, err = store.Create(&sf)
+	if err != nil {
 		defaultLog.WithError(err).Errorf("Error creating Flavor")
 	}
 
@@ -670,11 +670,11 @@ func NewMockFlavorStore() *MockFlavorStore {
 	fmt.Println("error: ", err)
 
 	// add to store
-    _,err = store.Create(&sf1)
-    if err != nil {
+	_, err = store.Create(&sf1)
+	if err != nil {
 		defaultLog.WithError(err).Errorf("Error creating Flavor")
-    }
-    
+	}
+
 	return store
 }
 
