@@ -62,19 +62,15 @@ func (ftc *FlavorTemplateController) Create(w http.ResponseWriter, r *http.Reque
 
 	flavorTemplateReq, err := ftc.getFlavorTemplateCreateReq(r)
 	if err != nil {
-		if strings.Contains(err.Error(), "given template ID already exists") {
-			defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Create() Failed to complete create flavor template,given template ID already exists")
-			return nil, http.StatusBadRequest, &commErr.ResourceError{Message: "Failed to create flavor template, given template ID already exists"}
-		}
-
 		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Create() Failed to complete create flavor template")
 		switch errorType := err.(type) {
 		case *unsupportedMediaError:
 			return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: errorType.Message}
 		case *badRequestError:
 			return nil, http.StatusBadRequest, &commErr.ResourceError{Message: errorType.Message}
+		default:
+			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: err.Error()}
 		}
-		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: "Failed to create flavor template"}
 	}
 
 	//Store this template into database.
@@ -177,16 +173,19 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 
 	var createFlavorTemplateReq hvs.FlavorTemplate
 	if r.Header.Get("Content-Type") != constants.HTTPMediaTypeJson {
-		return createFlavorTemplateReq, errors.New("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Invalid Content-Type")
+		defaultLog.Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Invalid Content-Type")
+		return createFlavorTemplateReq, &unsupportedMediaError{Message: "Invalid Content-Type"}
 	}
 
 	if r.ContentLength == 0 {
-		return createFlavorTemplateReq, errors.New("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() The request body is not provided")
+		defaultLog.Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() The request body is not provided")
+		return createFlavorTemplateReq, &badRequestError{Message: "The request body is not provided"}
 	}
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		return createFlavorTemplateReq, errors.Wrap(err, "controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to read request body")
+		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to read request body")
+		return createFlavorTemplateReq, &badRequestError{Message: "Unable to read request body"}
 	}
 
 	//Restore the request body to it's original state
@@ -198,24 +197,30 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 
 	err = dec.Decode(&createFlavorTemplateReq)
 	if err != nil {
-		return createFlavorTemplateReq, errors.Wrap(err, "controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to decode JSON request body")
+		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to decode request body")
+		return createFlavorTemplateReq, &badRequestError{Message: "Unable to decode request body"}
 	}
 
 	if createFlavorTemplateReq.ID != uuid.Nil {
 		template, err := ftc.Store.Retrieve(createFlavorTemplateReq.ID)
 		if err != nil {
-			return hvs.FlavorTemplate{}, errors.Wrap(err, "controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Failed to retrieve falvor template")
+			if strings.Contains(err.Error(), commErr.RowsNotFound) {
+				defaultLog.Debug("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Flavor template with given ID is not exists,procceed with template creation")
+			} else {
+				defaultLog.WithError(err).Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Failed to retrieve flavor template")
+				return hvs.FlavorTemplate{}, errors.New("Failed to validate flavor template ID")
+			}
 		}
 		if template != nil {
-			return hvs.FlavorTemplate{}, errors.New("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() FlavorTemplate with given template ID already exists")
+			defaultLog.WithError(err).Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to create flavor template, template with given template ID already exists")
+			return hvs.FlavorTemplate{}, &badRequestError{Message: "FlavorTemplate with given template ID already exists"}
 		}
-
 	}
 
 	defaultLog.Debug("Validating create flavor request")
 	errMsg, err := ftc.validateFlavorTemplateCreateRequest(createFlavorTemplateReq, string(body))
 	if err != nil {
-		return createFlavorTemplateReq, errors.Wrap(err, errMsg)
+		return createFlavorTemplateReq, &badRequestError{Message: errMsg}
 	}
 
 	return createFlavorTemplateReq, nil
@@ -228,17 +233,17 @@ func (ftc *FlavorTemplateController) validateFlavorTemplateCreateRequest(FlvrTem
 	// Check whether the template is adhering to the schema
 	schemaLoader := gojsonschema.NewSchemaLoader()
 
-	definitionsSchemaJson, err := readJson(ftc.CommonDefinitionsSchema)
+	definitionsSchemaJSON, err := readJSON(ftc.CommonDefinitionsSchema)
 	if err != nil {
 		return "Unable to read the schema", errors.Wrap(err, "controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Unable to read the file"+consts.CommonDefinitionsSchema)
 	}
 
-	definitionsSchema := gojsonschema.NewStringLoader(definitionsSchemaJson)
-	templateSchemaJson, err := readJson(ftc.FlavorTemplateSchema)
+	definitionsSchema := gojsonschema.NewStringLoader(definitionsSchemaJSON)
+	templateSchemaJSON, err := readJSON(ftc.FlavorTemplateSchema)
 	if err != nil {
 		return "Unable to read the schema", errors.Wrap(err, "controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Unable to read the file"+consts.FlavorTemplateSchema)
 	}
-	flvrTemplateSchema := gojsonschema.NewStringLoader(templateSchemaJson)
+	flvrTemplateSchema := gojsonschema.NewStringLoader(templateSchemaJSON)
 	schemaLoader.AddSchemas(definitionsSchema)
 
 	schema, err := schemaLoader.Compile(flvrTemplateSchema)
@@ -305,13 +310,13 @@ func (ftc *FlavorTemplateController) validateFlavorTemplateCreateRequest(FlvrTem
 	return "", nil
 }
 
-// readJson This method is used to read the json file
-func readJson(jsonFilePath string) (string, error) {
-	defaultLog.Trace("controllers/flavortemplate_controller:readJson() Entering")
-	defer defaultLog.Trace("controllers/flavortemplate_controller:readJson() Leaving")
+// readJSON This method is used to read the json file
+func readJSON(jsonFilePath string) (string, error) {
+	defaultLog.Trace("controllers/flavortemplate_controller:readJSON() Entering")
+	defer defaultLog.Trace("controllers/flavortemplate_controller:readJSON() Leaving")
 	byteValue, err := ioutil.ReadFile(jsonFilePath)
 	if err != nil {
-		return "", errors.Wrap(err, "controllers/flavortemplate_controller:readJson() unable to read file"+jsonFilePath)
+		return "", errors.Wrap(err, "controllers/flavortemplate_controller:readJSON() unable to read file"+jsonFilePath)
 	}
 	return string(byteValue), nil
 }
