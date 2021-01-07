@@ -93,12 +93,12 @@ func (vc *vmwareClient) GetHostInfo() (taModel.HostInfo, error) {
 	hostInfo.NumberOfSockets = int(vc.hostReference.Hardware.CpuInfo.NumCpuPackages)
 	hostInfo.ProcessorInfo = vc.hostReference.Summary.MaxEVCModeKey
 	hostInfo.HardwareUUID = strings.ToUpper(vc.hostReference.Hardware.SystemInfo.Uuid)
-	hostInfo.HardwareFeatures.TPM = &taModel.TPM{}
+	hostInfo.HardwareFeatures.TPM = taModel.TPM{}
 	hostInfo.HardwareFeatures.TPM.Enabled = false
 	if vc.hostReference.Capability.TpmSupported != nil && *vc.hostReference.Capability.TpmSupported == true {
 		hostInfo.HardwareFeatures.TPM.Enabled = true
 	}
-	if strings.Contains(vcenterVersion, "6.5") && (hostInfo.HardwareFeatures.TPM != nil && hostInfo.HardwareFeatures.TPM.Enabled) {
+	if strings.Contains(vcenterVersion, "6.5") && hostInfo.HardwareFeatures.TPM.Enabled {
 		hostInfo.HardwareFeatures.TPM.Meta.TPMVersion = "1.2"
 		attestationReport, err := vc.GetTPMAttestationReport()
 		if err != nil {
@@ -106,9 +106,9 @@ func (vc *vmwareClient) GetHostInfo() (taModel.HostInfo, error) {
 				"report from vcenter api")
 		}
 		if attestationReport.Returnval.TpmLogReliable {
-			hostInfo.HardwareFeatures.TXT = &taModel.HardwareFeature{Enabled: true}
+			hostInfo.HardwareFeatures.TXT = taModel.HardwareFeature{Enabled: true}
 		} else {
-			hostInfo.HardwareFeatures.TXT = &taModel.HardwareFeature{Enabled: false}
+			hostInfo.HardwareFeatures.TXT = taModel.HardwareFeature{Enabled: false}
 		}
 	} else {
 		hostInfo.HardwareFeatures.TPM.Meta.TPMVersion = vc.hostReference.Capability.TpmVersion
@@ -116,7 +116,7 @@ func (vc *vmwareClient) GetHostInfo() (taModel.HostInfo, error) {
 		if vc.hostReference.Capability.TxtEnabled != nil && *vc.hostReference.Capability.TxtEnabled == true {
 			txtEnabled = true
 		}
-		hostInfo.HardwareFeatures.TXT = &taModel.HardwareFeature{Enabled: txtEnabled}
+		hostInfo.HardwareFeatures.TXT = taModel.HardwareFeature{Enabled: txtEnabled}
 	}
 	return hostInfo, nil
 }

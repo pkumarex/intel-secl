@@ -203,34 +203,38 @@ func (pfutil PlatformFlavorUtil) GetHardwareSectionDetails(hostInfo *taModel.Hos
 		// Set TPM Feature presence
 		tpm := cm.TPM{}
 		tpm.Enabled = hostInfo.HardwareFeatures.TPM.Enabled
-		tpm.Enabled = hostInfo.HardwareFeatures.TPM.Enabled
-		tpm.Version = hostInfo.HardwareFeatures.TPM.Meta.TPMVersion
+		tpm.Meta.TPMVersion = hostInfo.HardwareFeatures.TPM.Meta.TPMVersion
 		// split into list
-		tpm.PcrBanks = strings.Split(hostInfo.HardwareFeatures.TPM.Meta.PCRBanks, constants.PCRBankSeparator)
-		feature.TPM = &tpm
+		tpm.Meta.PCRBanks = strings.Split(hostInfo.HardwareFeatures.TPM.Meta.PCRBanks, constants.PCRBankSeparator)
+		feature.TPM = tpm
 
-		txt := cm.TXT{}
-		if hostInfo.HardwareFeatures.TXT != nil {
-			// Set TXT Feature presence
-			txt.Enabled = hostInfo.HardwareFeatures.TXT.Enabled
-			feature.TXT = &txt
-		}
+		txt := cm.HardwareFeature{}
+		// Set TXT Feature presence
+		txt.Enabled = hostInfo.HardwareFeatures.TXT.Enabled
+		feature.TXT = txt
 
 		cbnt := cm.CBNT{}
 		// set CBNT
-		if hostInfo.HardwareFeatures.CBNT != nil {
-			cbnt.Enabled = hostInfo.HardwareFeatures.CBNT.Enabled
-			cbnt.Profile = hostInfo.HardwareFeatures.CBNT.Meta.Profile
-			feature.CBNT = &cbnt
-		}
+		cbnt.Enabled = hostInfo.HardwareFeatures.CBNT.Enabled
+		cbnt.Meta.Profile = hostInfo.HardwareFeatures.CBNT.Meta.Profile
+		cbnt.Meta.MSR = hostInfo.HardwareFeatures.CBNT.Meta.MSR
+		feature.CBNT = cbnt
 
 		uefi := cm.UEFI{}
 		// and UEFI state
-		if hostInfo.HardwareFeatures.UEFI != nil && hostInfo.HardwareFeatures.UEFI.Enabled {
-			uefi.Enabled = hostInfo.HardwareFeatures.UEFI.Enabled
-			uefi.SecureBootEnabled = hostInfo.HardwareFeatures.UEFI.Meta.SecureBootEnabled
-			feature.UEFI = &uefi
-		}
+		uefi.Enabled = hostInfo.HardwareFeatures.UEFI.Enabled
+		uefi.Meta.SecureBootEnabled = hostInfo.HardwareFeatures.UEFI.Meta.SecureBootEnabled
+		feature.UEFI = uefi
+
+		bmc := cm.HardwareFeature{}
+		// Set BMC Feature presence
+		bmc.Enabled = hostInfo.HardwareFeatures.BMC.Enabled
+		feature.BMC = bmc
+
+		pfr := cm.HardwareFeature{}
+		// Set PFR Feature presence
+		pfr.Enabled = hostInfo.HardwareFeatures.PFR.Enabled
+		feature.PFR = pfr
 
 		hardware.Feature = &feature
 	}
@@ -463,7 +467,7 @@ func (pfutil PlatformFlavorUtil) getSupportedHardwareFeatures(hostDetails *taMod
 	defer log.Trace("flavor/util/platform_flavor_util:getSupportedHardwareFeatures() Leaving")
 
 	var features []string
-	if hostDetails.HardwareFeatures.CBNT != nil && hostDetails.HardwareFeatures.CBNT.Enabled {
+	if hostDetails.HardwareFeatures.CBNT.Enabled {
 		features = append(features, constants.Cbnt)
 		features = append(features, hostDetails.HardwareFeatures.CBNT.Meta.Profile)
 	}
@@ -472,17 +476,15 @@ func (pfutil PlatformFlavorUtil) getSupportedHardwareFeatures(hostDetails *taMod
 		features = append(features, constants.Tpm)
 	}
 
-	if hostDetails.HardwareFeatures.TXT != nil && hostDetails.HardwareFeatures.TXT.Enabled {
+	if hostDetails.HardwareFeatures.TXT.Enabled {
 		features = append(features, constants.Txt)
 	}
 
-	if hostDetails.HardwareFeatures.UEFI != nil {
-		if hostDetails.HardwareFeatures.UEFI.Enabled {
-			features = append(features, constants.Uefi)
-		}
-		if hostDetails.HardwareFeatures.UEFI.Meta.SecureBootEnabled {
-			features = append(features, constants.Sboot)
-		}
+	if hostDetails.HardwareFeatures.UEFI.Enabled {
+		features = append(features, constants.Uefi)
+	}
+	if hostDetails.HardwareFeatures.UEFI.Meta.SecureBootEnabled {
+		features = append(features, constants.Sboot)
 	}
 
 	return features

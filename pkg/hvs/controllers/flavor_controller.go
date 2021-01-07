@@ -766,7 +766,7 @@ func getHostsAssociatedWithFlavor(hStore domain.HostStore, fgStore domain.Flavor
 		//Host unique flavors are associated with only host_unique flavorgroup and associated with only one host uniquely
 		if flavorGroup.Name == dm.FlavorGroupsHostUnique.String() {
 			hosts, err := hStore.Search(&dm.HostFilterCriteria{
-				HostHardwareId: flavor.Flavor.Meta.Description[fm.HardwareUUID].(uuid.UUID),
+				HostHardwareId: uuid.MustParse(flavor.Flavor.Meta.Description[fm.HardwareUUID].(string)),
 			})
 			if err != nil {
 				return nil, errors.Wrapf(err, "controllers/flavor_controller:getHostsAssociatedWithFlavor() Failed to retrieve hosts "+

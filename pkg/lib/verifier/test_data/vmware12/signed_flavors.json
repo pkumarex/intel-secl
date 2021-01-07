@@ -21,10 +21,10 @@
                 "processor_info": "Haswell",
                 "feature": {
                     "txt": {
-                        "enabled": true
+                        "enabled": "true"
                     },
                     "tpm": {
-                        "enabled": true,
+                        "enabled": "true",
                         "version": "1.2"
                     }
                 }
@@ -68,10 +68,10 @@
                 "processor_info": "Haswell",
                 "feature": {
                     "txt": {
-                        "enabled": true
+                        "enabled": "true"
                     },
                     "tpm": {
-                        "enabled": true,
+                        "enabled": "true",
                         "version": "1.2"
                     }
                 }
@@ -124,10 +124,10 @@
                 "processor_info": "Haswell",
                 "feature": {
                     "txt": {
-                        "enabled": true
+                        "enabled": "true"
                     },
                     "tpm": {
-                        "enabled": true,
+                        "enabled": "true",
                         "version": "1.2"
                     }
                 }
