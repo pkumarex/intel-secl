@@ -46,7 +46,7 @@ func TestGetHostsFromOpenStack(t *testing.T) {
 	configuration.Endpoint.UserName = testutility.OpenstackUserName
 	configuration.Endpoint.Password = testutility.OpenstackPassword
 	configuration.Endpoint.Type = constants.OpenStackTenant
-	configuration.AAS.URL = "http://localhost" + port + "/aas"
+	configuration.AASApiUrl = "http://localhost" + port + "/aas"
 	configuration.IHUB.Username = "admin@hub"
 	configuration.IHUB.Password = "hubAdminPass"
 	configuration.AttestationService.AttestationURL = "http://localhost" + port + "/mtwilson/v2"
@@ -177,8 +177,8 @@ func TestOpenstackPluginInit(t *testing.T) {
 		{
 			name: "Testing for failures 2",
 			configuration: &config.Configuration{
-				AAS: config.AASConfig{URL: "http://localhost" + port + "/aas"},
-				Endpoint: config.Endpoint{
+				AASApiUrl: "http://localhost" + port + "/aas",
+				Endpoint:  config.Endpoint{
 					Type:     "OPENSTACK",
 					URL:      "http://localhost" + port + "/openstack/api/",
 					AuthURL:  "http://localhost" + port + "/v3/auth/tokens",
@@ -191,7 +191,7 @@ func TestOpenstackPluginInit(t *testing.T) {
 		{
 			name: "Testing for failures 3",
 			configuration: &config.Configuration{
-				AAS:                config.AASConfig{URL: "http://localhost" + port + "/aas"},
+				AASApiUrl:          "http://localhost" + port + "/aas",
 				AttestationService: config.AttestationConfig{AttestationType: "HVS", AttestationURL: "http://localhost" + port + "/mtwilson/v2"},
 			},
 			wantErr: true,
@@ -200,7 +200,7 @@ func TestOpenstackPluginInit(t *testing.T) {
 		{
 			name: "Success with ISecl-HVS Push",
 			configuration: &config.Configuration{
-				AAS: config.AASConfig{URL: "http://localhost" + port + "/aas"},
+				AASApiUrl: "http://localhost" + port + "/aas",
 				AttestationService: config.AttestationConfig{
 					AttestationType: constants.DefaultAttestationType, AttestationURL: "http://localhost" + port + "/mtwilson/v2"},
 				Endpoint: config.Endpoint{
@@ -217,7 +217,7 @@ func TestOpenstackPluginInit(t *testing.T) {
 		{
 			name: "Success with SGX-HVS Push",
 			configuration: &config.Configuration{
-				AAS: config.AASConfig{URL: "http://localhost" + port + "/aas"},
+				AASApiUrl: "http://localhost" + port + "/aas",
 				AttestationService: config.AttestationConfig{
 					AttestationType: constants.AttestationTypeSGX, AttestationURL: "http://localhost" + port + "/sgx-hvs/v1"},
 				Endpoint: config.Endpoint{

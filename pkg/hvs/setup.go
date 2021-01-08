@@ -10,7 +10,6 @@ import (
 	cos "github.com/intel-secl/intel-secl/v3/pkg/lib/common/os"
 	"strings"
 
-	"github.com/intel-secl/intel-secl/v3/pkg/hvs/config"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/constants"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/services/hrrs"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/tasks"
@@ -125,12 +124,12 @@ func (a *App) setupTaskRunner() (*setup.Runner, error) {
 		ConsoleWriter: a.consoleWriter(),
 		DefaultPort:   constants.DefaultHVSListenerPort,
 	})
-	runner.AddTask("service", "", &tasks.ServiceSetup{
+	runner.AddTask("service", "hvs", &setup.ServiceSetup{
 		SvcConfigPtr:        &a.Config.HVS,
 		AASApiUrlPtr:        &a.Config.AASApiUrl,
 		CMSBaseURLPtr:       &a.Config.CMSBaseURL,
 		CmsTlsCertDigestPtr: &a.Config.CmsTlsCertDigest,
-		HVSConfig: config.HVSConfig{
+		ServiceConfig: commConfig.ServiceConfig{
 			Username: viper.GetString("hvs-service-username"),
 			Password: viper.GetString("hvs-service-password"),
 		},
@@ -162,7 +161,7 @@ func (a *App) setupTaskRunner() (*setup.Runner, error) {
 		DBConfig: dbConf,
 	})
 	runner.AddTask("create-dek", "", &tasks.CreateDek{
-		DekStore: &a.Config.HVS.Dek,
+		DekStore: &a.Config.Dek,
 	})
 	runner.AddTask("download-ca-cert", "", &setup.DownloadCMSCert{
 		CaCertDirPath: constants.TrustedRootCACertsDir,

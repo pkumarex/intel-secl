@@ -12,6 +12,7 @@ import (
 
 	"github.com/intel-secl/intel-secl/v3/pkg/ihub/constants"
 	"github.com/intel-secl/intel-secl/v3/pkg/ihub/tasks"
+	commConfig "github.com/intel-secl/intel-secl/v3/pkg/lib/common/config"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/setup"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
@@ -100,7 +101,7 @@ func (app *App) setup(args []string) error {
 
 // a helper function for setting up the task runner
 func (app *App) setupTaskRunner() (*setup.Runner, error) {
-
+	loadAlias()
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	viper.AutomaticEnv()
 
@@ -135,10 +136,23 @@ func (app *App) setupTaskRunner() (*setup.Runner, error) {
 		BearerToken:   viper.GetString("bearer-token"),
 	})
 
+	runner.AddTask("service", "ihub", &setup.ServiceSetup{
+		SvcConfigPtr:        &app.Config.IHUB,
+		AASApiUrlPtr:        &app.Config.AASApiUrl,
+		CMSBaseURLPtr:       &app.Config.CMSBaseURL,
+		CmsTlsCertDigestPtr: &app.Config.CmsTlsCertDigest,
+		ServiceConfig: commConfig.ServiceConfig{
+			Username: viper.GetString("ihub-service-username"),
+			Password: viper.GetString("ihub-service-password"),
+		},
+		AASApiUrl:        viper.GetString("aas-base-url"),
+		CMSBaseURL:       viper.GetString("cms-base-url"),
+		CmsTlsCertDigest: viper.GetString("cms-tls-cert-sha384"),
+		ConsoleWriter:    app.consoleWriter(),
+	})
+
 	runner.AddTask("attestation-service-connection", "", &tasks.AttestationServiceConnection{
-		AASConfig:         &app.Config.AAS,
 		AttestationConfig: &app.Config.AttestationService,
-		IHUBConfig:        &app.Config.IHUB,
 		ConsoleWriter:     app.consoleWriter(),
 	})
 

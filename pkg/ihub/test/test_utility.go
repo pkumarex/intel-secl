@@ -354,7 +354,6 @@ func ServeController(t *testing.T, r http.Handler) (*http.Server, string) {
 func SetupMockK8sConfiguration(t *testing.T, port string) *config.Configuration {
 
 	temp, _ := ioutil.TempFile("", "config.yml")
-	var err error
 	defer func() {
 		derr := os.Remove(temp.Name())
 		if derr != nil {
@@ -362,7 +361,7 @@ func SetupMockK8sConfiguration(t *testing.T, port string) *config.Configuration 
 		}
 	}()
 	c, _ := config.LoadConfiguration()
-	c.AAS.URL = "http://localhost" + port + "/aas"
+	c.AASApiUrl = "http://localhost" + port + "/aas"
 	c.IHUB.Username = "admin@hub"
 	c.IHUB.Password = "hubAdminPass"
 	c.AttestationService.AttestationType = "HVS"
@@ -373,20 +372,13 @@ func SetupMockK8sConfiguration(t *testing.T, port string) *config.Configuration 
 	c.Endpoint.CertFile = K8scertFilePath
 	c.Endpoint.Token = K8sToken
 
-	err = c.SaveConfiguration(c.ConfigFile)
-	if err != nil {
-		log.WithError(err).Errorf("Error saving configuration")
-	}
-
 	return c
-
 }
 
 //SetupMockOpenStackConfiguration setting up mock opentstack configurations
 func SetupMockOpenStackConfiguration(t *testing.T, port string) *config.Configuration {
 
 	temp, _ := ioutil.TempFile("", "config.yml")
-	var err error
 	defer func() {
 		derr := os.Remove(temp.Name())
 		if derr != nil {
@@ -394,7 +386,7 @@ func SetupMockOpenStackConfiguration(t *testing.T, port string) *config.Configur
 		}
 	}()
 	c, _ := config.LoadConfiguration()
-	c.AAS.URL = "http://localhost" + port + "/aas"
+	c.AASApiUrl = "http://localhost" + port + "/aas"
 	c.IHUB.Username = "admin@hub"
 	c.IHUB.Password = "hubAdminPass"
 	c.Endpoint.Type = "OPENSTACK"
@@ -403,10 +395,5 @@ func SetupMockOpenStackConfiguration(t *testing.T, port string) *config.Configur
 	c.Endpoint.UserName = OpenstackUserName
 	c.Endpoint.Password = OpenstackPassword
 
-	err = c.SaveConfiguration(c.ConfigFile)
-	if err != nil {
-		log.WithError(err).Errorf("Error saving configuration")
-	}
 	return c
-
 }

@@ -450,7 +450,7 @@ func SendDataToEndPoint(kubernetes KubernetesDetails) error {
 			hostDetails.SgxEnabled = sgxData[0].SgxEnabled
 			hostDetails.SgxSupported = sgxData[0].SgxSupported
 			hostDetails.TcbUpToDate = sgxData[0].TcbUpToDate
-			util.EvaluateValidTo(sgxData[0].ValidTo, kubernetes.Config.IHUB.PollIntervalMinutes)
+			util.EvaluateValidTo(sgxData[0].ValidTo, kubernetes.Config.PollIntervalMinutes)
 			hostDetails.ValidTo = sgxData[0].ValidTo
 			kubernetes.HostDetailsMap[key] = hostDetails
 		}
