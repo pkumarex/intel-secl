@@ -70,7 +70,7 @@ func getPcrEventLogEqualsRules(pcrs []types.PcrIndex, pcrLogData *types.PCRS, fl
 			TpmEvent: pcrLogData.EventlogEqual.Events,
 		}
 
-		rule, err := rules.NewPcrEventLogEquals(nil, &expectedPcrEventLogEntry, flavor.Meta.ID, marker)
+		rule, err := rules.NewPcrEventLogEquals(nil, &expectedPcrEventLogEntry, uuid.Nil, marker)
 		if err != nil {
 			return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogEquals rule for bank '%s', index '%d'", pcrLogData.PCR.Bank, pcrLogData.PCR.Index)
 		}
