@@ -419,7 +419,7 @@ var defaultFlavorTemplatesRaw = []string{
 						},
 						"pcr_matches": true,
 						"eventlog_includes": [
-							"AMI/BMC"
+							"Firmware Hash"
 						]
 					}
 				]
