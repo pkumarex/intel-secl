@@ -46,6 +46,11 @@ type EventLogCriteria struct {
 	Measurement string   `json:"measurement"` //required
 }
 
+type evaluateAttr struct {
+	TypeID      string `json:"type_id"`
+	Measurement string `json:"measurement"`
+}
+
 type EventLogEntry struct {
 	PcrIndex  PcrIndex     `json:"pcr_index"`
 	EventLogs []EventLog   `json:"event_log"`
@@ -404,26 +409,33 @@ func (eventLogEntry *EventLogEntryFC) Subtract(eventsToSubtract *EventLogEntryFC
 		},
 	}
 
-	index := make(map[string]EventLogCriteria)
+	index := make(map[evaluateAttr]EventLogCriteria)
 	for _, eventLog := range eventsToSubtract.TpmEvent {
-		index[eventLog.Measurement] = eventLog
+		compareInfo := evaluateAttr{
+			Measurement: eventLog.Measurement,
+			TypeID:      eventLog.TypeID,
+		}
+
+		eventLogData := EventLogCriteria{
+			Tags:     eventLog.Tags,
+			TypeName: eventLog.TypeName,
+		}
+		index[compareInfo] = eventLogData
 	}
 
-	//Compare event log entries value (measurement) .If mismatched,raise faults
-	//else proceed to compare type_id ,type_name and tags.
+	//Compare event log entries value (measurement and TypeID) .If mismatched,raise faults
+	//else proceed to compare type_name and tags.
 	//If these fields are mismatched,then add the mismatch entry details to report(not a fault)
 	misMatch := false
 	for _, eventLog := range eventLogEntry.TpmEvent {
-		if events, ok := index[eventLog.Measurement]; ok {
+		compareInfo := evaluateAttr{
+			Measurement: eventLog.Measurement,
+			TypeID:      eventLog.TypeID,
+		}
+		if events, ok := index[compareInfo]; ok {
 
 			if len(events.TypeName) != 0 && len(eventLog.TypeName) != 0 {
 				if events.TypeName != eventLog.TypeName {
-					misMatch = true
-
-				}
-			}
-			if len(events.TypeID) != 0 && len(eventLog.TypeID) != 0 {
-				if events.TypeID != eventLog.TypeID {
 					misMatch = true
 
 				}
