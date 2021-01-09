@@ -316,7 +316,7 @@ func getHostManifestMap(hostManifest *types.HostManifest, flavorParts []cf.Flavo
 					}
 					if hostInfo.HardwareFeatures.UEFI.Meta.SecureBootEnabled {
 						pfQueryAttrs = append(pfQueryAttrs, models.FlavorMetaKv{
-							Key:   "hardware.feature.UEFI.meta.SecureBootEnabled",
+							Key:   "hardware.feature.UEFI.meta.secure_boot_enabled",
 							Value: hostInfo.HardwareFeatures.UEFI.Meta.SecureBootEnabled,
 						})
 					}
