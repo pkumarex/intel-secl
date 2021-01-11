@@ -100,7 +100,7 @@ var _ = Describe("FlavorTemplateController", func() {
 				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
-				Expect(w.Code).To(Equal(https.StatusCreated))
+				Expect(w.Code).To(Equal(http.StatusCreated))
 			})
 		})
 
