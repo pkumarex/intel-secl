@@ -27,7 +27,7 @@ func SetFlavorTemplateRoutes(router *mux.Router, store *postgres.DataStore, flav
 
 	flavorTemplateIdExpr := fmt.Sprintf("%s%s", "/flavor-template/", validation.IdReg)
 
-	router.Handle("/flavor-template/",
+	router.Handle("/flavor-template",
 		ErrorHandler(permissionsHandler(JsonResponseHandler(flavorTemplateController.Create),
 			[]string{constants.FlavorTemplateCreate}))).Methods("POST")
 

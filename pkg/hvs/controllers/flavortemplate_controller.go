@@ -80,7 +80,7 @@ func (ftc *FlavorTemplateController) Create(w http.ResponseWriter, r *http.Reque
 		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to create flavor template"}
 	}
 
-	return flavorTemplate, http.StatusOK, nil
+	return flavorTemplate, http.StatusCreated, nil
 }
 
 // Retrieve This method is used to retrieve a flavor template
@@ -211,9 +211,9 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 				return hvs.FlavorTemplate{}, errors.New("Failed to validate flavor template ID")
 			}
 		}
-		if template != nil {
-			defaultLog.WithError(err).Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to create flavor template, template with given template ID already exists")
-			return hvs.FlavorTemplate{}, &badRequestError{Message: "FlavorTemplate with given template ID already exists"}
+		if template != nil || strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
+			defaultLog.WithError(err).Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to create flavor template, template with given template ID already exists or has been deleted")
+			return hvs.FlavorTemplate{}, &badRequestError{Message: "FlavorTemplate with given template ID already exists or has been deleted"}
 		}
 	}
 
@@ -221,6 +221,11 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 	errMsg, err := ftc.validateFlavorTemplateCreateRequest(createFlavorTemplateReq, string(body))
 	if err != nil {
 		return createFlavorTemplateReq, &badRequestError{Message: errMsg}
+	}
+
+	if len(createFlavorTemplateReq.Condition) == 0 {
+		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to create flavor template, empty condition field provided")
+		return hvs.FlavorTemplate{}, &badRequestError{Message: "Unable to create flavor template, empty condition field provided"}
 	}
 
 	return createFlavorTemplateReq, nil
