@@ -515,10 +515,8 @@ func UpdateMetaSectionDetails(flavorPart cf.FlavorPart, newMeta *cm.Meta, flavor
 		}
 
 		if flavor != nil {
-			log.Info(flavor.Meta)
 			newMeta.Description["flavor_template_ids"] = flavorTemplateID
 			for key, value := range flavor.Meta {
-				log.Info(key)
 				newMeta.Description[key] = value
 			}
 		}
