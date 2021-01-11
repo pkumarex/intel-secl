@@ -77,7 +77,11 @@ func (dm *DirectoryManager) CreateKey(request *kbs.KeyRequest) (*models.KeyAttri
 		keyAttributes.PublicKey = base64.StdEncoding.EncodeToString(publicKeyBytes)
 	}
 
-	keyAttributes.ID = uuid.New()
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create new UUID")
+	}
+	keyAttributes.ID = newUuid
 	keyAttributes.CreatedAt = time.Now().UTC()
 
 	return keyAttributes, nil
@@ -139,8 +143,12 @@ func (dm *DirectoryManager) RegisterKey(request *kbs.KeyRequest) (*models.KeyAtt
 		publicKey = base64.StdEncoding.EncodeToString(publicKeyBytes)
 	}
 
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create new UUID")
+	}
 	keyAttributes := &models.KeyAttributes{
-		ID:               uuid.New(),
+		ID:               newUuid,
 		Algorithm:        request.KeyInformation.Algorithm,
 		KeyData:          key,
 		PublicKey:        publicKey,

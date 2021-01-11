@@ -35,7 +35,10 @@ func ResponseHandler(h func(http.ResponseWriter, *http.Request) (interface{}, in
 		}
 		w.WriteHeader(status)
 		if data != nil {
-			w.Write([]byte(fmt.Sprintf("%v", data)))
+			_, err = w.Write([]byte(fmt.Sprintf("%v", data)))
+			if err != nil {
+				defaultLog.WithError(err).Errorf("Error writing to response")
+			}
 		}
 		return nil
 	}
@@ -130,7 +133,10 @@ func permissionsHandler(eh endpointHandler, permissionNames []string) endpointHa
 		privileges, err := comctx.GetUserPermissions(r)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Could not get user permissions from http context"))
+			_, writeErr := w.Write([]byte("Could not get user permissions from http context"))
+			if writeErr != nil {
+				defaultLog.WithError(writeErr).Errorf("Error writing to response")
+			}
 			secLog.Errorf("router/handlers:permissionsHandler() %s Permission: %v | Context: %v", commLogMsg.AuthenticationFailed, permissionNames, r.Context())
 			return errors.Wrap(err, "router/handlers:permissionsHandler() Could not get user permissions from http context")
 		}

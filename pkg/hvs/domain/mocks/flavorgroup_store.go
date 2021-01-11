@@ -31,6 +31,11 @@ func (store *MockFlavorgroupStore) Delete(id uuid.UUID) error {
 	return errors.New(commErr.RowsNotFound)
 }
 
+// Hosts exist for Flavorgroup
+func (store *MockFlavorgroupStore) HasAssociatedHosts(uuid.UUID) (bool, error) {
+	return false, nil
+}
+
 // Retrieve returns FlavorGroup
 func (store *MockFlavorgroupStore) Retrieve(id uuid.UUID) (*hvs.FlavorGroup, error) {
 	if _, ok := store.FlavorgroupStore[id]; ok {
@@ -77,7 +82,11 @@ func (store *MockFlavorgroupStore) Search(criteria *models.FlavorGroupFilterCrit
 // Create inserts a Flavorgroup
 func (store *MockFlavorgroupStore) Create(flavorgroup *hvs.FlavorGroup) (*hvs.FlavorGroup, error) {
 	if flavorgroup.ID == uuid.Nil {
-		flavorgroup.ID = uuid.New()
+		newUuid, err := uuid.NewRandom()
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to create new UUID")
+		}
+		flavorgroup.ID = newUuid
 	}
 	store.FlavorgroupStore[flavorgroup.ID] = flavorgroup
 	return flavorgroup, nil
@@ -166,7 +175,6 @@ func (store *MockFlavorgroupStore) SearchHostsByFlavorGroup(fgID uuid.UUID) ([]u
 
 func (store *MockFlavorgroupStore) GetFlavorTypesInFlavorGroup(fgId uuid.UUID) (map[cf.FlavorPart]bool, error) {
 
-
 	return make(map[cf.FlavorPart]bool), nil
 }
 
@@ -177,7 +185,7 @@ func NewFakeFlavorgroupStore() *MockFlavorgroupStore {
 		FlavorgroupFlavorStore: make(map[uuid.UUID][]uuid.UUID),
 	}
 
-	store.Create(&hvs.FlavorGroup{
+	_, err := store.Create(&hvs.FlavorGroup{
 		ID:   uuid.MustParse("ee37c360-7eae-4250-a677-6ee12adce8e2"),
 		Name: "hvs_flavorgroup_test1",
 		MatchPolicies: []hvs.FlavorMatchPolicy{
@@ -204,8 +212,10 @@ func NewFakeFlavorgroupStore() *MockFlavorgroupStore {
 			},
 		},
 	})
-
-	store.Create(&hvs.FlavorGroup{
+	if err != nil {
+		defaultLog.WithError(err).Error("Error creating Flavorgroup")
+	}
+	_, err = store.Create(&hvs.FlavorGroup{
 		ID:   uuid.MustParse("e57e5ea0-d465-461e-882d-1600090caa0d"),
 		Name: "hvs_flavorgroup_test2",
 		MatchPolicies: []hvs.FlavorMatchPolicy{
@@ -218,6 +228,8 @@ func NewFakeFlavorgroupStore() *MockFlavorgroupStore {
 			},
 		},
 	})
-
+	if err != nil {
+		defaultLog.WithError(err).Error("Error creating Flavorgroup")
+	}
 	return store
 }

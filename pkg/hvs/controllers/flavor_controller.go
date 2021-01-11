@@ -182,8 +182,14 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 		}
 		tagCertificate := hvs.TagCertificate{}
 		var tagX509Certificate *x509.Certificate
+
+		hardwareUUID, err := uuid.Parse(hostManifest.HostInfo.HardwareUUID)
+		if err != nil {
+			defaultLog.Errorf("controllers/flavor_controller: Failed to parse hardware UUID %s", hostManifest.HostInfo.HardwareUUID)
+			return nil, errors.Wrapf(err, "Failed to parse hardware UUID %s", hostManifest.HostInfo.HardwareUUID)
+		}
 		tcFilterCriteria := dm.TagCertificateFilterCriteria{
-			HardwareUUID: uuid.MustParse(hostManifest.HostInfo.HardwareUUID),
+			HardwareUUID: hardwareUUID,
 		}
 		tagCertificates, err := fcon.TCStore.Search(&tcFilterCriteria)
 		if err != nil {
@@ -224,7 +230,6 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 		// create flavors from flavor content
 		// TODO: currently checking only the unsigned flavors
 		for _, flavor := range flavorReq.FlavorCollection.Flavors {
-			// TODO : check if BIOS flavor part name is still accepted, if it is update the flavorpart to PLATFORM
 			defaultLog.Debug("Validating flavor meta content for flavor part")
 			if err := validateFlavorMetaContent(&flavor.Flavor.Meta); err != nil {
 				defaultLog.Error("controllers/flavor_controller:createFlavors() Valid flavor content must be given, invalid flavor meta data")
@@ -628,7 +633,7 @@ func (fcon *FlavorController) Delete(w http.ResponseWriter, r *http.Request) (in
 	defer defaultLog.Trace("controllers/flavor_controller:Delete() Leaving")
 
 	flavorId := uuid.MustParse(mux.Vars(r)["id"])
-	flavor, err := fcon.FStore.Retrieve(flavorId)
+	signedFlavor, err := fcon.FStore.Retrieve(flavorId)
 	if err != nil {
 		if strings.Contains(err.Error(), commErr.RowsNotFound) {
 			secLog.WithError(err).WithField("id", flavorId).Info(
@@ -641,7 +646,7 @@ func (fcon *FlavorController) Delete(w http.ResponseWriter, r *http.Request) (in
 		}
 	}
 
-	hostIdsForQueue, err := getHostsAssociatedWithFlavor(fcon.HStore, fcon.FGStore, flavor)
+	hostIdsForQueue, err := getHostsAssociatedWithFlavor(fcon.HStore, fcon.FGStore, signedFlavor)
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/flavor_controller:Delete() Failed to retrieve hosts " +
 			"associated with flavor")
@@ -710,7 +715,7 @@ func (fcon *FlavorController) Retrieve(w http.ResponseWriter, r *http.Request) (
 	defer defaultLog.Trace("controllers/flavor_controller:Retrieve() Leaving")
 
 	id := uuid.MustParse(mux.Vars(r)["id"])
-	flavor, err := fcon.FStore.Retrieve(id)
+	signedFlavor, err := fcon.FStore.Retrieve(id)
 	if err != nil {
 		if strings.Contains(err.Error(), commErr.RowsNotFound) {
 			secLog.WithError(err).WithField("id", id).Info(
@@ -722,7 +727,7 @@ func (fcon *FlavorController) Retrieve(w http.ResponseWriter, r *http.Request) (
 			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to retrieve Flavor with the given ID"}
 		}
 	}
-	return flavor, http.StatusOK, nil
+	return signedFlavor, http.StatusOK, nil
 }
 
 func validateFlavorFilterCriteria(key, value, flavorgroupId string, ids, flavorParts []string) (*dm.FlavorFilterCriteria, error) {

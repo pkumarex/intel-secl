@@ -157,7 +157,7 @@ const (
 )
 
 //VCSS constants
-const(
+const (
 	DefaultVcssRefreshPeriod = time.Duration(2) * time.Minute
 )
 

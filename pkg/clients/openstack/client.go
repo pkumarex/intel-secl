@@ -7,10 +7,13 @@ package openstack
 
 import (
 	"bytes"
+	"crypto/x509"
 	"encoding/json"
+	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 
 	"github.com/intel-secl/intel-secl/v3/pkg/clients"
 	"github.com/intel-secl/intel-secl/v3/pkg/ihub/constants"
@@ -61,6 +64,8 @@ type Client struct {
 	Password   string
 	Token      string
 	HTTPClient *http.Client
+	// Path to the Openstack Server TLS Cert
+	CertPath string
 }
 
 //RequestParams for passing request parameters while making API calls
@@ -72,7 +77,7 @@ type RequestParams struct {
 }
 
 //NewOpenstackClient Creates new client for Openstack
-func NewOpenstackClient(authRL *url.URL, apiURL *url.URL, userName string, password string) (*Client, error) {
+func NewOpenstackClient(authRL *url.URL, apiURL *url.URL, userName string, password string, certPath string) (*Client, error) {
 	log.Trace("openstack/client:NewOpenstackClient() Entering")
 	defer log.Trace("openstack/client:NewOpenstackClient() Leaving")
 
@@ -81,6 +86,7 @@ func NewOpenstackClient(authRL *url.URL, apiURL *url.URL, userName string, passw
 		ApiURL:   apiURL,
 		UserName: userName,
 		Password: password,
+		CertPath: certPath,
 	}
 
 	err := openstackClient.validateOpenstackDetails()
@@ -104,13 +110,20 @@ func NewOpenstackClient(authRL *url.URL, apiURL *url.URL, userName string, passw
 }
 
 func (openstackClient *Client) validateOpenstackDetails() error {
-
 	log.Trace("openstack/client:validateOpenstackDetails() Entering")
 	defer log.Trace("openstack/client:validateOpenstackDetails() Leaving")
 
 	protocols := make(map[string]byte)
 	protocols["http"] = 0
 	protocols["https"] = 0
+
+	// check for url nilness
+	if openstackClient.ApiURL == nil {
+		return errors.New("openstack/client:validateOpenstackDetails() Openstack API URL is nil")
+	}
+	if openstackClient.AuthURL == nil {
+		return errors.New("openstack/client:validateOpenstackDetails() Openstack Auth URL is nil")
+	}
 
 	err := validation.ValidateURL(openstackClient.AuthURL.String(), protocols, "/v3/auth/tokens")
 	if err != nil {
@@ -122,16 +135,21 @@ func (openstackClient *Client) validateOpenstackDetails() error {
 		return errors.Wrap(err, "openstack/client:validateOpenstackDetails() Openstack UserName or Password is Invalid")
 	}
 
+	if openstackClient.CertPath != "" {
+		if _, err := os.Stat(openstackClient.CertPath); err != nil {
+			return errors.Wrap(err, "openstack/client:validateOpenstackDetails() Openstack TLS cert file cannot be read")
+		}
+	}
+
 	return nil
 }
 
 //updateOpenstackToken Update the Openstack token
 func (openstackClient *Client) updateOpenstackToken() error {
-
 	log.Trace("openstack/client:updateOpenstackToken() Entering")
 	defer log.Trace("openstack/client:updateOpenstackToken() Leaving")
 
-	url := openstackClient.AuthURL
+	authURL := openstackClient.AuthURL
 	method := "POST"
 	domain := "default"
 
@@ -229,7 +247,7 @@ func (openstackClient *Client) updateOpenstackToken() error {
 
 	payload := bytes.NewReader(jsonValue)
 
-	req, err := http.NewRequest(method, url.String(), payload)
+	req, err := http.NewRequest(method, authURL.String(), payload)
 
 	if err != nil {
 		return errors.Wrap(err, "openstack/client:updateOpenstackToken() Error in creating new request")
@@ -241,7 +259,12 @@ func (openstackClient *Client) updateOpenstackToken() error {
 	if err != nil {
 		return errors.Wrap(err, "openstack/client:updateOpenstackToken() Error in retrieving the Openstack token")
 	}
-	defer res.Body.Close()
+	defer func() {
+		derr := res.Body.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing response body")
+		}
+	}()
 
 	log.Debug("openstack/client:updateOpenstackToken() The HTTPClient response is received successfully ")
 	token := res.Header.Get("X-Subject-Token")
@@ -256,7 +279,6 @@ func (openstackClient *Client) updateOpenstackToken() error {
 
 //SendRequest API for sending Requests to openstack
 func (openstackClient *Client) SendRequest(reqParams *RequestParams) (*http.Response, error) {
-
 	log.Trace("openstack/client:SendRequest() Entering")
 	defer log.Trace("openstack/client:SendRequest() Leaving")
 
@@ -305,7 +327,6 @@ func (openstackClient *Client) SendRequest(reqParams *RequestParams) (*http.Resp
 }
 
 func (openstackClient *Client) getOpenstackHTTPClient() (*http.Client, error) {
-
 	log.Trace("openstack/client:getOpenstackHTTPClient() Entering")
 	defer log.Trace("openstack/client:getOpenstackHTTPClient() Leaving")
 
@@ -313,8 +334,27 @@ func (openstackClient *Client) getOpenstackHTTPClient() (*http.Client, error) {
 		return openstackClient.HTTPClient, nil
 	}
 
-	osClient := clients.HTTPClientTLSNoVerify() //TODO Implement supporting HTTPS connection to Openstack
+	var osClient *http.Client
+
+	if openstackClient.CertPath != "" {
+		var certArray []x509.Certificate
+
+		x509Certificate, err := crypt.GetCertFromPemFile(openstackClient.CertPath)
+		if err != nil {
+			return nil, errors.Wrap(err, "openstack/client:getOpenstackHTTPClient() Unable to Read X509 Certificate")
+		}
+		certArray = append(certArray, *x509Certificate)
+
+		newTLSClient, err := clients.HTTPClientWithCA(certArray)
+		if err != nil {
+			return nil, errors.Wrap(err, "openstack/client:getOpenstackHTTPClient() Error in creating client with certPath "+openstackClient.CertPath)
+		}
+		osClient = newTLSClient
+	} else {
+		//we need a TLS no verify while running setup tasks because certs not exchanged at this point of time.
+		log.Debug("openstack/client:getOpenstackHTTPClient() Creating Insecure K8s Client")
+		osClient = clients.HTTPClientTLSNoVerify()
+	}
 
 	return osClient, nil
-
 }

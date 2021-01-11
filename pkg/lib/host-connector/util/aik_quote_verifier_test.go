@@ -38,7 +38,7 @@ func TestVerifyQuoteAndGetPCRManifest(t *testing.T) {
 	assert.NoError(t, err)
 	verificationNonceInBytes, err := base64.StdEncoding.DecodeString(verificationNonce)
 
-	tpmQuoteInBytes , err := base64.StdEncoding.DecodeString(tpmQuoteResponse.Quote)
+	tpmQuoteInBytes, err := base64.StdEncoding.DecodeString(tpmQuoteResponse.Quote)
 
 	_, err = VerifyQuoteAndGetPCRManifest(string(decodedEventLogBytes), verificationNonceInBytes, tpmQuoteInBytes, aikCertificate)
 	assert.NoError(t, err)
@@ -66,7 +66,7 @@ func TestVerifyQuoteAndGetPCRManifestInvalidNonce(t *testing.T) {
 	assert.NoError(t, err)
 	verificationNonceInBytes, err := base64.StdEncoding.DecodeString(verificationNonce)
 
-	tpmQuoteInBytes , err := base64.StdEncoding.DecodeString(tpmQuoteResponse.Quote)
+	tpmQuoteInBytes, err := base64.StdEncoding.DecodeString(tpmQuoteResponse.Quote)
 
 	_, err = VerifyQuoteAndGetPCRManifest(string(decodedEventLogBytes), verificationNonceInBytes, tpmQuoteInBytes, aikCertificate)
 	assert.Error(t, err)
@@ -91,7 +91,3 @@ func TestGetVerificationNonceAssetTagProvisioned(t *testing.T) {
 	_, err = GetVerificationNonce(nonceInBytes, tpmQuoteResponse)
 	assert.NoError(t, err)
 }
-
-
-
-

@@ -41,8 +41,12 @@ func (pfutil PlatformFlavorUtil) GetMetaSectionDetails(hostDetails *taModel.Host
 	defer log.Trace("flavor/util/platform_flavor_util:GetMetaSectionDetails() Leaving")
 
 	var meta cm.Meta
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "flavor/util/platform_flavor_util:GetMetaSectionDetails() failed to create new UUID")
+	}
 	// Set UUID
-	meta.ID = uuid.New()
+	meta.ID = newUuid
 	meta.Vendor = vendor
 
 	var biosName string
@@ -111,7 +115,11 @@ func (pfutil PlatformFlavorUtil) GetMetaSectionDetails(hostDetails *taModel.Host
 		meta.ID, err = uuid.Parse(measurements.Uuid)
 		if err != nil {
 			// if Software UUID is empty, we generate a new UUID and use it
-			meta.ID = uuid.New()
+			newUuid, err := uuid.NewRandom()
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to create new UUID")
+			}
+			meta.ID = newUuid
 		}
 		meta.Schema = pfutil.getSchema()
 

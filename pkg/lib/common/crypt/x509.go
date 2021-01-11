@@ -214,7 +214,7 @@ func GetPublicKeyFromCertPem(certPem []byte) (crypto.PublicKey, error) {
 // GetPrivateKeyFromPem retrieve the private key from a private pem block
 func GetPrivateKeyFromPem(keyPem []byte) (crypto.PrivateKey, error) {
 	block, _ := pem.Decode(keyPem)
-	if block == nil || block.Type != "PRIVATE KEY"  {
+	if block == nil || block.Type != "PRIVATE KEY" {
 		return nil, fmt.Errorf("failed to parse private key PEM")
 	}
 	key, err := x509.ParsePKCS8PrivateKey(block.Bytes)
@@ -227,7 +227,7 @@ func GetPrivateKeyFromPem(keyPem []byte) (crypto.PrivateKey, error) {
 // GetPublicKeyFromPem retrieve the public key from a public pem block
 func GetPublicKeyFromPem(keyPem []byte) (crypto.PublicKey, error) {
 	block, _ := pem.Decode(keyPem)
-	if block == nil || block.Type != "PUBLIC KEY"  {
+	if block == nil || block.Type != "PUBLIC KEY" {
 		return nil, fmt.Errorf("failed to parse public key PEM")
 	}
 	key, err := x509.ParsePKIXPublicKey(block.Bytes)
@@ -239,7 +239,7 @@ func GetPublicKeyFromPem(keyPem []byte) (crypto.PublicKey, error) {
 
 func GetCertFromPem(certPem []byte) (*x509.Certificate, error) {
 	block, _ := pem.Decode(certPem)
-	if block == nil || block.Type != "CERTIFICATE"  {
+	if block == nil || block.Type != "CERTIFICATE" {
 		return nil, fmt.Errorf("failed to parse certificate PEM")
 	}
 	cert, err := x509.ParseCertificate(block.Bytes)
@@ -252,7 +252,7 @@ func GetCertFromPem(certPem []byte) (*x509.Certificate, error) {
 func GetCertAndChainFromPem(certPem []byte) (cert *x509.Certificate, chain *x509.CertPool, err error) {
 
 	block, rest := pem.Decode(certPem)
-	if block == nil  || block.Type != "CERTIFICATE"{
+	if block == nil || block.Type != "CERTIFICATE" {
 		return nil, nil, fmt.Errorf("failed to parse certificate PEM")
 	}
 
@@ -278,7 +278,7 @@ func GetSubjectCertsMapFromPemFile(path string) ([]x509.Certificate, error) {
 	log.Debugf("crypt/x509:GetSubjectCertsMapFromPemFile() Loading certificates from  %s", path)
 	var certificates []x509.Certificate
 	certsBytes, err := ioutil.ReadFile(path)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 
@@ -299,7 +299,7 @@ func GetSubjectCertsMapFromPemFile(path string) ([]x509.Certificate, error) {
 		return certificates, nil
 	}
 
-	for ;len(rest) > 1;{
+	for len(rest) > 1 {
 		block, rest = pem.Decode(rest)
 		if block == nil {
 			break
@@ -314,7 +314,6 @@ func GetSubjectCertsMapFromPemFile(path string) ([]x509.Certificate, error) {
 	}
 	return certificates, nil
 }
-
 
 // GetCertHashInHex returns hash of a certificate from a Pem block
 func GetCertHashInHex(cert *x509.Certificate, hashAlg crypto.Hash) (string, error) {
@@ -347,7 +346,12 @@ func SavePrivateKeyAsPKCS8(keyDer []byte, filePath string) error {
 	if err != nil {
 		return errors.Wrapf(err, "crypt/x509:SavePrivateKeyAsPKCS8() Error while changing file permission for file : %s", filePath)
 	}
-	defer keyOut.Close()
+	defer func() {
+		derr := keyOut.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing file")
+		}
+	}()
 
 	if err := pem.Encode(keyOut, &pem.Block{Type: "PRIVATE KEY", Bytes: keyDer}); err != nil {
 		return fmt.Errorf("could not pem encode the private key: %v", err)
@@ -364,7 +368,7 @@ func GetPKCS8PrivKeyDerFromFile(path string) ([]byte, error) {
 	}
 
 	block, _ := pem.Decode(privKeyPem)
-	if block == nil || block.Type != "PKCS8 PRIVATE KEY"  && block.Type != "PRIVATE KEY"{
+	if block == nil || block.Type != "PKCS8 PRIVATE KEY" && block.Type != "PRIVATE KEY" {
 		return nil, fmt.Errorf("failed to parse private Key PEM file")
 	}
 
@@ -408,11 +412,15 @@ func SavePemCertWithShortSha1FileName(certPem []byte, dir string) error {
 	if err != nil {
 		return fmt.Errorf("could not open file for saving certificate with short sha1 filename - error :: %v", err)
 	}
-	os.Chmod(filePath, 0640)
-
-	defer certOut.Close()
+	defer func() {
+		derr := certOut.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing file")
+		}
+	}()
+	err = os.Chmod(filePath, 0640)
 	if err != nil {
-		return fmt.Errorf("could not open file for writing certificate filepath:%s : %v", filePath, err)
+		return fmt.Errorf("could not change file permissions: %s", filePath)
 	}
 
 	// let us decode and encode the block.. this is to make sure that there
@@ -420,7 +428,10 @@ func SavePemCertWithShortSha1FileName(certPem []byte, dir string) error {
 	// the header
 
 	for block, rest := pem.Decode(certPem); block != nil && block.Type == "CERTIFICATE"; block, rest = pem.Decode(rest) {
-		pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: block.Bytes}); 
+		err = pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: block.Bytes})
+		if err != nil {
+			return fmt.Errorf("could not encode certificate")
+		}
 	}
 
 	return nil
@@ -431,9 +442,17 @@ func SavePemCert(cert []byte, certFilePath string) (err error) {
 	if err != nil {
 		return fmt.Errorf("could not open file for writing: %v", err)
 	}
-	defer certOut.Close()
+	defer func() {
+		derr := certOut.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing file")
+		}
+	}()
+	err = os.Chmod(certFilePath, 0640)
+	if err != nil {
+		return fmt.Errorf("could not change file permissions: %s", certFilePath)
+	}
 
-	os.Chmod(certFilePath, 0640)
 	if err := pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: cert}); err != nil {
 		return fmt.Errorf("could not pem encode cert: %v", err)
 	}
@@ -446,9 +465,18 @@ func SavePemCertChain(certFilePath string, certs ...[]byte) error {
 	if err != nil {
 		return fmt.Errorf("could not open file for writing: %v", err)
 	}
-	defer certOut.Close()
+	defer func() {
+		derr := certOut.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing file")
+		}
+	}()
 
-	os.Chmod(certFilePath, 0640)
+	err = os.Chmod(certFilePath, 0640)
+	if err != nil {
+		return fmt.Errorf("could not change file permissions: %s", certFilePath)
+	}
+
 	for _, cert := range certs {
 		if err := pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: cert}); err != nil {
 			return fmt.Errorf("could not pem encode cert: %v", err)
@@ -457,7 +485,7 @@ func SavePemCertChain(certFilePath string, certs ...[]byte) error {
 	return nil
 }
 
-func GetCertPool(certs []x509.Certificate) *x509.CertPool{
+func GetCertPool(certs []x509.Certificate) *x509.CertPool {
 	certPool := x509.NewCertPool()
 	for i, _ := range certs {
 		certPool.AddCert(&certs[i])
@@ -465,10 +493,10 @@ func GetCertPool(certs []x509.Certificate) *x509.CertPool{
 	return certPool
 }
 
-func GetCertsFromDir(path string) ([]x509.Certificate, error){
+func GetCertsFromDir(path string) ([]x509.Certificate, error) {
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
-		return nil, errors.Wrap(err, "Error while reading certs from dir" + path)
+		return nil, errors.Wrap(err, "Error while reading certs from dir"+path)
 	}
 	if !strings.HasSuffix(path, "/") {
 		path = path + "/"

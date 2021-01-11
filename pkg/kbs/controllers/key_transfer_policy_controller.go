@@ -63,7 +63,7 @@ func (ktpc KeyTransferPolicyController) Create(responseWriter http.ResponseWrite
 	createdPolicy, err := ktpc.policyStore.Create(&requestPolicy)
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/key_transfer_policy_controller:Create() Key transfer policy create failed")
-		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message:"Failed to create key transfer policy"}
+		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to create key transfer policy"}
 	}
 
 	secLog.WithField("Id", createdPolicy.ID).Infof("controllers/key_transfer_policy_controller:Create() %s: Key Transfer Policy created by: %s", commLogMsg.PrivilegeModified, request.RemoteAddr)
@@ -80,10 +80,10 @@ func (ktpc KeyTransferPolicyController) Retrieve(responseWriter http.ResponseWri
 	if err != nil {
 		if err.Error() == commErr.RecordNotFound {
 			defaultLog.Errorf("controllers/key_transfer_policy_controller:Retrieve() Key transfer policy with specified id could not be located")
-			return nil, http.StatusNotFound, &commErr.ResourceError{Message:"Key transfer policy with specified id does not exist"}
+			return nil, http.StatusNotFound, &commErr.ResourceError{Message: "Key transfer policy with specified id does not exist"}
 		} else {
 			defaultLog.WithError(err).Error("controllers/key_transfer_policy_controller:Retrieve() Key transfer policy retrieve failed")
-			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message:"Failed to retrieve key transfer policy"}
+			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to retrieve key transfer policy"}
 		}
 	}
 
@@ -104,22 +104,22 @@ func (ktpc KeyTransferPolicyController) Delete(responseWriter http.ResponseWrite
 	keys, err := ktpc.keyStore.Search(criteria)
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/key_transfer_policy_controller:Delete() Key search failed")
-		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message:"Failed to search keys"}
+		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to search keys"}
 	}
 
 	if len(keys) > 0 {
 		defaultLog.Error("controllers/key_transfer_policy_controller:Delete() Key transfer policy is associated with existing keys")
-		return nil, http.StatusBadRequest, &commErr.ResourceError{Message:"Key transfer policy is associated with keys"}
+		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: "Key transfer policy is associated with keys"}
 	}
 
 	err = ktpc.policyStore.Delete(id)
 	if err != nil {
 		if err.Error() == commErr.RecordNotFound {
 			defaultLog.Error("controllers/key_transfer_policy_controller:Delete() Key transfer policy with specified id could not be located")
-			return nil, http.StatusNotFound, &commErr.ResourceError{Message:"Key transfer policy with specified id does not exist"}
+			return nil, http.StatusNotFound, &commErr.ResourceError{Message: "Key transfer policy with specified id does not exist"}
 		} else {
 			defaultLog.WithError(err).Error("controllers/key_transfer_policy_controller:Delete() Key transfer policy delete failed")
-			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message:"Failed to delete key transfer policy"}
+			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to delete key transfer policy"}
 		}
 	}
 
@@ -137,7 +137,7 @@ func (ktpc KeyTransferPolicyController) Search(responseWriter http.ResponseWrite
 	transferPolicies, err := ktpc.policyStore.Search(criteria)
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/key_transfer_policy_controller:Search() Key transfer policy search failed")
-		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message:"Failed to search key transfer policies"}
+		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to search key transfer policies"}
 	}
 
 	secLog.Infof("controllers/key_transfer_policy_controller:Search() %s: Key Transfer Policies searched by: %s", commLogMsg.AuthorizedAccess, request.RemoteAddr)

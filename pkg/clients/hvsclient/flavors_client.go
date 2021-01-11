@@ -24,7 +24,6 @@ import (
 //-------------------------------------------------------------------------------------------------
 
 type FlavorsClient interface {
-
 	CreateFlavor(flavorCreateRequest *models.FlavorCreateRequest) (hvs.FlavorCollection, error)
 }
 
@@ -46,29 +45,36 @@ func (client *flavorsClientImpl) CreateFlavor(flavorCreateRequest *models.Flavor
 	if err != nil {
 		return flavors, err
 	}
-	url, err := url.Parse(client.cfg.BaseURL)
+	parsedUrl, err := url.Parse(client.cfg.BaseURL)
 	if err != nil {
 		return flavors, errors.Wrap(err, "hvsclient/flavors_client:CreateFlavor() error parsing base url")
 	}
 
-	url.Path = path.Join(url.Path, "flavors")
-	request, _ := http.NewRequest("POST", url.String(), bytes.NewBuffer(jsonData))
+	parsedUrl.Path = path.Join(parsedUrl.Path, "flavors")
+	request, err := http.NewRequest("POST", parsedUrl.String(), bytes.NewBuffer(jsonData))
+	if err != nil {
+		return flavors, errors.Wrap(err, "hvsclient/flavors_client:CreateFlavor() error creating request")
+	}
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Accept", "application/json")
-	request.Header.Set("Authorization", "Bearer " + client.cfg.BearerToken)
+	request.Header.Set("Authorization", "Bearer "+client.cfg.BearerToken)
 
-	log.Debugf("hvsclient/flavors_client:CreateFlavor() Posting to url %s, json: %s ", url, string(jsonData))
+	log.Debugf("hvsclient/flavors_client:CreateFlavor() Posting to url %s, json: %s ", parsedUrl, string(jsonData))
 
 	response, err := client.httpClient.Do(request)
 	if err != nil {
 		secLog.Warn(message.BadConnection)
-		return flavors, errors.Wrapf(err, "hvsclient/flavors_client:CreateFlavor() Error while making request to %s", url)
+		return flavors, errors.Wrapf(err, "hvsclient/flavors_client:CreateFlavor() Error while making request to %s", parsedUrl)
 	}
 
-	defer response.Body.Close()
-
+	defer func() {
+		derr := response.Body.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing response body")
+		}
+	}()
 	if response.StatusCode != http.StatusCreated {
-		return flavors, errors.Errorf("hvsclient/flavors_client:CreateFlavor() request made to %s returned status %d", url, response.StatusCode)
+		return flavors, errors.Errorf("hvsclient/flavors_client:CreateFlavor() request made to %s returned status %d", parsedUrl, response.StatusCode)
 	}
 
 	jsonData, err = ioutil.ReadAll(response.Body)
@@ -78,10 +84,9 @@ func (client *flavorsClientImpl) CreateFlavor(flavorCreateRequest *models.Flavor
 
 	log.Debugf("hvsclient/flavors_client:CreateFlavor() Json response body returned: %s", string(jsonData))
 
-
 	err = json.Unmarshal(jsonData, &flavors)
 	if err != nil {
-		return flavors, errors.Wrap(err,"hvsclient/flavors_client:CreateFlavor() Error unmarshalling json data to flavors")
+		return flavors, errors.Wrap(err, "hvsclient/flavors_client:CreateFlavor() Error unmarshalling json data to flavors")
 	}
 	return flavors, nil
 }

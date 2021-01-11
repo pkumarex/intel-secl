@@ -5,6 +5,7 @@
 package config
 
 import (
+	log "github.com/sirupsen/logrus"
 	"os"
 
 	"github.com/intel-secl/intel-secl/v3/pkg/kbs/constants"
@@ -76,11 +77,16 @@ func LoadConfiguration() (*Configuration, error) {
 
 // Save saves application specific configuration to config.yml
 func (config *Configuration) Save(filename string) error {
-	configFile, err := os.Create(filename)
+	configFile, err := os.OpenFile(filename, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0600)
 	if err != nil {
 		return errors.Wrap(err, "Failed to create config file")
 	}
-	defer configFile.Close()
+	defer func() {
+		derr := configFile.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing config file")
+		}
+	}()
 	err = yaml.NewEncoder(configFile).Encode(config)
 	if err != nil {
 		return errors.Wrap(err, "Failed to encode config structure")

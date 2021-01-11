@@ -50,9 +50,9 @@ func (v *verifierImpl) Verify(hostManifest *types.HostManifest, signedFlavor *hv
 	}
 
 	trustReport := hvs.TrustReport{
-		PolicyName: policyName,
-		Results:    results,
-		Trusted:    v.overallTrust,
+		PolicyName:   policyName,
+		Results:      results,
+		Trusted:      v.overallTrust,
 		HostManifest: *hostManifest,
 	}
 
@@ -71,7 +71,7 @@ func (v *verifierImpl) applyRules(rulesToApply []rules.Rule, hostManifest *types
 			return nil, errors.Wrapf(err, "Error ocrurred applying rule type '%T'", rule)
 		}
 
-		// if 'Apply' returned a result with any faults, then the 
+		// if 'Apply' returned a result with any faults, then the
 		// rule is not trusted
 		if len(result.Faults) > 0 {
 			result.Trusted = false
@@ -88,6 +88,6 @@ func (v *verifierImpl) applyRules(rulesToApply []rules.Rule, hostManifest *types
 	return results, nil
 }
 
-func (v *verifierImpl) GetVerifierCerts() VerifierCertificates{
+func (v *verifierImpl) GetVerifierCerts() VerifierCertificates {
 	return v.verifierCertificates
 }

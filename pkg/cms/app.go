@@ -95,7 +95,7 @@ func (a *App) configureLogs(isStdOut bool, isFileOut bool) error {
 	var ioWriterDefault io.Writer
 	ioWriterDefault = a.LogWriter
 	if isStdOut {
-		if isFileOut{
+		if isFileOut {
 			ioWriterDefault = io.MultiWriter(os.Stdout, a.logWriter())
 		} else {
 			ioWriterDefault = os.Stdout

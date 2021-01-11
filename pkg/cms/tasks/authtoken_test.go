@@ -17,7 +17,7 @@ func TestCreateCmsAuthToken(t *testing.T) {
 	log.Trace("tasks/authtoken_test:TestCreateCmsAuthToken() Entering")
 	defer log.Trace("tasks/authtoken_test:TestCreateCmsAuthToken() Leaving")
 
-	assert := assert.New(t)
+	assertions := assert.New(t)
 	CreateSerialNumberFileAndJWTDir()
 	c := config.Configuration{}
 
@@ -30,15 +30,14 @@ func TestCreateCmsAuthToken(t *testing.T) {
 	}
 
 	err := createCmsAuthToken(at)
-	assert.NoError(err)
-	//defer os.RemoveAll("/etc/cms")
+	assertions.NoError(err)
 }
 
 func TestAuthTokenRun(t *testing.T) {
 	log.Trace("tasks/authtoken_test:TestAuthTokenRun() Entering")
 	defer log.Trace("tasks/authtoken_test:TestAuthTokenRun() Leaving")
 
-	assert := assert.New(t)
+	assertions := assert.New(t)
 	CreateSerialNumberFileAndJWTDir()
 	c := config.Configuration{}
 
@@ -51,5 +50,5 @@ func TestAuthTokenRun(t *testing.T) {
 	}
 
 	err := ca.Run()
-	assert.NoError(err)
+	assertions.NoError(err)
 }

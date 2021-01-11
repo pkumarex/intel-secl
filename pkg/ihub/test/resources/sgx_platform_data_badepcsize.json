@@ -1,0 +1,11 @@
+[
+    {
+        "host_id": "9dfa6d89-e122-443e-9785-b65d2248ba89",
+        "sgx_supported": true,
+        "sgx_enabled": true,
+        "flc_enabled": true,
+        "epc_size": "189.5MBBADSIZE",
+        "tcb_upToDate": false,
+        "validTo": "2020-09-22T05:57:58.616098Z"
+    }
+]

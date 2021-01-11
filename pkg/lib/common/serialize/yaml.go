@@ -6,8 +6,9 @@
 package serialize
 
 import (
-	"os"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
+	"os"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -16,10 +17,16 @@ import (
 func SaveToYamlFile(path string, obj interface{}) error {
 
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0)
-	defer file.Close()
 	if err != nil {
 		return err
 	}
+	defer func() {
+		derr := file.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing file")
+		}
+	}()
+
 	return yaml.NewEncoder(file).Encode(obj)
 }
 

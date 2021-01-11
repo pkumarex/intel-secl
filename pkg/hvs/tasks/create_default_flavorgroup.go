@@ -7,6 +7,7 @@ package tasks
 import (
 	"fmt"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/constants"
+	log "github.com/sirupsen/logrus"
 	"io"
 
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
@@ -93,7 +94,10 @@ func defaultFlavorGroups() []hvs.FlavorGroup {
 	var ret []hvs.FlavorGroup
 	for _, fgStr := range defaultFlavorGroupsRaw {
 		fg := hvs.FlavorGroup{}
-		fg.UnmarshalJSON([]byte(fgStr))
+		err := fg.UnmarshalJSON([]byte(fgStr))
+		if err != nil {
+			log.WithError(err).Errorf("Failed to unmarshal data")
+		}
 		ret = append(ret, fg)
 	}
 	return ret

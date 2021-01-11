@@ -170,9 +170,9 @@ func (v *Verifier) verifyFlavors(hostID uuid.UUID, flavors []hvs.SignedFlavor, h
 					return &hvs.TrustReport{}, errors.Wrap(err, "hosttrust/trust_report:verifyFlavors() Error verifying flavor")
 				}
 				if individualTrustReport.Trusted {
-					if reflect.DeepEqual(collectiveTrustReport, hvs.TrustReport{}){
+					if reflect.DeepEqual(collectiveTrustReport, hvs.TrustReport{}) {
 						collectiveTrustReport = *individualTrustReport
-					} else{
+					} else {
 						collectiveTrustReport.AddResults(individualTrustReport.Results)
 					}
 					newTrustCaches = append(newTrustCaches, signedFlavor.Flavor.Meta.ID)
@@ -181,9 +181,9 @@ func (v *Verifier) verifyFlavors(hostID uuid.UUID, flavors []hvs.SignedFlavor, h
 					faults := 0
 					for _, result := range individualTrustReport.Results {
 						faults += len(result.Faults)
-						for _, fault := range result.Faults{
+						for _, fault := range result.Faults {
 							log.Debugf("Flavor [%s] did not match host [%s] due to fault: %s",
-								signedFlavor.Flavor.Meta.ID, hostID, fault.Name )
+								signedFlavor.Flavor.Meta.ID, hostID, fault.Name)
 						}
 					}
 					untrusted.flavorPartMap[flvMatchPolicy.FlavorPart] =

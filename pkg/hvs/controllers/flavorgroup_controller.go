@@ -35,7 +35,7 @@ func (controller FlavorgroupController) Create(w http.ResponseWriter, r *http.Re
 	defaultLog.Trace("controllers/flavorgroup_controller:Create() Entering")
 	defer defaultLog.Trace("controllers/flavorgroup_controller:Create() Leaving")
 
-	if r.Header.Get("Content-Type") != consts.HTTPMediaTypeJson{
+	if r.Header.Get("Content-Type") != consts.HTTPMediaTypeJson {
 		return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: "Invalid Content-Type"}
 	}
 
@@ -153,12 +153,24 @@ func (controller FlavorgroupController) Delete(w http.ResponseWriter, r *http.Re
 			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to delete FlavorGroup"}
 		}
 	}
-	//TODO: Check if the flavor group is linked to any host
 
-	if models.IsDefaultFlavorgroup(delFlavorGroup.Name){
+	if models.IsDefaultFlavorgroup(delFlavorGroup.Name) {
 		secLog.Error("controllers/flavorgroup_controller:Delete() attempt to delete default FlavorGroup")
 		errorMsg := delFlavorGroup.Name + " is a system generated default flavorgroup which is protected and cannot be deleted"
 		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: errorMsg}
+	}
+
+	hostsExist, err := controller.FlavorGroupStore.HasAssociatedHosts(id)
+	if err != nil {
+		defaultLog.WithError(err).WithField("id", id).Info(
+			"controllers/flavorgroup_controller:Delete() failed to get hosts associated with FlavorGroup")
+		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to delete FlavorGroup"}
+	}
+	if hostsExist {
+		defaultLog.WithError(err).WithField("id", id).Info(
+			"controllers/flavorgroup_controller:Delete() one or more than one hosts are still linked with FlavorGroup")
+		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: "Failed to delete FlavorGroup, " +
+			"one or more than one hosts are still linked with FlavorGroup"}
 	}
 
 	if err := controller.FlavorGroupStore.Delete(id); err != nil {
@@ -233,7 +245,7 @@ func (controller FlavorgroupController) AddFlavor(w http.ResponseWriter, r *http
 	defaultLog.Trace("controllers/flavorgroup_controller:AddFlavor() Entering")
 	defer defaultLog.Trace("controllers/flavorgroup_controller:AddFlavor() Leaving")
 
-	if r.Header.Get("Content-Type") != consts.HTTPMediaTypeJson{
+	if r.Header.Get("Content-Type") != consts.HTTPMediaTypeJson {
 		return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: "Invalid Content-Type"}
 	}
 

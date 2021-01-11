@@ -17,7 +17,7 @@ func SetCertificatesRoutes(router *mux.Router, config *config.Configuration) *mu
 	log.Trace("router/certificates:SetCertificatesRoutes() Entering")
 	defer log.Trace("router/certificates:SetCertificatesRoutes() Leaving")
 
-	certController := controllers.CertificatesController{Config : config}
+	certController := controllers.CertificatesController{Config: config}
 	router.HandleFunc("/certificates", certController.GetCertificates).Methods("POST")
 	return router
 }

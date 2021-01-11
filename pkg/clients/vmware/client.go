@@ -141,14 +141,24 @@ func getVmwareHostReference(vc *vmwareClient) (mo.HostSystem, *govmomi.Client, e
 		return mo.HostSystem{}, vmwareClient, err
 	}
 	viewManager := view.NewManager(vmwareClient.Client)
+	defer func() {
+		_, derr := viewManager.Destroy(vc.Context)
+		if derr != nil {
+			log.WithError(derr).Error("Error destroying context")
+		}
+	}()
 	viewer, err := viewManager.CreateContainerView(vc.Context, vmwareClient.ServiceContent.RootFolder,
 		[]string{HOST_SYSTEM_PROPERTY}, true)
-	defer viewManager.Destroy(vc.Context)
-
 	if err != nil {
 		return mo.HostSystem{}, vmwareClient, errors.Wrap(err, "vmware/client:getVmwareHostReference() Error "+
 			"creating container view from client")
 	}
+	defer func() {
+		derr := viewer.Destroy(vc.Context)
+		if derr != nil {
+			log.WithError(derr).Error("Error destroying context")
+		}
+	}()
 
 	var hs []mo.HostSystem
 
@@ -168,7 +178,7 @@ func getVmwareHostReference(vc *vmwareClient) (mo.HostSystem, *govmomi.Client, e
 		"hostname " + vc.HostName + " found in cluster")
 }
 
-func (vc *vmwareClient) GetVmwareClusterReference (clusterName string) ([]mo.HostSystem, error) {
+func (vc *vmwareClient) GetVmwareClusterReference(clusterName string) ([]mo.HostSystem, error) {
 	log.Trace("vmware/client:GetVmwareClusterReference() Entering ")
 	defer log.Trace("vmware/client:GetVmwareClusterReference() Leaving ")
 
@@ -178,19 +188,27 @@ func (vc *vmwareClient) GetVmwareClusterReference (clusterName string) ([]mo.Hos
 			"creating vsphere client")
 	}
 	viewManager := view.NewManager(vmwareClient.Client)
+	defer func() {
+		_, derr := viewManager.Destroy(vc.Context)
+		if derr != nil {
+			log.WithError(derr).Error("Error destroying context")
+		}
+	}()
 	viewer, err := viewManager.CreateContainerView(vc.Context, vmwareClient.ServiceContent.RootFolder,
 		[]string{CLUSTER_SYSTEM_PROPERTY}, true)
-	defer viewManager.Destroy(vc.Context)
-
 	if err != nil {
 		return nil, errors.Wrap(err, "vmware/client:getVmwareClusterReference() Error "+
 			"creating container view from client")
 	}
-
+	defer func() {
+		derr := viewer.Destroy(vc.Context)
+		if derr != nil {
+			log.WithError(derr).Error("Error destroying context")
+		}
+	}()
 	var ccr []mo.ClusterComputeResource
 
 	err = viewer.Retrieve(vc.Context, []string{CLUSTER_SYSTEM_PROPERTY}, []string{"name", "host"}, &ccr)
-	defer viewer.Destroy(vc.Context)
 	if err != nil {
 		return nil, errors.Wrap(err, "vmware/client:getVmwareClusterReference() Error "+
 			"getting cluster properties")

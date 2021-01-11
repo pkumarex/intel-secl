@@ -40,9 +40,24 @@ func TestLoadConfiguration(t *testing.T) {
 
 			dir, _ := ioutil.TempDir("", "")
 			if tt.configFile != "" {
-				f, _ := os.Create(dir + "/" + tt.configFile)
-				f.WriteString("pollintervalminutes: 5\n")
-				defer os.Remove(f.Name())
+				f, err := os.Create(dir + "/" + tt.configFile)
+				if err != nil {
+					t.Log("config/config_test:TestLoadConfiguration() Error in creating temp file")
+				}
+				_, err = f.WriteString("pollintervalminutes: 5\n")
+				if err != nil {
+					t.Log("config/config_test:TestLoadConfiguration() Error in writing data")
+				}
+				defer func() {
+					cerr := f.Close()
+					if cerr != nil {
+						t.Errorf("Error closing file: %v", cerr)
+					}
+					derr := os.Remove(f.Name())
+					if derr != nil {
+						t.Errorf("Error removing file: %v", derr)
+					}
+				}()
 			}
 
 			viper.AddConfigPath(dir)

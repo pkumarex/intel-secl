@@ -42,9 +42,9 @@ func (controller ManifestsController) GetManifest(w http.ResponseWriter, r *http
 		FlavorFC: *filterCriteria,
 	})
 	if err != nil {
-			defaultLog.WithError(err).Errorf("controllers/manifests_controller:"+
-				"GetManifest() %s : Failed to search flavor from store", commLogMsg.AppRuntimeErr)
-			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to search flavor from store"}
+		defaultLog.WithError(err).Errorf("controllers/manifests_controller:"+
+			"GetManifest() %s : Failed to search flavor from store", commLogMsg.AppRuntimeErr)
+		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to search flavor from store"}
 	}
 
 	if signedFlavors == nil || len(signedFlavors) == 0 {

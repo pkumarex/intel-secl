@@ -152,7 +152,6 @@ func (app *App) configuration() *config.Configuration {
 	return nil
 }
 
-
 func (app *App) configureLogs(isStdOut bool, isFileOut bool) {
 
 	var ioWriterDefault io.Writer

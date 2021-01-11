@@ -80,7 +80,7 @@ func getTrustReport(
 	v, _ := verifier.NewVerifier(*verifierCertificates)
 	javaTrustReportsJSON, _ := ioutil.ReadFile(trustReportFile)
 	json.Unmarshal(javaTrustReportsJSON, &javaTrustReports)
-	
+
 	var collectiveReport hvs.TrustReport
 	for _, signedFlavor := range signedFlavors {
 		trustReport, _ := v.Verify(&hostManifest, &signedFlavor, true)
