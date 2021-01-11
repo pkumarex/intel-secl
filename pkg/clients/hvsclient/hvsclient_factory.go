@@ -40,7 +40,7 @@ type hvsClientConfig struct {
 
 func NewVSClientFactory(baseURL, bearerToken, caCertsDir string) (HVSClientFactory, error) {
 
-	if bearerToken == "" || baseURL == "" || caCertsDir == ""{
+	if bearerToken == "" || baseURL == "" || caCertsDir == "" {
 		return nil, errors.New("One or more parameters among bearer token, baseURL and caCertsDir path is empty")
 	}
 	cfg := hvsClientConfig{BaseURL: baseURL, BearerToken: bearerToken, CaCertsDir: caCertsDir}
@@ -50,16 +50,16 @@ func NewVSClientFactory(baseURL, bearerToken, caCertsDir string) (HVSClientFacto
 }
 
 func NewVSClientFactoryWithUserCredentials(baseURL, aasApiUrl, username, password, caCertsDir string) (HVSClientFactory, error) {
-	if aasApiUrl == "" || baseURL == "" || caCertsDir == "" || username == "" || password == ""{
+	if aasApiUrl == "" || baseURL == "" || caCertsDir == "" || username == "" || password == "" {
 		return nil, errors.New("One or more parameters among aasApiUrl, baseURL, username, password and caCertsDir path is empty")
 	}
 
-	if strings.HasSuffix(baseURL, "/"){
+	if strings.HasSuffix(baseURL, "/") {
 		baseURL = baseURL
 	} else {
 		baseURL = baseURL + "/"
 	}
-	cfg := hvsClientConfig{BaseURL:baseURL, AasAPIUrl: aasApiUrl, UserName: username, Password: password, CaCertsDir: caCertsDir}
+	cfg := hvsClientConfig{BaseURL: baseURL, AasAPIUrl: aasApiUrl, UserName: username, Password: password, CaCertsDir: caCertsDir}
 
 	defaultFactory := defaultVSClientFactory{&cfg}
 	return &defaultFactory, nil

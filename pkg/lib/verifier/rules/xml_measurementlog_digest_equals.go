@@ -17,8 +17,8 @@ import (
 
 func NewXmlMeasurementLogDigestEquals(expectedDigestAlgorithm string, flavorID uuid.UUID) (Rule, error) {
 
-	rule := xmlMeasurementLogDigestEquals {
-		flavorID: flavorID,
+	rule := xmlMeasurementLogDigestEquals{
+		flavorID:                flavorID,
 		expectedDigestAlgorithm: expectedDigestAlgorithm,
 	}
 
@@ -31,7 +31,7 @@ type xmlMeasurementLogDigestEquals struct {
 }
 
 // - If the xml event log is missing, create a XmlMeasurementLogMissing fault.
-// - Otherwise, loop over all of the software measurements and make sure they 
+// - Otherwise, loop over all of the software measurements and make sure they
 //   have 'expectedDigestAlgorithm', creating faults if they don't match.
 func (rule *xmlMeasurementLogDigestEquals) Apply(hostManifest *types.HostManifest) (*hvs.RuleResult, error) {
 
@@ -43,15 +43,15 @@ func (rule *xmlMeasurementLogDigestEquals) Apply(hostManifest *types.HostManifes
 	if hostManifest.MeasurementXmls == nil || len(hostManifest.MeasurementXmls) == 0 {
 		result.Faults = append(result.Faults, newXmlEventLogMissingFault(rule.flavorID))
 	} else {
-		for _, measurementXml := range(hostManifest.MeasurementXmls) {
+		for _, measurementXml := range hostManifest.MeasurementXmls {
 			var measurement model.Measurement
 			err := xml.Unmarshal([]byte(measurementXml), &measurement)
 			if err != nil {
 				result.Faults = append(result.Faults, newXmlMeasurementLogInvalidFault())
 			} else {
 				if measurement.DigestAlg != rule.expectedDigestAlgorithm {
-					
-					fault := hvs.Fault {
+
+					fault := hvs.Fault{
 						Name:                 constants.FaultXmlMeasurementsDigestValueMismatch,
 						Description:          fmt.Sprintf("XML measurement log for flavor %s has %s algorithm does not match with measurement %s - %s algorithm.", rule.flavorID, rule.expectedDigestAlgorithm, measurement.Uuid, measurement.DigestAlg),
 						FlavorId:             &rule.flavorID,
@@ -61,7 +61,7 @@ func (rule *xmlMeasurementLogDigestEquals) Apply(hostManifest *types.HostManifes
 
 					result.Faults = append(result.Faults, fault)
 				}
-			}	
+			}
 		}
 	}
 

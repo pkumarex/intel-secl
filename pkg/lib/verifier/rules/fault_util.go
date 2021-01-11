@@ -26,7 +26,7 @@ func newPcrValueMissingFault(bank types.SHAAlgorithm, pcrIndex types.PcrIndex) h
 }
 
 func newPcrValueMismatchFault(pcrIndex types.PcrIndex, expectedPcr types.Pcr, actualPcr types.Pcr) hvs.Fault {
-	return hvs.Fault {
+	return hvs.Fault{
 		Name:             faultsConst.FaultPcrValueMismatch + string(actualPcr.PcrBank),
 		Description:      fmt.Sprintf("Host PCR %d with value '%s' does not match expected value '%s'", pcrIndex, actualPcr.Value, expectedPcr.Value),
 		PcrIndex:         &pcrIndex,
@@ -36,7 +36,7 @@ func newPcrValueMismatchFault(pcrIndex types.PcrIndex, expectedPcr types.Pcr, ac
 }
 
 func newPcrEventLogMissingExpectedEntries(eventLogEntry *types.EventLogEntry) hvs.Fault {
-	return hvs.Fault {
+	return hvs.Fault{
 		Name:           faultsConst.FaultPcrEventLogMissingExpectedEntries,
 		Description:    fmt.Sprintf("Module manifest for PCR %d missing %d expected entries", eventLogEntry.PcrIndex, len(eventLogEntry.EventLogs)),
 		PcrIndex:       &eventLogEntry.PcrIndex,
@@ -53,7 +53,7 @@ func newPcrEventLogMissingFault(pcrIndex types.PcrIndex) hvs.Fault {
 }
 
 func newPcrEventLogContainsUnexpectedEntries(eventLogEntry *types.EventLogEntry) hvs.Fault {
-	return hvs.Fault {
+	return hvs.Fault{
 		Name:              faultsConst.FaultPcrEventLogContainsUnexpectedEntries,
 		Description:       fmt.Sprintf("Module manifest for PCR %d contains %d unexpected entries", eventLogEntry.PcrIndex, len(eventLogEntry.EventLogs)),
 		PcrIndex:          &eventLogEntry.PcrIndex,
@@ -92,7 +92,7 @@ func newXmlMeasurementLogInvalidFault() hvs.Fault {
 }
 
 func newPcrManifestMissingFault() hvs.Fault {
-	return hvs.Fault {
+	return hvs.Fault{
 		Name:        faultsConst.FaultPcrManifestMissing,
 		Description: "Host report does not include a PCR Manifest",
 	}

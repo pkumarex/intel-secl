@@ -87,7 +87,10 @@ func (a *App) Run(args []string) error {
 	case "uninstall":
 		var purge bool
 		flag.CommandLine.BoolVar(&purge, "purge", false, "purge config when uninstalling")
-		flag.CommandLine.Parse(args[2:])
+		err := flag.CommandLine.Parse(args[2:])
+		if err != nil {
+			return err
+		}
 		return a.uninstall(purge)
 	case "version", "--version", "-v":
 		a.printVersion()

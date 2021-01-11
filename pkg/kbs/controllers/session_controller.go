@@ -225,7 +225,7 @@ func getRsaPubKey(quoteStr string) ([]byte, error) {
 	n := big.Int{}
 	n.SetBytes(quote[modulusStrOffset:])
 	eb := big.Int{}
-	eb.SetBytes(quote[32 : 32 + expoLen])
+	eb.SetBytes(quote[32 : 32+expoLen])
 
 	ex, err := strconv.Atoi(eb.String())
 	if err != nil {

@@ -5,6 +5,8 @@
 
 package config
 
+import log "github.com/sirupsen/logrus"
+
 // this function is for compatibility with older code
 // we should stop using it and switch to having configuration
 // read from application structure
@@ -12,8 +14,12 @@ package config
 var globalConfig *Configuration
 
 func Global() *Configuration {
+	var err error
 	if globalConfig == nil {
-		globalConfig, _ = LoadConfiguration()
+		globalConfig, err = LoadConfiguration()
+		if err != nil {
+			log.WithError(err).Errorf("Failed to load configuration")
+		}
 	}
 	return globalConfig
 }

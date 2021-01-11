@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Check OS
+OS=$(cat /etc/os-release | grep ^ID= | cut -d'=' -f2)
+temp="${OS%\"}"
+temp="${temp#\"}"
+OS="$temp"
+
 # READ .env file
 echo PWD IS $(pwd)
 if [ -f ~/cms.env ]; then
@@ -48,25 +54,20 @@ mkdir -p $DB_SCRIPT_PATH && chown cms:cms $DB_SCRIPT_PATH/
 # Create configuration directory in /etc
 mkdir -p $CONFIG_PATH && chown cms:cms $CONFIG_PATH
 chmod 700 $CONFIG_PATH
-chmod g+s $CONFIG_PATH
 
 # Create jwt certs directory in config
 mkdir -p $CONFIG_PATH/jwt && chown cms:cms $CONFIG_PATH/jwt
 chmod 700 $CONFIG_PATH/jwt
-chmod g+s $CONFIG_PATH/jwt
 
 mkdir -p $CONFIG_PATH/root-ca && chown cms:cms $CONFIG_PATH/root-ca
 chmod 700 $CONFIG_PATH/root-ca
-chmod g+s $CONFIG_PATH/root-ca
 
 mkdir -p $CONFIG_PATH/intermediate-ca && chown cms:cms $CONFIG_PATH/intermediate-ca
 chmod 700 $CONFIG_PATH/intermediate-ca
-chmod g+s $CONFIG_PATH/intermediate-ca
 
 # Create logging dir in /var/log
 mkdir -p $LOG_PATH && chown cms:cms $LOG_PATH
 chmod 700 $LOG_PATH
-chmod g+s $LOG_PATH
 
 # Install systemd script
 cp cms.service $PRODUCT_HOME && chown cms:cms $PRODUCT_HOME/cms.service && chown cms:cms $PRODUCT_HOME
@@ -80,9 +81,15 @@ systemctl daemon-reload
 auto_install() {
   local component=${1}
   local cprefix=${2}
-  local yum_packages=$(eval "echo \$${cprefix}_YUM_PACKAGES")
+  local packages=$(eval "echo \$${cprefix}_PACKAGES")
   # detect available package management tools. start with the less likely ones to differentiate.
-  yum -y install $yum_packages
+if [ "$OS" == "rhel" ]
+then
+  yum -y install $packages
+elif [ "$OS" == "ubuntu" ]
+then
+  apt -y install $packages
+fi
 }
 
 
@@ -100,7 +107,7 @@ logRotate_detect() {
 }
 
 logRotate_install() {
-  LOGROTATE_YUM_PACKAGES="logrotate"
+  LOGROTATE_PACKAGES="logrotate"
   if [ "$(whoami)" == "root" ]; then
     auto_install "Log Rotate" "LOGROTATE"
     if [ $? -ne 0 ]; then echo_failure "Failed to install logrotate"; exit -1; fi

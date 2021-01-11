@@ -133,7 +133,8 @@ func SetupManagerTests() {
 func TestHostTrustManagerNewService(t *testing.T) {
 	SetupManagerTests()
 
-	hwUuid := uuid.New()
+	hwUuid, err := uuid.NewRandom()
+	assert.NoError(t, err)
 
 	newHost, err := hs.Create(&hvs.Host{
 		HostName:         "test.domain.com",
@@ -160,6 +161,7 @@ func TestHostTrustManagerNewService(t *testing.T) {
 func TestVerifier_Verify_UntrustedHost(t *testing.T) {
 	SetupManagerTests()
 	report, err := v.Verify(hostId, &hostManifest, false)
+	assert.NoError(t, err)
 	fmt.Println(report.TrustReport.Trusted)
 	assert.Equal(t, report.TrustReport.Trusted, false)
 	fmt.Println(report.Saml)
@@ -168,7 +170,8 @@ func TestVerifier_Verify_UntrustedHost(t *testing.T) {
 
 func TestHostTrustManagerShutdown(t *testing.T) {
 	SetupManagerTests()
-	hwUuid := uuid.New()
+	hwUuid, err := uuid.NewRandom()
+	assert.NoError(t, err)
 
 	newHost, err := hs.Create(&hvs.Host{
 		HostName:         "test.domain.com",
@@ -186,7 +189,8 @@ func TestHostTrustManagerShutdown(t *testing.T) {
 	assert.NoError(t, ht.VerifyHostsAsync([]uuid.UUID{hwUuid}, true, false), "Async calls pre-shutdown should not return error")
 
 	// call shutdown signal
-	service.Shutdown()
+	err = service.Shutdown()
+	assert.NoError(t, err)
 
 	// check if the service has been shutdown
 	assert.Error(t, ht.VerifyHostsAsync([]uuid.UUID{hwUuid}, true, false), "Service post shutdown should return error")
@@ -227,20 +231,32 @@ func TestManager_VerifyQueueLogic(t *testing.T) {
 
 func TestManager_VerifyNonExistentHost(t *testing.T) {
 	SetupManagerTests()
-
-	// add entries to HostCredentialStore
-	hcs.Create(&models.HostCredential{
-		Id:         uuid.New(),
-		HostId:     uuid.New(),
+	hostCred := &models.HostCredential{
 		HostName:   "hostname",
 		Credential: "https://ta.ip.com:1443",
 		CreatedTs:  time.Now(),
-	})
+	}
+	newUuid, err := uuid.NewRandom()
+	assert.NoError(t, err)
+	hostCred.Id = newUuid
+	newUuid, err = uuid.NewRandom()
+	assert.NoError(t, err)
+	hostCred.HostId = newUuid
+	// add entries to HostCredentialStore
+	hcs.Create(hostCred)
 
-	_, err := service.VerifyHost(uuid.New(), true, false)
+	newId, err := uuid.NewRandom()
+	assert.NoError(t, err)
+	_, err = service.VerifyHost(newId, true, false)
 	assert.Error(t, err, "VerifyHost should error out when the Host does not exist")
-	_, err = service.VerifyHost(uuid.New(), false, false)
+	newId, err = uuid.NewRandom()
+	assert.NoError(t, err)
+	_, err = service.VerifyHost(newId, false, false)
 	assert.Error(t, err, "VerifyHost should error out when the Host does not exist")
-	assert.NoError(t, service.VerifyHostsAsync([]uuid.UUID{uuid.New()}, true, false), "VerifyHostVerifyHostsAsync should error out when the Host does not exist")
-	assert.NoError(t, service.VerifyHostsAsync([]uuid.UUID{uuid.New()}, false, false), "VerifyHostsAsync should error out when the Host does not exist")
+	newId, err = uuid.NewRandom()
+	assert.NoError(t, err)
+	assert.NoError(t, service.VerifyHostsAsync([]uuid.UUID{newId}, true, false), "VerifyHostVerifyHostsAsync should error out when the Host does not exist")
+	newId, err = uuid.NewRandom()
+	assert.NoError(t, err)
+	assert.NoError(t, service.VerifyHostsAsync([]uuid.UUID{newId}, false, false), "VerifyHostsAsync should error out when the Host does not exist")
 }

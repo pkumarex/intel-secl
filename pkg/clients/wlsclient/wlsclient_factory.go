@@ -27,7 +27,7 @@ type wlsClientConfig struct {
 	Password string
 }
 
-func NewWLSClientFactory(baseURL, AasApiURL, username, password , caCertsDir string) (WLSClientFactory, error) {
+func NewWLSClientFactory(baseURL, AasApiURL, username, password, caCertsDir string) (WLSClientFactory, error) {
 
 	cfg := wlsClientConfig{BaseURL: baseURL, AasApiURL: AasApiURL, Username: username, Password: password, CaCerts: caCertsDir}
 
@@ -45,15 +45,15 @@ type defaultWLSClientFactory struct {
 
 func (wlsClientFactory *defaultWLSClientFactory) FlavorsClient() (FlavorsClient, error) {
 	caCerts, err := crypt.GetCertsFromDir(wlsClientFactory.cfg.CaCerts)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
-	return &flavorsClientImpl{ caCerts,wlsClientFactory.cfg}, nil
+	return &flavorsClientImpl{caCerts, wlsClientFactory.cfg}, nil
 }
 
 func (wlsClientFactory *defaultWLSClientFactory) ReportsClient() (ReportsClient, error) {
 	caCerts, err := crypt.GetCertsFromDir(wlsClientFactory.cfg.CaCerts)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	return &reportsClientImpl{caCerts, wlsClientFactory.cfg}, nil
@@ -61,8 +61,8 @@ func (wlsClientFactory *defaultWLSClientFactory) ReportsClient() (ReportsClient,
 
 func (wlsClientFactory *defaultWLSClientFactory) KeysClient() (KeysClient, error) {
 	caCerts, err := crypt.GetCertsFromDir(wlsClientFactory.cfg.CaCerts)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
-	return &keysClientImpl{ caCerts, wlsClientFactory.cfg}, nil
+	return &keysClientImpl{caCerts, wlsClientFactory.cfg}, nil
 }

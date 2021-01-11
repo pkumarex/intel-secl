@@ -40,41 +40,41 @@ func setupRouter() *mux.Router {
 }
 
 func TestBasicAuth(t *testing.T) {
-	assert := assert.New(t)
+	assertions := assert.New(t)
 	r := setupRouter()
 	recorder := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/foo", nil)
 	req.SetBasicAuth("username", "FOOBAR")
 	r.ServeHTTP(recorder, req)
-	assert.Equal(http.StatusOK, recorder.Code)
-	assert.Equal(recorder.Body.String(), "bar!")
+	assertions.Equal(http.StatusOK, recorder.Code)
+	assertions.Equal(recorder.Body.String(), "bar!")
 }
 
 func TestBasicAuthFail(t *testing.T) {
-	assert := assert.New(t)
+	assertions := assert.New(t)
 	r := setupRouter()
 	recorder := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/foo", nil)
 	req.SetBasicAuth("username", "DEFINITELY NOT THE RIGHT PASSWORD")
 	r.ServeHTTP(recorder, req)
-	assert.Equal(http.StatusUnauthorized, recorder.Code)
+	assertions.Equal(http.StatusUnauthorized, recorder.Code)
 }
 
 func TestBasicAuthWrongUser(t *testing.T) {
-	assert := assert.New(t)
+	assertions := assert.New(t)
 	r := setupRouter()
 	recorder := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/foo", nil)
 	req.SetBasicAuth("DEFINITELY NOT THE RIGHT USER", "DEFINITELY NOT THE RIGHT PASSWORD")
 	r.ServeHTTP(recorder, req)
-	assert.Equal(http.StatusUnauthorized, recorder.Code)
+	assertions.Equal(http.StatusUnauthorized, recorder.Code)
 }
 
 func TestNoBasicAuth(t *testing.T) {
-	assert := assert.New(t)
+	assertions := assert.New(t)
 	r := setupRouter()
 	recorder := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/foo", nil)
 	r.ServeHTTP(recorder, req)
-	assert.Equal(http.StatusUnauthorized, recorder.Code)
+	assertions.Equal(http.StatusUnauthorized, recorder.Code)
 }

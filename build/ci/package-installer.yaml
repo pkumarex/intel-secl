@@ -2,7 +2,7 @@
   stage: package
   tags:
     - k8s
-  image: golang:latest
+  image: golang:1.14
   before_script:
     - git config --global http."https://${GITLAB_SERVER}".proxy ""
     - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@${GITLAB_SERVER}".insteadOf "https://${GITLAB_SERVER}"
@@ -20,21 +20,29 @@
     - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /develop$/'
       when: on_success
 
-package:hvs:installer:
+.installer-normal-components:
   extends: .installer-common
   script:
-    - make hvs-installer
+    - COMPONENT_IN_JOB=$(echo "$CI_JOB_NAME" | cut -d ":" -f2)
+    - mkdir -p installer
+    - cp build/linux/$COMPONENT_IN_JOB/* installer/
+    - chmod +x installer/install.sh
+    - cp cmd/$COMPONENT_IN_JOB/$COMPONENT_IN_JOB installer/$COMPONENT_IN_JOB
+    - makeself installer deployments/installer/$COMPONENT_IN_JOB-$(VERSION).bin "$COMPONENT_IN_JOB $(VERSION)" ./install.sh
 
-package:hvs:swagger:
+package:hvs:installer:
+  extends: .installer-normal-components
+
+package:cms:installer:
+  extends: .installer-normal-components
+
+package:ihub:installer:
+  extends: .installer-normal-components
+
+package:kbs:installer:
+  extends: .installer-normal-components
+
+package:authservice:installer:
   extends: .installer-common
-  artifacts:
-    paths:
-      - docs/swagger/hvs-openapi.yml
-    expire_in: 1 week
   script:
-    - dir=$(mktemp -d)
-    - git clone https://github.com/go-swagger/go-swagger "$dir"
-    - cd "$dir"
-    - go install ./cmd/swagger
-    - cd $CI_PROJECT_DIR
-    - make hvs-swagger
+    - make authservice-installer

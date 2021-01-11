@@ -52,7 +52,7 @@ func defineSubRoutes(router *mux.Router, service string, cfg *config.Configurati
 	subRouter = router.PathPrefix(serviceApi).Subrouter()
 	cfgRouter := Router{cfg: cfg}
 	subRouter.Use(middleware.NewTokenAuth(constants.TrustedJWTSigningCertsDir, constants.ConfigDir, cfgRouter.fnGetJwtCerts,
-		time.Minute * constants.DefaultJwtValidateCacheKeyMins))
+		time.Minute*constants.DefaultJwtValidateCacheKeyMins))
 	subRouter = SetCertificatesRoutes(subRouter, cfg)
 }
 
@@ -78,7 +78,10 @@ func (r *Router) fnGetJwtCerts() error {
 	}
 
 	// Get the SystemCertPool, continue with an empty pool on error
-	rootCAs, _ := x509.SystemCertPool()
+	rootCAs, err := x509.SystemCertPool()
+	if err != nil {
+		return errors.Wrap(err, "router/router:fnGetJwtCerts() Could not initiate certificate pool")
+	}
 	if rootCAs == nil {
 		rootCAs = x509.NewCertPool()
 	}
@@ -90,6 +93,7 @@ func (r *Router) fnGetJwtCerts() error {
 	httpClient := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
+				MinVersion:         tls.VersionTLS12,
 				InsecureSkipVerify: false,
 				RootCAs:            rootCAs,
 			},
@@ -100,8 +104,17 @@ func (r *Router) fnGetJwtCerts() error {
 	if err != nil {
 		return errors.Wrap(err, "router/router:fnGetJwtCerts() Could not retrieve jwt certificate")
 	}
-	defer res.Body.Close()
-	body, _ := ioutil.ReadAll(res.Body)
+	defer func() {
+		derr := res.Body.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing response body")
+		}
+	}()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return errors.Wrap(err, "router/router:fnGetJwtCerts() Could not read response body")
+	}
 	err = crypt.SavePemCertWithShortSha1FileName(body, constants.TrustedJWTSigningCertsDir)
 	if err != nil {
 		return errors.Wrap(err, "router/router:fnGetJwtCerts() Could not store Certificate")

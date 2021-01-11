@@ -54,24 +54,27 @@ func (privacycatpm2 *PrivacyCATpm2) ProcessIdentityRequest(request model.Identit
 		return model.IdentityProofRequest{}, errors.Wrap(err, "privacyca/privacyca_tpm2:ProcessIdentityRequest() Error while performing EncryptSym")
 	}
 	encryptedIdentityChallengeBlob := new(bytes.Buffer)
-	binary.Write(encryptedIdentityChallengeBlob, binary.BigEndian, encryptedIdentityChallenge)
+	err = binary.Write(encryptedIdentityChallengeBlob, binary.BigEndian, encryptedIdentityChallenge)
+	if err != nil {
+		return model.IdentityProofRequest{}, errors.Wrap(err, "privacyca/privacyca_tpm2:ProcessIdentityRequest() Error writing identity challenge")
+	}
 	credential, err := tpm2utils.MakeCredential(pubEk, consts.TPM2AlgorithmSymmetricAES, consts.SymmetricKeyBits128, crypto.SHA256, key, request.AikName)
 	if err != nil {
 		return model.IdentityProofRequest{}, errors.Errorf("privacyca/privacyca_tpm2:ProcessIdentityRequest() Error while performing MakeCredential %+v", err)
 	}
 
 	symmetricKeyParams := model.TpmSymmetricKeyParams{
-		TpmAlgId: consts.TPM_ALG_AES,
-		TpmAlgEncScheme: consts.TPM_ES_NONE,
+		TpmAlgId:              consts.TPM_ALG_AES,
+		TpmAlgEncScheme:       consts.TPM_ES_NONE,
 		TpmAlgSignatureScheme: 0,
-		IV: iv,
+		IV:                    iv,
 	}
 
 	identityProofRequest := model.IdentityProofRequest{
-		Secret:       credential.Secret,
-		Credential:   credential.CredentialBlob,
+		Secret:                credential.Secret,
+		Credential:            credential.CredentialBlob,
 		TpmSymmetricKeyParams: symmetricKeyParams,
-		SymmetricBlob: encryptedIdentityChallengeBlob.Bytes(),
+		SymmetricBlob:         encryptedIdentityChallengeBlob.Bytes(),
 	}
 
 	return identityProofRequest, nil
@@ -90,19 +93,18 @@ func (privacycatpm2 *PrivacyCATpm2) GetEkCert(identityChallengePayload model.Ide
 	defer log.Trace("privacyca/privacyca_tpm2:GetEkCert() Leaving")
 
 	symKey, err := tpm2utils.Tpm2DecryptAsym(identityChallengePayload.AsymBlob, privacycaKey, identityChallengePayload.TpmAsymmetricKeyParams.TpmAlgEncScheme, nil)
-	if err != nil{
+	if err != nil {
 		return nil, errors.Wrap(err, "privacyca/privacyca_tpm2:GetEkCert() Error while decryption of asymmetric blob")
 	}
 	var ekCertBytes []byte
 	if identityChallengePayload.TpmSymmetricKeyParams.TpmAlgEncScheme == consts.TPM_ES_SYM_CBC_PKCS5PAD {
 		ekCertBytes, err = tpm2utils.DecryptSym(identityChallengePayload.SymBlob, symKey, identityChallengePayload.TpmSymmetricKeyParams.IV, "CBC", identityChallengePayload.TpmSymmetricKeyParams.TpmAlgId)
-		if err != nil{
+		if err != nil {
 			return nil, errors.Wrap(err, "privacyca/privacyca_tpm2:GetEkCert() Error while decryption of symmetric blob")
 		}
 	}
 	return ekCertBytes, nil
 }
-
 
 /**
  * Returns the encrypted endorsement cert bytes.
@@ -113,7 +115,7 @@ func (privacycatpm2 *PrivacyCATpm2) GetEkCert(identityChallengePayload model.Ide
  * param identity Request.
  * return IdentityChallengePayload
  */
-func (privacycatpm2 *PrivacyCATpm2) GetIdentityChallengeRequest(payload []byte, pubKey *rsa.PublicKey, request model.IdentityRequest) (model.IdentityChallengePayload, error)  {
+func (privacycatpm2 *PrivacyCATpm2) GetIdentityChallengeRequest(payload []byte, pubKey *rsa.PublicKey, request model.IdentityRequest) (model.IdentityChallengePayload, error) {
 	log.Trace("privacyca/privacyca_tpm2:GetIdentityChallengeRequest() Entering")
 	defer log.Trace("privacyca/privacyca_tpm2:GetIdentityChallengeRequest() Leaving")
 	//---------------------------------------------------------------------------------------------
@@ -136,12 +138,12 @@ func (privacycatpm2 *PrivacyCATpm2) GetIdentityChallengeRequest(payload []byte, 
 	}
 
 	tpmSymmetricKeyParams := model.TpmSymmetricKeyParams{
-		TpmAlgId                : consts.TPM_ALG_AES,
-		TpmAlgEncScheme         : consts.TPM_ES_SYM_CBC_PKCS5PAD,
-		TpmAlgSignatureScheme   : consts.TPM_SS_NONE,
-		KeyLength               : 128,
-		BlockSize               : 128,
-		IV                      : iv,
+		TpmAlgId:              consts.TPM_ALG_AES,
+		TpmAlgEncScheme:       consts.TPM_ES_SYM_CBC_PKCS5PAD,
+		TpmAlgSignatureScheme: consts.TPM_SS_NONE,
+		KeyLength:             128,
+		BlockSize:             128,
+		IV:                    iv,
 	}
 
 	asymKey, err := crypt.GetRandomBytes(32)
@@ -152,24 +154,24 @@ func (privacycatpm2 *PrivacyCATpm2) GetIdentityChallengeRequest(payload []byte, 
 	// Encrypt the symmetric key using rsa sha256 Algorithm
 	asymmetricBytes, err := rsa.EncryptOAEP(sha256.New(), bytes.NewBuffer(asymKey), pubKey, cipherKey, nil)
 	if err != nil {
-		return model.IdentityChallengePayload{}, errors.Wrap(err,"privacyca/privacyca_tpm2:GetIdentityChallengeRequest() Error while encrypting symmetric key")
+		return model.IdentityChallengePayload{}, errors.Wrap(err, "privacyca/privacyca_tpm2:GetIdentityChallengeRequest() Error while encrypting symmetric key")
 	}
 
 	asymmetricKeyParams := model.TpmAsymmetricKeyParams{
-		TpmAlgId                : consts.TPM_ALG_RSA,
-		TpmAlgEncScheme         : consts.TPM_ALG_ID_SHA256,
-		TpmAlgSignatureScheme   : consts.TPM_SS_NONE,
-		KeyLength               : 2048,
-		PrimesCount             : 2,
-		ExponentSize            : 0,
+		TpmAlgId:              consts.TPM_ALG_RSA,
+		TpmAlgEncScheme:       consts.TPM_ALG_ID_SHA256,
+		TpmAlgSignatureScheme: consts.TPM_SS_NONE,
+		KeyLength:             2048,
+		PrimesCount:           2,
+		ExponentSize:          0,
 	}
 
 	identityChallengePayload := model.IdentityChallengePayload{
 		TpmAsymmetricKeyParams: asymmetricKeyParams,
-		TpmSymmetricKeyParams: tpmSymmetricKeyParams,
-		SymBlob: symmetricBytes,
-		AsymBlob: asymmetricBytes,
-		IdentityRequest: request,
+		TpmSymmetricKeyParams:  tpmSymmetricKeyParams,
+		SymBlob:                symmetricBytes,
+		AsymBlob:               asymmetricBytes,
+		IdentityRequest:        request,
 	}
 	return identityChallengePayload, nil
 }

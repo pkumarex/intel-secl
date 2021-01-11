@@ -129,16 +129,16 @@ func createPCRManifest(hostTpmAttestationReport *vim25Types.HostTpmAttestationRe
 		if strings.EqualFold(pcrDetails.DigestMethod, "SHA256") {
 			pcrManifest.Sha256Pcrs = append(pcrManifest.Sha256Pcrs, types.Pcr{
 				DigestType: fmt.Sprintf(constants.PcrClassNamePrefix+"%d", 256),
-				Index:   pcrIndex,
-				Value:   intArrayToHexString(pcrDetails.DigestValue),
-				PcrBank: shaAlgorithm,
+				Index:      pcrIndex,
+				Value:      intArrayToHexString(pcrDetails.DigestValue),
+				PcrBank:    shaAlgorithm,
 			})
 		} else if strings.EqualFold(pcrDetails.DigestMethod, "SHA1") {
 			pcrManifest.Sha1Pcrs = append(pcrManifest.Sha1Pcrs, types.Pcr{
 				DigestType: fmt.Sprintf(constants.PcrClassNamePrefix+"%d", 1),
-				Index:   pcrIndex,
-				Value:   intArrayToHexString(pcrDetails.DigestValue),
-				PcrBank: shaAlgorithm,
+				Index:      pcrIndex,
+				Value:      intArrayToHexString(pcrDetails.DigestValue),
+				PcrBank:    shaAlgorithm,
 			})
 		} else {
 			log.Warn("vmware_host_connector:createPCRManifest() Result PCR invalid")
@@ -199,8 +199,7 @@ func getPcrEventLog(hostTpmEventLogEntry []vim25Types.HostTpmEventLogEntry, even
 			eventLog.DigestType = EVENT_LOG_DIGEST_SHA1
 
 			if !pcrFound {
-				eventLogMap.Sha1EventLogs = append(eventLogMap.Sha1EventLogs, types.EventLogEntry{PcrIndex:
-				pcrIndex, PcrBank: parsedEventLogEntry.EventDetails.DataHashMethod, EventLogs: []types.EventLog{eventLog}})
+				eventLogMap.Sha1EventLogs = append(eventLogMap.Sha1EventLogs, types.EventLogEntry{PcrIndex: pcrIndex, PcrBank: parsedEventLogEntry.EventDetails.DataHashMethod, EventLogs: []types.EventLog{eventLog}})
 			} else {
 				eventLogMap.Sha1EventLogs[index].EventLogs = append(eventLogMap.Sha1EventLogs[index].EventLogs, eventLog)
 			}
@@ -218,8 +217,7 @@ func getPcrEventLog(hostTpmEventLogEntry []vim25Types.HostTpmEventLogEntry, even
 			eventLog.DigestType = EVENT_LOG_DIGEST_SHA256
 
 			if !pcrFound {
-				eventLogMap.Sha256EventLogs = append(eventLogMap.Sha256EventLogs, types.EventLogEntry{PcrIndex:
-				pcrIndex, PcrBank: parsedEventLogEntry.EventDetails.DataHashMethod, EventLogs: []types.EventLog{eventLog}})
+				eventLogMap.Sha256EventLogs = append(eventLogMap.Sha256EventLogs, types.EventLogEntry{PcrIndex: pcrIndex, PcrBank: parsedEventLogEntry.EventDetails.DataHashMethod, EventLogs: []types.EventLog{eventLog}})
 			} else {
 				eventLogMap.Sha256EventLogs[index].EventLogs = append(eventLogMap.Sha256EventLogs[index].EventLogs, eventLog)
 			}

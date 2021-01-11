@@ -14,7 +14,7 @@ type UserCreateInfo struct {
 }
 
 // UserResponse response payload
-// swagger:response UserResponse
+// swagger:parameters UserResponse
 type UserResponse struct {
 	// in:body
 	Body aas.UserCreateResponse
@@ -23,7 +23,7 @@ type UserResponse struct {
 type UsersResponse []aas.UserCreateResponse
 
 // UsersResponse response payload
-// swagger:response UsersResponse
+// swagger:parameters UsersResponse
 type SwaggUsersResponse struct {
 	// in:body
 	Body UsersResponse
@@ -32,7 +32,7 @@ type SwaggUsersResponse struct {
 type UserPermissions []aas.PermissionInfo
 
 // UserPermissions response payload
-// swagger:response UserPermissions
+// swagger:parameters UserPermissions
 type SwaggUserPermissions struct {
 	// in:body
 	Body UserPermissions
@@ -52,13 +52,13 @@ type RoleIDsInfo struct {
 	Body aas.RoleIDs
 }
 
-type UserRoleResponse struct  {
+type UserRoleResponse struct {
 	Role_id string `json:"role_id"`
 	aas.RoleInfo
 }
 
 // UserRoleResponse response payload
-// swagger:response UserRoleResponse
+// swagger:parameters UserRoleResponse
 type SwaggUserRoleResponse struct {
 	// in:body
 	Body UserRoleResponse
@@ -67,20 +67,19 @@ type SwaggUserRoleResponse struct {
 type UserRolesResponse []UserRoleResponse
 
 // UserRolesResponse response payload
-// swagger:response UserRolesResponse
+// swagger:parameters UserRolesResponse
 type SwaggUserRolesResponse struct {
 	// in:body
 	Body UserRolesResponse
 }
 
-
 // swagger:operation POST /users Users createUser
 // ---
 //
 // description: |
-//   Creates a new user in the Authservice database. User can be one among the service users, 
-//   user with install permissions or administrative user. An appropriate username and password 
-//   should be provided to create the user. A valid bearer token should be provided to 
+//   Creates a new user in the Authservice database. User can be one among the service users,
+//   user with install permissions or administrative user. An appropriate username and password
+//   should be provided to create the user. A valid bearer token should be provided to
 //   authorize this REST call.
 //
 // security:
@@ -117,8 +116,8 @@ type SwaggUserRolesResponse struct {
 // swagger:operation GET /users Users queryUsers
 // ---
 // description: |
-//   Retrieves the list of users from the Authservice database. The users can be one among 
-//   the service users, users with install permissions or administrative users. A valid bearer 
+//   Retrieves the list of users from the Authservice database. The users can be one among
+//   the service users, users with install permissions or administrative users. A valid bearer
 //   token should be provided to authorize this REST call.
 //
 // security:
@@ -149,7 +148,7 @@ type SwaggUserRolesResponse struct {
 // swagger:operation GET /users/{user_id} Users getUser
 // ---
 // description: |
-//   Retrieves the user details associated with a specified user id from the Authservice 
+//   Retrieves the user details associated with a specified user id from the Authservice
 //   database. A valid bearer token should be provided to authorize this REST call.
 //
 // security:
@@ -182,7 +181,7 @@ type SwaggUserRolesResponse struct {
 // swagger:operation PATCH /users/{user_id} Users updateUser
 // ---
 // description: |
-//   Updates the username and password associated with a specific user id in the Authservice 
+//   Updates the username and password associated with a specific user id in the Authservice
 //   database. A valid bearer token should be provided to authorize this REST call.
 //
 // security:
@@ -200,7 +199,7 @@ type SwaggUserRolesResponse struct {
 //   required: true
 //   in: body
 //   schema:
-//    "$ref": "#/definitions/UserCreate" 
+//    "$ref": "#/definitions/UserCreate"
 // responses:
 //   '200':
 //     description: |
@@ -220,7 +219,7 @@ type SwaggUserRolesResponse struct {
 // swagger:operation DELETE /users/{user_id} Users deleteUser
 // ---
 // description: |
-//   Deletes the user details associated with a specfied user id from the Authservice 
+//   Deletes the user details associated with a specfied user id from the Authservice
 //   database. A valid bearer token should be provided to authorize this REST call.
 //
 // security:
@@ -245,7 +244,7 @@ type SwaggUserRolesResponse struct {
 // swagger:operation GET /users/{user_id}/permissions Users queryUserPermissions
 // ---
 // description: |
-//   Retrieves the user permissions associated with a specified user id from the Authservice 
+//   Retrieves the user permissions associated with a specified user id from the Authservice
 //   database. A valid bearer token should be provided to authorize this REST call.
 //
 // security:
@@ -352,7 +351,7 @@ type SwaggUserRolesResponse struct {
 // ---
 // description: |
 //   Retrieves the roles associated with the specified user id based on the provided filter criteria
-//   from the Authservice database. 
+//   from the Authservice database.
 //   A valid bearer token should be provided to authorize this REST call.
 //
 // security:
@@ -407,7 +406,7 @@ type SwaggUserRolesResponse struct {
 // swagger:operation GET /users/{user_id}/roles/{role_id} UserRoles getUserRoleById
 // ---
 // description: |
-//   Retrieves the specified role associated with a user id from the Authservice database. 
+//   Retrieves the specified role associated with a user id from the Authservice database.
 //   A valid bearer token should be provided to authorize this REST call.
 //
 // security:
@@ -473,4 +472,3 @@ type SwaggUserRolesResponse struct {
 // x-sample-call-output: |
 //    204 No content
 // ---
-

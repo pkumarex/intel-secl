@@ -22,14 +22,14 @@ import (
 )
 
 type DeploySoftwareManifestController struct {
-	FlavorStore      domain.FlavorStore
-	HController      HostController
+	FlavorStore domain.FlavorStore
+	HController HostController
 }
 
 func NewDeploySoftwareManifestController(fs domain.FlavorStore, hc HostController) *DeploySoftwareManifestController {
 	return &DeploySoftwareManifestController{
-		FlavorStore:      fs,
-		HController:      hc,
+		FlavorStore: fs,
+		HController: hc,
 	}
 }
 
@@ -37,7 +37,7 @@ func (controller *DeploySoftwareManifestController) DeployManifest(w http.Respon
 	defaultLog.Trace("controllers/deploy_software_manifest_controller:DeployManifest() Entering")
 	defer defaultLog.Trace("controllers/deploy_software_manifest_controller:DeployManifest() Leaving")
 
-	if r.Header.Get("Content-Type") != consts.HTTPMediaTypeJson{
+	if r.Header.Get("Content-Type") != consts.HTTPMediaTypeJson {
 		return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: "Invalid Content-Type"}
 	}
 

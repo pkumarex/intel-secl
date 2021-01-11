@@ -18,7 +18,13 @@ import (
 
 func TestAttestationServiceConnectionRun(t *testing.T) {
 	server, port := testutility.MockServer(t)
-	defer server.Close()
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			t.Errorf("Error closing mock server: %v", derr)
+		}
+	}()
+
 	time.Sleep(1 * time.Second)
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	viper.AutomaticEnv()
@@ -120,7 +126,12 @@ func TestAttestationServiceConnectionRun(t *testing.T) {
 			for key := range tt.EnvValues {
 				os.Unsetenv(key)
 				os.Setenv(key, tt.EnvValues[key])
-				defer os.Unsetenv(key)
+				defer func() {
+					derr := os.Unsetenv(key)
+					if derr != nil {
+						t.Errorf("Error unseting ENV :%v", derr)
+					}
+				}()
 
 			}
 
@@ -134,7 +145,13 @@ func TestAttestationServiceConnectionRun(t *testing.T) {
 func TestAttestationServiceConnectionValidate(t *testing.T) {
 
 	server, port := testutility.MockServer(t)
-	defer server.Close()
+	defer func() {
+		derr := server.Close()
+		if derr != nil {
+			t.Errorf("Error closing mock server: %v", derr)
+		}
+	}()
+
 	time.Sleep(1 * time.Second)
 
 	tests := []struct {
@@ -156,7 +173,7 @@ func TestAttestationServiceConnectionValidate(t *testing.T) {
 					Username: "admin@ihub",
 					Password: "hubAdminPass",
 				},
-				ConsoleWriter:     os.Stdout,
+				ConsoleWriter: os.Stdout,
 			},
 
 			wantErr: false,
@@ -168,8 +185,8 @@ func TestAttestationServiceConnectionValidate(t *testing.T) {
 				AttestationConfig: &config.AttestationConfig{
 					AttestationType: "HVS", AttestationURL: "",
 				},
-				IHUBConfig: &config.IHUBConfig{},
-				ConsoleWriter:     os.Stdout,
+				IHUBConfig:    &config.IHUBConfig{},
+				ConsoleWriter: os.Stdout,
 			},
 
 			wantErr: true,
@@ -181,8 +198,8 @@ func TestAttestationServiceConnectionValidate(t *testing.T) {
 				AttestationConfig: &config.AttestationConfig{
 					AttestationType: "SKC", AttestationURL: "",
 				},
-				IHUBConfig: &config.IHUBConfig{},
-				ConsoleWriter:     os.Stdout,
+				IHUBConfig:    &config.IHUBConfig{},
+				ConsoleWriter: os.Stdout,
 			},
 
 			wantErr: true,

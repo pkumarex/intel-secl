@@ -37,14 +37,15 @@ const (
 	KubernetesMetaDataNameSpace = "default"
 	KubernetesCRDName           = "custom-isecl"
 	DefaultAttestationType      = "HVS"
+	AttestationTypeSGX          = "SGX"
 	DefaultK8SCertFile          = ConfigDir + "apiserver.crt"
 	RegexNonStandardChar        = "[^a-zA-Z0-9]"
 	DefaultLogEntryMaxlength    = 1500
-	TraitPrefix                 = "CUSTOM_ISECL"
+	IseclTraitPrefix            = "CUSTOM_ISECL"
 	TraitAssetTagPrefix         = "_AT_"
 	TraitHardwareFeaturesPrefix = "_HAS_"
 	TraitDelimiter              = "_"
-	TrustedTrait                = TraitPrefix + TraitDelimiter + "TRUSTED"
+	TrustedTrait                = IseclTraitPrefix + TraitDelimiter + "TRUSTED"
 	OpenStackAPIVersion         = "placement 1.23"
 )
 
@@ -56,4 +57,16 @@ const (
 	Stopped State = false
 	// Running means the daemon is active
 	Running State = true
+)
+
+const (
+	/*Open Stack Specific Constants */
+	SgxTraitPrefix              = "SGX_"
+	SgxTraitEnabled             = SgxTraitPrefix + "ENABLED"
+	SgxTraitSupported           = SgxTraitPrefix + "SUPPORTED"
+	SgxTraitTcbUpToDate         = SgxTraitPrefix + "TCBUPTODATE"
+	SgxTraitEpcSize             = SgxTraitPrefix + "EPC_SIZE"
+	SgxTraitEpcSizeNotAvailable = "UNAVAILABLE"
+	SgxTraitFlcEnabled          = SgxTraitPrefix + "FLC_ENABLED"
+	RegexEpcSize                = `[[:digit:]]+(\.[[:digit:]]+)? [KMGT]?B`
 )

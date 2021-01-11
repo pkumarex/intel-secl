@@ -29,7 +29,6 @@ import (
 type ESXiClusterController struct {
 	ECStore     domain.ESXiClusterStore
 	HController HostController
-
 }
 
 func NewESXiClusterController(ec domain.ESXiClusterStore, hc HostController) *ESXiClusterController {
@@ -39,13 +38,13 @@ func NewESXiClusterController(ec domain.ESXiClusterStore, hc HostController) *ES
 	}
 }
 
-var esxiClusterSearchParams = map[string]bool {"id": true, "clusterName" : true}
+var esxiClusterSearchParams = map[string]bool{"id": true, "clusterName": true}
 
 func (controller ESXiClusterController) Create(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	defaultLog.Trace("controllers/esxi_cluster_controller:Create() Entering")
 	defer defaultLog.Trace("controllers/esxi_cluster_controller:Create() Leaving")
 
-	if r.Header.Get("Content-Type") != consts.HTTPMediaTypeJson{
+	if r.Header.Get("Content-Type") != consts.HTTPMediaTypeJson {
 		return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: "Invalid Content-Type"}
 	}
 
@@ -121,7 +120,7 @@ func (controller ESXiClusterController) Create(w http.ResponseWriter, r *http.Re
 
 	err = controller.ECStore.AddHosts(newESXiCluster.Id, hostNames)
 	if err != nil {
-		defaultLog.WithError(err).Errorf("controllers/esxi_cluster_controller:Create() Linking ESXi cluster to"+
+		defaultLog.WithError(err).Errorf("controllers/esxi_cluster_controller:Create() Linking ESXi cluster to" +
 			" host failed")
 		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Linking ESXi cluster to" +
 			" host failed"}
@@ -163,7 +162,7 @@ func (controller ESXiClusterController) Search(w http.ResponseWriter, r *http.Re
 		if err != nil {
 			defaultLog.WithError(err).Error("controllers/esxi_cluster_controller:Search() Failed to retrieve " +
 				"host names associated with ESXi cluster")
-			return nil,http.StatusInternalServerError,  errors.New("controllers/esxi_cluster_controller:" +
+			return nil, http.StatusInternalServerError, errors.New("controllers/esxi_cluster_controller:" +
 				"Search() Failed to retrieve host names associated with ESXi cluster")
 		}
 		esxiClusters[index].ConnectionString = utils.GetConnectionStringWithoutCredentials(esxiClusters[index].ConnectionString)

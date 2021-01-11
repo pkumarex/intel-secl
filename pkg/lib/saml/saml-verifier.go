@@ -10,6 +10,7 @@ import (
 	"github.com/beevik/etree"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
 	commLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
+	rtvalidator "github.com/mattermost/xml-roundtrip-validator"
 	dsig "github.com/russellhaering/goxmldsig"
 	"strings"
 )
@@ -17,7 +18,7 @@ import (
 var log = commLog.GetDefaultLogger()
 
 //VerifySamlSignature Verify Cert chain and SAML signature of the Report
-func VerifySamlSignature(samlReport, SamlCertPath, CACertDirPath  string) bool {
+func VerifySamlSignature(samlReport, SamlCertPath, CACertDirPath string) bool {
 
 	log.Trace("saml/saml-verifier:VerifySamlSignature() Entering")
 	defer log.Trace("saml/saml-verifier:VerifySamlSignature() Leaving")
@@ -35,7 +36,7 @@ func VerifySamlSignature(samlReport, SamlCertPath, CACertDirPath  string) bool {
 	}
 
 	verifyRootCAOpts := x509.VerifyOptions{
-		Roots: crypt.GetCertPool(caCerts),
+		Roots:         crypt.GetCertPool(caCerts),
 		Intermediates: crypt.GetCertPool(certPemSlice[1:]),
 	}
 
@@ -73,13 +74,17 @@ func VerifySamlSignature(samlReport, SamlCertPath, CACertDirPath  string) bool {
 }
 
 func validateSamlSignature(samlString string, samlCertBytes []byte) bool {
-
 	log.Trace("saml/saml-verifier:validateSamlSignature() Entering")
 	defer log.Trace("saml/saml-verifier:validateSamlSignature() Leaving")
 
 	//this will be used to replace LF, CRLF from SAML report
 	newLineReplacer := strings.NewReplacer("\n", "", "\r\n", "")
 	samlReport := newLineReplacer.Replace(samlString)
+	err := rtvalidator.Validate(strings.NewReader(samlReport))
+	if err != nil {
+		log.Error("saml/saml-verifier:validateSamlSignature() Invalid XML string: xml round-trip validation failed")
+		return false
+	}
 	doc := etree.NewDocument()
 	if err := doc.ReadFromString(samlReport); err != nil {
 		log.WithError(err).Error("saml/saml-verifier:validateSamlSignature() Failed to parse SAML report")

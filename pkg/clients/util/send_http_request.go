@@ -93,11 +93,19 @@ func SendRequest(req *http.Request, aasURL, serviceUsername, servicePassword str
 	if err != nil {
 		return nil, errors.Wrap(err, "clients/send_http_request.go:SendRequest() Error from response")
 	}
-	defer response.Body.Close()
+	defer func() {
+		derr := response.Body.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing response body")
+		}
+	}()
 	if response.StatusCode == http.StatusUnauthorized {
 		// fetch token and try again
 		aasRWLock.Lock()
-		aasClient.FetchAllTokens()
+		err = aasClient.FetchAllTokens()
+		if err != nil {
+			log.WithError(err).Error("clients/send_http_request.go:SendRequest() Failed to fetch all JWT token")
+		}
 		aasRWLock.Unlock()
 		err = addJWTToken(req, aasURL, serviceUsername, servicePassword, trustedCaCerts)
 		if err != nil {
@@ -108,7 +116,7 @@ func SendRequest(req *http.Request, aasURL, serviceUsername, servicePassword str
 			return nil, errors.Wrap(err, "clients/send_http_request.go:SendRequest() Error from response")
 		}
 	}
-	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusNoContent{
+	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusNoContent {
 		return nil, errors.Wrap(errors.New("HTTP Status :"+strconv.Itoa(response.StatusCode)),
 			"clients/send_http_request.go:SendRequest() Error from response")
 	}
@@ -145,8 +153,13 @@ func SendNoAuthRequest(req *http.Request, trustedCaCerts []x509.Certificate) ([]
 	if err != nil {
 		return nil, errors.Wrap(err, "clients/send_http_request.go:SendNoAuthRequest() Error from response")
 	}
-	defer response.Body.Close()
-	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusNoContent{
+	defer func() {
+		derr := response.Body.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing response body")
+		}
+	}()
+	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated && response.StatusCode != http.StatusNoContent {
 		return nil, errors.Wrap(errors.New("HTTP Status :"+strconv.Itoa(response.StatusCode)),
 			"clients/send_http_request.go:SendNoAuthRequest() Error from response")
 	}

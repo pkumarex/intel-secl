@@ -22,7 +22,7 @@ func TestKmipManager_CreateKey(t *testing.T) {
 	}
 
 	keyRequest := &kbs.KeyRequest{
-		KeyInformation:   keyInfo,
+		KeyInformation: keyInfo,
 	}
 
 	mockClient := kmipclient.NewMockKmipClient()
@@ -39,7 +39,7 @@ func TestKmipManager_DeleteKey(t *testing.T) {
 	assert := assert.New(t)
 
 	keyAttributes := &models.KeyAttributes{
-		KmipKeyID:        "1",
+		KmipKeyID: "1",
 	}
 
 	mockClient := kmipclient.NewMockKmipClient()
@@ -60,7 +60,7 @@ func TestKmipManager_RegisterKey(t *testing.T) {
 	}
 
 	keyRequest := &kbs.KeyRequest{
-		KeyInformation:   keyInfo,
+		KeyInformation: keyInfo,
 	}
 
 	mockClient := kmipclient.NewMockKmipClient()

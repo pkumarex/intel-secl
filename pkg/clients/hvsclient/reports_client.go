@@ -35,12 +35,12 @@ func (client reportsClientImpl) CreateSAMLReport(reportCreateRequest hvs.ReportC
 		return nil, err
 	}
 
-	url, err := url.Parse(client.cfg.BaseURL)
+	parsedUrl, err := url.Parse(client.cfg.BaseURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "hvsclient/reports_client:CreateSAMLReport() Configured HVS URL is malformed")
 	}
-	reports, _ := url.Parse("reports")
-	endpoint := url.ResolveReference(reports)
+	reports, _ := parsedUrl.Parse("reports")
+	endpoint := parsedUrl.ResolveReference(reports)
 	req, err := http.NewRequest("POST", endpoint.String(), bytes.NewBuffer(jsonData))
 	if err != nil {
 		return nil, errors.Wrap(err, "hvsclient/reports_client:CreateSAMLReport() Failed to instantiate http request to HVS")

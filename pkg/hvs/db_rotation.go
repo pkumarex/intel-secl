@@ -133,7 +133,7 @@ func (a *App) configDBRotation() error {
 		return errors.Wrap(err, "Failed to connect database")
 	}
 	if err := dataStore.ExecuteSql(&dbScript); err != nil {
-		errors.Wrap(err, "failed to configure trigger in database")
+		return errors.Wrap(err, "failed to configure trigger in database")
 	}
 	sqlConfigCmd := fmt.Sprintf(dbScriptConfig, c.AuditLog.MaxRowCount, c.AuditLog.NumRotated)
 	return errors.Wrap(dataStore.ExecuteSql(&sqlConfigCmd), "failed to configure rotation parameters in database")

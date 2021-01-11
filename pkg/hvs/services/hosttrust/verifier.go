@@ -173,8 +173,13 @@ func (v *Verifier) validateCachedFlavors(hostId uuid.UUID,
 			trustCachesToDelete = append(trustCachesToDelete, cachedFlavor.Flavor.Meta.ID)
 		}
 	}
-	// remove cache entries for flavors that could not be verified
-	_ = v.HostStore.RemoveTrustCacheFlavors(hostId, trustCachesToDelete)
+	if len(trustCachesToDelete) > 0 {
+		// remove cache entries for flavors that could not be verified
+		err := v.HostStore.RemoveTrustCacheFlavors(hostId, trustCachesToDelete)
+		if err != nil {
+			return hostTrustCache{}, errors.Wrap(err, "could not remove trust cache flavors")
+		}
+	}
 	htc.trustReport = collectiveReport
 	return htc, nil
 }
