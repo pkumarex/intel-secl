@@ -402,7 +402,8 @@ var defaultFlavorTemplatesRaw = []string{
 		"condition": [
 			"//host_info/os_name//*[text()='RedHatEnterprise']",
 			"//host_info/hardware_features/TPM/meta/tpm_version//*[text()='2.0']",
-			"//SHA256/*[./pcr/index/text()=0 and ./tpm_events/*/tags/*/text()='Firmware Hash']"
+			"//SHA256/*[./pcr/index/text()=0 and ./tpm_events/*/tags/*/text()='Firmware Hash']",
+			"//host_info/hardware_features/UEFI/enabled//*[text()!='true'] or //host_info/hardware_features/UEFI/meta/secure_boot_enabled//*[text()!='true']"
 		],
 		"flavor_parts": {
 			"PLATFORM": {
