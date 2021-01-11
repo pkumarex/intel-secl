@@ -15,7 +15,7 @@ func LoadCertificates(certificatePaths *models.CertificatesPathStore) *models.Ce
 	defer defaultLog.Trace("utils/certificate_store:LoadCertificates() Leaving")
 
 	certificateStore := make(models.CertificatesStore)
-	for _, certType := range models.GetUniqueCertTypes()  {
+	for _, certType := range models.GetUniqueCertTypes() {
 		certloc := (*certificatePaths)[certType]
 		if certType == models.CaCertTypesRootCa.String() || certType == models.CaCertTypesEndorsementCa.String() {
 			certificateStore[certType] = loadCertificatesFromDir(&certloc)
@@ -24,7 +24,7 @@ func LoadCertificates(certificatePaths *models.CertificatesPathStore) *models.Ce
 		}
 	}
 	defaultLog.Debug("utils/certificate_store:LoadCertificates() Loaded certificates")
-	for _, certType := range models.GetUniqueCertTypes()  {
+	for _, certType := range models.GetUniqueCertTypes() {
 		defaultLog.Debugf("utils/certificate_store:LoadCertificates() Certificates loaded for type - %s", certType)
 		certStore := certificateStore[certType]
 		if certStore != nil && certStore.Certificates != nil {
@@ -58,7 +58,7 @@ func loadCertificatesFromDir(certLocation *models.CertLocation) *models.Certific
 	defer defaultLog.Trace("utils/certificate_store:loadCertificatesFromDir() Leaving")
 
 	certificates, err := crypt.GetCertsFromDir(certLocation.CertPath)
-	if err != nil{
+	if err != nil {
 		defaultLog.WithError(err).Warnf("utils/certificate_store:loadCertificatesFromDir() Error while reading certificates from " + certLocation.CertPath)
 	}
 	key := loadKey(certLocation.KeyFile)

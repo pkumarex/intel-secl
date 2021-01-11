@@ -27,15 +27,19 @@ func HTTPClient() *http.Client {
 }
 
 func HTTPClientTLSNoVerify() *http.Client {
+	//InsecureSkipVerify is set to true as connection is established from utility script and k8s plugin
 	return &http.Client{
 		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			TLSClientConfig: &tls.Config{
+				MinVersion:         tls.VersionTLS12,
+				InsecureSkipVerify: true},
 		},
 	}
 }
 
 func HTTPClientWithCA(caCertificates []x509.Certificate) (*http.Client, error) {
 	config := &tls.Config{
+		MinVersion:         tls.VersionTLS12,
 		InsecureSkipVerify: false,
 		RootCAs:            GetCertPool(caCertificates),
 	}
@@ -58,7 +62,7 @@ func ResolvePath(baseURL, path string) string {
 	return baseURL + "/" + path
 }
 
-func GetCertPool(trustedCACerts []x509.Certificate) *x509.CertPool{
+func GetCertPool(trustedCACerts []x509.Certificate) *x509.CertPool {
 	rootCAs, _ := x509.SystemCertPool()
 	if rootCAs == nil {
 		rootCAs = x509.NewCertPool()

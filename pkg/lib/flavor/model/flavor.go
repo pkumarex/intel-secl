@@ -87,7 +87,9 @@ func (flavor *Flavor) getFlavorDigest() ([]byte, error) {
 	}
 
 	hashEntity := sha512.New384()
-	hashEntity.Write(flavorJSON)
-
+	_, err = hashEntity.Write(flavorJSON)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error writing flavor hash")
+	}
 	return hashEntity.Sum(nil), nil
 }

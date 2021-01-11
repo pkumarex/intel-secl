@@ -13,7 +13,6 @@ import (
 )
 
 type VmwareConnectorFactory struct {
-
 }
 
 func (vcf *VmwareConnectorFactory) GetHostConnector(vc types.VendorConnector, aasApiUrl string,
@@ -22,7 +21,7 @@ func (vcf *VmwareConnectorFactory) GetHostConnector(vc types.VendorConnector, aa
 	defer log.Trace("vmware_host_connector_factory:GetHostConnector() Leaving")
 
 	parsedURL, err := url.Parse(vc.Url)
-	if err!= nil {
+	if err != nil {
 		return nil, errors.Wrap(err, "vmware_host_connector_factory:GetHostConnector() Invalid vcenter URL provided")
 	}
 

@@ -213,7 +213,11 @@ func getAssetTagMatchesRule(flavor *hvs.Flavor) (rules.Rule, error) {
 	}
 
 	hash := sha512.New384()
-	hash.Write(flavor.External.AssetTag.TagCertificate.Encoded)
+	_, err = hash.Write(flavor.External.AssetTag.TagCertificate.Encoded)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Failed to write encoded tag certificate")
+	}
+
 	expectedAssetTagDigest := hash.Sum(nil)
 
 	// now create the asset tag matches rule...

@@ -18,20 +18,20 @@ func openLogFiles() (logFile *os.File, secLogFile *os.File, err error) {
 
 	logFile, err = os.OpenFile(LogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0664)
 	if err != nil {
-		return nil, nil, fmt.Errorf("could not open/create %s",LogFile)
+		return nil, nil, fmt.Errorf("could not open/create %s", LogFile)
 	}
 	err = os.Chmod(LogFile, 0664)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error in setting file permission for file : %s",LogFile)
+		return nil, nil, fmt.Errorf("error in setting file permission for file : %s", LogFile)
 	}
 
 	secLogFile, err = os.OpenFile(SecurityLogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0664)
 	if err != nil {
-		return nil, nil, fmt.Errorf("could not open/create %s",SecurityLogFile)
+		return nil, nil, fmt.Errorf("could not open/create %s", SecurityLogFile)
 	}
 	err = os.Chmod(SecurityLogFile, 0664)
 	if err != nil {
-		return nil, nil, fmt.Errorf("error in setting file permission for file : %s",SecurityLogFile)
+		return nil, nil, fmt.Errorf("error in setting file permission for file : %s", SecurityLogFile)
 	}
 
 	ihubUser, err := user.Lookup(ServiceUserName)
@@ -70,11 +70,21 @@ func main() {
 			LogWriter: os.Stdout,
 		}
 	} else {
-		defer logFile.Close()
-		defer secLogFile.Close()
+		defer func() {
+			err = logFile.Close()
+			if err != nil {
+				fmt.Println("Failed close log file:", err.Error())
+			}
+		}()
+		defer func() {
+			err = secLogFile.Close()
+			if err != nil {
+				fmt.Println("Failed close log file:", err.Error())
+			}
+		}()
 		app = &ihub.App{
-			LogWriter:     logFile,
-			SecLogWriter:  secLogFile,
+			LogWriter:    logFile,
+			SecLogWriter: secLogFile,
 		}
 	}
 

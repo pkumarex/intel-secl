@@ -2,6 +2,7 @@
   stage: build
   tags:
     - k8s
+  image: golang:1.14
   rules:
     - when: on_success
   before_script:
@@ -10,24 +11,38 @@
 
     - apt-get update -y -o Acquire::Max-FutureTime=31536000
     - apt-get install -yq libssl-dev
+  artifacts:
+    paths:
+    - cmd
+    - build/linux/kbs
+    expire_in: 3 hour
+
+.build-normal-components:
+  extends: .build-common
+  script:
+    - COMPONENT_IN_JOB=$(echo "$CI_JOB_NAME" | cut -d ":" -f2)
+    - make $COMPONENT_IN_JOB
+
+build:hvs:
+  extends: .build-normal-components
+
+build:authservice:
+  extends: .build-normal-components
+
+build:cms:
+  extends: .build-normal-components
+
+build:ihub:
+  extends: .build-normal-components
+
+build:kbs:
+  extends: .build-common
+  script:
     - git clone https://github.com/openkmip/libkmip.git
     - cd libkmip
     - make
     - make install
     - ldconfig
     - cd $CI_PROJECT_DIR
-  artifacts:
-    paths:
-    - cmd
-    expire_in: 3 hour
-  script:
-    - echo "This is the CI job that builds intel-secl"
-    - CGO_CFLAGS_ALLOW="-f.*" go build ./...
-
-build:go-1.14:
-  extends: .build-common
-  image: golang:1.14
-
-build:go-1.13:
-  extends: .build-common
-  image: golang:1.13
+    - cp /usr/local/lib/libkmip.so.0.2 build/linux/kbs/
+    - make kbs

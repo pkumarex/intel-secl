@@ -48,9 +48,8 @@ func (app *App) startServer() error {
 		return err
 	}
 
-	// Initialize KeyManagerProvider
-	kmf := keymanager.NewKeyManagerFactory(&configuration.Kmip)
-	km, err := kmf.NewKeyManager(configuration.KeyManager)
+	// Initialize KeyManager
+	km, err := keymanager.NewKeyManager(&configuration.Kmip, configuration.KeyManager)
 	if err != nil {
 		return err
 	}

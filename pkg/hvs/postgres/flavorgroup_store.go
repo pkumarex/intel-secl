@@ -33,7 +33,11 @@ func (f *FlavorGroupStore) Create(fg *hvs.FlavorGroup) (*hvs.FlavorGroup, error)
 	defaultLog.Trace("postgres/flavorgroup_store:Create() Entering")
 	defer defaultLog.Trace("postgres/flavorgroup_store:Create() Leaving")
 
-	fg.ID = uuid.New()
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "postgres/flavorgroup_store:Create() failed to create new UUID")
+	}
+	fg.ID = newUuid
 	dbFlavorGroup := &flavorGroup{
 		ID:                    fg.ID,
 		Name:                  fg.Name,
@@ -85,7 +89,12 @@ func (f *FlavorGroupStore) Search(fgFilter *models.FlavorGroupFilterCriteria) ([
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/flavorgroup_store:Search() failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	flavorgroupList := []hvs.FlavorGroup{}
 	for rows.Next() {
@@ -113,6 +122,22 @@ func (f *FlavorGroupStore) Delete(flavorGroupId uuid.UUID) error {
 	// remove cache entry for flavor parts with flavorgroup id if it exists
 	f.removeFlavorTypesCacheEntry(flavorGroupId)
 	return nil
+}
+
+func (f *FlavorGroupStore) HasAssociatedHosts(fgId uuid.UUID) (bool, error) {
+	defaultLog.Trace("postgres/flavorgroup_store:HasAssociatedHosts() Entering")
+	defer defaultLog.Trace("postgres/flavorgroup_store:HasAssociatedHosts() Leaving")
+
+	count := 0
+	tx := f.Store.Db.Model(&hostFlavorgroup{}).Where("flavorgroup_id = ?", fgId).Count(&count)
+	if tx == nil {
+		return false, errors.New("postgres/flavorgroup_store:HasAssociatedHosts() Unexpected Error. Could not get" +
+			"hosts associated with flavorgroup.")
+	} else if count > 0 {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 // helper function to build the query object for a FlavorGroup search.
@@ -217,7 +242,12 @@ func (f *FlavorGroupStore) SearchFlavors(fgId uuid.UUID) ([]uuid.UUID, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/flavorgroup_store:SearchFlavors() failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	flavorIds := []uuid.UUID{}
 
@@ -255,7 +285,12 @@ func (f *FlavorGroupStore) SearchHostsByFlavorGroup(fgID uuid.UUID) ([]uuid.UUID
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/flavorgroup_store:SearchHostsByFlavorGroup() failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	var hIDs []uuid.UUID
 	for rows.Next() {
@@ -286,7 +321,12 @@ func (f *FlavorGroupStore) searchFlavorGroups(flavorId *uuid.UUID) ([]uuid.UUID,
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/flavorgroup_store:searchFlavorGroups() failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	flavorGroupIds := []uuid.UUID{}
 	for rows.Next() {

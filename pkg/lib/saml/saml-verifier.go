@@ -17,7 +17,7 @@ import (
 var log = commLog.GetDefaultLogger()
 
 //VerifySamlSignature Verify Cert chain and SAML signature of the Report
-func VerifySamlSignature(samlReport, SamlCertPath, CACertDirPath  string) bool {
+func VerifySamlSignature(samlReport, SamlCertPath, CACertDirPath string) bool {
 
 	log.Trace("saml/saml-verifier:VerifySamlSignature() Entering")
 	defer log.Trace("saml/saml-verifier:VerifySamlSignature() Leaving")
@@ -35,7 +35,7 @@ func VerifySamlSignature(samlReport, SamlCertPath, CACertDirPath  string) bool {
 	}
 
 	verifyRootCAOpts := x509.VerifyOptions{
-		Roots: crypt.GetCertPool(caCerts),
+		Roots:         crypt.GetCertPool(caCerts),
 		Intermediates: crypt.GetCertPool(certPemSlice[1:]),
 	}
 

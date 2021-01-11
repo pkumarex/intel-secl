@@ -22,10 +22,10 @@ import (
 )
 
 const (
-	KBSServiceUserName   =  "kbsuser@kbs"
-	KBSServicePassword   =  "kbspassword"
-	skcClientCertPath    =  "./resources/skc-client/skc_client_certificate.pem"
-	EncodedSessionId     =  "MTRjZmNlZDEtMDNlZS00YTY4LThiNTAtNmQ0NTY0MjNiMDc4"
+	KBSServiceUserName = "kbsuser@kbs"
+	KBSServicePassword = "kbspassword"
+	skcClientCertPath  = "./resources/skc-client/skc_client_certificate.pem"
+	EncodedSessionId   = "MTRjZmNlZDEtMDNlZS00YTY4LThiNTAtNmQ0NTY0MjNiMDc4"
 )
 
 func setupServer(server *ghttp.Server) {

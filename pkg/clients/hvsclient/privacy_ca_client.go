@@ -42,14 +42,17 @@ func (client *privacyCAClientImpl) DownloadPrivacyCa() ([]byte, error) {
 
 	var ca []byte
 
-	url, err := url.Parse(client.cfg.BaseURL)
+	parsedUrl, err := url.Parse(client.cfg.BaseURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "hvsclient/privacy_ca_client:DownloadPrivacyCa() error parsing base url")
 	}
 
-	url.Path = path.Join(url.Path, "ca-certificates/aik")
+	parsedUrl.Path = path.Join(parsedUrl.Path, "ca-certificates/aik")
 
-	request, _ := http.NewRequest("GET", url.String(), nil)
+	request, err := http.NewRequest("GET", parsedUrl.String(), nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "hvsclient/privacy_ca_client:DownloadPrivacyCa() error creating request")
+	}
 	request.Header.Set("Authorization", "Bearer "+client.cfg.BearerToken)
 	request.Header.Set("Accept", "application/json")
 	request.Header.Set("Content-Type", "application/json")
@@ -58,10 +61,10 @@ func (client *privacyCAClientImpl) DownloadPrivacyCa() ([]byte, error) {
 	var caCert hvs.CaCertificate
 	if err != nil {
 		secLog.Warn(message.BadConnection)
-		return nil, errors.Wrapf(err, "hvsclient/privacy_ca_client:DownloadPrivacyCa() Error while sending request to %s ", url)
+		return nil, errors.Wrapf(err, "hvsclient/privacy_ca_client:DownloadPrivacyCa() Error while sending request to %s ", parsedUrl)
 	}
 	if response.StatusCode != http.StatusOK {
-		return nil, errors.Errorf("hvsclient/privacy_ca_client:DownloadPrivacyCa() Request sent to %s returned status %d", url, response.StatusCode)
+		return nil, errors.Errorf("hvsclient/privacy_ca_client:DownloadPrivacyCa() Request sent to %s returned status %d", parsedUrl, response.StatusCode)
 	}
 
 	ca, err = ioutil.ReadAll(response.Body)
@@ -83,28 +86,28 @@ func (client *privacyCAClientImpl) GetIdentityProofRequest(identityChallengeRequ
 	log.Trace("hvsclient/privacy_ca_client:GetIdentityProofRequest() Entering")
 	defer log.Trace("hvsclient/privacy_ca_client:GetIdentityProofRequest() Leaving")
 
-	url, err := url.Parse(client.cfg.BaseURL)
+	parsedUrl, err := url.Parse(client.cfg.BaseURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "hvsclient/privacy_ca_client:GetIdentityProofRequest() error parsing base url")
 	}
 
-	url.Path = path.Join(url.Path, "privacyca/identity-challenge-request")
+	parsedUrl.Path = path.Join(parsedUrl.Path, "privacyca/identity-challenge-request")
 
-	return client.SendIdentityChallengeRequest(url, identityChallengeRequest)
+	return client.SendIdentityChallengeRequest(parsedUrl, identityChallengeRequest)
 }
 
 func (client *privacyCAClientImpl) GetIdentityProofResponse(identityChallengeResponse *taModel.IdentityChallengePayload) (*taModel.IdentityProofRequest, error) {
 	log.Trace("hvsclient/privacy_ca_client:GetIdentityProofResponse() Entering")
 	defer log.Trace("hvsclient/privacy_ca_client:GetIdentityProofResponse() Leaving")
 
-	url, err := url.Parse(client.cfg.BaseURL)
+	parsedUrl, err := url.Parse(client.cfg.BaseURL)
 	if err != nil {
 		return nil, errors.Wrap(err, "hvsclient/privacy_ca_client:GetIdentityProofResponse() error parsing base url")
 	}
 
-	url.Path = path.Join(url.Path, "privacyca/identity-challenge-response")
+	parsedUrl.Path = path.Join(parsedUrl.Path, "privacyca/identity-challenge-response")
 
-	return client.SendIdentityChallengeRequest(url, identityChallengeResponse)
+	return client.SendIdentityChallengeRequest(parsedUrl, identityChallengeResponse)
 }
 
 func (client *privacyCAClientImpl) SendIdentityChallengeRequest(url *url.URL, payload *taModel.IdentityChallengePayload) (*taModel.IdentityProofRequest, error) {
@@ -119,7 +122,10 @@ func (client *privacyCAClientImpl) SendIdentityChallengeRequest(url *url.URL, pa
 
 	log.Debugf("ChallengeRequest: %s", jsonData)
 
-	request, _ := http.NewRequest("POST", url.String(), bytes.NewBuffer(jsonData))
+	request, err := http.NewRequest("POST", url.String(), bytes.NewBuffer(jsonData))
+	if err != nil {
+		return nil, errors.Wrap(err, "hvsclient/privacy_ca_client:SendIdentityChallengeRequest() error creating request")
+	}
 	request.Header.Set("Authorization", "Bearer "+client.cfg.BearerToken)
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Accept", "application/json")

@@ -17,21 +17,20 @@ import (
 	"path"
 )
 
-
 type FlavorsClient interface {
 	GetImageFlavorKey(imageUUID, hardwareUUID string) (wlsModel.FlavorKey, error)
 	GetImageFlavor(imageID, flavorPart string) (wlsModel.SignedImageFlavor, error)
 }
 
 type flavorsClientImpl struct {
-	caCerts    []x509.Certificate
-	cfg        *wlsClientConfig
+	caCerts []x509.Certificate
+	cfg     *wlsClientConfig
 }
 
 var log = commLog.GetDefaultLogger()
 
 // GetImageFlavorKey method is used to get the image flavor-key from the workload service
-func (client flavorsClientImpl)GetImageFlavorKey(imageUUID, hardwareUUID string) (wlsModel.FlavorKey, error) {
+func (client flavorsClientImpl) GetImageFlavorKey(imageUUID, hardwareUUID string) (wlsModel.FlavorKey, error) {
 	log.Trace("wlsclient/flavors_client:GetImageFlavorKey() Entering")
 	defer log.Trace("wlsclient/flavors_client:GetImageFlavorKey() Leaving")
 
@@ -40,7 +39,7 @@ func (client flavorsClientImpl)GetImageFlavorKey(imageUUID, hardwareUUID string)
 	if err != nil {
 		return flavorKeyInfo, errors.New("wlsclient/flavors_client:GetImageFlavorKey() error retrieving WLS API URL")
 	}
-	requestURL.Path = path.Join(requestURL.Path, "images/" + imageUUID + "/flavor-key")
+	requestURL.Path = path.Join(requestURL.Path, "images/"+imageUUID+"/flavor-key")
 	parameters := url.Values{}
 	parameters.Add("hardware_uuid", hardwareUUID)
 	requestURL.RawQuery = parameters.Encode()
@@ -82,7 +81,7 @@ func (client flavorsClientImpl) GetImageFlavor(imageID, flavorPart string) (wlsM
 		return flavor, errors.New("wlsclient/flavors_client:GetImageFlavor() error retrieving WLS API URL")
 	}
 
-	requestURL.Path = path.Join(requestURL.Path, "images/" + imageID + "/flavors")
+	requestURL.Path = path.Join(requestURL.Path, "images/"+imageID+"/flavors")
 	parameters := url.Values{}
 	parameters.Add("flavor_part", flavorPart)
 	requestURL.RawQuery = parameters.Encode()

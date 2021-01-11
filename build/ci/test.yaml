@@ -21,10 +21,7 @@
     - CGO_LDFLAGS="-Wl,-rpath -Wl,/usr/local/lib" CGO_CFLAGS_ALLOW="-f.*" go test ./... -coverprofile=cover.out
     - go tool cover -func cover.out
 
-test:go-1.13:
-  extends: .test-common
-  image: golang:1.13
-
 test:go-1.14:
+  retry: 2
   extends: .test-common
   image: golang:1.14

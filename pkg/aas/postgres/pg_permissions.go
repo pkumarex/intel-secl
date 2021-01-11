@@ -16,7 +16,6 @@ type PostgresPermissionStore struct {
 }
 
 func (p *PostgresPermissionStore) Create(permission types.Permission) (*types.Permission, error) {
-
 	defaultLog.Trace("permission Create")
 	defer defaultLog.Trace("permission Create done")
 
@@ -33,7 +32,6 @@ func (p *PostgresPermissionStore) Create(permission types.Permission) (*types.Pe
 }
 
 func (p *PostgresPermissionStore) Retrieve(ps *types.PermissionSearch) (*types.Permission, error) {
-
 	defaultLog.Trace("permission Retrieve")
 	defer defaultLog.Trace("permission Retrieve done")
 
@@ -51,7 +49,6 @@ func (p *PostgresPermissionStore) Retrieve(ps *types.PermissionSearch) (*types.P
 
 // helper function to build the query object for a permission search.
 func buildPermissionSearchQuery(tx *gorm.DB, ps *types.PermissionSearch) *gorm.DB {
-
 	defaultLog.Trace("permission buildPermissionSearchQuery")
 	defer defaultLog.Trace("permission buildPermissionSearchQuery done")
 
@@ -73,11 +70,9 @@ func buildPermissionSearchQuery(tx *gorm.DB, ps *types.PermissionSearch) *gorm.D
 		tx = tx.Where("id in (?) ", ps.IDFilter)
 	}
 	return tx
-
 }
 
 func (p *PostgresPermissionStore) RetrieveAll(ps *types.PermissionSearch) (types.Permissions, error) {
-
 	defaultLog.Trace("permission RetrieveAll")
 	defer defaultLog.Trace("permission RetrieveAll done")
 

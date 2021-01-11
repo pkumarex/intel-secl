@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Check OS
+OS=$(cat /etc/os-release | grep ^ID= | cut -d'=' -f2)
+temp="${OS%\"}"
+temp="${temp#\"}"
+OS="$temp"
+
 # READ .env file 
 echo PWD IS $(pwd)
 if [ -f ~/authservice.env ]; then 
@@ -52,8 +58,6 @@ for directory in $BIN_PATH $DB_SCRIPT_PATH $LOG_PATH $CONFIG_PATH $CERTS_PATH $C
   fi
   chown -R $SERVICE_USERNAME:$SERVICE_USERNAME $directory
   chmod 700 $directory
-  chmod g+s $directory
-
 done
 
 
@@ -64,8 +68,7 @@ ln -sfT $BIN_PATH/$COMPONENT_NAME /usr/bin/$COMPONENT_NAME
 cp db_rotation.sql $DB_SCRIPT_PATH/ && chown $SERVICE_USERNAME:$SERVICE_USERNAME $DB_SCRIPT_PATH/*
 
 # make log files world readable
-chmod 755 $LOG_PATH
-chmod g+s $LOG_PATH
+chmod 744 $LOG_PATH
 
 # Install systemd script
 cp authservice.service $PRODUCT_HOME && chown $SERVICE_USERNAME:$SERVICE_USERNAME $PRODUCT_HOME/authservice.service && chown $SERVICE_USERNAME:$SERVICE_USERNAME $PRODUCT_HOME
@@ -78,9 +81,15 @@ systemctl daemon-reload
 auto_install() {
   local component=${1}
   local cprefix=${2}
-  local yum_packages=$(eval "echo \$${cprefix}_YUM_PACKAGES")
+  local packages=$(eval "echo \$${cprefix}_PACKAGES")
   # detect available package management tools. start with the less likely ones to differentiate.
-  yum -y install $yum_packages
+if [ "$OS" == "rhel" ]
+then
+  yum -y install $packages
+elif [ "$OS" == "ubuntu" ]
+then
+  apt -y install $packages
+fi
 }
 
 # SCRIPT EXECUTION
@@ -97,7 +106,7 @@ logRotate_detect() {
 }
 
 logRotate_install() {
-  LOGROTATE_YUM_PACKAGES="logrotate"
+  LOGROTATE_PACKAGES="logrotate"
   if [ "$(whoami)" == "root" ]; then
     auto_install "Log Rotate" "LOGROTATE"
     if [ $? -ne 0 ]; then echo_failure "Failed to install logrotate"; exit -1; fi

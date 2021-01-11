@@ -14,6 +14,6 @@ func setVersionRoutes(router *mux.Router) *mux.Router {
 	defer defaultLog.Trace("router/version:setVersionRoutes() Leaving")
 	versionController := controllers.VersionController{}
 
-	router.Handle("/version", versionController.GetVersion()).Methods("GET")
+	router.Handle("/version", ErrorHandler(ResponseHandler(versionController.GetVersion))).Methods("GET")
 	return router
 }

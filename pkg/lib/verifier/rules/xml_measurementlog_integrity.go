@@ -203,8 +203,15 @@ func (rule *xmlMeasurementLogIntegrity) replay(measurementsXml []byte) (string, 
 			return "", errors.Wrapf(err, "Invalid measurement in xml: '%s'", measurement)
 		}
 
-		hash.Write(cumulativeHash)
-		hash.Write(measurementBytes)
+		_, err = hash.Write(cumulativeHash)
+		if err != nil {
+			return "", errors.Wrapf(err, "Failed to write cumulative hash")
+		}
+		_, err = hash.Write(measurementBytes)
+		if err != nil {
+			return "", errors.Wrapf(err, "Failed to write measurements")
+		}
+
 		cumulativeHash = hash.Sum(nil)
 	}
 

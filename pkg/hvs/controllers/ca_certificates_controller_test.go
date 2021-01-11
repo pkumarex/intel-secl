@@ -41,7 +41,7 @@ var _ = Describe("CaCertificatesController", func() {
 				router.Handle("/ca-certificates", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(caCertificatesController.Create))).Methods("POST")
 				cert, _, _ := crypt.CreateKeyPairAndCertificate("root-test", "", consts.DefaultKeyAlgorithm, consts.DefaultKeyLength)
 				certificate := hvs.CaCertificate{
-					Name: 	     "root-test",
+					Name:        "root-test",
 					Type:        models.CaCertTypesRootCa.String(),
 					Certificate: cert,
 				}
@@ -51,6 +51,7 @@ var _ = Describe("CaCertificatesController", func() {
 					"/ca-certificates",
 					bytes.NewBuffer(payload),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", constants.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
@@ -59,15 +60,16 @@ var _ = Describe("CaCertificatesController", func() {
 				Expect(w.Code).To(Equal(http.StatusCreated))
 
 				var caCert *hvs.CaCertificate
-				json.Unmarshal(w.Body.Bytes(), &caCert)
+				err = json.Unmarshal(w.Body.Bytes(), &caCert)
+				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 		Context("Create root CA certificates with invalid certificate type", func() {
 			It("Should return bad request", func() {
 				router.Handle("/ca-certificates", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(caCertificatesController.Create))).Methods("POST")
 				certificate := hvs.CaCertificate{
-					Name: 	     "root-test",
-					Type:        models.CaCertTypesTagCa.String(),
+					Name: "root-test",
+					Type: models.CaCertTypesTagCa.String(),
 				}
 				payload, _ := json.Marshal(certificate)
 				req, err := http.NewRequest(
@@ -75,10 +77,9 @@ var _ = Describe("CaCertificatesController", func() {
 					"/ca-certificates",
 					bytes.NewBuffer(payload),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", constants.HTTPMediaTypeJson)
-
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -133,7 +134,8 @@ var _ = Describe("CaCertificatesController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var caCertCollection *hvs.CaCertificateCollection
-				json.Unmarshal(w.Body.Bytes(), &caCertCollection)
+				err = json.Unmarshal(w.Body.Bytes(), &caCertCollection)
+				Expect(err).NotTo(HaveOccurred())
 				log.Info(len(caCertCollection.CaCerts))
 			})
 		})
@@ -148,7 +150,8 @@ var _ = Describe("CaCertificatesController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var caCertCollection *hvs.CaCertificateCollection
-				json.Unmarshal(w.Body.Bytes(), &caCertCollection)
+				err = json.Unmarshal(w.Body.Bytes(), &caCertCollection)
+				Expect(err).NotTo(HaveOccurred())
 				log.Info(len(caCertCollection.CaCerts))
 			})
 		})
@@ -178,7 +181,8 @@ var _ = Describe("CaCertificatesController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var caCertCollection *hvs.CaCertificateCollection
-				json.Unmarshal(w.Body.Bytes(), &caCertCollection)
+				err = json.Unmarshal(w.Body.Bytes(), &caCertCollection)
+				Expect(err).NotTo(HaveOccurred())
 				log.Info(len(caCertCollection.CaCerts))
 			})
 		})
@@ -197,7 +201,8 @@ var _ = Describe("CaCertificatesController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var caCertCollection *hvs.CaCertificateCollection
-				json.Unmarshal(w.Body.Bytes(), &caCertCollection)
+				err = json.Unmarshal(w.Body.Bytes(), &caCertCollection)
+				Expect(err).NotTo(HaveOccurred())
 				log.Info(len(caCertCollection.CaCerts))
 			})
 		})
@@ -226,7 +231,8 @@ var _ = Describe("CaCertificatesController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var caCert *hvs.CaCertificate
-				json.Unmarshal(w.Body.Bytes(), &caCert)
+				err = json.Unmarshal(w.Body.Bytes(), &caCert)
+				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 		Context("Get all Privacy CA certificate with keyword aik", func() {
@@ -240,7 +246,8 @@ var _ = Describe("CaCertificatesController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var caCert *hvs.CaCertificate
-				json.Unmarshal(w.Body.Bytes(), &caCert)
+				err = json.Unmarshal(w.Body.Bytes(), &caCert)
+				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 	})
@@ -258,7 +265,8 @@ var _ = Describe("CaCertificatesController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var caCert *hvs.CaCertificate
-				json.Unmarshal(w.Body.Bytes(), &caCert)
+				err = json.Unmarshal(w.Body.Bytes(), &caCert)
+				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 		Context("Get all Endorsement CA certificate with keyword ek", func() {
@@ -272,7 +280,8 @@ var _ = Describe("CaCertificatesController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var caCert *hvs.CaCertificate
-				json.Unmarshal(w.Body.Bytes(), &caCert)
+				err = json.Unmarshal(w.Body.Bytes(), &caCert)
+				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 	})
@@ -289,7 +298,8 @@ var _ = Describe("CaCertificatesController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var caCert *hvs.CaCertificate
-				json.Unmarshal(w.Body.Bytes(), &caCert)
+				err = json.Unmarshal(w.Body.Bytes(), &caCert)
+				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 	})

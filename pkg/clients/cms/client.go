@@ -25,8 +25,11 @@ var (
 
 func (c *Client) httpClient() *http.Client {
 	if c.HTTPClient == nil {
-		tlsConfig := tls.Config{}
-		tlsConfig.InsecureSkipVerify = true
+		tlsConfig := tls.Config{
+			MinVersion:         tls.VersionTLS12,
+			InsecureSkipVerify: true,
+		}
+		// Skipping verification as it is done manually using digest of the TLS certificate as this is step of setting up service
 		transport := http.Transport{
 			TLSClientConfig: &tlsConfig,
 		}
@@ -48,7 +51,10 @@ func (c *Client) GetRootCA() (string, error) {
 		return "", ErrFailToGetRootCA
 	}
 	resBuf := new(bytes.Buffer)
-	resBuf.ReadFrom(rsp.Body)
+	_, err = resBuf.ReadFrom(rsp.Body)
+	if err != nil {
+		return "", err
+	}
 	resStr := resBuf.String()
 	return resStr, nil
 }
@@ -73,7 +79,10 @@ func (c *Client) PostCSR(csr []byte) (string, error) {
 		return "", ErrSignCSRFailed
 	}
 	resBuf := new(bytes.Buffer)
-	resBuf.ReadFrom(rsp.Body)
+	_, err = resBuf.ReadFrom(rsp.Body)
+	if err != nil {
+		return "", err
+	}
 	resStr := resBuf.String()
 	return resStr, nil
 }

@@ -23,6 +23,7 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -42,17 +43,26 @@ func setupCertsStore() *models.CertificatesStore {
 	var tagKey, fsKey crypto.PrivateKey
 
 	//Generate TagCA Keypair
-	caCertBytes, key, _ := crypt.CreateKeyPairAndCertificate(consts.DefaultCertIssuer, "", consts.DefaultKeyAlgorithm, consts.DefaultKeyLength)
-	err := crypt.SavePrivateKeyAsPKCS8(key, tagCASigningKeyPath)
+	caCertBytes, key, err := crypt.CreateKeyPairAndCertificate(consts.DefaultCertIssuer, "", consts.DefaultKeyAlgorithm, consts.DefaultKeyLength)
 	if err != nil {
-		return nil
+		log.WithError(err).Errorf("Failed create certificate")
+	}
+	err = crypt.SavePrivateKeyAsPKCS8(key, tagCASigningKeyPath)
+	if err != nil {
+		log.WithError(err).Errorf("Failed save private key")
 	}
 	err = crypt.SavePemCert(caCertBytes, tagCASigningCertPath)
 	if err != nil {
-		return nil
+		log.WithError(err).Errorf("Failed save certificate")
 	}
-	tagKey, _ = crypt.GetPrivateKeyFromPKCS8File(tagCASigningKeyPath)
-	certMap, _ := crypt.GetSubjectCertsMapFromPemFile(tagCASigningCertPath)
+	tagKey, err = crypt.GetPrivateKeyFromPKCS8File(tagCASigningKeyPath)
+	if err != nil {
+		log.WithError(err).Errorf("Failed get private key")
+	}
+	certMap, err := crypt.GetSubjectCertsMapFromPemFile(tagCASigningCertPath)
+	if err != nil {
+		log.WithError(err).Errorf("Failed get certificate")
+	}
 
 	var tagCAStore = models.CertificateStore{
 		Key:          tagKey,
@@ -63,11 +73,26 @@ func setupCertsStore() *models.CertificatesStore {
 	var caCertsStore = *mocks2.NewFakeCertificatesStore()
 
 	// Generate flavor signing Keypair
-	caCertBytes, key, _ = crypt.CreateKeyPairAndCertificate(consts.DefaultCN, "", consts.DefaultKeyAlgorithm, consts.DefaultKeyLength)
-	_ = crypt.SavePrivateKeyAsPKCS8(key, flavorSigningKeyPath)
-	_ = crypt.SavePemCert(caCertBytes, flavorSigningCertPath)
-	fsKey, _ = crypt.GetPrivateKeyFromPKCS8File(flavorSigningKeyPath)
-	certMap, _ = crypt.GetSubjectCertsMapFromPemFile(flavorSigningCertPath)
+	caCertBytes, key, err = crypt.CreateKeyPairAndCertificate(consts.DefaultCN, "", consts.DefaultKeyAlgorithm, consts.DefaultKeyLength)
+	if err != nil {
+		log.WithError(err).Errorf("Failed create certificate")
+	}
+	err = crypt.SavePrivateKeyAsPKCS8(key, flavorSigningKeyPath)
+	if err != nil {
+		log.WithError(err).Errorf("Failed save private key")
+	}
+	err = crypt.SavePemCert(caCertBytes, flavorSigningCertPath)
+	if err != nil {
+		log.WithError(err).Errorf("Failed save certificate")
+	}
+	fsKey, err = crypt.GetPrivateKeyFromPKCS8File(flavorSigningKeyPath)
+	if err != nil {
+		log.WithError(err).Errorf("Failed get private key")
+	}
+	certMap, err = crypt.GetSubjectCertsMapFromPemFile(flavorSigningCertPath)
+	if err != nil {
+		log.WithError(err).Errorf("Failed get certificate")
+	}
 
 	var flavorCAStore = models.CertificateStore{
 		Key:          fsKey,
@@ -607,8 +632,10 @@ var _ = Describe("TagCertificateController", func() {
 
 				hardwareUUID := uuid.MustParse("7a569dad-2d82-49e4-9156-069b0065b262")
 
+				newId, err := uuid.NewRandom()
+				Expect(err).NotTo(HaveOccurred())
 				_, _ = tagCertController.HostStore.Create(&hvs.Host{
-					Id:               uuid.New(),
+					Id:               newId,
 					HostName:         "MyFakeHost",
 					Description:      "Fakest Connected Host In The World",
 					ConnectionString: hostUrl,
@@ -623,9 +650,9 @@ var _ = Describe("TagCertificateController", func() {
 					hvsRoutes.TagCertificateDeployEndpointPath,
 					strings.NewReader(deployTcReq),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", constants.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusOK))
@@ -642,8 +669,10 @@ var _ = Describe("TagCertificateController", func() {
 
 				hardwareUUID := uuid.MustParse("00e4d709-8d72-44c3-89ae-c5edc395d6fe")
 
+				newId, err := uuid.NewRandom()
+				Expect(err).NotTo(HaveOccurred())
 				_, _ = tagCertController.HostStore.Create(&hvs.Host{
-					Id:               uuid.New(),
+					Id:               newId,
 					HostName:         "MyFakeBadHost",
 					Description:      "Fakest Disconnected Host In The World",
 					ConnectionString: hostUrl,
@@ -658,9 +687,9 @@ var _ = Describe("TagCertificateController", func() {
 					hvsRoutes.TagCertificateDeployEndpointPath,
 					strings.NewReader(deployTcReq),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", constants.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
@@ -676,10 +705,10 @@ var _ = Describe("TagCertificateController", func() {
 					hvsRoutes.TagCertificateDeployEndpointPath,
 					strings.NewReader(deployTcReq),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", constants.HTTPMediaTypeJson)
 
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -695,10 +724,10 @@ var _ = Describe("TagCertificateController", func() {
 					hvsRoutes.TagCertificateDeployEndpointPath,
 					strings.NewReader(deployTcReq),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", constants.HTTPMediaTypeJson)
 
-				Expect(err).ToNot(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -714,10 +743,10 @@ var _ = Describe("TagCertificateController", func() {
 					hvsRoutes.TagCertificateDeployEndpointPath,
 					strings.NewReader(deployTcReq),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", constants.HTTPMediaTypeJson)
 
-				Expect(err).ToNot(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -730,14 +759,18 @@ var _ = Describe("TagCertificateController", func() {
 				aasBaseURL := "/aas"
 				config.Global().AASApiUrl = aasBaseURL
 
+				newId, err := uuid.NewRandom()
+				Expect(err).NotTo(HaveOccurred())
+				hwId, err := uuid.NewRandom()
+				Expect(err).NotTo(HaveOccurred())
 				newTC, _ := tagCertController.Store.Create(&hvs.TagCertificate{
-					ID:           uuid.New(),
+					ID:           newId,
 					Certificate:  nil,
 					Subject:      "CN=Does Not Compute",
 					Issuer:       "Fake CA",
 					NotBefore:    time.Now(),
 					NotAfter:     time.Now().AddDate(1, 0, 0),
-					HardwareUUID: uuid.New(),
+					HardwareUUID: hwId,
 				})
 
 				router.Handle(hvsRoutes.TagCertificateDeployEndpointPath, hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(tagCertController.Deploy))).Methods("POST")
@@ -748,9 +781,9 @@ var _ = Describe("TagCertificateController", func() {
 					hvsRoutes.TagCertificateDeployEndpointPath,
 					strings.NewReader(deployTcReq),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", constants.HTTPMediaTypeJson)
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -803,8 +836,12 @@ func TestNewTagCertificateController(t *testing.T) {
 	}
 
 	// cleanup
-	_ = os.Remove(flavorSigningCertPath)
-	_ = os.Remove(flavorSigningKeyPath)
-	_ = os.Remove(tagCASigningCertPath)
-	_ = os.Remove(tagCASigningKeyPath)
+	err := os.Remove(flavorSigningCertPath)
+	Expect(err).NotTo(HaveOccurred())
+	err = os.Remove(flavorSigningKeyPath)
+	Expect(err).NotTo(HaveOccurred())
+	err = os.Remove(tagCASigningCertPath)
+	Expect(err).NotTo(HaveOccurred())
+	err = os.Remove(tagCASigningKeyPath)
+	Expect(err).NotTo(HaveOccurred())
 }

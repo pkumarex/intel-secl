@@ -29,7 +29,11 @@ func (tcs *TagCertificateStore) Create(tc *hvs.TagCertificate) (*hvs.TagCertific
 	defaultLog.Trace("postgres/tagcertificate_store:Create() Entering")
 	defer defaultLog.Trace("postgres/tagcertificate_store:Create() Leaving")
 
-	tc.ID = uuid.New()
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "postgres/tagcertificate_store:Create() failed to create new UUID")
+	}
+	tc.ID = newUuid
 
 	dbTagCert := &tagCertificate{
 		ID:           tc.ID,
@@ -66,7 +70,12 @@ func (tcs *TagCertificateStore) Search(tcFilter *models.TagCertificateFilterCrit
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/tagcertificate_store:Search() failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	for rows.Next() {
 		hvsTC := hvs.TagCertificate{}

@@ -48,7 +48,7 @@ AjYgFij/70d+Pv4EG+r2zA==
 }
 
 func testGetPrivateRootkey() interface{} {
-	block, _ := pem.Decode([]byte (`
+	block, _ := pem.Decode([]byte(`
 -----BEGIN PKCS8 PRIVATE KEY-----
 MIIG/QIBADANBgkqhkiG9w0BAQEFAASCBucwggbjAgEAAoIBgQCXVtwJjlp7srBw
 SRFJQbfpLRQJYAbAWVLPiRNrN4j4E9YOtNNAb3QZv/nL27ZJ55qxT7sN6loejA2A
@@ -98,45 +98,75 @@ func TestTlsCertCreation(t *testing.T) {
 	log.Trace("tasks/tls_test:TestTlsCertCreation() Entering")
 	defer log.Trace("tasks/tls_test:TestTlsCertCreation() Leaving")
 
-	assert := assert.New(t)
+	assertions := assert.New(t)
 	CreateSerialNumberFileAndJWTDir()
 
-	temp, _ := ioutil.TempFile("", "config.yml")
-	temp.WriteString("keyalgorithm: rsa\nkeyalgorithmlength: 3072\n")
-	defer os.Remove(temp.Name())
-	c, _ := config.Load()
-
-	ca := RootCa{
-		ConsoleWriter: os.Stdout,
-		CACertConfigPtr: &c.CACert,
-		CACertConfig:  c.CACert,
+	temp, err := ioutil.TempFile("", "config.yml")
+	if err != nil {
+		log.WithError(err).Error("tasks/tls_test:TestTlsCertCreation() Error creating temp file")
+	}
+	_, err = temp.WriteString("keyalgorithm: rsa\nkeyalgorithmlength: 3072\n")
+	if err != nil {
+		log.WithError(err).Error("tasks/tls_test:TestTlsCertCreation() Error writing to file")
+	}
+	defer func() {
+		derr := os.Remove(temp.Name())
+		if derr != nil {
+			log.WithError(derr).Error("Error removing temporary file")
+		}
+	}()
+	c, err := config.Load()
+	if err != nil {
+		log.WithError(err).Error("tasks/tls_test:TestTlsCertCreation() Error loading config")
 	}
 
-	err := ca.Run()
-	assert.NoError(err)
+	ca := RootCa{
+		ConsoleWriter:   os.Stdout,
+		CACertConfigPtr: &c.CACert,
+		CACertConfig:    c.CACert,
+	}
+
+	err = ca.Run()
+	assertions.NoError(err)
 
 	//TODO: need to fix this test. New parameters.. need to pass in issuing CA cert and key
 	keyData, certData, err := createTLSCert("intel.com", testGetRootCACert(), testGetPrivateRootkey())
-	assert.NoError(err)
+	assertions.NoError(err)
 	_, err = x509.ParsePKCS8PrivateKey(keyData)
-	assert.NoError(err)
+	assertions.NoError(err)
 	cert, err := x509.ParseCertificate(certData)
-	assert.NoError(err)
-	assert.Contains(cert.DNSNames, "intel.com")
-	assert.NoError(cert.VerifyHostname("intel.com"))
+	assertions.NoError(err)
+	assertions.Contains(cert.DNSNames, "intel.com")
+	assertions.NoError(cert.VerifyHostname("intel.com"))
 }
 
 func TestTlsSetupTaskRun(t *testing.T) {
 	log.Trace("tasks/tls_test:TestTlsSetupTaskRun() Entering")
 	defer log.Trace("tasks/tls_test:TestTlsSetupTaskRun() Leaving")
 
-	assert := assert.New(t)
+	assertions := assert.New(t)
 	CreateSerialNumberFileAndJWTDir()
 
-	temp, _ := ioutil.TempFile("", "config.yml")
-	temp.WriteString("keyalgorithm: rsa\nkeyalgorithmlength: 3072\n")
-	defer os.Remove(temp.Name())
-	c, _ := config.Load()
+	temp, err := ioutil.TempFile("", "config.yml")
+	if err != nil {
+		log.WithError(err).Error("tasks/tls_test:TestTlsSetupTaskRun() Error creating temp file")
+	}
+	_, err = temp.WriteString("keyalgorithm: rsa\nkeyalgorithmlength: 3072\n")
+	if err != nil {
+		log.WithError(err).Error("tasks/tls_test:TestTlsSetupTaskRun() Error writing to file")
+	}
+	defer func() {
+		derr := os.Remove(temp.Name())
+		if derr != nil {
+			log.WithError(derr).Error("Error removing temporary file")
+		}
+	}()
+
+	c, err := config.Load()
+	if err != nil {
+		log.WithError(err).Error("tasks/tls_test:TestTlsSetupTaskRun() Error loading config")
+	}
+
 	c.TlsSanList = "127.0.0.1,testHost"
 
 	ca := RootCa{
@@ -145,8 +175,8 @@ func TestTlsSetupTaskRun(t *testing.T) {
 		CACertConfig:    c.CACert,
 	}
 
-	err := ca.Run()
-	assert.NoError(err)
+	err = ca.Run()
+	assertions.NoError(err)
 
 	interCA := IntermediateCa{
 		ConsoleWriter: os.Stdout,
@@ -160,7 +190,7 @@ func TestTlsSetupTaskRun(t *testing.T) {
 		TLSSanList:       c.TlsSanList,
 	}
 	err = ts.Run()
-	assert.NoError(err)
+	assertions.NoError(err)
 }
 
 func TestOutboundHost(t *testing.T) {

@@ -8,9 +8,6 @@ import (
 	"crypto/x509"
 	"encoding/xml"
 	"fmt"
-	"net/url"
-	"strings"
-
 	"github.com/intel-secl/intel-secl/v3/pkg/clients/vs"
 	"github.com/intel-secl/intel-secl/v3/pkg/ihub/config"
 	"github.com/intel-secl/intel-secl/v3/pkg/ihub/constants"
@@ -19,6 +16,7 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/os"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/saml"
 	"github.com/pkg/errors"
+	"net/url"
 )
 
 var log = commonLog.GetDefaultLogger()
@@ -86,21 +84,21 @@ func initializeClient(con *config.Configuration, certDirectory string) (*vs.Clie
 	return VsClient, nil
 }
 
-//GetHostReports method is used to retieve the SAML report from HVS
+//GetHostReports method is used to retrieve the SAML report from HVS
 func GetHostReports(h string, conf *config.Configuration, certDirectory, samlCertPath string) (*saml.Saml, error) {
 	log.Trace("attestationPlugin/vs_plugin:GetHostReports() Entering")
 	defer log.Trace("attestationPlugin/vs_plugin:GetHostReports() Leaving")
 
 	reportUrl := conf.AttestationService.AttestationURL + "/reports?latestPerHost=true&"
-        
-        var filterType string
+
+	var filterType string
 	if conf.Endpoint.Type == constants.OpenStackTenant {
 		filterType = "hostName"
 	} else {
 		filterType = "hostHardwareId"
 	}
-        reportUrl = reportUrl + filterType +"=%s"
-	reportUrl = fmt.Sprintf(reportUrl, strings.ToLower(h))
+	reportUrl = reportUrl + filterType + "=%s"
+	reportUrl = fmt.Sprintf(reportUrl, h)
 
 	log.Debug("attestationPlugin/vs_plugin:GetHostReports() Reports URL : " + reportUrl)
 
@@ -110,13 +108,13 @@ func GetHostReports(h string, conf *config.Configuration, certDirectory, samlCer
 	}
 
 	samlReportBytes, err := vClient.GetSamlReports(reportUrl)
-        if err != nil {
+	if err != nil {
 		return nil, errors.Wrap(err, "attestationPlugin/vs_plugin:GetHostReports() Error in fetching SAML report")
 	}
 
-        if len(samlReportBytes) == 0{
-                return nil, errors.New("attestationPlugin/vs_plugin:GetHostReports() No reports retrieved from HVS for host with " + filterType + " " + h)
-        }
+	if len(samlReportBytes) == 0 {
+		return nil, errors.New("attestationPlugin/vs_plugin:GetHostReports() No reports retrieved from HVS for host with " + filterType + " " + h)
+	}
 
 	var samlReportUnmarshalled *saml.Saml
 	err = xml.Unmarshal(samlReportBytes, &samlReportUnmarshalled)

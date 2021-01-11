@@ -7,6 +7,7 @@ package cmd
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"strings"
 	"text/tabwriter"
@@ -94,7 +95,12 @@ func (cmd *Cmd) printSubCmds(w io.Writer, ps *PrintSettings) {
 		fmt.Fprintln(w, cmd.SubCmdDesc)
 
 		tabW := new(tabwriter.Writer)
-		defer tabW.Flush()
+		defer func() {
+			derr := tabW.Flush()
+			if derr != nil {
+				log.WithError(derr).Error("Error flushing tab")
+			}
+		}()
 		tabW.Init(w, ps.DefaultTabWidth, ps.DefaultTabWidth, 2, '\t', 0)
 
 		indent := indentString(ps.DefaultIndent)
@@ -104,7 +110,10 @@ func (cmd *Cmd) printSubCmds(w io.Writer, ps *PrintSettings) {
 			if curCmd.DispStr != "" {
 				fmt.Fprintln(tabW, indent+curCmd.DispStr+"\t"+curCmd.Description)
 				if curCmd.Flags != nil {
-					tabW.Flush()
+					err := tabW.Flush()
+					if err != nil {
+						log.WithError(err).Errorf("could not flush tab")
+					}
 					curCmd.printFlags(w, twoIndent, ps)
 				}
 			}
@@ -116,7 +125,12 @@ func (cmd *Cmd) printFlags(w io.Writer, indent string, ps *PrintSettings) {
 
 	if cmd.Flags != nil {
 		tabW := new(tabwriter.Writer)
-		defer tabW.Flush()
+		defer func() {
+			derr := tabW.Flush()
+			if derr != nil {
+				log.WithError(derr).Error("Error flushing tab")
+			}
+		}()
 		tabW.Init(w, ps.DefaultTabWidth, ps.DefaultTabWidth, 2, '\t', 0)
 
 		for i := 0; i < len(cmd.Flags); i++ {

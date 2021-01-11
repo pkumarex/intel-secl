@@ -20,7 +20,6 @@ if [ ! -f $CONFIG_PATH/.setup_done ]; then
     fi
     chown -R $SERVICE_USERNAME:$SERVICE_USERNAME $directory
     chmod 700 $directory
-    chmod g+s $directory
   done
   mv /opt/hvs/EndorsementCA-external.pem $ENDORSEMENTS_CA_DIR/
   hvs setup all

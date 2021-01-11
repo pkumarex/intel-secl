@@ -27,7 +27,11 @@ func (hs *HostStore) Create(h *hvs.Host) (*hvs.Host, error) {
 	defaultLog.Trace("postgres/host_store:Create() Entering")
 	defer defaultLog.Trace("postgres/host_store:Create() Leaving")
 
-	h.Id = uuid.New()
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "postgres/host_store:Create() failed to create new UUID")
+	}
+	h.Id = newUuid
 	dbHost := host{
 		Id:               h.Id,
 		Name:             h.HostName,
@@ -116,7 +120,12 @@ func (hs *HostStore) Search(criteria *models.HostFilterCriteria) ([]*hvs.Host, e
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/host_store:Search() failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	hosts := []*hvs.Host{}
 	for rows.Next() {
@@ -217,7 +226,12 @@ func (hs *HostStore) SearchFlavorgroups(hId uuid.UUID) ([]uuid.UUID, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/host_store:SearchFlavorgroups() failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	var fgIds []uuid.UUID
 	for rows.Next() {
@@ -260,7 +274,7 @@ func (hs *HostStore) RemoveTrustCacheFlavors(hId uuid.UUID, fIds []uuid.UUID) er
 	defer defaultLog.Trace("postgres/host_store:RemoveTrustCacheFlavors() Leaving")
 
 	if hId == uuid.Nil || len(fIds) <= 0 {
-		defaultLog.Warn("postgres/flavorgroup_store:RemoveTrustCacheFlavors()- invalid input : must have flavorId and hostId to delete from the trust cache")
+		defaultLog.Warn("postgres/host_store:RemoveTrustCacheFlavors()- invalid input : must have flavorId and hostId to delete from the trust cache")
 		return nil
 	}
 
@@ -292,7 +306,12 @@ func (hs *HostStore) RetrieveTrustCacheFlavors(hId, fgId uuid.UUID) ([]uuid.UUID
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/host_store:RetrieveTrustCacheFlavors() failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	flavorIds := []uuid.UUID{}
 	for rows.Next() {

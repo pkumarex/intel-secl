@@ -35,7 +35,11 @@ func (hss *HostStatusStore) Create(hs *hvs.HostStatus) (*hvs.HostStatus, error) 
 	defer defaultLog.Trace("postgres/hoststatus_store:Create() Leaving")
 
 	// populate realtime fields
-	hs.ID = uuid.New()
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "postgres/hoststatus_store:Create() failed to create new UUID")
+	}
+	hs.ID = newUuid
 	hs.Created = time.Now()
 	dbHostStatus := hostStatus{
 		ID:         hs.ID,
@@ -45,7 +49,7 @@ func (hss *HostStatusStore) Create(hs *hvs.HostStatus) (*hvs.HostStatus, error) 
 		CreatedAt:  hs.Created,
 	}
 
-	if err := hss.Store.Db.Create(&dbHostStatus).Error; err != nil {
+	if err = hss.Store.Db.Create(&dbHostStatus).Error; err != nil {
 		return nil, errors.Wrap(err, "postgres/hoststatus_store:Create() failed to create hostStatus")
 	}
 	// log to audit log
@@ -92,7 +96,12 @@ func (hss *HostStatusStore) Search(hsFilter *models.HostStatusFilterCriteria) ([
 		if err != nil {
 			return nil, errors.Wrap(err, "postgres/hoststatus_store:Search() failed to retrieve records from db")
 		}
-		defer rows.Close()
+		defer func() {
+			derr := rows.Close()
+			if derr != nil {
+				defaultLog.WithError(derr).Error("Error closing rows")
+			}
+		}()
 
 		for rows.Next() {
 			var result hvs.HostStatus
@@ -112,7 +121,12 @@ func (hss *HostStatusStore) Search(hsFilter *models.HostStatusFilterCriteria) ([
 		if err != nil {
 			return nil, errors.Wrap(err, "postgres/hoststatus_store:Search() failed to retrieve records from db")
 		}
-		defer rows.Close()
+		defer func() {
+			derr := rows.Close()
+			if derr != nil {
+				defaultLog.WithError(derr).Error("Error closing rows")
+			}
+		}()
 
 		for rows.Next() {
 			result := models.AuditLogEntry{}
@@ -213,7 +227,12 @@ func (hss *HostStatusStore) FindHostIdsByKeyValue(key, value string) ([]uuid.UUI
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/hoststatus_store:FindHostIdsByKeyValue() failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	var ids []uuid.UUID
 	for rows.Next() {
@@ -413,7 +432,10 @@ func auditlogEntryToHostStatus(auRecord models.AuditLogEntry) (*hvs.HostStatus, 
 	}
 
 	if !reflect.DeepEqual(models.AuditColumnData{}, auRecord.Data.Columns[1]) && auRecord.Data.Columns[1].Value != nil {
-		hostStatus.HostID = uuid.MustParse(fmt.Sprintf("%v", auRecord.Data.Columns[1].Value))
+		hostStatus.HostID, err = uuid.Parse(fmt.Sprintf("%v", auRecord.Data.Columns[1].Value))
+		if err != nil {
+			return nil, errors.Wrap(err, "postgres/hoststatus_store:auditlogEntryToHostStatus() - parsing hostid failed")
+		}
 	}
 
 	if !reflect.DeepEqual(models.AuditColumnData{}, auRecord.Data.Columns[2]) && auRecord.Data.Columns[2].Value != nil {

@@ -303,7 +303,10 @@ func (svc *Service) FetchDataAndRespond(hId uuid.UUID, connUrl string) {
 				default:
 				}
 				for _, rcv := range fr.rcvrs {
-					_ = rcv.ProcessHostData(fr.ctx, fr.host, nil, errors.New("Host does not exist"))
+					err = rcv.ProcessHostData(fr.ctx, fr.host, nil, errors.New("Host does not exist"))
+					if err != nil {
+						defaultLog.WithError(err).Errorf("could not process host data")
+					}
 				}
 
 			}
@@ -317,13 +320,16 @@ func (svc *Service) FetchDataAndRespond(hId uuid.UUID, connUrl string) {
 		hostState := utils.DetermineHostState(err)
 		defaultLog.Warnf("hostfetcher/Service:FetchDataAndRespond() Could not connect to host : %s", hostState.String())
 
-		_ = svc.hss.Persist(&hvs.HostStatus{
+		err = svc.hss.Persist(&hvs.HostStatus{
 			HostID: hId,
 			HostStatusInformation: hvs.HostStatusInformation{
 				HostState:         hostState,
 				LastTimeConnected: time.Now(),
 			},
 		})
+		if err != nil {
+			defaultLog.WithError(err).Errorf("could not persist host status")
+		}
 		return
 	}
 
@@ -334,7 +340,7 @@ func (svc *Service) FetchDataAndRespond(hId uuid.UUID, connUrl string) {
 	delete(svc.workMap, hId)
 	svc.wmLock.Unlock()
 	svc.updateMissingHostDetails(hId, hostData)
-	_ = svc.hss.Persist(&hvs.HostStatus{
+	err = svc.hss.Persist(&hvs.HostStatus{
 		HostID: hId,
 		HostStatusInformation: hvs.HostStatusInformation{
 			HostState:         hvs.HostStateConnected,
@@ -342,6 +348,9 @@ func (svc *Service) FetchDataAndRespond(hId uuid.UUID, connUrl string) {
 		},
 		HostManifest: *hostData,
 	})
+	if err != nil {
+		defaultLog.WithError(err).Errorf("could not persist host status")
+	}
 
 	for _, fr := range frs {
 		select {
@@ -350,7 +359,10 @@ func (svc *Service) FetchDataAndRespond(hId uuid.UUID, connUrl string) {
 		default:
 		}
 		for _, rcv := range fr.rcvrs {
-			_ = rcv.ProcessHostData(fr.ctx, fr.host, hostData, err)
+			err = rcv.ProcessHostData(fr.ctx, fr.host, hostData, err)
+			if err != nil {
+				defaultLog.WithError(err).Errorf("could not process host data")
+			}
 		}
 
 	}

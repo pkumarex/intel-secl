@@ -5,9 +5,9 @@
 package controllers_test
 
 import (
-	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/controllers"
+	hvsRoutes "github.com/intel-secl/intel-secl/v3/pkg/hvs/router"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"net/http"
@@ -27,7 +27,7 @@ var _ = Describe("VersionController", func() {
 	Describe("Get Version", func() {
 		Context("Get version details", func() {
 			It("Should return version", func() {
-				router.Handle("/version", versionController.GetVersion()).Methods("GET")
+				router.Handle("/version", hvsRoutes.ErrorHandler(hvsRoutes.ResponseHandler(versionController.GetVersion))).Methods("GET")
 				req, err := http.NewRequest("GET", "/version", nil)
 				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
@@ -35,8 +35,8 @@ var _ = Describe("VersionController", func() {
 				Expect(w.Code).To(Equal(200))
 
 				var version string
-				json.Unmarshal(w.Body.Bytes(), &version)
-				Expect(version).To(Equal(""))
+				version = string(w.Body.Bytes())
+				Expect(version).NotTo(Equal(""))
 			})
 		})
 	})

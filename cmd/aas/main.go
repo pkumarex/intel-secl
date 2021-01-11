@@ -78,9 +78,24 @@ func main() {
 			LogWriter: os.Stdout,
 		}
 	} else {
-		defer l.Close()
-		defer h.Close()
-		defer s.Close()
+		defer func() {
+			err = l.Close()
+			if err != nil {
+				fmt.Println("Failed close log file:", err.Error())
+			}
+		}()
+		defer func() {
+			err = h.Close()
+			if err != nil {
+				fmt.Println("Failed close log file:", err.Error())
+			}
+		}()
+		defer func() {
+			err = s.Close()
+			if err != nil {
+				fmt.Println("Failed close log file:", err.Error())
+			}
+		}()
 		app = &aas.App{
 			LogWriter:     l,
 			HTTPLogWriter: h,

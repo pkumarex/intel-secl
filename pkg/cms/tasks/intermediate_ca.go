@@ -80,7 +80,7 @@ func (ca IntermediateCa) Run() error {
 	}
 
 	for _, interCa := range cas {
-		fmt.Fprintln(ca.ConsoleWriter,"Creating intermediate CA ", interCa)
+		fmt.Fprintln(ca.ConsoleWriter, "Creating intermediate CA ", interCa)
 		caAttr := constants.GetCaAttribs(interCa)
 		privKey, cert, err := createIntermediateCACert(ca.Config, caAttr.CommonName)
 		if err != nil {
@@ -127,7 +127,7 @@ func (ca IntermediateCa) Validate() error {
 }
 
 func (ca IntermediateCa) PrintHelp(w io.Writer) {
-	setup.PrintEnvHelp(w, intermediateCAEnvHelpPrompt, ca.envPrefix, rootCAEnvHelp)	
+	setup.PrintEnvHelp(w, intermediateCAEnvHelpPrompt, ca.envPrefix, rootCAEnvHelp)
 	fmt.Fprintln(w, "")
 }
 

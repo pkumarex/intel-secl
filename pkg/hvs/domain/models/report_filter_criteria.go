@@ -24,6 +24,6 @@ type ReportFilterCriteria struct {
 }
 
 type ReportLocator struct {
-	ID          uuid.UUID
-	HostID      uuid.UUID
+	ID     uuid.UUID
+	HostID uuid.UUID
 }

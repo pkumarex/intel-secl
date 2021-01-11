@@ -45,7 +45,8 @@ var _ = Describe("HostController", func() {
 		hostCredentialStore = mocks.NewMockHostCredentialStore()
 
 		dekBase64 := "gcXqH8YwuJZ3Rx4qVzA/zhVvkTw2TL+iRAC9T3E6lII="
-		dek, _ := base64.StdEncoding.DecodeString(dekBase64)
+		dek, err := base64.StdEncoding.DecodeString(dekBase64)
+		Expect(err).NotTo(HaveOccurred())
 		hostControllerConfig = domain.HostControllerConfig{
 			HostConnectorProvider: hostConnectorProvider,
 			DataEncryptionKey:     dek,
@@ -102,9 +103,9 @@ var _ = Describe("HostController", func() {
 					"/hosts",
 					strings.NewReader(hostJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -123,9 +124,9 @@ var _ = Describe("HostController", func() {
 					"/hosts",
 					strings.NewReader(hostJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -145,9 +146,9 @@ var _ = Describe("HostController", func() {
 					"/hosts",
 					strings.NewReader(hostJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -166,9 +167,9 @@ var _ = Describe("HostController", func() {
 					"/hosts",
 					strings.NewReader(hostJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -188,9 +189,9 @@ var _ = Describe("HostController", func() {
 					"/hosts",
 					strings.NewReader(hostJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -217,9 +218,9 @@ var _ = Describe("HostController", func() {
 					"/hosts",
 					strings.NewReader(hostJson1),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -229,9 +230,9 @@ var _ = Describe("HostController", func() {
 					"/hosts",
 					strings.NewReader(hostJson2),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -280,9 +281,9 @@ var _ = Describe("HostController", func() {
 					"/hosts/ee37c360-7eae-4250-a677-6ee12adce8e2",
 					strings.NewReader(hostJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusOK))
@@ -301,9 +302,9 @@ var _ = Describe("HostController", func() {
 					"/hosts/ee37c360-7eae-4250-a677-6ee12adce8e2",
 					strings.NewReader(hostJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -322,9 +323,9 @@ var _ = Describe("HostController", func() {
 					"/hosts/ee37c360-7eae-4250-a677-6ee12adce8e2",
 					strings.NewReader(hostJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -343,9 +344,9 @@ var _ = Describe("HostController", func() {
 					"/hosts/73755fda-c910-46be-821f-e8ddeab189e9",
 					strings.NewReader(hostJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusNotFound))
@@ -390,7 +391,8 @@ var _ = Describe("HostController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var hostCollection hvs.HostCollection
-				json.Unmarshal(w.Body.Bytes(), &hostCollection)
+				err = json.Unmarshal(w.Body.Bytes(), &hostCollection)
+				Expect(err).NotTo(HaveOccurred())
 				// Verifying mocked data of 2 hosts
 				Expect(len(hostCollection.Hosts)).To(Equal(2))
 			})
@@ -406,7 +408,8 @@ var _ = Describe("HostController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var hostCollection hvs.HostCollection
-				json.Unmarshal(w.Body.Bytes(), &hostCollection)
+				err = json.Unmarshal(w.Body.Bytes(), &hostCollection)
+				Expect(err).NotTo(HaveOccurred())
 				// Verifying mocked data of 0 hosts
 				Expect(len(hostCollection.Hosts)).To(Equal(0))
 			})
@@ -422,7 +425,8 @@ var _ = Describe("HostController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var hostCollection hvs.HostCollection
-				json.Unmarshal(w.Body.Bytes(), &hostCollection)
+				err = json.Unmarshal(w.Body.Bytes(), &hostCollection)
+				Expect(err).NotTo(HaveOccurred())
 				// Verifying mocked data of 1 host
 				Expect(len(hostCollection.Hosts)).To(Equal(1))
 			})
@@ -438,7 +442,8 @@ var _ = Describe("HostController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var hostCollection hvs.HostCollection
-				json.Unmarshal(w.Body.Bytes(), &hostCollection)
+				err = json.Unmarshal(w.Body.Bytes(), &hostCollection)
+				Expect(err).NotTo(HaveOccurred())
 				// Verifying mocked data of 2 hosts
 				Expect(len(hostCollection.Hosts)).To(Equal(2))
 			})
@@ -476,7 +481,8 @@ var _ = Describe("HostController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var hostCollection hvs.HostCollection
-				json.Unmarshal(w.Body.Bytes(), &hostCollection)
+				err = json.Unmarshal(w.Body.Bytes(), &hostCollection)
+				Expect(err).NotTo(HaveOccurred())
 				// Verifying mocked data of 1 host
 				Expect(len(hostCollection.Hosts)).To(Equal(1))
 			})
@@ -492,7 +498,8 @@ var _ = Describe("HostController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var hostCollection hvs.HostCollection
-				json.Unmarshal(w.Body.Bytes(), &hostCollection)
+				err = json.Unmarshal(w.Body.Bytes(), &hostCollection)
+				Expect(err).NotTo(HaveOccurred())
 				// Verifying mocked data of 1 host
 				Expect(len(hostCollection.Hosts)).To(Equal(1))
 			})
@@ -535,9 +542,9 @@ var _ = Describe("HostController", func() {
 					"/hosts/ee37c360-7eae-4250-a677-6ee12adce8e2/flavorgroups",
 					strings.NewReader(hostJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusCreated))
@@ -555,9 +562,9 @@ var _ = Describe("HostController", func() {
 					"/hosts/ee37c360-7eae-4250-a677-6ee12adce8e2/flavorgroups",
 					strings.NewReader(hostJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -575,9 +582,9 @@ var _ = Describe("HostController", func() {
 					"/hosts/73755fda-c910-46be-821f-e8ddeab189e9/flavorgroups",
 					strings.NewReader(hostJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusNotFound))
@@ -595,9 +602,9 @@ var _ = Describe("HostController", func() {
 					"/hosts/ee37c360-7eae-4250-a677-6ee12adce8e2/flavorgroups",
 					strings.NewReader(hostJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -615,9 +622,9 @@ var _ = Describe("HostController", func() {
 					"/hosts/ee37c360-7eae-4250-a677-6ee12adce8e2/flavorgroups",
 					strings.NewReader(hostJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -709,7 +716,8 @@ var _ = Describe("HostController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var hostFlavorgroupCollection hvs.HostFlavorgroupCollection
-				json.Unmarshal(w.Body.Bytes(), &hostFlavorgroupCollection)
+				err = json.Unmarshal(w.Body.Bytes(), &hostFlavorgroupCollection)
+				Expect(err).NotTo(HaveOccurred())
 				// Verifying mocked data of 1 host flavorgroup link
 				Expect(len(hostFlavorgroupCollection.HostFlavorgroups)).To(Equal(1))
 			})

@@ -27,8 +27,12 @@ type CreateDefaultTransferPolicy struct {
 func (t *CreateDefaultTransferPolicy) Run() error {
 	fmt.Fprintln(t.ConsoleWriter, "Creating default key transfer policy")
 
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return errors.Wrap(err, "tasks/create_default_transfer_policy:Run() failed to create new UUID")
+	}
 	defaultTransferPolicy := models.DefaultTransferPolicy{
-		ID:             uuid.New(),
+		ID:             newUuid,
 		CreatedAt:      time.Now(),
 		TransferPolicy: constants.DefaultTransferPolicy,
 	}

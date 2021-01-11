@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"reflect"
 	"strings"
@@ -152,7 +153,7 @@ func NewFakeCertificateStore() *MockCertificateStore {
 	certPem, _ := ioutil.ReadFile(samlCertPath)
 	cert, _ := crypt.GetCertFromPem(certPem)
 
-	store.Create(&kbs.Certificate{
+	_, err := store.Create(&kbs.Certificate{
 		ID:          uuid.MustParse("ee37c360-7eae-4250-a677-6ee12adce8e2"),
 		Certificate: certPem,
 		Subject:     cert.Subject.CommonName,
@@ -160,11 +161,14 @@ func NewFakeCertificateStore() *MockCertificateStore {
 		NotBefore:   &cert.NotBefore,
 		NotAfter:    &cert.NotAfter,
 	})
+	if err != nil {
+		log.WithError(err).Errorf("Error creating certificate")
+	}
 
 	certPem, _ = ioutil.ReadFile(tpmIdentityCertPath)
 	cert, _ = crypt.GetCertFromPem(certPem)
 
-	store.Create(&kbs.Certificate{
+	_, err = store.Create(&kbs.Certificate{
 		ID:          uuid.MustParse("e57e5ea0-d465-461e-882d-1600090caa0d"),
 		Certificate: certPem,
 		Subject:     cert.Subject.CommonName,
@@ -172,6 +176,9 @@ func NewFakeCertificateStore() *MockCertificateStore {
 		NotBefore:   &cert.NotBefore,
 		NotAfter:    &cert.NotAfter,
 	})
+	if err != nil {
+		log.WithError(err).Errorf("Error creating certificate")
+	}
 
 	return store
 }

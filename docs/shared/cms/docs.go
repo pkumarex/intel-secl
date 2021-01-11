@@ -1,11 +1,11 @@
 // Certificate Management Service (CMS)
-// 
+//
 // CMS resources are used to retrieve root CA certificates and to request CMS Signed Certificates for the provided CSR.
 // CMS acts as a root CA and issuing TLS certificates for all other ISecL services.
 //
-//  License: Copyright (C) 2020 Intel Corporation. SPDX-License-Identifier: BSD-3-Clause 
+//  License: Copyright (C) 2020 Intel Corporation. SPDX-License-Identifier: BSD-3-Clause
 //
-//  Version: 2.2
+//  Version: 3
 //  Host: cms.com:8445
 //  BasePath: /cms/v1
 //
@@ -20,7 +20,6 @@
 //
 // swagger:meta
 package docs
-
 
 // swagger:operation GET /ca-certificates CACertificate GetCACertificates
 // ---
@@ -90,11 +89,11 @@ package docs
 //         -----END CERTIFICATE-----
 // ---
 
-// swagger:operation POST /certificates Certificate GetCmsSignedCertificate 
+// swagger:operation POST /certificates Certificate GetCmsSignedCertificate
 // ---
 // description: |
-//   Retrieves the certificate signed by CMS. A valid certificate type 
-//   should be provided as a query parameter for this API Call to distinguish the 
+//   Retrieves the certificate signed by CMS. A valid certificate type
+//   should be provided as a query parameter for this API Call to distinguish the
 //   type of certificate requested. A valid bearer token is required to authorize
 //   this REST call.
 //
@@ -208,4 +207,3 @@ package docs
 // x-sample-call-endpoint: https://cms.com:8445/cms/v1/version
 // x-sample-call-output: v2.2
 // ---
-
