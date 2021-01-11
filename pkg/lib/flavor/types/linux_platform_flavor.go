@@ -83,34 +83,44 @@ func (rhelpf LinuxPlatformFlavor) GetFlavorPartNames() ([]cf.FlavorPart, error) 
 
 // GetPcrList Helper function to calculate the list of PCRs for the flavor part specified based
 // on the version of the TPM hardware.
-func (rhelpf LinuxPlatformFlavor) getPcrList(flavorPart cf.FlavorPart, flavorTemplates []hvs.FlavorTemplate) map[hvs.PCR]hvs.PcrListRules {
+func (rhelpf LinuxPlatformFlavor) getPcrList(flavorPart cf.FlavorPart, flavorTemplates []hvs.FlavorTemplate) (map[hvs.PCR]hvs.PcrListRules,error) {
 	log.Trace("flavor/types/linux_platform_flavor:getPcrList() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:getPcrList() Leaving")
 
 	pcrlistAndRules := make(map[hvs.PCR]hvs.PcrListRules)
+	var err error
 	for _, flavorTemplate := range flavorTemplates {
 		switch flavorPart {
 		case cf.FlavorPartPlatform:
-			pcrlistAndRules = getPCRListAndRules(flavorTemplate.FlavorParts.Platform, pcrlistAndRules)
+			pcrlistAndRules,err = getPCRListAndRules(flavorTemplate.FlavorParts.Platform, pcrlistAndRules)
+			if err != nil {
+				return nil,errors.Wrap(err,"flavor/types/linux_platform_flavor:getPcrList() Error getting pcr rules for platform flavor")
+			}
 			break
 		case cf.FlavorPartOs:
-			pcrlistAndRules = getPCRListAndRules(flavorTemplate.FlavorParts.OS, pcrlistAndRules)
+			pcrlistAndRules,err = getPCRListAndRules(flavorTemplate.FlavorParts.OS, pcrlistAndRules)
+			if err != nil {
+				return nil,errors.Wrap(err,"flavor/types/linux_platform_flavor:getPcrList() Error getting pcr rules for os flavor")
+			}
 			break
 		case cf.FlavorPartHostUnique:
-			pcrlistAndRules = getPCRListAndRules(flavorTemplate.FlavorParts.HostUnique, pcrlistAndRules)
+			pcrlistAndRules,err = getPCRListAndRules(flavorTemplate.FlavorParts.HostUnique, pcrlistAndRules)
+			if err != nil {
+				return nil,errors.Wrap(err,"flavor/types/linux_platform_flavor:getPcrList() Error getting pcr rules for host unique flavor")
+			}
 			break
 		}
 	}
-
-	return pcrlistAndRules
+	
+	return pcrlistAndRules,nil
 }
 
-func getPCRListAndRules(flavorPart *hvs.FlavorPart, pcrList map[hvs.PCR]hvs.PcrListRules) map[hvs.PCR]hvs.PcrListRules {
+func getPCRListAndRules(flavorPart *hvs.FlavorPart, pcrList map[hvs.PCR]hvs.PcrListRules) (map[hvs.PCR]hvs.PcrListRules,error) {
 	log.Trace("flavor/types/linux_platform_flavor:getPCRListAndRules() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:getPCRListAndRules() Leaving")
 
 	if flavorPart == nil {
-		return pcrList
+		return pcrList,nil
 	}
 
 	if pcrList == nil {
@@ -126,7 +136,9 @@ func getPCRListAndRules(flavorPart *hvs.FlavorPart, pcrList map[hvs.PCR]hvs.PcrL
 		if pcrRule.PcrMatches != nil && *pcrRule.PcrMatches {
 			rulesList.PcrMatches = true
 		}
-
+		if rulesList.PcrIncludes != nil && pcrRule.EventlogEquals != nil {
+			return nil, errors.New("flavor/types/linux_platform_flavor:getPCRListAndRules() Error getting pcrList : Both event log equals and includes rule present for single pcr index/bank")
+		}
 		if pcrRule.EventlogEquals != nil {
 			rulesList.PcrEquals.IsPcrEquals = true
 			if pcrRule.EventlogEquals.ExcludingTags != nil {
@@ -137,6 +149,10 @@ func getPCRListAndRules(flavorPart *hvs.FlavorPart, pcrList map[hvs.PCR]hvs.PcrL
 					}
 				}
 			}
+		}
+
+		if rulesList.PcrEquals.IsPcrEquals == true  && pcrRule.EventlogIncludes != nil {
+			return nil, errors.New("flavor/types/linux_platform_flavor:getPCRListAndRules() Error getting pcrList : Both event log equals and includes rule present for single pcr index/bank")
 		}
 
 		if pcrRule.EventlogIncludes != nil {
@@ -150,7 +166,7 @@ func getPCRListAndRules(flavorPart *hvs.FlavorPart, pcrList map[hvs.PCR]hvs.PcrL
 		pcrList[pcrRule.Pcr] = rulesList
 	}
 
-	return pcrList
+	return pcrList,nil
 }
 
 func isCbntMeasureProfile(cbnt *taModel.CBNT) bool {
@@ -192,7 +208,10 @@ func (rhelpf LinuxPlatformFlavor) getPlatformFlavor() ([]cm.Flavor, error) {
 	defer log.Trace("flavor/types/linux_platform_flavor:getPlatformFlavor() Leaving")
 
 	var errorMessage = "Error during creation of PLATFORM flavor"
-	platformPcrs := rhelpf.getPcrList(cf.FlavorPartPlatform, rhelpf.FlavorTemplates)
+	platformPcrs,err := rhelpf.getPcrList(cf.FlavorPartPlatform, rhelpf.FlavorTemplates)
+	if err != nil {
+		return nil, errors.Wrap(err, "flavor/types/linux_platform_flavor:getPlatformFlavor() "+errorMessage+" Failure in getting pcrlist")
+	}
 	var includeEventLog = rhelpf.eventLogRequired(cf.FlavorPartPlatform)
 	var allPcrDetails = rhelpf.GetPcrDetails(rhelpf.HostManifest.PcrManifest, platformPcrs, includeEventLog)
 
@@ -205,19 +224,19 @@ func (rhelpf LinuxPlatformFlavor) getPlatformFlavor() ([]cm.Flavor, error) {
 
 	newMeta = UpdateMetaSectionDetails(cf.FlavorPartPlatform, newMeta, rhelpf.FlavorTemplates)
 	if err != nil {
-		return nil, errors.Wrap(err, errorMessage+" - failure in Updating Meta section details")
+		return nil, errors.Wrap(err, "flavor/types/linux_platform_flavor:getPlatformFlavor() "+errorMessage+" failure in Updating Meta section details")
 	}
 	log.Debugf("flavor/types/linux_platform_flavor:getPlatformFlavor() New Meta Section: %v", *newMeta)
 
 	newBios := pfutil.GetBiosSectionDetails(rhelpf.HostInfo)
 	if newBios == nil {
-		return nil, errors.Errorf(errorMessage + " - failure in Bios section details")
+		return nil, errors.Errorf("flavor/types/linux_platform_flavor:getPlatformFlavor() "+errorMessage+" failure in Bios section details")
 	}
 	log.Debugf("flavor/types/linux_platform_flavor:getPlatformFlavor() New Bios Section: %v", *newBios)
 
 	newHW := pfutil.GetHardwareSectionDetails(rhelpf.HostInfo)
 	if newHW == nil {
-		return nil, errors.Errorf(errorMessage + " - failure in Hardware section details")
+		return nil, errors.Errorf("flavor/types/linux_platform_flavor:getPlatformFlavor() "+errorMessage+" failure in Hardware section details")
 	}
 	log.Debugf("flavor/types/linux_platform_flavor:getPlatformFlavor() New Hardware Section: %v", *newHW)
 
@@ -236,8 +255,10 @@ func (rhelpf LinuxPlatformFlavor) getOsFlavor() ([]cm.Flavor, error) {
 	defer log.Trace("flavor/types/linux_platform_flavor:getOsFlavor() Leaving")
 
 	var errorMessage = "Error during creation of OS flavor"
-	var err error
-	osPcrs := rhelpf.getPcrList(cf.FlavorPartOs, rhelpf.FlavorTemplates)
+	osPcrs,err := rhelpf.getPcrList(cf.FlavorPartOs, rhelpf.FlavorTemplates)
+	if err != nil {
+		return nil, errors.Wrap(err, "flavor/types/linux_platform_flavor:getOsFlavor() "+errorMessage+" Failure in getting pcrlist")
+	}
 	var includeEventLog = rhelpf.eventLogRequired(cf.FlavorPartOs)
 	var allPcrDetails = rhelpf.GetPcrDetails(
 		rhelpf.HostManifest.PcrManifest, osPcrs, includeEventLog)
@@ -245,18 +266,18 @@ func (rhelpf LinuxPlatformFlavor) getOsFlavor() ([]cm.Flavor, error) {
 	newMeta, err := pfutil.GetMetaSectionDetails(rhelpf.HostInfo, rhelpf.TagCertificate, "", cf.FlavorPartOs,
 		hcConstants.VendorIntel)
 	if err != nil {
-		return nil, errors.Wrap(err, errorMessage+" Failure in Meta section details")
+		return nil, errors.Wrap(err, "flavor/types/linux_platform_flavor:getOsFlavor() "+errorMessage+" Failure in Meta section details")
 	}
 	log.Debugf("flavor/types/linux_platform_flavor:getOsFlavor() New Meta Section: %v", *newMeta)
 
 	newMeta = UpdateMetaSectionDetails(cf.FlavorPartOs, newMeta, rhelpf.FlavorTemplates)
 	if err != nil {
-		return nil, errors.Wrap(err, errorMessage+" - failure in Updating Meta section details")
+		return nil, errors.Wrap(err, "flavor/types/linux_platform_flavor:getOsFlavor() "+errorMessage+" failure in Updating Meta section details")
 	}
-	log.Debugf("flavor/types/linux_platform_flavor:getPlatformFlavor() New Meta Section: %v", *newMeta)
+	log.Debugf("flavor/types/linux_platform_flavor:getOsFlavor() New Meta Section: %v", *newMeta)
 	newBios := pfutil.GetBiosSectionDetails(rhelpf.HostInfo)
 	if newBios == nil {
-		return nil, errors.Errorf("%s Failure in Bios section details", errorMessage)
+		return nil, errors.New("flavor/types/linux_platform_flavor:getOsFlavor() "+errorMessage+" Failure in Bios section details")
 	}
 	log.Debugf("flavor/types/linux_platform_flavor:getOsFlavor() New Bios Section: %v", *newBios)
 
@@ -277,7 +298,10 @@ func (rhelpf LinuxPlatformFlavor) getHostUniqueFlavor() ([]cm.Flavor, error) {
 
 	var errorMessage = "Error during creation of HOST_UNIQUE flavor"
 	var err error
-	hostUniquePcrs := rhelpf.getPcrList(cf.FlavorPartHostUnique, rhelpf.FlavorTemplates)
+	hostUniquePcrs,err := rhelpf.getPcrList(cf.FlavorPartHostUnique, rhelpf.FlavorTemplates)
+	if err != nil {
+		return nil, errors.Wrap(err, "flavor/types/linux_platform_flavor:getHostUniqueFlavor() "+errorMessage+" Failure in getting pcrlist")
+	}
 	var includeEventLog = rhelpf.eventLogRequired(cf.FlavorPartHostUnique)
 	var allPcrDetails = rhelpf.GetPcrDetails(
 		rhelpf.HostManifest.PcrManifest, hostUniquePcrs, includeEventLog)
@@ -285,26 +309,26 @@ func (rhelpf LinuxPlatformFlavor) getHostUniqueFlavor() ([]cm.Flavor, error) {
 	newMeta, err := pfutil.GetMetaSectionDetails(rhelpf.HostInfo, rhelpf.TagCertificate, "", cf.FlavorPartHostUnique,
 		hcConstants.VendorIntel)
 	if err != nil {
-		return nil, errors.Wrap(err, errorMessage+" Failure in Meta section details")
+		return nil, errors.Wrap(err, "flavor/types/linux_platform_flavor:getHostUniqueFlavor() "+errorMessage+" Failure in Meta section details")
 	}
 	log.Debugf("flavor/types/linux_platform_flavor:getHostUniqueFlavor() New Meta Section: %v", *newMeta)
 
 	newMeta = UpdateMetaSectionDetails(cf.FlavorPartHostUnique, newMeta, rhelpf.FlavorTemplates)
 	if err != nil {
-		return nil, errors.Wrap(err, errorMessage+" - failure in Updating Meta section details")
+		return nil, errors.Wrap(err, "flavor/types/linux_platform_flavor:getHostUniqueFlavor() "+errorMessage+" failure in Updating Meta section details")
 	}
 	log.Debugf("flavor/types/linux_platform_flavor:getPlatformFlavor() New Meta Section: %v", *newMeta)
 
 	newBios := pfutil.GetBiosSectionDetails(rhelpf.HostInfo)
 	if newBios == nil {
-		return nil, errors.Wrap(err, errorMessage+" Failure in Bios section details")
+		return nil, errors.Wrap(err,"flavor/types/linux_platform_flavor:getHostUniqueFlavor() "+errorMessage+" Failure in Bios section details")
 	}
 	log.Debugf("flavor/types/linux_platform_flavor:getHostUniqueFlavor() New Bios Section: %v", *newBios)
 
 	// Assemble the Host Unique Flavor
 	hostUniqueFlavor := cm.NewFlavor(newMeta, newBios, nil, nil, allPcrDetails, nil, nil)
 
-	log.Debugf("flavor/types/linux_platform_flavor:getHostUniqueFlavor() New PlatformFlavor: %v", hostUniqueFlavor)
+	log.Debugf("flavor/types/linux_platform_flavor:getHostUniqueFlavor() New Host unique flavor: %v", hostUniqueFlavor)
 
 	return []cm.Flavor{*hostUniqueFlavor}, nil
 }
@@ -346,7 +370,7 @@ func (rhelpf LinuxPlatformFlavor) getAssetTagFlavor() ([]cm.Flavor, error) {
 	// Assemble the Asset Tag Flavor
 	assetTagFlavor := cm.NewFlavor(newMeta, newBios, nil, nil, nil, newExt, nil)
 
-	log.Debugf("flavor/types/linux_platform_flavor:getPlatformFlavor() New Asset Tag Flavor: %v", assetTagFlavor)
+	log.Debugf("flavor/types/linux_platform_flavor:getAssetTagFlavor() New Asset Tag Flavor: %v", assetTagFlavor)
 
 	return []cm.Flavor{*assetTagFlavor}, nil
 }
