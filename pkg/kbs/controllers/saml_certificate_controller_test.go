@@ -168,7 +168,7 @@ var _ = Describe("SamlCertController", func() {
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusOK))
 
- 				var certs []kbs.Certificate
+				var certs []kbs.Certificate
 				err = json.Unmarshal(w.Body.Bytes(), &certs)
 				Expect(err).ToNot(HaveOccurred())
 				Expect(len(certs)).To(Equal(2))

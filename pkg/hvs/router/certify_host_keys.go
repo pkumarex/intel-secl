@@ -18,7 +18,7 @@ func SetCertifyHostKeysRoutes(router *mux.Router, certStore *models.Certificates
 	defer defaultLog.Trace("router/certify_host_keys:SetCertifyHostKeys() Leaving")
 
 	certifyHostKeysController := controllers.NewCertifyHostKeysController(certStore)
-	if certifyHostKeysController == nil{
+	if certifyHostKeysController == nil {
 		defaultLog.Error("router/certify_host_keys:SetCertifyHostKeys() Could not instantiate CertifyHostKeysController")
 	}
 	router.HandleFunc("/rpc/certify-host-signing-key", ErrorHandler(permissionsHandler(JsonResponseHandler(certifyHostKeysController.CertifySigningKey), []string{consts.CertifyHostSigningKey}))).Methods("POST")

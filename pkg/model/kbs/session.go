@@ -71,7 +71,7 @@ type Data struct {
 }
 
 type SessionManagementAttributes struct {
-	ChallengeType    string `json:"challenge_type"`
-	Challenge        string `json:"challenge"`
-	Quote            string `json:"quote"`
+	ChallengeType string `json:"challenge_type"`
+	Challenge     string `json:"challenge"`
+	Quote         string `json:"quote"`
 }

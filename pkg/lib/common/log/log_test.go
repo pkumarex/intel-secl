@@ -30,16 +30,26 @@ func TestDefaultLog(t *testing.T) {
 
 func TestFileLog(t *testing.T) {
 
-	f, _ := os.OpenFile("test.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
-	defer f.Close()
+	f, err := os.OpenFile("test.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	defer func() {
+		derr := f.Close()
+		if derr != nil {
+			fmt.Println(err.Error())
+		}
+	}()
 
 	fileLog := logrus.New()
 	fileLog.SetOutput(f)
 	fileLog.SetLevel(logrus.TraceLevel)
 	fileLog.SetFormatter(&log.LogFormatter{LevelLength: 0})
 
-	log.AddLogger("file", fileLog)
-
+	err = log.AddLogger("file", fileLog)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 	log.GetLogger("file").Info("Hello")
 	log.GetLogger("file").Debug("Hello")
 	log.GetLogger("file").Trace("Hello")
@@ -87,8 +97,16 @@ func TestSetLogger(t *testing.T) {
 	l.WithField("test", "TestSetLogger").Warning("Hello")
 	l.WithField("test", "TestSetLogger").Error("Hello")
 
-	f, _ := os.OpenFile("test1.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
-	defer f.Close()
+	f, err := os.OpenFile("test1.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	defer func() {
+		derr := f.Close()
+		if derr != nil {
+			fmt.Println(err.Error())
+		}
+	}()
 
 	setup.SetLogger("test", logrus.TraceLevel, nil, f, false)
 

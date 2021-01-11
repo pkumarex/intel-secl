@@ -48,7 +48,6 @@ var (
 	ErrHTTPGetRolesForUser = &clients.HTTPClientErr{
 		ErrMessage: "Failed to get roles for user",
 	}
-
 )
 
 func (c *Client) prepReqHeader(req *http.Request) {
@@ -98,7 +97,7 @@ func (c *Client) GetUsers(name string) ([]types.UserCreateResponse, error) {
 	if name != "" {
 		queryString.Set("name", name)
 	}
-	
+
 	u.RawQuery = queryString.Encode()
 
 	userURL := clients.ResolvePath(c.BaseURL, u.ResolveReference(u).String())
@@ -187,7 +186,7 @@ func (c *Client) GetRoles(service, name, context, contextContains string, allCon
 	} else {
 		queryString.Set("allContexts", "false")
 	}
-	
+
 	u.RawQuery = queryString.Encode()
 
 	rolesURL := clients.ResolvePath(c.BaseURL, u.ResolveReference(u).String())
@@ -277,7 +276,6 @@ func (c *Client) GetRolesForUser(userID string) ([]types.RoleInfo, error) {
 	return roles, nil
 }
 
-
 func (c *Client) UpdateUser(userID string, user types.UserCreate) error {
 
 	userRoleURL := clients.ResolvePath(c.BaseURL, "users/"+userID)
@@ -296,6 +294,9 @@ func (c *Client) UpdateUser(userID string, user types.UserCreate) error {
 		return errors.New("aaClient.UpdateUser: HTTPClient should not be null")
 	}
 	rsp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
 	if rsp.StatusCode != http.StatusOK {
 		ErrHTTPUpdateUser.RetCode = rsp.StatusCode
 		return ErrHTTPUpdateUser
@@ -321,6 +322,9 @@ func (c *Client) AddRoleToUser(userID string, r types.RoleIDs) error {
 		return errors.New("aaClient.AddRoleToUser: HTTPClient should not be null")
 	}
 	rsp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return err
+	}
 	if rsp.StatusCode != http.StatusCreated {
 		ErrHTTPAddRoleToUser.RetCode = rsp.StatusCode
 		return ErrHTTPAddRoleToUser

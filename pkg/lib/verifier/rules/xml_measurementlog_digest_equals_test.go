@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2020 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
-*/
+ */
 package rules
 
 import (
@@ -14,9 +14,8 @@ import (
 	"testing"
 )
 
-var 
-(
-	testUuid = uuid.New()
+var (
+	testUuid, _ = uuid.NewRandom()
 )
 
 func TestXmlMeasurementLogDigestEqualsNoFault(t *testing.T) {
@@ -27,15 +26,15 @@ func TestXmlMeasurementLogDigestEqualsNoFault(t *testing.T) {
 
 	// create a host manifest with a single measurement containing a valid SHA384
 	// digest --> expect 'no faults'
-	measurement := ta.Measurement {
+	measurement := ta.Measurement{
 		DigestAlg: string(types.SHA384),
-		Uuid: testUuid.String(),
+		Uuid:      testUuid.String(),
 	}
 
 	measurementsXml, err := xml.Marshal(measurement)
 	assert.NoError(t, err)
-    
-	hostManifest := types.HostManifest {
+
+	hostManifest := types.HostManifest{
 		MeasurementXmls: []string{string(measurementsXml)},
 	}
 
@@ -55,25 +54,25 @@ func TestXmlMeasurementLogDigestEqualsFaultDigestValueMismatchFault(t *testing.T
 
 	// create a host manifest with a one valid measurement and two invalid
 	// measurements --> expect 2 XmlManifestDigetValueMismatch faults
-	measurement := ta.Measurement {
+	measurement := ta.Measurement{
 		DigestAlg: string(types.SHA384),
-		Uuid: testUuid.String(),
+		Uuid:      testUuid.String(),
 	}
 
 	measurementsXml, err := xml.Marshal(measurement)
-    assert.NoError(t, err)
-	
-	invalidMeasurement := ta.Measurement {
+	assert.NoError(t, err)
+
+	invalidMeasurement := ta.Measurement{
 		DigestAlg: string(types.SHA1),
-		Uuid: testUuid.String(),
+		Uuid:      testUuid.String(),
 	}
 
 	invalidMeasurementsXml, err := xml.Marshal(invalidMeasurement)
-    assert.NoError(t, err)
+	assert.NoError(t, err)
 
-	hostManifest := types.HostManifest {
+	hostManifest := types.HostManifest{
 		MeasurementXmls: []string{
-			string(measurementsXml), 
+			string(measurementsXml),
 			string(invalidMeasurementsXml),
 			string(invalidMeasurementsXml),
 		},

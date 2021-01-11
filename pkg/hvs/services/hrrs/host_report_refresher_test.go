@@ -6,6 +6,7 @@
 package hrrs
 
 import (
+	log "github.com/sirupsen/logrus"
 	"testing"
 	"time"
 
@@ -35,9 +36,12 @@ func TestHostReportRefresher(t *testing.T) {
 
 	// Create a report that expired ten years ago to test the 'open window' logic.
 	// Expect that this host is updated on the first pass of the report refresher.
-	host1UUID := uuid.New()
+	host1UUID, err := uuid.NewRandom()
+	assert.NoError(t, err)
+	host1ID, err := uuid.NewRandom()
+	assert.NoError(t, err)
 	_, _ = reportStore.Create(&models.HVSReport{
-		ID:         uuid.New(),
+		ID:         host1ID,
 		HostID:     host1UUID,
 		CreatedAt:  time.Now(),
 		Expiration: time.Now().Add(-tenYears),
@@ -48,9 +52,12 @@ func TestHostReportRefresher(t *testing.T) {
 
 	// Create another report that expires in the future to test the 'narrow windows' logic...
 	// Expect that this host is updated in a secondary refresh of the report refresher.
-	host2UUID := uuid.New()
+	host2UUID, err := uuid.NewRandom()
+	assert.NoError(t, err)
+	host2ID, err := uuid.NewRandom()
+	assert.NoError(t, err)
 	_, _ = reportStore.Create(&models.HVSReport{
-		ID:         uuid.New(),
+		ID:         host2ID,
 		HostID:     host2UUID,
 		CreatedAt:  time.Now(),
 		Expiration: time.Now().Add(twoSeconds * 3),
@@ -68,12 +75,14 @@ func TestHostReportRefresher(t *testing.T) {
 	// in the report store.
 	refresher, err := NewHostReportRefresher(cfg, reportStore, hostTrustManager)
 	assert.NoError(t, err)
-	refresher.Run()
+	err = refresher.Run()
+	assert.NoError(t, err)
 
 	time.Sleep(tenSeconds)
 
 	t.Log("stopping")
-	refresher.Stop()
+	err = refresher.Stop()
+	assert.NoError(t, err)
 
 	// make sure both hosts have updated reports with future expiration dates
 	hostsToCheck := []uuid.UUID{host1UUID, host2UUID}
@@ -122,11 +131,16 @@ func (htm MockHostTrustManager) VerifyHostsAsync(hostIDs []uuid.UUID, fetchHostD
 		}
 
 		for _, reportToDelete := range reportsToDelete {
-			htm.reportStore.Delete(reportToDelete.ID)
+			err = htm.reportStore.Delete(reportToDelete.ID)
+			if err != nil {
+				// as this is mock, do not return err
+				log.WithError(err).Errorf("There was an error deleting the report")
+			}
 		}
 
+		newID, _ := uuid.NewRandom()
 		trustReport := models.HVSReport{
-			ID:         uuid.New(),
+			ID:         newID,
 			HostID:     hostID,
 			CreatedAt:  time.Now(),
 			Expiration: time.Now().Add(twentyFourHours),

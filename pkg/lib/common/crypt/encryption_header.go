@@ -5,6 +5,7 @@
 package crypt
 
 import (
+	log "github.com/sirupsen/logrus"
 	"os"
 	"strings"
 )
@@ -28,7 +29,12 @@ func EncryptionHeaderExists(encFilePath string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	defer encFile.Close()
+	defer func() {
+		derr := encFile.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing file")
+		}
+	}()
 
 	magicTextSlice := make([]byte, len(encryptionHeader.MagicText))
 	if _, err := encFile.Read(magicTextSlice); err != nil {

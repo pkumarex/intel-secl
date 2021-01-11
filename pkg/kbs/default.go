@@ -88,8 +88,8 @@ func defaultConfig() *config.Configuration {
 
 func loadAlias() {
 	alias := map[string]string{
-		"tls-san-list":               "SAN_LIST",
-		"aas-base-url":               "AAS_API_URL",
+		"tls-san-list": "SAN_LIST",
+		"aas-base-url": "AAS_API_URL",
 	}
 	for k, v := range alias {
 		if env := os.Getenv(v); env != "" {

@@ -402,7 +402,7 @@ var defaultFlavorTemplatesRaw = []string{
 		"condition": [
 			"//host_info/os_name//*[text()='RedHatEnterprise']",
 			"//host_info/hardware_features/TPM/meta/tpm_version//*[text()='2.0']",
-			"//SHA256/*[./pcr/Index/text()=0 and ./event_log/*/tags/*/text()='AMI/BMC']"
+			"//SHA256/*[./pcr/index/text()=0 and ./tpm_events/*/tags/*/text()='Firmware Hash']"
 		],
 		"flavor_parts": {
 			"PLATFORM": {
@@ -419,7 +419,7 @@ var defaultFlavorTemplatesRaw = []string{
 						},
 						"pcr_matches": true,
 						"eventlog_includes": [
-							"AMI/BMC"
+							"Firmware Hash"
 						]
 					}
 				]
@@ -431,8 +431,8 @@ var defaultFlavorTemplatesRaw = []string{
 		"label": "default-pfr",
 		"condition": [
 			"//host_info/os_name//*[text()='RedHatEnterprise']",
-			"//host_info/hardware_features/TPM/meta/tpm_version/*[text()='2.0']",
-			"//SHA256/*[./pcr/Index/text()=0 and ./event_log/*/tags/*/text()='Intel PFR']"
+			"//host_info/hardware_features/TPM/meta/tpm_version//*[text()='2.0']",
+			"//SHA256/*[./pcr/index/text()=0 and ./tpm_events/*/tags/*/text()='Intel PFR']"
 		],
 		"flavor_parts": {
 			"PLATFORM": {

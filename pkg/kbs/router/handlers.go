@@ -8,6 +8,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 
 	"github.com/intel-secl/intel-secl/v3/pkg/clients"
@@ -48,7 +49,10 @@ func ResponseHandler(h func(http.ResponseWriter, *http.Request) (interface{}, in
 		}
 		w.WriteHeader(status)
 		if data != nil {
-			w.Write(data.([]byte))
+			_, err = w.Write(data.([]byte))
+			if err != nil {
+				log.WithError(err).Errorf("Unable to write response")
+			}
 		}
 		return nil
 	}
@@ -107,8 +111,11 @@ func permissionsHandler(eh endpointHandler, permissionNames []string) endpointHa
 		privileges, err := comctx.GetUserPermissions(r)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Could not get user permissions from http context"))
-			secLog.Errorf("router/handlers:permissionsHandler() %s Permission: %v | Context: %v", commLogMsg.AuthenticationFailed, permissionNames, r.Context())
+			secLog.WithError(err).Errorf("router/handlers:permissionsHandler() %s Permission: %v | Context: %v", commLogMsg.AuthenticationFailed, permissionNames, r.Context())
+			_, writeErr := w.Write([]byte("Could not get user permissions from http context"))
+			if writeErr != nil {
+				log.WithError(writeErr).Error("Error writing data")
+			}
 			return errors.Wrap(err, "router/handlers:permissionsHandler() Could not get user permissions from http context")
 		}
 		reqPermissions := ct.PermissionInfo{Service: consts.ServiceName, Rules: permissionNames}

@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	log "github.com/sirupsen/logrus"
 	"reflect"
 	"time"
 
@@ -108,7 +109,7 @@ func NewFakeKeyStore() *MockKeyStore {
 	store := &MockKeyStore{}
 	store.KeyStore = make(map[uuid.UUID]*models.KeyAttributes)
 
-	store.Create(&models.KeyAttributes{
+	_, err := store.Create(&models.KeyAttributes{
 		ID:               uuid.MustParse("ee37c360-7eae-4250-a677-6ee12adce8e2"),
 		Algorithm:        "AES",
 		KeyLength:        256,
@@ -118,8 +119,11 @@ func NewFakeKeyStore() *MockKeyStore {
 		TransferLink:     "https://localhost:9443/kbs/v1/keys/ee37c360-7eae-4250-a677-6ee12adce8e2/transfer",
 		CreatedAt:        time.Now().UTC(),
 	})
+	if err != nil {
+		log.WithError(err).Errorf("Error creating key attributes")
+	}
 
-	store.Create(&models.KeyAttributes{
+	_, err = store.Create(&models.KeyAttributes{
 		ID:               uuid.MustParse("e57e5ea0-d465-461e-882d-1600090caa0d"),
 		Algorithm:        "EC",
 		CurveType:        "prime256v1",
@@ -129,6 +133,9 @@ func NewFakeKeyStore() *MockKeyStore {
 		TransferLink:     "https://localhost:9443/kbs/v1/keys/e57e5ea0-d465-461e-882d-1600090caa0d/transfer",
 		CreatedAt:        time.Now().UTC(),
 	})
+	if err != nil {
+		log.WithError(err).Errorf("Error creating key attributes")
+	}
 
 	return store
 }

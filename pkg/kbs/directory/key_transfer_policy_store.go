@@ -31,7 +31,11 @@ func (ktps *KeyTransferPolicyStore) Create(policy *kbs.KeyTransferPolicyAttribut
 	defaultLog.Trace("directory/key_transfer_policy_store:Create() Entering")
 	defer defaultLog.Trace("directory/key_transfer_policy_store:Create() Leaving")
 
-	policy.ID = uuid.New()
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "directory/key_transfer_policy_store:Create() failed to create new UUID")
+	}
+	policy.ID = newUuid
 	policy.CreatedAt = time.Now().UTC()
 	bytes, err := json.Marshal(policy)
 	if err != nil {
@@ -94,9 +98,13 @@ func (ktps *KeyTransferPolicyStore) Search(criteria *models.KeyTransferPolicyFil
 	}
 
 	for _, policyFile := range policyFiles {
-		policy, err := ktps.Retrieve(uuid.MustParse(policyFile.Name()))
+		filename, err := uuid.Parse(policyFile.Name())
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "directory/key_transfer_policy_store:Search() Error in parsing policy file name : %s", policyFile.Name())
+		}
+		policy, err := ktps.Retrieve(filename)
+		if err != nil {
+			return nil, errors.Wrapf(err, "directory/key_transfer_policy_store:Search() Error in retrieving policy from file : %s", policyFile.Name())
 		}
 
 		policies = append(policies, *policy)

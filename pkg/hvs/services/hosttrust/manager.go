@@ -166,7 +166,10 @@ func (svc *Service) ProcessQueue() error {
 				for key, value := range queue.Params {
 					if key == "host_id" {
 						if _, ok := value.(string); ok {
-							hostId = uuid.MustParse(value.(string))
+							hostId, err = uuid.Parse(value.(string))
+							if err != nil {
+								return errors.Wrap(err, "hosttrust/manager:ProcessQueue() - parsing hostid failed")
+							}
 						} else {
 							hostId = value.(uuid.UUID)
 						}

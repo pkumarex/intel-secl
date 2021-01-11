@@ -1,7 +1,7 @@
 /*
 * Copyright (C) 2020 Intel Corporation
 * SPDX-License-Identifier: BSD-3-Clause
-*/
+ */
 package models
 
 type FlavorGroups string
@@ -18,7 +18,7 @@ func (dfg FlavorGroups) String() string {
 }
 
 func GetDefaultFlavorGroups() map[FlavorGroups]bool {
-	return map[FlavorGroups]bool{FlavorGroupsAutomatic : true, FlavorGroupsHostUnique : true, FlavorGroupsPlatformSoftware : true, FlavorGroupsWorkloadSoftware : true}
+	return map[FlavorGroups]bool{FlavorGroupsAutomatic: true, FlavorGroupsHostUnique: true, FlavorGroupsPlatformSoftware: true, FlavorGroupsWorkloadSoftware: true}
 }
 
 func IsDefaultFlavorgroup(flavorGroupName string) bool {

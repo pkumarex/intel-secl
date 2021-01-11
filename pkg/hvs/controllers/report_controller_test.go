@@ -54,9 +54,9 @@ var _ = Describe("ReportController", func() {
 					"/reports",
 					strings.NewReader(body),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", constants.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusCreated))
@@ -75,9 +75,9 @@ var _ = Describe("ReportController", func() {
 					"/reports",
 					strings.NewReader(body),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", constants.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -187,7 +187,8 @@ var _ = Describe("ReportController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var reportCollection hvs.ReportCollection
-				json.Unmarshal(w.Body.Bytes(), &reportCollection)
+				err = json.Unmarshal(w.Body.Bytes(), &reportCollection)
+				Expect(err).NotTo(HaveOccurred())
 				// Verifying mocked data of reports
 				Expect(len(reportCollection.Reports)).To(Equal(2))
 			})
@@ -204,7 +205,8 @@ var _ = Describe("ReportController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var reportCollection hvs.ReportCollection
-				json.Unmarshal(w.Body.Bytes(), &reportCollection)
+				err = json.Unmarshal(w.Body.Bytes(), &reportCollection)
+				Expect(err).NotTo(HaveOccurred())
 				// Verifying mocked data of reports
 				Expect(len(reportCollection.Reports)).To(Equal(1))
 			})
@@ -221,7 +223,8 @@ var _ = Describe("ReportController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var reportCollection hvs.ReportCollection
-				json.Unmarshal(w.Body.Bytes(), &reportCollection)
+				err = json.Unmarshal(w.Body.Bytes(), &reportCollection)
+				Expect(err).NotTo(HaveOccurred())
 				// Verifying mocked data of reports
 				Expect(len(reportCollection.Reports)).To(Equal(1))
 			})
@@ -238,7 +241,8 @@ var _ = Describe("ReportController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var reportCollection hvs.ReportCollection
-				json.Unmarshal(w.Body.Bytes(), &reportCollection)
+				err = json.Unmarshal(w.Body.Bytes(), &reportCollection)
+				Expect(err).NotTo(HaveOccurred())
 				// Verifying mocked data of reports
 				Expect(len(reportCollection.Reports)).To(Equal(1))
 			})
@@ -255,7 +259,8 @@ var _ = Describe("ReportController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var reportCollection hvs.ReportCollection
-				json.Unmarshal(w.Body.Bytes(), &reportCollection)
+				err = json.Unmarshal(w.Body.Bytes(), &reportCollection)
+				Expect(err).NotTo(HaveOccurred())
 				// Verifying mocked data of reports
 				Expect(len(reportCollection.Reports)).To(Equal(1))
 			})
@@ -289,9 +294,9 @@ var _ = Describe("ReportController", func() {
 					"/reports",
 					strings.NewReader(body),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", constants.HTTPMediaTypeSaml)
 				req.Header.Set("Content-Type", constants.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusCreated))
@@ -311,9 +316,9 @@ var _ = Describe("ReportController", func() {
 					"/reports",
 					strings.NewReader(hostJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", constants.HTTPMediaTypeSaml)
 				req.Header.Set("Content-Type", constants.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -334,7 +339,8 @@ var _ = Describe("ReportController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 
 				var samlCollection []string
-				xml.NewDecoder(w.Body).Decode(&samlCollection)
+				err = xml.NewDecoder(w.Body).Decode(&samlCollection)
+				Expect(err).NotTo(HaveOccurred())
 				//TODO search should return actually 2
 				Expect(len(samlCollection)).To(Equal(1))
 				Expect(w.Header().Get("Content-Type")).To(Equal(constants.HTTPMediaTypeSaml))

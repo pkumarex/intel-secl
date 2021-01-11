@@ -61,7 +61,7 @@ func (cs *CertificatesStore) GetKeyAndCertificates(certType string) (crypto.Priv
 	defer defaultLog.Trace("models/certificate_store:GetKeyAndCertificates() Leaving")
 
 	certStore := (*cs)[certType]
-	if certStore != nil{
+	if certStore != nil {
 		return certStore.Key, certStore.Certificates, nil
 	}
 	return nil, nil, errors.Errorf("Certificate store is empty for certType: %s", certType)
@@ -75,7 +75,7 @@ func (cs *CertificatesStore) RetrieveCertificate(certType, commonName string) (*
 	certStore := (*cs)[certType]
 	if certStore != nil {
 		for _, cert := range certStore.Certificates {
-			if cert.Issuer.CommonName == strings.ReplaceAll(commonName, "\\x00","") {
+			if cert.Issuer.CommonName == strings.ReplaceAll(commonName, "\\x00", "") {
 				return &cert, nil
 			}
 		}

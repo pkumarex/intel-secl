@@ -21,4 +21,3 @@ type BindingKeyCert struct {
 type SigningKeyCert struct {
 	SigningKeyCertificate []byte `json:"signing_key_der_certificate,omitempty"`
 }
-

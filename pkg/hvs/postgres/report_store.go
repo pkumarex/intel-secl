@@ -89,7 +89,11 @@ func (r *ReportStore) Create(re *models.HVSReport) (*models.HVSReport, error) {
 	defaultLog.Trace("postgres/report_store:Create() Entering")
 	defer defaultLog.Trace("postgres/report_store:Create() Leaving")
 
-	re.ID = uuid.New()
+	newUuid, err := uuid.NewRandom()
+	if err != nil {
+		return nil, errors.Wrap(err, "postgres/report_store:Create() failed to create new UUID")
+	}
+	re.ID = newUuid
 	dbReport := report{
 		ID:          re.ID,
 		HostID:      re.HostID,
@@ -169,7 +173,12 @@ func (r *ReportStore) Search(criteria *models.ReportFilterCriteria) ([]models.HV
 		if err != nil {
 			return nil, errors.Wrap(err, "postgres/report_store:Search() failed to retrieve records from db")
 		}
-		defer rows.Close()
+		defer func() {
+			derr := rows.Close()
+			if derr != nil {
+				defaultLog.WithError(derr).Error("Error closing rows")
+			}
+		}()
 
 		var reports []models.HVSReport
 
@@ -194,7 +203,12 @@ func (r *ReportStore) Search(criteria *models.ReportFilterCriteria) ([]models.HV
 		if err != nil {
 			return nil, errors.Wrap(err, "postgres/report_store:Search() failed to retrieve records from db")
 		}
-		defer rows.Close()
+		defer func() {
+			derr := rows.Close()
+			if derr != nil {
+				defaultLog.WithError(derr).Error("Error closing rows")
+			}
+		}()
 
 		var reports []models.HVSReport
 		for rows.Next() {
@@ -230,7 +244,12 @@ func (r *ReportStore) FindHostIdsFromExpiredReports(fromTime time.Time, toTime t
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/report_store:FindHostIdsFromExpiredReports() failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("Error closing rows")
+		}
+	}()
 
 	var hostIDs []uuid.UUID
 	for rows.Next() {
@@ -254,7 +273,11 @@ func auditlogEntryToReport(auRecord models.AuditLogEntry) (*models.HVSReport, er
 	}
 	// TODO remove duplicate data: first column and the entityID are both same
 	if !reflect.DeepEqual(models.AuditColumnData{}, auRecord.Data.Columns[1]) && auRecord.Data.Columns[1].Value != nil {
-		hvsReport.HostID = uuid.MustParse(fmt.Sprintf("%v", auRecord.Data.Columns[1].Value))
+		hostId, err := uuid.Parse(fmt.Sprintf("%v", auRecord.Data.Columns[1].Value))
+		if err != nil {
+			return nil, errors.Wrap(err, "postgres/report_store:auditlogEntryToReport() - parsing hostid failed")
+		}
+		hvsReport.HostID = hostId
 	}
 
 	if !reflect.DeepEqual(models.AuditColumnData{}, auRecord.Data.Columns[2]) && auRecord.Data.Columns[2].Value != nil {

@@ -42,8 +42,9 @@ var _ = BeforeSuite(func() {
 	(*certStore)[models.CaCertTypesPrivacyCa.String()].Certificates = caCerts
 })
 
-var _ = AfterSuite(func(){
-	os.RemoveAll("../domain/mocks/resources/aik-reqs-dir")
+var _ = AfterSuite(func() {
+	err := os.RemoveAll("../domain/mocks/resources/aik-reqs-dir")
+	Expect(err).NotTo(HaveOccurred())
 })
 
 var _ = Describe("CertifyHostKeysController", func() {
@@ -97,9 +98,9 @@ var _ = Describe("CertifyHostKeysController", func() {
 					"/rpc/certify-host-binding-key",
 					bytes.NewBuffer(jsonData),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", constants.HTTPMediaTypeJson)
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(201))
@@ -131,9 +132,9 @@ var _ = Describe("CertifyHostKeysController", func() {
 					"/rpc/certify-host-binding-key",
 					bytes.NewBuffer(jsonData),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", constants.HTTPMediaTypeJson)
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(400))
@@ -166,9 +167,9 @@ var _ = Describe("CertifyHostKeysController", func() {
 					"/rpc/certify-host-signing-key",
 					bytes.NewBuffer(jsonData),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", constants.HTTPMediaTypeJson)
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(201))
@@ -199,9 +200,9 @@ var _ = Describe("CertifyHostKeysController", func() {
 					"/rpc/certify-host-signing-key",
 					bytes.NewBuffer(jsonData),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", constants.HTTPMediaTypeJson)
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(400))
@@ -233,9 +234,9 @@ var _ = Describe("CertifyHostKeysController", func() {
 					"/rpc/certify-host-signing-key",
 					bytes.NewBuffer(jsonData),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", constants.HTTPMediaTypeJson)
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(400))

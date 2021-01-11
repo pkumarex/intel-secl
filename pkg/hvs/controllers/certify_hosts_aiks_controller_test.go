@@ -74,9 +74,9 @@ var _ = Describe("CertifyHostAiksController", func() {
 					"/privacyca/identity-challenge-request",
 					bytes.NewBuffer(jsonData),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(200))
@@ -118,9 +118,9 @@ var _ = Describe("CertifyHostAiksController", func() {
 					"/privacyca/identity-challenge-request",
 					bytes.NewBuffer(jsonData),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(200))
@@ -159,9 +159,9 @@ var _ = Describe("CertifyHostAiksController", func() {
 					"/privacyca/identity-challenge-request",
 					bytes.NewBuffer(jsonData),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(400))
@@ -201,9 +201,9 @@ var _ = Describe("CertifyHostAiksController", func() {
 					"/privacyca/identity-challenge-request",
 					bytes.NewBuffer(jsonData),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(400))
@@ -248,9 +248,9 @@ var _ = Describe("CertifyHostAiksController", func() {
 					"/privacyca/identity-challenge-response",
 					bytes.NewBuffer(jsonData),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(200))
@@ -292,9 +292,9 @@ var _ = Describe("CertifyHostAiksController", func() {
 					"/privacyca/identity-challenge-response",
 					bytes.NewBuffer(jsonData),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(400))

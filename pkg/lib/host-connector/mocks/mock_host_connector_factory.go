@@ -87,10 +87,8 @@ func (micf MockVmwareConnectorFactory) GetHostConnector(vendorConnector types.Ve
 	vmc := MockVmwareConnector{}
 
 	var hostInfoList []mo.HostSystem
-	hostInfoList = append(hostInfoList, mo.HostSystem{ManagedEntity: mo.ManagedEntity{Name: "1.1.1.1"}, Summary:
-	vim25Types.HostListSummary{Hardware: &vim25Types.HostHardwareSummary{Uuid: "7a569dad-2d82-49e4-9156-069b0065b261"}}})
-	hostInfoList = append(hostInfoList, mo.HostSystem{ManagedEntity: mo.ManagedEntity{Name: "2.2.2.2"}, Summary:
-	vim25Types.HostListSummary{Hardware: &vim25Types.HostHardwareSummary{Uuid: "7a569dad-2d82-49e4-9156-069b0065b262"}}})
+	hostInfoList = append(hostInfoList, mo.HostSystem{ManagedEntity: mo.ManagedEntity{Name: "1.1.1.1"}, Summary: vim25Types.HostListSummary{Hardware: &vim25Types.HostHardwareSummary{Uuid: "7a569dad-2d82-49e4-9156-069b0065b261"}}})
+	hostInfoList = append(hostInfoList, mo.HostSystem{ManagedEntity: mo.ManagedEntity{Name: "2.2.2.2"}, Summary: vim25Types.HostListSummary{Hardware: &vim25Types.HostHardwareSummary{Uuid: "7a569dad-2d82-49e4-9156-069b0065b262"}}})
 	vmc.On("GetClusterReference", mock.AnythingOfType("string")).Return(hostInfoList, nil)
 
 	var hostInfo taModel.HostInfo

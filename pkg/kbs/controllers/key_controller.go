@@ -54,7 +54,7 @@ func NewKeyController(rm *keymanager.RemoteManager, ps domain.KeyTransferPolicyS
 	}
 }
 
-var keySearchParams   = map[string]bool{"algorithm": true, "keyLength": true, "curveType": true, "transferPolicyId": true}
+var keySearchParams = map[string]bool{"algorithm": true, "keyLength": true, "curveType": true, "transferPolicyId": true}
 var allowedAlgorithms = map[string]bool{"AES": true, "RSA": true, "EC": true, "aes": true, "rsa": true, "ec": true}
 var allowedCurveTypes = map[string]bool{"secp256r1": true, "secp384r1": true, "secp521r1": true, "prime256v1": true}
 var allowedKeyLengths = map[int]bool{128: true, 192: true, 256: true, 2048: true, 3072: true, 4096: true, 7680: true, 15360: true}

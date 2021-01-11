@@ -153,7 +153,7 @@ func TestVmwareConnectorGetHostManifestUnreliableTpmReport(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func parseHostInfo (t *testing.T) taModel.HostInfo{
+func parseHostInfo(t *testing.T) taModel.HostInfo {
 	var hostInfo taModel.HostInfo
 	hostInfoBytes, err := ioutil.ReadFile("./test/sample_vmware_platform_info.json")
 	assert.NoError(t, err)
@@ -162,7 +162,7 @@ func parseHostInfo (t *testing.T) taModel.HostInfo{
 	return hostInfo
 }
 
-func parseTpmAttestationReportResponse (t *testing.T) *vim25Types.QueryTpmAttestationReportResponse {
+func parseTpmAttestationReportResponse(t *testing.T) *vim25Types.QueryTpmAttestationReportResponse {
 	var tpmAttestationReportResponse *vim25Types.QueryTpmAttestationReportResponse
 
 	file, err := os.Open("./test/sample_vmware_tpm_attestation_report.xml")

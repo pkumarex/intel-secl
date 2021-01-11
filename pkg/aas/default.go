@@ -43,7 +43,7 @@ func init() {
 	viper.SetDefault("db-conn-retry-attempts", constants.DefaultDbConnRetryAttempts)
 	viper.SetDefault("db-conn-retry-time", constants.DefaultDbConnRetryTime)
 
-	//set default for JWT and JWT signing cert 
+	//set default for JWT and JWT signing cert
 	viper.SetDefault("jwt-include-kid", true)
 	viper.SetDefault("jwt-cert-common-name", constants.DefaultAasJwtCn)
 	viper.SetDefault("jwt-token-duration-mins", constants.DefaultAasJwtDurationMins)

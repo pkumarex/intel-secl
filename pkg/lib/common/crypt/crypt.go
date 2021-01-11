@@ -204,7 +204,10 @@ func RetrieveValidatedPeerCert(baseUrl string, trustFirstCert bool, trustedThumb
 	}
 	dialString = url_obj.Hostname() + dialString
 
-	conn, err := tls.Dial("tcp", dialString, &tls.Config{InsecureSkipVerify: true})
+	//InsecureSkipVerify is set to true as connection is validated manually
+	conn, err := tls.Dial("tcp", dialString, &tls.Config{
+		MinVersion:         tls.VersionTLS12,
+		InsecureSkipVerify: true})
 	if err != nil {
 		return nil, fmt.Errorf("could not tcp connect to %s, error: %s: ", dialString, err)
 	}
@@ -234,7 +237,7 @@ func RetrieveValidatedPeerCert(baseUrl string, trustFirstCert bool, trustedThumb
 }
 
 // AesEncrypt encrypts plain bytes using AES key passed as param
-func AesEncrypt(data, key []byte) ([]byte, error){
+func AesEncrypt(data, key []byte) ([]byte, error) {
 	// generate a new aes cipher using key
 	block, err := aes.NewCipher(key)
 	if err != nil {

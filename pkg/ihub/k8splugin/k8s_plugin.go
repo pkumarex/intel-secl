@@ -9,6 +9,8 @@ import (
 	"crypto"
 	"crypto/sha1"
 	"encoding/json"
+	"github.com/intel-secl/intel-secl/v3/pkg/ihub/util"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -17,6 +19,7 @@ import (
 	vsPlugin "github.com/intel-secl/intel-secl/v3/pkg/ihub/attestationPlugin"
 	"github.com/intel-secl/intel-secl/v3/pkg/ihub/config"
 	"github.com/intel-secl/intel-secl/v3/pkg/ihub/constants"
+	types "github.com/intel-secl/intel-secl/v3/pkg/ihub/model"
 	model "github.com/intel-secl/intel-secl/v3/pkg/model/k8s"
 
 	"io/ioutil"
@@ -34,42 +37,14 @@ import (
 
 //KubernetesDetails for getting hosts and updating CRD
 type KubernetesDetails struct {
-	Config         *config.Configuration
-	AuthToken      string
-	HostDetailsMap map[string]HostDetails
-	PrivateKey     crypto.PrivateKey
-	PublicKeyBytes []byte
-	K8sClient      *k8s.Client
-}
-
-//HostDetails for CRD data to update in kubernetes
-type HostDetails struct {
-	hostName          string
-	hostIP            string
-	hostID            uuid.UUID
-	trusted           bool
-	AssetTags         map[string]string
-	HardwareFeatures  map[string]string
-	Trust             map[string]string
-	SignedTrustReport string
-	ValidTo           time.Time
-	ReportVerified    bool
-	SgxSupported      bool
-	SgxEnabled        bool
-	FlcEnabled        bool
-	EpcSize           string
-	TcbUpToDate       bool
-}
-
-//platformDataSGX platform data for SGX
-type platformDataSGX []struct {
-	HostID       string    `json:"host_id"`
-	SgxSupported bool      `json:"sgx_supported"`
-	SgxEnabled   bool      `json:"sgx_enabled"`
-	FlcEnabled   bool      `json:"flc_enabled"`
-	EpcSize      string    `json:"epc_size"`
-	TcbUpToDate  bool      `json:"tcb_upToDate"`
-	ValidTo      time.Time `json:"validTo"`
+	Config             *config.Configuration
+	AuthToken          string
+	HostDetailsMap     map[string]types.HostDetails
+	PrivateKey         crypto.PrivateKey
+	PublicKeyBytes     []byte
+	K8sClient          *k8s.Client
+	TrustedCAsStoreDir string
+	SamlCertFilePath   string
 }
 
 var log = commonLog.GetDefaultLogger()
@@ -96,7 +71,12 @@ func GetHosts(k8sDetails *KubernetesDetails) error {
 		return errors.Wrap(err, "k8splugin/k8s_plugin:GetHosts() : Error in getting the Hosts from kubernetes")
 	}
 
-	defer res.Body.Close()
+	defer func() {
+		derr := res.Body.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing response")
+		}
+	}()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return errors.Wrap(err, "k8splugin/k8s_plugin:GetHosts() : Error in Reading the Response")
@@ -108,7 +88,7 @@ func GetHosts(k8sDetails *KubernetesDetails) error {
 		return errors.Wrap(err, "k8splugin/k8s_plugin:GetHosts() : Error in Unmarshaling the response")
 	}
 
-	hostDetailMap := make(map[string]HostDetails)
+	hostDetailMap := make(map[string]types.HostDetails)
 
 	for _, items := range hostResponse.Items {
 
@@ -121,22 +101,22 @@ func GetHosts(k8sDetails *KubernetesDetails) error {
 			}
 		}
 		if !isMaster {
-			var hostDetails HostDetails
+			var hostDetails types.HostDetails
 			sysID := items.Status.NodeInfo.SystemID
-			hostDetails.hostID, _ = uuid.Parse(sysID)
+			hostDetails.HostID, _ = uuid.Parse(sysID)
 
 			for _, addr := range items.Status.Addresses {
 
 				if addr.Type == "InternalIP" {
-					hostDetails.hostIP = addr.Address
+					hostDetails.HostIP = addr.Address
 				}
 
 				if addr.Type == "Hostname" {
-					hostDetails.hostName = addr.Address
+					hostDetails.HostName = addr.Address
 				}
 			}
 
-			hostDetailMap[hostDetails.hostIP] = hostDetails
+			hostDetailMap[hostDetails.HostIP] = hostDetails
 		}
 
 	}
@@ -145,12 +125,12 @@ func GetHosts(k8sDetails *KubernetesDetails) error {
 }
 
 //FilterHostReports Get Filtered Host Reports from HVS
-func FilterHostReports(k8sDetails *KubernetesDetails, hostDetails *HostDetails, trustedCaDir, samlCertPath string) error {
+func FilterHostReports(k8sDetails *KubernetesDetails, hostDetails *types.HostDetails, trustedCaDir, samlCertPath string) error {
 
 	log.Trace("k8splugin/k8s_plugin:FilterHostReports() Entering")
 	defer log.Trace("k8splugin/k8s_plugin:FilterHostReports() Leaving")
 
-	samlReport, err := vsPlugin.GetHostReports(hostDetails.hostID.String(), k8sDetails.Config, trustedCaDir, samlCertPath)
+	samlReport, err := vsPlugin.GetHostReports(hostDetails.HostID.String(), k8sDetails.Config, trustedCaDir, samlCertPath)
 	if err != nil {
 		return errors.Wrap(err, "k8splugin/k8s_plugin:FilterHostReports() : Error in getting the host report")
 	}
@@ -179,7 +159,7 @@ func FilterHostReports(k8sDetails *KubernetesDetails, hostDetails *HostDetails, 
 	hostDetails.AssetTags = assetTagsMap
 	hostDetails.Trust = trustMap
 	hostDetails.HardwareFeatures = hardwareFeaturesMap
-	hostDetails.trusted = overAllTrust
+	hostDetails.Trusted = overAllTrust
 	hostDetails.ValidTo = samlReport.Subject.NotOnOrAfter
 
 	return nil
@@ -251,7 +231,12 @@ func UpdateCRD(k8sDetails *KubernetesDetails) error {
 	}
 	var crdResponse model.CRD
 	if res.StatusCode == http.StatusOK {
-		defer res.Body.Close()
+		defer func() {
+			derr := res.Body.Close()
+			if derr != nil {
+				log.WithError(derr).Error("Error closing response")
+			}
+		}()
 		body, err := ioutil.ReadAll(res.Body)
 		if err != nil {
 			return errors.Wrap(err, "k8splugin/k8s_plugin:UpdateCRD() : Error in Reading Response body")
@@ -301,7 +286,7 @@ func populateHostDetailsInCRD(k8sDetails *KubernetesDetails) ([]model.Host, erro
 
 		reportHostDetails := k8sDetails.HostDetailsMap[key]
 		var host model.Host
-		host.HostName = reportHostDetails.hostName
+		host.HostName = reportHostDetails.HostName
 		t := time.Now().UTC()
 		host.Updated = new(time.Time)
 		*host.Updated = t
@@ -309,7 +294,7 @@ func populateHostDetailsInCRD(k8sDetails *KubernetesDetails) ([]model.Host, erro
 			host.AssetTags = reportHostDetails.AssetTags
 			host.HardwareFeatures = reportHostDetails.HardwareFeatures
 			host.Trusted = new(bool)
-			*host.Trusted = reportHostDetails.trusted
+			*host.Trusted = reportHostDetails.Trusted
 			host.HvsTrustValidTo = new(time.Time)
 			*host.HvsTrustValidTo = reportHostDetails.ValidTo
 			signedtrustReport, err := GetSignedTrustReport(host, k8sDetails, "HVS")
@@ -371,7 +356,12 @@ func PutCRD(k8sDetails *KubernetesDetails, crd *model.CRD) error {
 		return errors.Wrap(err, "k8splugin/k8s_plugin:PutCRD() Error in creating CRD")
 	}
 
-	defer res.Body.Close()
+	defer func() {
+		derr := res.Body.Close()
+		if derr != nil {
+			log.WithError(derr).Error("Error closing response")
+		}
+	}()
 
 	return nil
 }
@@ -411,12 +401,12 @@ func PostCRD(k8sDetails *KubernetesDetails, crd *model.CRD) error {
 }
 
 //SendDataToEndPoint pushes host trust data to Kubernetes
-func SendDataToEndPoint(kubernetes KubernetesDetails, trustedCACertDir, samlCertFilePath string) error {
+func SendDataToEndPoint(kubernetes KubernetesDetails) error {
 
 	log.Trace("k8splugin/k8s_plugin:SendDataToEndPoint() Entering")
 	defer log.Trace("k8splugin/k8s_plugin:SendDataToEndPoint() Leaving")
 
-	var sgxData platformDataSGX
+	var sgxData types.PlatformDataSGX
 
 	err := GetHosts(&kubernetes)
 	if err != nil {
@@ -426,32 +416,43 @@ func SendDataToEndPoint(kubernetes KubernetesDetails, trustedCACertDir, samlCert
 	if kubernetes.Config.AttestationService.AttestationType == "HVS" {
 		for key := range kubernetes.HostDetailsMap {
 			hostDetails := kubernetes.HostDetailsMap[key]
-			err := FilterHostReports(&kubernetes, &hostDetails, trustedCACertDir, samlCertFilePath)
+			err := FilterHostReports(&kubernetes, &hostDetails, kubernetes.TrustedCAsStoreDir, kubernetes.SamlCertFilePath)
 			if err != nil {
 				log.WithError(err).Error("k8splugin/k8s_plugin:SendDataToEndPoint() Error in Filtering Report for Hosts")
+				continue
 			}
 			kubernetes.HostDetailsMap[key] = hostDetails
 		}
 	} else if kubernetes.Config.AttestationService.AttestationType == "SGX" {
 		for key := range kubernetes.HostDetailsMap {
 			hostDetails := kubernetes.HostDetailsMap[key]
-			platformData, err := vsPlugin.GetHostPlatformData(hostDetails.hostName, kubernetes.Config, trustedCACertDir)
-			if err == nil {
-				err = json.Unmarshal(platformData, &sgxData)
-				if err == nil {
-					hostDetails.EpcSize = sgxData[0].EpcSize
-					hostDetails.FlcEnabled = sgxData[0].FlcEnabled
-					hostDetails.SgxEnabled = sgxData[0].SgxEnabled
-					hostDetails.SgxSupported = sgxData[0].SgxSupported
-					hostDetails.TcbUpToDate = sgxData[0].TcbUpToDate
-					evaluateValidTo(sgxData[0].ValidTo, kubernetes.Config.IHUB.PollIntervalMinutes)
-					hostDetails.ValidTo = sgxData[0].ValidTo
-					kubernetes.HostDetailsMap[key] = hostDetails
-				}
-			} else {
-				///host dont exist remove from the map
+			platformData, err := vsPlugin.GetHostPlatformData(hostDetails.HostName, kubernetes.Config, kubernetes.TrustedCAsStoreDir)
+			if err != nil {
+				log.Infof("k8splugin/k8s_plugin:SendDataToEndPoint() Host %s doesn't exist in SHVS: removing from map", hostDetails.HostID)
+				//host doesn't exist remove from the map
 				delete(kubernetes.HostDetailsMap, key)
+				continue
 			}
+
+			err = json.Unmarshal(platformData, &sgxData)
+			if err != nil {
+				log.WithError(err).Error("k8splugin/k8s_plugin:SendDataToEndPoint() SGX Platform data unmarshal failed")
+				continue
+			}
+
+			// need to validate contents of EpcSize
+			if !regexp.MustCompile(constants.RegexEpcSize).MatchString(sgxData[0].EpcSize) {
+				log.WithError(err).Error("k8splugin/k8s_plugin:SendDataToEndPoint() Invalid EPC Size value")
+				continue
+			}
+			hostDetails.EpcSize = sgxData[0].EpcSize
+			hostDetails.FlcEnabled = sgxData[0].FlcEnabled
+			hostDetails.SgxEnabled = sgxData[0].SgxEnabled
+			hostDetails.SgxSupported = sgxData[0].SgxSupported
+			hostDetails.TcbUpToDate = sgxData[0].TcbUpToDate
+			util.EvaluateValidTo(sgxData[0].ValidTo, kubernetes.Config.IHUB.PollIntervalMinutes)
+			hostDetails.ValidTo = sgxData[0].ValidTo
+			kubernetes.HostDetailsMap[key] = hostDetails
 		}
 	} else {
 		return errors.New("k8splugin/k8s_plugin:SendDataToEndPoint() Given Attestation type is invalid")
@@ -463,15 +464,4 @@ func SendDataToEndPoint(kubernetes KubernetesDetails, trustedCACertDir, samlCert
 	}
 
 	return nil
-}
-
-func evaluateValidTo(validTo time.Time, minutes int) time.Time {
-	twiceSchedulerTime := (minutes * 2)
-	updatedTime := time.Now().UTC().Add(time.Minute * time.Duration(twiceSchedulerTime))
-
-	if validTo.After(updatedTime) {
-		return validTo
-	} else {
-		return updatedTime
-	}
 }

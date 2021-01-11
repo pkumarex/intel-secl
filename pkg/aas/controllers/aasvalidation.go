@@ -15,8 +15,6 @@ var (
 	roleNameReg    = regexp.MustCompile(`^[A-Za-z0-9-_/.@,]{1,40}$`)
 	serviceNameReg = regexp.MustCompile(`^[A-Za-z0-9-_/.@,]{1,20}$`)
 	contextReg     = regexp.MustCompile(`^[A-Za-z0-9-_/.@,=;: *]{0,512}$`)
-	aasUsernameReg = regexp.MustCompile(`^[A-Za-z0-9-_/.@*]{1,255}$`)
-	aasPasswordReg = regexp.MustCompile(`^.{1,255}$`)
 )
 
 var defaultLog = log.GetDefaultLogger()

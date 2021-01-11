@@ -37,8 +37,8 @@ var _ = Describe("HostStatusController", func() {
 			It("All HostStatus records are returned", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status", nil)
-				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusOK))
@@ -66,8 +66,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should get a single HostStatus entry", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status?id=afed7372-18c3-42af-bd9a-70b7f44c11ad", nil)
-				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusOK))
@@ -83,8 +83,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should get an empty list", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status?hostId=13885605-a0ee-41f2-b6fc-fd82edc487ad", nil)
-				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusOK))
@@ -100,8 +100,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should get an 400 error", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status?hostId=13885605-a0ee-41f20000000000000000000000-b6fc-fd82edc487ad", nil)
-				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -117,8 +117,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should get a filtered list of HostStatuses by host-id", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status?hostId=47a3b602-f321-4e03-b3b2-8f3ca3cde128", nil)
-				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusOK))
@@ -134,8 +134,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should get a filtered list of HostStatuses by host-hardware-id", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status?hostHardwareId=1ad9c003-b0e0-4319-b2b3-06053dfd1407", nil)
-				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusOK))
@@ -151,8 +151,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should get an error response", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status?hostHardwareId=1ad9c003-ABCABCABC-4319-b2b3-06053dfd1407", nil)
-				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -168,8 +168,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should get an empty response", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status?hostHardwareId=7f71bff0-3c12-4f92-9a77-d380eb9ad2e2", nil)
-				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusOK))
@@ -185,8 +185,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should get a filtered list of HostStatuses with HostState = CONNECTED", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status?hostStatus=connected", nil)
-				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusOK))
@@ -202,8 +202,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should get a filtered list of HostStatuses with HostState = UNKNOWN", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status?hostStatus=unknown", nil)
-				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusOK))
@@ -219,8 +219,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should see an 400 error", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status?hostStatus=BADSTATUS", nil)
-				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -236,8 +236,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should get a filtered list of HostStatuses by numberOfDays", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status?numberOfDays=2", nil)
-				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusOK))
@@ -265,8 +265,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should get a 400 error", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status?numberOfDays=-2", nil)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
-				Expect(err).ToNot(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -282,8 +282,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should get a truncated list of HostStatuses", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status?limit=4", nil)
-				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusOK))
@@ -299,8 +299,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should get a 400 error", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status?limit=-2", nil)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
-				Expect(err).ToNot(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -316,8 +316,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should return 400 error", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status?id=e57e5ea0-d465-461e-882d-", nil)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
-				Expect(err).ToNot(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -333,8 +333,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should return a list of HostStatus", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status?fromDate="+time.Now().Add(-mocks2.TimeDuration12Hrs).Format(consts.ParamDateFormat)+"&toDate="+time.Now().Format(consts.ParamDateFormat), nil)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
-				Expect(err).ToNot(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusOK))
@@ -350,8 +350,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should return a list of HostStatus", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status?fromDate="+time.Now().Add(-mocks2.TimeDuration12Hrs).Format(consts.ParamDateFormat)+"ABC"+"&toDate="+time.Now().Format(consts.ParamDateFormat), nil)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
-				Expect(err).ToNot(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -378,8 +378,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should get a filtered list of HostStatuses filtered by HostName and 200 response code", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status?hostName=computepurley1", nil)
-				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusOK))
@@ -395,8 +395,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should return 400 error", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status?hostName=A^#$XX&#$$$$$$", nil)
-				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
@@ -412,8 +412,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should return list of Host Status records from HostStatus Audit Table", func() {
 				router.Handle("/host-status", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status?latestPerHost=true", nil)
-				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusOK))
@@ -432,8 +432,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should retrieve HostStatus", func() {
 				router.Handle("/host-status/{id}", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Retrieve))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status/afed7372-18c3-42af-bd9a-70b7f44c11ad", nil)
-				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusOK))
@@ -443,8 +443,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should fail to retrieve HostStatus", func() {
 				router.Handle("/host-status/{id}", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Retrieve))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status/73755fda-c910-46be-821f-e8ddeab189e9", nil)
-				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusNotFound))
@@ -459,8 +459,8 @@ var _ = Describe("HostStatusController", func() {
 			It("Should fail to retrieve HostStatus", func() {
 				router.Handle("/host-status/{id}", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(hostStatusController.Retrieve))).Methods("GET")
 				req, err := http.NewRequest("GET", "/host-status/ee37c360-7eae-4250-a677", nil)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
-				Expect(err).ToNot(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
