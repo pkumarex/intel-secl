@@ -41,10 +41,10 @@ type HostInfo struct {
 	HostName            string           `json:"host_name"`
 	BiosName            string           `json:"bios_name"`
 	HardwareUUID        string           `json:"hardware_uuid"`
-	ProcessorFlags      string           `json:"process_flags,omitempty"`
-	NumberOfSockets     int              `json:"no_of_sockets,string,omitempty"`
-	TbootInstalled      bool             `json:"tboot_installed,string,omitempty"`
-	IsDockerEnvironment bool             `json:"is_docker_env,string,omitempty"`
+	ProcessorFlags      string           `json:"process_flags"`
+	NumberOfSockets     int              `json:"no_of_sockets,string"`
+	TbootInstalled      bool             `json:"tboot_installed,string"`
+	IsDockerEnvironment bool             `json:"is_docker_env,string"`
 	HardwareFeatures    HardwareFeatures `json:"hardware_features"`
 	InstalledComponents []string         `json:"installed_components"`
 }
