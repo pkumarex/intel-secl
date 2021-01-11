@@ -96,6 +96,7 @@ func (rule *xmlMeasurementLogIntegrity) Apply(hostManifest *types.HostManifest) 
 				// 'ISecL_Default_Application_Flavor_v2.1_TPM2.0-339a7ac6-b8be-4356-ab34-be6e3bdfa1ed'
 				pcrEventLogMeasurement := ""
 				labelToMatch := rule.flavorLabel + "-" + rule.flavorId.String()
+				errLabel := false
 
 				// now check the pcr event logs...
 				if !reflect.DeepEqual(hostManifest.PcrManifest.PcrEventLogMapNew, types.PcrEventLogMapFC{}) {
@@ -104,6 +105,7 @@ func (rule *xmlMeasurementLogIntegrity) Apply(hostManifest *types.HostManifest) 
 						// the event log was missing from the manifest...
 						fault := newPcrEventLogMissingFault(types.PCR15, types.SHA256)
 						result.Faults = append(result.Faults, fault)
+						errLabel = true
 					} else {
 						for _, eventLog := range pcrNewEventLogs {
 							for _, tag := range eventLog.Tags {
@@ -129,6 +131,7 @@ func (rule *xmlMeasurementLogIntegrity) Apply(hostManifest *types.HostManifest) 
 						// the event log was missing from the manifest...
 						fault := newPcrEventLogMissingFault(types.PCR15, types.SHA256)
 						result.Faults = append(result.Faults, fault)
+						errLabel = true
 					} else {
 						for _, eventLog := range pcrEventLogs {
 							if eventLog.Label == labelToMatch {
@@ -145,38 +148,40 @@ func (rule *xmlMeasurementLogIntegrity) Apply(hostManifest *types.HostManifest) 
 					}
 				}
 
-				if pcrEventLogMeasurement == "" {
-					// the pcr event did not have a measurement with the flavor label
-					fault := hvs.Fault{
-						Name:          faultsConst.FaultXmlMeasurementValueMismatch,
-						Description:   fmt.Sprintf("The pcr event log did not contain a measurement with label '%s'", rule.flavorLabel),
-						ExpectedValue: &pcrEventLogMeasurement,
-						ActualValue:   &calculatedHash,
-					}
-
-					result.Faults = append(result.Faults, fault)
-				} else {
-
-					// The cumulative hash from the software flavor measurements are sha384 hashes.
-					// That value is extended to PCR15 as sha256 (i.e what is in the host manifest).
-					// Create a sha256 hash from the calculated hash and compare it to what is stored in PCR 15.
-					calculatedSha384Bytes, _ := hex.DecodeString(calculatedHash)
-
-					hash := sha256.New()
-					hash.Write(calculatedSha384Bytes)
-					calculatedSha256Bytes := hash.Sum(nil)
-
-					calculatedSha256String := hex.EncodeToString(calculatedSha256Bytes)
-					if calculatedSha256String != pcrEventLogMeasurement {
-						// the calculated hash did not match the measurement captured in the pcr event log
+				if errLabel != true {
+					if pcrEventLogMeasurement == "" {
+						// the pcr event did not have a measurement with the flavor label
 						fault := hvs.Fault{
 							Name:          faultsConst.FaultXmlMeasurementValueMismatch,
-							Description:   fmt.Sprintf("Host XML measurement log final hash with value '%s' does not match the pcr event log measurement '%s'", calculatedSha256String, pcrEventLogMeasurement),
+							Description:   fmt.Sprintf("The pcr event log did not contain a measurement with label '%s'", rule.flavorLabel),
 							ExpectedValue: &pcrEventLogMeasurement,
-							ActualValue:   &calculatedSha256String,
+							ActualValue:   &calculatedHash,
 						}
 
 						result.Faults = append(result.Faults, fault)
+					} else {
+
+						// The cumulative hash from the software flavor measurements are sha384 hashes.
+						// That value is extended to PCR15 as sha256 (i.e what is in the host manifest).
+						// Create a sha256 hash from the calculated hash and compare it to what is stored in PCR 15.
+						calculatedSha384Bytes, _ := hex.DecodeString(calculatedHash)
+
+						hash := sha256.New()
+						hash.Write(calculatedSha384Bytes)
+						calculatedSha256Bytes := hash.Sum(nil)
+
+						calculatedSha256String := hex.EncodeToString(calculatedSha256Bytes)
+						if calculatedSha256String != pcrEventLogMeasurement {
+							// the calculated hash did not match the measurement captured in the pcr event log
+							fault := hvs.Fault{
+								Name:          faultsConst.FaultXmlMeasurementValueMismatch,
+								Description:   fmt.Sprintf("Host XML measurement log final hash with value '%s' does not match the pcr event log measurement '%s'", calculatedSha256String, pcrEventLogMeasurement),
+								ExpectedValue: &pcrEventLogMeasurement,
+								ActualValue:   &calculatedSha256String,
+							}
+
+							result.Faults = append(result.Faults, fault)
+						}
 					}
 				}
 			}

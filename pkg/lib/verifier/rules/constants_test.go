@@ -53,7 +53,6 @@ var (
 				Measurement: ones,
 			},
 		},
-		//EventLogs: []types.EventLog{},
 	}
 )
 
@@ -71,7 +70,6 @@ var (
 				Value:      ones,
 			},
 		},
-		//	PcrEventLogs: []types.EventLogCriteria{},
 	}
 )
 
@@ -132,7 +130,6 @@ var (
 				Measurement: "h",
 			},
 		},
-		//EventLogs: []types.EventLog{},
 	}
 )
 
@@ -207,7 +204,6 @@ var (
 				},
 			},
 		},
-		//PcrEventLogs: []types.EventLogCriteria{},
 	}
 )
 
