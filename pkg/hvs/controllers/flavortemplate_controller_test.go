@@ -37,7 +37,7 @@ var _ = Describe("FlavorTemplateController", func() {
 	// Specs for HTTP Post to "/flavor-template"
 	Describe("Post a new FlavorTemplate", func() {
 		Context("Provide a valid FlavorTemplate data", func() {
-			It("Should create a new Flavortemplate and get HTTP Status: 200", func() {
+			It("Should create a new Flavortemplate and get HTTP Status: 201", func() {
 				router.Handle("/flavor-template", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Create))).Methods("POST")
 				flavorTemplateJson := `{
 					"label": "default-uefi",
@@ -100,7 +100,7 @@ var _ = Describe("FlavorTemplateController", func() {
 				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
-				Expect(w.Code).To(Equal(200))
+				Expect(w.Code).To(Equal(https.StatusCreated))
 			})
 		})
 
