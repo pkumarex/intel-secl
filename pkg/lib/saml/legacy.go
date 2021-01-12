@@ -9,9 +9,11 @@ import (
 	"crypto"
 	"crypto/rsa"
 	"crypto/x509"
+	"strings"
 	"time"
 
 	"github.com/beevik/etree"
+	rtvalidator "github.com/mattermost/xml-roundtrip-validator"
 	"github.com/pkg/errors"
 	dsig "github.com/russellhaering/goxmldsig"
 )
@@ -175,6 +177,10 @@ func ValidateLegacySamlAssertion(sa SamlAssertion, root *x509.Certificate) (*etr
 	if docStr == "" ||
 		!isASCII(docStr) {
 		return nil, errors.New("Invalid XML string: non-ASCII charactors detected")
+	}
+	err := rtvalidator.Validate(strings.NewReader(docStr))
+	if err != nil {
+		return nil, errors.New("Invalid XML string: xml round-trip validation failed")
 	}
 	doc := etree.NewDocument()
 	if err := doc.ReadFromString(docStr); err != nil {
