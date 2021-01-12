@@ -6,12 +6,10 @@
 package controllers
 
 import (
-	"bytes"
 	"crypto"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/json"
-	"io/ioutil"
 	"net/http"
 	"reflect"
 	"strings"
@@ -216,7 +214,7 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 		}
 		tagCertificates, err := fcon.TCStore.Search(&tcFilterCriteria)
 		if err != nil {
-			defaultLog.Error("controllers/flavor_controller:CreateFlavors() Error in finding the templates to apply")
+			defaultLog.Debugf("Unable to retrieve tag certificate for host with hardware UUID %s", hostManifest.HostInfo.HardwareUUID)
 			return nil, errors.Wrap(err, "Error getting host manifest")
 		}
 		if len(tagCertificates) >= 1 {
@@ -334,20 +332,11 @@ func getFlavorCreateReq(r *http.Request) (dm.FlavorCreateRequest, error) {
 		return flavorCreateReq, errors.New("The request body is not provided")
 	}
 
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		secLog.Error("controllers/flavor_controller:getFlavorCreateReq() Unable to read the request body")
-		return flavorCreateReq, errors.New("Unable to read request body")
-	}
-
-	//Restore the request body to it's original state
-	r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-
 	//Decode the incoming json data to note struct
 	dec := json.NewDecoder(r.Body)
 	dec.DisallowUnknownFields()
 
-	err = dec.Decode(&flavorCreateReq)
+	err := dec.Decode(&flavorCreateReq)
 	if err != nil {
 		secLog.WithError(err).Errorf("controllers/flavor_controller:getFlavorCreateReq() %s :  Failed to decode request body as Flavor", commLogMsg.InvalidInputBadEncoding)
 		return flavorCreateReq, errors.New("Unable to decode JSON request body")
@@ -402,7 +391,7 @@ func (fcon *FlavorController) findTemplatesToApply(hostManifest *hcType.HostMani
 		return nil, err
 	}
 
-	hostManifestJson, err := jsonquery.Parse(strings.NewReader(string(hostManifestBytes)))
+	hostManifestJSON, err := jsonquery.Parse(strings.NewReader(string(hostManifestBytes)))
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/flavor_controller:findTemplatesToApply() Error in parsing the host manifest")
 		return nil, err
@@ -411,7 +400,7 @@ func (fcon *FlavorController) findTemplatesToApply(hostManifest *hcType.HostMani
 	for _, flavorTemplate := range flavorTemplates {
 		conditionEval := true
 		for _, condition := range flavorTemplate.Condition {
-			expectedData, _ := jsonquery.Query(hostManifestJson, condition)
+			expectedData, _ := jsonquery.Query(hostManifestJSON, condition)
 			if expectedData == nil {
 				conditionEval = false
 				break
@@ -475,7 +464,10 @@ func (fcon *FlavorController) addFlavorToFlavorgroup(flavorFlavorPartMap map[fc.
 					var hostHardwareUUID uuid.UUID
 					if !reflect.DeepEqual(signedFlavorCreated.Flavor.Meta, fm.Meta{}) &&
 						signedFlavorCreated.Flavor.Meta.Description[fm.HardwareUUID] != nil {
-						hostHardwareUUID = uuid.MustParse(signedFlavorCreated.Flavor.Meta.Description[fm.HardwareUUID].(string))
+						hostHardwareUUID, err = uuid.Parse(signedFlavorCreated.Flavor.Meta.Description[fm.HardwareUUID].(string))
+						if err != nil {
+							return nil, errors.Wrap(err, "controllers/flavor_controller:addFlavorToFlavorgroup() Unable to parse Hardware UUID")
+						}
 					} else {
 						defaultLog.Error("controllers/flavor_controller:addFlavorToFlavorgroup() Hardware UUID must be specified in the flavor document")
 						if cleanUpErr := fcon.createCleanUp(flavorgroupFlavorMap); cleanUpErr != nil {
@@ -693,17 +685,9 @@ func (fcon *FlavorController) Search(w http.ResponseWriter, r *http.Request) (in
 	signedFlavors, err := fcon.FStore.Search(&dm.FlavorVerificationFC{
 		FlavorFC: *filterCriteria,
 	})
-	if err != nil || len(signedFlavors) == 0 {
-
-		signedFlavors, err := fcon.FStore.Search(&dm.FlavorVerificationFC{
-			FlavorFC: *filterCriteria,
-		})
-
-		if err != nil {
-			secLog.WithError(err).Error("controllers/flavor_controller:Search() Flavor get all failed")
-			return nil, http.StatusInternalServerError, errors.Errorf("Unable to search Flavors")
-		}
-		return hvs.SignedFlavorCollection{SignedFlavors: signedFlavors}, http.StatusOK, nil
+	if err != nil {
+		secLog.WithError(err).Error("controllers/flavor_controller:Search() Flavor get all failed")
+		return nil, http.StatusInternalServerError, errors.Errorf("Unable to search Flavors")
 	}
 
 	secLog.Infof("%s: Return flavor query to: %s", commLogMsg.AuthorizedAccess, r.RemoteAddr)
@@ -770,8 +754,12 @@ func getHostsAssociatedWithFlavor(hStore domain.HostStore, fgStore domain.Flavor
 	for _, flavorGroup := range flavorGroups {
 		//Host unique flavors are associated with only host_unique flavorgroup and associated with only one host uniquely
 		if flavorGroup.Name == dm.FlavorGroupsHostUnique.String() {
+			hardwareUUID, err := uuid.Parse(flavor.Flavor.Meta.Description[fm.HardwareUUID].(string))
+			if err != nil {
+				return nil, errors.Wrap(err, "controllers/flavor_controller:getHostsAssociatedWithFlavor() Failed to parse hardwareUUID")
+			}
 			hosts, err := hStore.Search(&dm.HostFilterCriteria{
-				HostHardwareId: uuid.MustParse(flavor.Flavor.Meta.Description[fm.HardwareUUID].(string)),
+				HostHardwareId: hardwareUUID,
 			})
 			if err != nil {
 				return nil, errors.Wrapf(err, "controllers/flavor_controller:getHostsAssociatedWithFlavor() Failed to retrieve hosts "+
@@ -800,20 +788,17 @@ func (fcon *FlavorController) Retrieve(w http.ResponseWriter, r *http.Request) (
 	signedFlavor, err := fcon.FStore.Retrieve(id)
 	if err != nil {
 		if strings.Contains(err.Error(), commErr.RowsNotFound) {
-			flavor, err := fcon.FStore.Retrieve(id)
-			if strings.Contains(err.Error(), commErr.RowsNotFound) {
-				secLog.WithError(err).WithField("id", id).Info(
-					"controllers/flavor_controller:Retrieve() Flavor with given ID does not exist")
-				return nil, http.StatusNotFound, &commErr.ResourceError{Message: "Flavor with given ID does not exist"}
-			}
-			return flavor, http.StatusOK, nil
+			secLog.WithError(err).WithField("id", id).Info(
+				"controllers/flavor_controller:Retrieve() Flavor with given ID does not exist")
+			return nil, http.StatusNotFound, &commErr.ResourceError{Message: "Flavor with given ID does not exist"}
 		} else {
 			secLog.WithError(err).WithField("id", id).Info(
-				"controllers/flavor_controller:Retrieve() Failed to retrieve Flavor")
+				"controllers/flavor_controller:Retrieve() failed to retrieve Flavor")
 			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to retrieve Flavor with the given ID"}
 		}
 	}
 	return signedFlavor, http.StatusOK, nil
+
 }
 
 func (fcon *FlavorController) RetrieveEsxiFlavor(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
@@ -920,8 +905,7 @@ func validateFlavorCreateRequest(criteria dm.FlavorCreateRequest) error {
 func validateFlavorMetaContent(meta *fm.Meta) error {
 	defaultLog.Trace("controllers/flavor_controller:validateFlavorMetaContent() Entering")
 	defer defaultLog.Trace("controllers/flavor_controller:validateFlavorMetaContent() Leaving")
-	//To-Do
-	//reflect.DeepEqual(meta.Description, fm.Description{}) ||
+
 	if meta == nil || meta.Description[fm.Label].(string) == "" {
 		return errors.New("Invalid flavor meta content : flavor label missing")
 	}

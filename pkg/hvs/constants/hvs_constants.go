@@ -174,7 +174,6 @@ const (
 )
 
 //Schema location constansts
-
 const (
 	CommonDefinitionsSchema = "/etc/hvs/schema/common.schema.json"
 	FlavorTemplateSchema    = "/etc/hvs/schema/flavor-template.json"

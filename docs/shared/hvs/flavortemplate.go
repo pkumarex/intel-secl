@@ -15,7 +15,7 @@ type FlavorTemplate struct {
 
 // ---
 
-// swagger:operation GET /flavor-template/{flavortemplate_id} Flavortemplate Retrieve-FlavorTemplate
+// swagger:operation GET /flavor-templates/{flavortemplate_id} Flavortemplate Retrieve-FlavorTemplate
 // ---
 //
 // description: |
@@ -110,7 +110,7 @@ type FlavorTemplate struct {
 
 // ---
 
-// swagger:operation POST /flavor-template/ Flavortemplate Create-FlavorTemplate
+// swagger:operation POST /flavor-template Flavortemplate Create-FlavorTemplate
 // ---
 // description: |
 //   Flavor Template: Flavor templates are used to implement dynamic flavor generation.
@@ -121,7 +121,7 @@ type FlavorTemplate struct {
 //        3.	Support the creation of flavor-parts for existing hardware scenarios (TXT, CBNT, SUEFI, etc.).
 //        4.	Provide a default flavor-templates that generate pcrs/event-log measurements for Shim/UEFI/PFR/BMC.
 //
-//   The serialized Flavorgroup Go struct object represents the content of the request body.
+//   The serialized flavor template Go struct object represents the content of the request body.
 //
 //    | Attribute                      | Description|
 //    |--------------------------------|------------|
@@ -178,7 +178,7 @@ type FlavorTemplate struct {
 //   '500':
 //     description: Internal server error
 //
-// x-sample-call-endpoint: https://hvs.com:8443/hvs/v2/flavortemplate/
+// x-sample-call-endpoint: https://hvs.com:8443/hvs/v2/flavor-template
 // x-sample-call-input: |
 //    {
 //      "label": "default-pfr",
@@ -252,7 +252,7 @@ type FlavorTemplate struct {
 // - application/json
 // parameters:
 // - name: include_deleted
-//   description: To include 'lazy-deleted' templates.
+//   description: In HVS, template object gets lazy deleted and to include them in search result, set include_deleted flag to true
 //   in: query
 //   required: false
 //   type: string
