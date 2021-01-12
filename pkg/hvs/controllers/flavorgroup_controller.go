@@ -6,10 +6,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"net/http"
-	"strconv"
-	"strings"
-
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
@@ -21,6 +17,9 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/validation"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/pkg/errors"
+	"net/http"
+	"strconv"
+	"strings"
 )
 
 type FlavorgroupController struct {
