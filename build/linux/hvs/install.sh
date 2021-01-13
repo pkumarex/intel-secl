@@ -131,6 +131,8 @@ fi
 if [ -z $env_file ]; then
     echo "No .env file found"
     HVS_NOSETUP="true"
+else
+    source $env_file
 fi
 
 # check if HVS_NOSETUP is defined

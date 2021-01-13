@@ -18,13 +18,9 @@ fi
 
 if [ -z $env_file ]; then
     echo "No .env file found"
-    if [[ -n $CMS_NOSETUP && $CMS_NOSETUP != "true" ]]; then
-        CMS_NOSETUP="false"
-    fi
+    CMS_NOSETUP="true"
 else
     source $env_file
-    env_file_exports=$(cat $env_file | grep -E '^[A-Z0-9_]+\s*=' | cut -d = -f 1)
-    if [ -n "$env_file_exports" ]; then eval export $env_file_exports; fi
 fi
 
 if [[ $EUID -ne 0 ]]; then 
@@ -91,7 +87,6 @@ then
   apt -y install $packages
 fi
 }
-
 
 # SCRIPT EXECUTION
 logRotate_clear() {

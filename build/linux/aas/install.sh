@@ -21,8 +21,6 @@ if [ -z $env_file ]; then
     AAS_NOSETUP="true"
 else
     source $env_file
-    env_file_exports=$(cat $env_file | grep -E '^[A-Z0-9_]+\s*=' | cut -d = -f 1)
-    if [ -n "$env_file_exports" ]; then eval export $env_file_exports; fi
 fi
 
 SERVICE_USERNAME=aas
@@ -37,7 +35,6 @@ echo "Setting up Auth Service Linux User..."
 id -u $SERVICE_USERNAME 2> /dev/null || useradd -M --system --shell /sbin/nologin $SERVICE_USERNAME
 
 echo "Installing Auth Service..."
-
 
 COMPONENT_NAME=authservice
 PRODUCT_HOME=/opt/$COMPONENT_NAME
