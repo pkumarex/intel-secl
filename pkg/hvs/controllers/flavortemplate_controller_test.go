@@ -360,8 +360,8 @@ var _ = Describe("FlavorTemplateController", func() {
 				Expect(err).ToNot(HaveOccurred())
 			})
 		})
-		Context("Delete a template", func() {
-			It("The templates should be deleted", func() {
+		Context("Delete a template which is not in the database", func() {
+			It("Appropriate error response should be returned", func() {
 				router.Handle("/flavor-template/{id}", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Delete))).Methods("DELETE")
 				req, err := http.NewRequest("DELETE", "/flavor-template/426912bd-39b0-4daa-ad21-0c6933230b51", nil)
 				Expect(err).NotTo(HaveOccurred())
@@ -371,8 +371,8 @@ var _ = Describe("FlavorTemplateController", func() {
 				Expect(w.Code).To(Equal(http.StatusNotFound))
 			})
 		})
-		Context("Delete a template", func() {
-			It("The templates should be deleted", func() {
+		Context("Delete a template which is available in the database", func() {
+			It("The template with the given uuid must be deleted", func() {
 				router.Handle("/flavor-template/{id}", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Delete))).Methods("DELETE")
 				req, err := http.NewRequest("DELETE", "/flavor-template/426912bd-39b0-4daa-ad21-0c6933230b50", nil)
 				Expect(err).NotTo(HaveOccurred())
@@ -382,7 +382,7 @@ var _ = Describe("FlavorTemplateController", func() {
 				Expect(w.Code).To(Equal(http.StatusNoContent))
 			})
 		})
-		Context("When include_deleted parameter is added", func() {
+		Context("When include_deleted parameter is added in search API", func() {
 			It("All Flavor template records are returned", func() {
 				router.Handle("/flavor-template/", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Search))).Methods("GET")
 				req, err := http.NewRequest("GET", "/flavor-template/?include_deleted=true", nil)
