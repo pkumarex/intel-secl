@@ -21,6 +21,7 @@ LOG_PATH=/var/log/$COMPONENT_NAME/
 CONFIG_PATH=/etc/$COMPONENT_NAME/
 CERTS_PATH=$CONFIG_PATH/certs
 SCHEMA_PATH=$CONFIG_PATH/schema
+TEMPLATES_PATH=$CONFIG_PATH/templates
 CERTDIR_TRUSTEDJWTCERTS=$CERTS_PATH/trustedjwt
 CERTDIR_TRUSTEDCAS=$CERTS_PATH/trustedca/root
 CERTDIR_TRUSTEDPCAS=$CERTS_PATH/trustedca/privacy-ca
@@ -50,6 +51,9 @@ cp EndorsementCA-external.pem $CERTDIR_ENDORSEMENTCA/ && chown $SERVICE_USERNAME
 
 # Copy Schema files
 cp -r schema/ $CONFIG_PATH/ && chown $SERVICE_USERNAME:$SERVICE_USERNAME $SCHEMA_PATH/*
+
+# Copy template files
+cp -r templates/ $CONFIG_PATH/ && chown $SERVICE_USERNAME:$SERVICE_USERNAME $TEMPLATES_PATH/*
 
 # make log files world readable
 chmod 744 $LOG_PATH

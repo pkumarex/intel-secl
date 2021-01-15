@@ -178,3 +178,6 @@ const (
 	CommonDefinitionsSchema = "/etc/hvs/schema/common.schema.json"
 	FlavorTemplateSchema    = "/etc/hvs/schema/flavor-template.json"
 )
+
+//Default flavor templates directory
+const DefaultFlavorTemplatesDirectory = "/etc/hvs/templates/"

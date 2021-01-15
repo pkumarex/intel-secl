@@ -436,7 +436,6 @@ func (rhelpf LinuxPlatformFlavor) GetPcrDetails(pcrManifest hcTypes.PcrManifest,
 
 	// pull out the logs for the required PCRs from both banks
 	for pcr, rules := range pcrList {
-
 		pI := hcTypes.PcrIndex(pcr.Index)
 		var pcrInfo *hcTypes.Pcr
 		pcrInfo, _ = pcrManifest.GetPcrValue(hcTypes.SHAAlgorithm(pcr.Bank), pI)
@@ -444,7 +443,6 @@ func (rhelpf LinuxPlatformFlavor) GetPcrDetails(pcrManifest hcTypes.PcrManifest,
 		if pcrInfo != nil {
 
 			var currPcrEx hcTypes.PCRS
-
 			currPcrEx.PCR.Index = pcr.Index
 			currPcrEx.PCR.Bank = pcr.Bank
 			currPcrEx.Measurement = pcrInfo.Value
@@ -501,9 +499,9 @@ func UpdateMetaSectionDetails(flavorPart cf.FlavorPart, newMeta *cm.Meta, flavor
 	log.Trace("flavor/types/linux_platform_flavor:UpdateMetaSectionDetails() Entering")
 	defer log.Trace("flavor/types/linux_platform_flavor:UpdateMetaSectionDetails() Leaving")
 
-	var flavorTemplateID []uuid.UUID
+	var flavorTemplateIDList []uuid.UUID
 	for _, flavorTemplate := range flavorTemplates {
-		flavorTemplateID = append(flavorTemplateID, flavorTemplate.ID)
+		flavorTemplateIDList = append(flavorTemplateIDList, flavorTemplate.ID)
 		var flavor *hvs.FlavorPart
 		switch flavorPart {
 		case cf.FlavorPartPlatform:
@@ -514,12 +512,13 @@ func UpdateMetaSectionDetails(flavorPart cf.FlavorPart, newMeta *cm.Meta, flavor
 			flavor = flavorTemplate.FlavorParts.HostUnique
 		}
 
+		// Update the meta section in the flavor part with the meta section provided in the flavor template
 		if flavor != nil {
-			newMeta.Description["flavor_template_ids"] = flavorTemplateID
 			for key, value := range flavor.Meta {
 				newMeta.Description[key] = value
 			}
 		}
 	}
+	newMeta.Description["flavor_template_ids"] = flavorTemplateIDList
 	return newMeta
 }
