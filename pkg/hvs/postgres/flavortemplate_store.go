@@ -50,7 +50,7 @@ func (ft *FlavorTemplateStore) Create(flvrTemplate *hvs.FlavorTemplate) (*hvs.Fl
 }
 
 // Retrieve flavor template
-func (ft *FlavorTemplateStore) Retrieve(templateID uuid.UUID) (*hvs.FlavorTemplate, error) {
+func (ft *FlavorTemplateStore) Retrieve(templateID uuid.UUID,includeDeleted bool) (*hvs.FlavorTemplate, error) {
 	defaultLog.Trace("postgres/flavortemplate_store:Retrieve() Entering")
 	defer defaultLog.Trace("postgres/flavortemplate_store:Retrieve() Leaving")
 
@@ -61,7 +61,7 @@ func (ft *FlavorTemplateStore) Retrieve(templateID uuid.UUID) (*hvs.FlavorTempla
 	}
 	flavorTemplate := hvs.FlavorTemplate{}
 
-	if !sf.Deleted {
+	if includeDeleted || (!includeDeleted && !sf.Deleted ){
 		flavorTemplate = hvs.FlavorTemplate{
 			ID:          sf.ID,
 			Label:       sf.Content.Label,
@@ -70,7 +70,8 @@ func (ft *FlavorTemplateStore) Retrieve(templateID uuid.UUID) (*hvs.FlavorTempla
 		}
 	}
 	if flavorTemplate.ID == uuid.Nil {
-		return nil, errors.Errorf("postgres/flavortemplate_store:Retrieve() Failed to retrieve record from db, %s", commErr.RowsNotFound)
+		defaultLog.Error("postgres/flavortemplate_store:Retrieve() Failed to retrieve record from db, %s", commErr.RowsNotFound)
+		return nil, &commErr.StatusNotFoundError{Message : "Failed to retrieve record from db"}
 	}
 	return &flavorTemplate, nil
 }
@@ -81,11 +82,17 @@ func (ft *FlavorTemplateStore) Search(includeDeleted bool) ([]hvs.FlavorTemplate
 	defer defaultLog.Trace("postgres/flavortemplate_store:Search() Leaving")
 
 	flavortemplates := []hvs.FlavorTemplate{}
-	rows, err := ft.Store.Db.Model(flavorTemplate{}).Select("id,content,deleted").Where(&flavorTemplate{Deleted: false}).Rows()
+	rows, err := ft.Store.Db.Model(flavorTemplate{}).Select("id,content,deleted").Rows()
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/flavortemplate_store:Search() Failed to retrieve records from db")
 	}
-	defer rows.Close()
+	defer func() {
+		derr := rows.Close()
+		if derr != nil {
+			defaultLog.WithError(derr).Error("postgres/flavortemplate_store:Search() Error closing rows")
+		}
+	}()
+
 	for rows.Next() {
 		template := flavorTemplate{}
 
@@ -111,12 +118,15 @@ func (ft *FlavorTemplateStore) Delete(templateID uuid.UUID) error {
 	defaultLog.Trace("postgres/flavortemplate_store:Delete() Entering")
 	defer defaultLog.Trace("postgres/flavortemplate_store:Delete() Leaving")
 
-	_, err := ft.Retrieve(templateID)
+	_, err := ft.Retrieve(templateID,false)
 	if err != nil {
-		if strings.Contains(err.Error(), commErr.RowsNotFound) {
-			return errors.Wrap(err, "postgres/flavortemplate_store:Delete() Flavor template with given ID does not exist or has been deleted")
+		switch err.(type) {
+		case *commErr.StatusNotFoundError:
+			defaultLog.Error("postgres/flavortemplate_store:Delete() Flavor template with given ID does not exist or has been deleted")
+			return err
+		default:
+			return errors.Wrap(err,"postgres/flavortemplate_store:Delete() Failed to retrieve FlavorTemplate with the given ID")
 		}
-		return errors.New("postgres/flavortemplate_store:Delete() Failed to retrieve FlavorTemplate with the given ID")
 	}
 
 	err = ft.Store.Db.Model(flavorTemplate{}).Where(&flavorTemplate{ID: templateID}).Update(&flavorTemplate{Deleted: true}).Error

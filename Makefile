@@ -22,15 +22,10 @@ kbs:
 		go build -gcflags=all="-N -l" \
 		-ldflags "-X github.com/intel-secl/intel-secl/v3/pkg/kbs/version.BuildDate=$(BUILDDATE) -X github.com/intel-secl/intel-secl/v3/pkg/kbs/version.Version=$(VERSION) -X github.com/intel-secl/intel-secl/v3/pkg/kbs/version.GitHash=$(GITCOMMIT)" -o kbs
 
-hvs:
-	mkdir -p installer
-	cp -r pkg/hvs/domain/schema/ installer/schema
-	cd cmd/hvs && env CGO_CFLAGS_ALLOW="-f.*" GOOS=linux GOSUMDB=off GOPROXY=direct \
-		go build -ldflags "-X github.com/intel-secl/intel-secl/v3/pkg/hvs/version.BuildDate=$(BUILDDATE) -X github.com/intel-secl/intel-secl/v3/pkg/hvs/version.Version=$(VERSION) -X github.com/intel-secl/intel-secl/v3/pkg/hvs/version.GitHash=$(GITCOMMIT)" -o hvs
 
 %-installer: %
 	mkdir -p installer
-	cp build/linux/$*/* installer/
+	cp -r build/linux/$*/* installer/
 	chmod +x installer/install.sh
 	cp cmd/$*/$* installer/$*
 	makeself installer deployments/installer/$*-$(VERSION).bin "$* $(VERSION)" ./install.sh

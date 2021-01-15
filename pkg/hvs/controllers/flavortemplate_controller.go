@@ -43,18 +43,6 @@ func NewFlavorTemplateController(store domain.FlavorTemplateStore, commonDefinit
 	}
 }
 
-type unsupportedMediaError ErrorMessage
-
-type badRequestError ErrorMessage
-
-func (e unsupportedMediaError) Error() string {
-	return fmt.Sprintf("%s", e.Message)
-}
-
-func (e badRequestError) Error() string {
-	return fmt.Sprintf("%s", e.Message)
-}
-
 // Create This method is used to create the flavor template and store it in the database
 func (ftc *FlavorTemplateController) Create(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:Create() Entering")
@@ -64,9 +52,9 @@ func (ftc *FlavorTemplateController) Create(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Create() Failed to complete create flavor template")
 		switch errorType := err.(type) {
-		case *unsupportedMediaError:
+		case *commErr.UnsupportedMediaError:
 			return nil, http.StatusUnsupportedMediaType, &commErr.ResourceError{Message: errorType.Message}
-		case *badRequestError:
+		case *commErr.BadRequestError:
 			return nil, http.StatusBadRequest, &commErr.ResourceError{Message: errorType.Message}
 		default:
 			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: err.Error()}
@@ -90,16 +78,18 @@ func (ftc *FlavorTemplateController) Retrieve(w http.ResponseWriter, r *http.Req
 
 	templateID := uuid.MustParse(mux.Vars(r)["id"])
 
-	flavorTemplate, err := ftc.Store.Retrieve(templateID)
+	flavorTemplate, err := ftc.Store.Retrieve(templateID,false)
 	if err != nil {
-		if strings.Contains(err.Error(), commErr.RowsNotFound) {
+		switch err.(type) {
+		case *commErr.StatusNotFoundError:
 			secLog.WithError(err).WithField("id", templateID).Info(
 				"controllers/flavortemplate_controller:Retrieve() Flavor template with given ID does not exist or has been deleted")
 			return nil, http.StatusNotFound, &commErr.ResourceError{Message: "Flavor template with given ID does not exist or has been deleted"}
+		default:
+			secLog.WithError(err).WithField("id", templateID).Info(
+				"controllers/flavortemplate_controller:Retrieve() Failed to retrieve FlavorTemplate")
+			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to retrieve FlavorTemplate with the given ID"}
 		}
-		secLog.WithError(err).WithField("id", templateID).Info(
-			"controllers/flavortemplate_controller:Retrieve() Failed to retrieve FlavorTemplate")
-		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to retrieve FlavorTemplate with the given ID"}
 	}
 	return flavorTemplate, http.StatusOK, nil
 }
@@ -154,12 +144,14 @@ func (ftc *FlavorTemplateController) Delete(w http.ResponseWriter, r *http.Reque
 
 	//call store function to delete template from DB.
 	if err := ftc.Store.Delete(templateID); err != nil {
-		if strings.Contains(err.Error(), commErr.RowsNotFound) {
+		switch err.(type) {
+		case *commErr.StatusNotFoundError:
 			defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Delete() Flavor template with given ID does not exist")
 			return nil, http.StatusNotFound, &commErr.ResourceError{Message: "Flavor template with given ID does not exist or has been deleted"}
-		}
-		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Delete() Failed to delete flavor template with given ID")
+		default:
+			defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Delete() Failed to delete flavor template with given ID")
 		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to delete flavor template with given ID"}
+		}
 	}
 
 	return nil, http.StatusNoContent, nil
@@ -173,21 +165,22 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 	var createFlavorTemplateReq hvs.FlavorTemplate
 	if r.Header.Get("Content-Type") != constants.HTTPMediaTypeJson {
 		defaultLog.Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Invalid Content-Type")
-		return createFlavorTemplateReq, &unsupportedMediaError{Message: "Invalid Content-Type"}
+		return createFlavorTemplateReq, &commErr.UnsupportedMediaError{Message: "Invalid Content-Type"}
 	}
 
 	if r.ContentLength == 0 {
 		defaultLog.Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() The request body is not provided")
-		return createFlavorTemplateReq, &badRequestError{Message: "The request body is not provided"}
+		return createFlavorTemplateReq, &commErr.BadRequestError{Message: "The request body is not provided"}
 	}
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to read request body")
-		return createFlavorTemplateReq, &badRequestError{Message: "Unable to read request body"}
+		return createFlavorTemplateReq, &commErr.BadRequestError{Message: "Unable to read request body"}
 	}
 
-	//Restore the request body to it's original state
+	//Once, the buffer r.Body is read using ReadAll, we cannot use it to decode again.
+	//Restore the request body to it's original state to decode the json data.
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
 	//Decode the incoming json data to note struct
@@ -197,18 +190,23 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 	err = dec.Decode(&createFlavorTemplateReq)
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to decode request body")
-		return createFlavorTemplateReq, &badRequestError{Message: "Unable to decode request body"}
+		return createFlavorTemplateReq, &commErr.BadRequestError{Message: "Unable to decode request body"}
 	}
 
 	if createFlavorTemplateReq.ID != uuid.Nil {
-		template, err := ftc.Store.Retrieve(createFlavorTemplateReq.ID)
-		if err != nil && !strings.Contains(err.Error(), commErr.RowsNotFound) {
-			defaultLog.WithError(err).Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Failed to retrieve flavor template")
-			return hvs.FlavorTemplate{}, errors.New("Failed to validate flavor template ID")
+		template, err := ftc.Store.Retrieve(createFlavorTemplateReq.ID,true)
+		if err != nil {
+			switch err.(type) {
+			case *commErr.StatusNotFoundError:
+				break
+			default:
+				defaultLog.WithError(err).Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Failed to retrieve flavor template")
+				return hvs.FlavorTemplate{}, errors.New("Failed to validate flavor template ID")
+			}
 		}
-		if template != nil || strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
+		if template != nil  {
 			defaultLog.WithError(err).Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to create flavor template, template with given template ID already exists or has been deleted")
-			return hvs.FlavorTemplate{}, &badRequestError{Message: "FlavorTemplate with given template ID already exists or has been deleted"}
+			return hvs.FlavorTemplate{}, &commErr.BadRequestError{Message: "FlavorTemplate with given template ID already exists or has been deleted"}
 		}
 	}
 
@@ -216,12 +214,12 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 	errMsg, err := ftc.validateFlavorTemplateCreateRequest(createFlavorTemplateReq, string(body))
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to create flavor template, validation failed")
-		return createFlavorTemplateReq, &badRequestError{Message: errMsg}
+		return createFlavorTemplateReq, &commErr.BadRequestError{Message: errMsg}
 	}
 
 	if len(createFlavorTemplateReq.Condition) == 0 {
 		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to create flavor template, empty condition field provided")
-		return hvs.FlavorTemplate{}, &badRequestError{Message: "Unable to create flavor template, empty condition field provided"}
+		return hvs.FlavorTemplate{}, &commErr.BadRequestError{Message: "Unable to create flavor template, empty condition field provided"}
 	}
 
 	return createFlavorTemplateReq, nil
@@ -284,15 +282,15 @@ func (ftc *FlavorTemplateController) validateFlavorTemplateCreateRequest(FlvrTem
 
 	//Check whether each pcr index is associated with not more than one bank.
 	pcrMap := make(map[*hvs.FlavorPart][]hvs.PCR)
-	flavors := []*hvs.FlavorPart{FlvrTemp.FlavorParts.Platform, FlvrTemp.FlavorParts.OS, FlvrTemp.FlavorParts.HostUnique, FlvrTemp.FlavorParts.Software}
-	for _, flavor := range flavors {
-		if flavor != nil {
-			if _, ok := pcrMap[flavor]; !ok {
+	flavorParts := []*hvs.FlavorPart{FlvrTemp.FlavorParts.Platform, FlvrTemp.FlavorParts.OS, FlvrTemp.FlavorParts.HostUnique, FlvrTemp.FlavorParts.Software}
+	for _, flavorPart := range flavorParts {
+		if flavorPart != nil {
+			if _, ok := pcrMap[flavorPart]; !ok {
 				var pcrs []hvs.PCR
-				for _, pcrRule := range flavor.PcrRules {
+				for _, pcrRule := range flavorPart.PcrRules {
 					pcrs = append(pcrs, pcrRule.Pcr)
 				}
-				pcrMap[flavor] = pcrs
+				pcrMap[flavorPart] = pcrs
 			}
 		}
 	}

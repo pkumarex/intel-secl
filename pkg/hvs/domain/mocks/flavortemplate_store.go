@@ -16,8 +16,8 @@ import (
 
 // MockFlavorTemplateStore provides a mocked implementation of interface hvs.FlavorTemplate
 type MockFlavorTemplateStore struct {
-	FlavorTemplateStore   []hvs.FlavorTemplate
-	DeletedTemplatesStore []hvs.FlavorTemplate
+	FlavorTemplates   []hvs.FlavorTemplate
+	DeletedTemplates []hvs.FlavorTemplate
 }
 
 var flavorTemplate = `{
@@ -79,13 +79,7 @@ func (store *MockFlavorTemplateStore) Create(ft *hvs.FlavorTemplate) (*hvs.Flavo
 		ft.ID = uuid.New()
 	}
 
-	rec := hvs.FlavorTemplate{
-		ID:          ft.ID,
-		Condition:   ft.Condition,
-		Label:       ft.Label,
-		FlavorParts: ft.FlavorParts,
-	}
-	store.FlavorTemplateStore = append(store.FlavorTemplateStore, rec)
+	store.FlavorTemplateStore = append(store.FlavorTemplateStore, ft)
 
 	return &rec, nil
 }

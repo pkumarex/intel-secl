@@ -906,7 +906,7 @@ func validateFlavorMetaContent(meta *fm.Meta) error {
 	defaultLog.Trace("controllers/flavor_controller:validateFlavorMetaContent() Entering")
 	defer defaultLog.Trace("controllers/flavor_controller:validateFlavorMetaContent() Leaving")
 
-	if meta == nil || meta.Description[fm.Label].(string) == "" {
+	if meta == nil || meta.Description == nil || len(meta.Description) == 0 || meta.Description[fm.Label].(string) == "" {
 		return errors.New("Invalid flavor meta content : flavor label missing")
 	}
 	var fp fc.FlavorPart
