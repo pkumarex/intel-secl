@@ -71,10 +71,7 @@ func (t *CreateDefaultFlavorTemplate) Run() error {
 }
 
 func (t *CreateDefaultFlavorTemplate) Validate() error {
-	ftStore, err := t.flavorTemplateStore()
-	if err != nil {
-		return errors.Wrap(err, "Failed to initialize flavor template store instance")
-	}
+
 	var ftList []hvs.FlavorTemplate
 	defaultFlavorTemplateMap := map[string]bool{}
 	t.deleted = []string{}
@@ -83,7 +80,7 @@ func (t *CreateDefaultFlavorTemplate) Validate() error {
 		defaultFlavorTemplateMap[templateName] = false
 	}
 
-	ftList, err = ftStore.Search(false)
+	ftList, err := t.TemplateStore.Search(false)
 	if err != nil {
 		return errors.Wrap(err, "Failed to validate "+t.commandName)
 	}
@@ -102,7 +99,7 @@ func (t *CreateDefaultFlavorTemplate) Validate() error {
 	}
 
 	if len(t.deleted) != 0 {
-		return errors.New(t.commandName + ": Failed to create default flavor template(s) \"" + strings.Join(t.deleted, " "))
+		return errors.New(t.commandName + ": Failed to recover deleted default flavor template(s) \"" + strings.Join(t.deleted, " "))
 	}
 	return nil
 }
