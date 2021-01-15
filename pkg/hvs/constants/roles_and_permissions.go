@@ -32,6 +32,7 @@ const (
 	//FlavorTemplate Permissions.
 	FlavorTemplateCreate   = "flavor-template:create"
 	FlavorTemplateRetrieve = "flavor-template:retrieve"
+	FlavorTemplateSearch   = "flavor-template:search"
 	FlavorTemplateDelete   = "flavor-template:delete"
 
 	FlavorCreate   = "flavors:create"

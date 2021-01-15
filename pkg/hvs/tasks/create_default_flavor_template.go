@@ -19,7 +19,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-type CreateDefaultTemplate struct {
+type CreateDefaultFlavorTemplate struct {
 	DBConf  commConfig.DBConfig
 	deleted []string
 
@@ -36,7 +36,7 @@ var defaultFlavorTemplateNames = []string{
 	"default-pfr",
 }
 
-func (t *CreateDefaultTemplate) Run() error {
+func (t *CreateDefaultFlavorTemplate) Run() error {
 	var templates []hvs.FlavorTemplate
 
 	ftStore, err := t.flavorTemplateStore()
@@ -69,7 +69,7 @@ func (t *CreateDefaultTemplate) Run() error {
 	return nil
 }
 
-func (t *CreateDefaultTemplate) Validate() error {
+func (t *CreateDefaultFlavorTemplate) Validate() error {
 	ftStore, err := t.flavorTemplateStore()
 	if err != nil {
 		return errors.Wrap(err, "Failed to initialize flavor template store instance")
@@ -106,16 +106,16 @@ func (t *CreateDefaultTemplate) Validate() error {
 	return nil
 }
 
-func (t *CreateDefaultTemplate) PrintHelp(w io.Writer) {
+func (t *CreateDefaultFlavorTemplate) PrintHelp(w io.Writer) {
 	setup.PrintEnvHelp(w, DbEnvHelpPrompt, "", DbEnvHelp)
 	fmt.Fprintln(w, "")
 }
 
-func (t *CreateDefaultTemplate) SetName(n, e string) {
+func (t *CreateDefaultFlavorTemplate) SetName(n, e string) {
 	t.commandName = n
 }
 
-func (t *CreateDefaultTemplate) flavorTemplateStore() (*postgres.FlavorTemplateStore, error) {
+func (t *CreateDefaultFlavorTemplate) flavorTemplateStore() (*postgres.FlavorTemplateStore, error) {
 	var dataStore *postgres.DataStore
 	var err error
 	if t.TemplateStore == nil {

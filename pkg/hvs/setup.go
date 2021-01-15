@@ -193,7 +193,7 @@ func (a *App) setupTaskRunner() (*setup.Runner, error) {
 	runner.AddTask("create-privacy-ca", "privacy-ca", a.selfSignTask("privacy-ca"))
 	runner.AddTask("create-endorsement-ca", "endorsement-ca", a.selfSignTask("endorsement-ca"))
 	runner.AddTask("create-tag-ca", "tag-ca", a.selfSignTask("tag-ca"))
-	runner.AddTask("create-default-template", "", &tasks.CreateDefaultTemplate{
+	runner.AddTask("create-default-flavor-template", "", &tasks.CreateDefaultFlavorTemplate{
 		DBConf: dbConf,
 	})
 
