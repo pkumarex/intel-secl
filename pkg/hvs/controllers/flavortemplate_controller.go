@@ -29,6 +29,8 @@ type FlavorTemplateController struct {
 	Store                   domain.FlavorTemplateStore
 	CommonDefinitionsSchema string
 	FlavorTemplateSchema    string
+	definitionsSchemaJSON   string
+	templateSchemaJSON      string
 }
 type ErrorMessage struct {
 	Message string
@@ -78,7 +80,7 @@ func (ftc *FlavorTemplateController) Retrieve(w http.ResponseWriter, r *http.Req
 
 	templateID := uuid.MustParse(mux.Vars(r)["id"])
 
-	flavorTemplate, err := ftc.Store.Retrieve(templateID,false)
+	flavorTemplate, err := ftc.Store.Retrieve(templateID, false)
 	if err != nil {
 		switch err.(type) {
 		case *commErr.StatusNotFoundError:
@@ -150,7 +152,7 @@ func (ftc *FlavorTemplateController) Delete(w http.ResponseWriter, r *http.Reque
 			return nil, http.StatusNotFound, &commErr.ResourceError{Message: "Flavor template with given ID does not exist or has been deleted"}
 		default:
 			defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Delete() Failed to delete flavor template with given ID")
-		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to delete flavor template with given ID"}
+			return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Failed to delete flavor template with given ID"}
 		}
 	}
 
@@ -194,7 +196,7 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 	}
 
 	if createFlavorTemplateReq.ID != uuid.Nil {
-		template, err := ftc.Store.Retrieve(createFlavorTemplateReq.ID,true)
+		template, err := ftc.Store.Retrieve(createFlavorTemplateReq.ID, true)
 		if err != nil {
 			switch err.(type) {
 			case *commErr.StatusNotFoundError:
@@ -204,7 +206,7 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 				return hvs.FlavorTemplate{}, errors.New("Failed to validate flavor template ID")
 			}
 		}
-		if template != nil  {
+		if template != nil {
 			defaultLog.WithError(err).Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to create flavor template, template with given template ID already exists or has been deleted")
 			return hvs.FlavorTemplate{}, &commErr.BadRequestError{Message: "FlavorTemplate with given template ID already exists or has been deleted"}
 		}
@@ -232,17 +234,24 @@ func (ftc *FlavorTemplateController) validateFlavorTemplateCreateRequest(FlvrTem
 	// Check whether the template is adhering to the schema
 	schemaLoader := gojsonschema.NewSchemaLoader()
 
-	definitionsSchemaJSON, err := readJSON(ftc.CommonDefinitionsSchema)
-	if err != nil {
-		return "Unable to read the common definitions schema", errors.Wrap(err, "controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Unable to read the file"+consts.CommonDefinitionsSchema)
+	var err error
+	if ftc.definitionsSchemaJSON == "" {
+		ftc.definitionsSchemaJSON, err = readJSON(ftc.CommonDefinitionsSchema)
+		if err != nil {
+			return "Unable to read the common definitions schema", errors.Wrap(err, "controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Unable to read the file"+consts.CommonDefinitionsSchema)
+		}
 	}
 
-	definitionsSchema := gojsonschema.NewStringLoader(definitionsSchemaJSON)
-	templateSchemaJSON, err := readJSON(ftc.FlavorTemplateSchema)
-	if err != nil {
-		return "Unable to read the template schema", errors.Wrap(err, "controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Unable to read the file"+consts.FlavorTemplateSchema)
+	definitionsSchema := gojsonschema.NewStringLoader(ftc.definitionsSchemaJSON)
+
+	if ftc.templateSchemaJSON == "" {
+		ftc.templateSchemaJSON, err = readJSON(ftc.FlavorTemplateSchema)
+		if err != nil {
+			return "Unable to read the template schema", errors.Wrap(err, "controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Unable to read the file"+consts.FlavorTemplateSchema)
+		}
 	}
-	flvrTemplateSchema := gojsonschema.NewStringLoader(templateSchemaJSON)
+
+	flvrTemplateSchema := gojsonschema.NewStringLoader(ftc.templateSchemaJSON)
 	schemaLoader.AddSchemas(definitionsSchema)
 
 	schema, err := schemaLoader.Compile(flvrTemplateSchema)

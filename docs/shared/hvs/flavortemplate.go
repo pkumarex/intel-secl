@@ -114,7 +114,12 @@ type FlavorTemplate struct {
 // ---
 // description: |
 //   Flavor Template: Flavor templates are used to implement dynamic flavor generation.
-//   The dynamic generation of flavor-parts will be implemented through the use of “flavor-templates”.
+//   The dynamic generation of flavors will be implemented through the use of “flavor-templates”.
+//   Flavor template is a JSON which will contain the information about pcr's and rules to be applied for the pcr's for the particular flavor.
+//   The purpose of flavor templates is to customize pcr/event-log rules and verifications without code changes.
+//   A particular flavor template can be used for the creation of flavors using the condition section in flavor template.
+//   The conditions in the flavor template will be matched against the host manifest to determine whether the flavor template can be used for
+//   the generation of flavors.
 //   The goals of flavor-templates are…
 //        1.	Be extendable to generate flavors for future scenarios (without code changes).
 //        2.	Support the creation of flavor-parts for existing vendors (Linux, ESXI).
