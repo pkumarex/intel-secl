@@ -85,7 +85,7 @@ func (store *MockFlavorTemplateStore) Create(ft *hvs.FlavorTemplate) (*hvs.Flavo
 }
 
 // Retrieve a Flavortemplate
-func (store *MockFlavorTemplateStore) Retrieve(templateID uuid.UUID) (*hvs.FlavorTemplate, error) {
+func (store *MockFlavorTemplateStore) Retrieve(templateID uuid.UUID, includeDeleted bool) (*hvs.FlavorTemplate, error) {
 
 	for _, template := range store.FlavorTemplates {
 		if template.ID == templateID {
