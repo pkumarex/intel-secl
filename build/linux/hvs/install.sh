@@ -21,13 +21,14 @@ LOG_PATH=/var/log/$COMPONENT_NAME/
 CONFIG_PATH=/etc/$COMPONENT_NAME/
 CERTS_PATH=$CONFIG_PATH/certs
 SCHEMA_PATH=$CONFIG_PATH/schema
+TEMPLATES_PATH=$CONFIG_PATH/templates
 CERTDIR_TRUSTEDJWTCERTS=$CERTS_PATH/trustedjwt
 CERTDIR_TRUSTEDCAS=$CERTS_PATH/trustedca/root
 CERTDIR_TRUSTEDPCAS=$CERTS_PATH/trustedca/privacy-ca
 KEYS_PATH=$CONFIG_PATH/trusted-keys
 CERTDIR_ENDORSEMENTCA=$CERTS_PATH/endorsement
 
-for directory in $BIN_PATH $LOG_PATH $CONFIG_PATH $CERTS_PATH $SCHEMA_PATH $CERTDIR_TRUSTEDJWTCERTS $CERTDIR_TRUSTEDCAS $CERTDIR_TRUSTEDPCAS $KEYS_PATH $CERTDIR_ENDORSEMENTCA; do
+for directory in $BIN_PATH $LOG_PATH $CONFIG_PATH $CERTS_PATH $SCHEMA_PATH $CERTDIR_TRUSTEDJWTCERTS $CERTDIR_TRUSTEDCAS $CERTDIR_TRUSTEDPCAS $KEYS_PATH $CERTDIR_ENDORSEMENTCA $TEMPLATES_PATH; do
   # mkdir -p will return 0 if directory exists or is a symlink to an existing directory or directory and parents can be created
   mkdir -p $directory
   if [ $? -ne 0 ]; then
@@ -49,7 +50,10 @@ ln -sfT $BIN_PATH/$COMPONENT_NAME /usr/bin/$COMPONENT_NAME
 cp EndorsementCA-external.pem $CERTDIR_ENDORSEMENTCA/ && chown $SERVICE_USERNAME:$SERVICE_USERNAME $CERTDIR_ENDORSEMENTCA/EndorsementCA-external.pem
 
 # Copy Schema files
-cp -r schema/ $CONFIG_PATH/ && chown $SERVICE_USERNAME:$SERVICE_USERNAME $SCHEMA_PATH/common.schema.json $SCHEMA_PATH/flavor-template.json
+cp -r schema/ $CONFIG_PATH/ && chown $SERVICE_USERNAME:$SERVICE_USERNAME $SCHEMA_PATH/*
+
+# Copy template files
+cp -r templates/ $CONFIG_PATH/ && chown $SERVICE_USERNAME:$SERVICE_USERNAME $TEMPLATES_PATH/*
 
 # make log files world readable
 chmod 744 $LOG_PATH

@@ -15,7 +15,7 @@ type FlavorTemplate struct {
 
 // ---
 
-// swagger:operation GET /flavor-template/{flavortemplate_id} Flavortemplate Retrieve-FlavorTemplate
+// swagger:operation GET /flavor-templates/{flavortemplate_id} Flavortemplate Retrieve-FlavorTemplate
 // ---
 //
 // description: |
@@ -56,7 +56,7 @@ type FlavorTemplate struct {
 //   '500':
 //     description: Internal server error
 //
-// x-sample-call-endpoint: https://hvs.com:8443/hvs/v2/flavor-template/d6f81340-b033-4fae-8ccf-795430f486e7
+// x-sample-call-endpoint: https://hvs.com:8443/hvs/v2/flavor-templates/d6f81340-b033-4fae-8ccf-795430f486e7
 // x-sample-call-output: |
 //   {
 //       "id": "d6f81340-b033-4fae-8ccf-795430f486e7",
@@ -110,18 +110,16 @@ type FlavorTemplate struct {
 
 // ---
 
-// swagger:operation POST /flavor-template/ Flavortemplate Create-FlavorTemplate
+// swagger:operation POST /flavor-templates Flavortemplate Create-FlavorTemplate
 // ---
 // description: |
 //   Flavor Template: Flavor templates are used to implement dynamic flavor generation.
-//   The dynamic generation of flavor-parts will be implemented through the use of “flavor-templates”.
-//   The goals of flavor-templates are…
-//        1.	Be extendable to generate flavors for future scenarios (without code changes).
-//        2.	Support the creation of flavor-parts for existing vendors (Linux, ESXI).
-//        3.	Support the creation of flavor-parts for existing hardware scenarios (TXT, CBNT, SUEFI, etc.).
-//        4.	Provide a default flavor-templates that generate pcrs/event-log measurements for Shim/UEFI/PFR/BMC.
-//
-//   The serialized Flavorgroup Go struct object represents the content of the request body.
+//   The dynamic generation of flavors will be implemented through the use of “flavor-templates”.
+//   Flavor template is a JSON which will contain the information about pcr's and rules to be applied for the pcr's for the particular flavor.
+//   The purpose of flavor templates is to customize pcr/event-log rules and verifications without code changes.
+//   A particular flavor template can be used for the creation of flavors using the condition section in flavor template.
+//   The conditions in the flavor template will be matched against the host manifest to determine whether the flavor template can be used for
+//   the generation of flavors.
 //
 //    | Attribute                      | Description|
 //    |--------------------------------|------------|
@@ -178,7 +176,7 @@ type FlavorTemplate struct {
 //   '500':
 //     description: Internal server error
 //
-// x-sample-call-endpoint: https://hvs.com:8443/hvs/v2/flavortemplate/
+// x-sample-call-endpoint: https://hvs.com:8443/hvs/v2/flavor-templates
 // x-sample-call-input: |
 //    {
 //      "label": "default-pfr",
@@ -239,7 +237,7 @@ type FlavorTemplate struct {
 
 // ---
 
-// swagger:operation GET /flavor-template/ Flavortemplate Search-FlavorTemplate
+// swagger:operation GET /flavor-templates Flavortemplate Search-FlavorTemplates
 // ---
 //
 // description: |
@@ -252,7 +250,7 @@ type FlavorTemplate struct {
 // - application/json
 // parameters:
 // - name: include_deleted
-//   description: To include 'lazy-deleted' templates.
+//   description: In HVS, template object gets lazy deleted and to include them in search result, set include_deleted flag to true
 //   in: query
 //   required: false
 //   type: string
@@ -280,7 +278,7 @@ type FlavorTemplate struct {
 //   '500':
 //     description: Internal server error
 //
-// x-sample-call-endpoint: https://hvs.com:8443/hvs/v2/flavor-template/
+// x-sample-call-endpoint: https://hvs.com:8443/hvs/v2/flavor-templates
 // x-sample-call-output: |
 //   [
 //     {
@@ -362,7 +360,7 @@ type FlavorTemplate struct {
 
 // ---
 
-// swagger:operation DELETE /flavor-template/{flavortemplate_id} Flavortemplate Delete-FlavorTemplate
+// swagger:operation DELETE /flavor-templates/{flavortemplate_id} Flavortemplate Delete-FlavorTemplate
 // ---
 //
 // description: |
@@ -389,7 +387,6 @@ type FlavorTemplate struct {
 //   '500':
 //     description: Internal server error
 //
-// x-sample-call-endpoint: https://hvs.com:8443/hvs/v2/flavor-template/d6f81340-b033-4fae-8ccf-795430f486e7
-// x-sample-call-output: |
+// x-sample-call-endpoint: https://hvs.com:8443/hvs/v2/flavor-templates/d6f81340-b033-4fae-8ccf-795430f486e7
 
 // ---

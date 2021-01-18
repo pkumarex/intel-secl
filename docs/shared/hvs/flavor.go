@@ -210,175 +210,255 @@ type SignedFlavorCollection struct {
 // x-sample-call-input: |
 //      {
 //          "connection_string" : "https://tagent-ip:1443/",
-//          "partial_flavor_types" : ["OS", "HOST_UNIQUE"]
+//          "partial_flavor_types" : ["OS", "PLATFORM"]
 //      }
 // x-sample-call-output: |
 //    {
-//        "signed_flavors": [
-//            {
-//                "flavor": {
-//                    "meta": {
-//                        "id": "ee7c7d49-1e80-4198-8c9f-04319b8a3db9",
-//                        "description": {
-//                            "flavor_part": "OS",
-//                            "source": "127.0.0.1",
-//                            "label": "INTEL_RedHatEnterprise_8.1_Virsh_4.5.0_05-27-2020_02-57-56",
-//                            "os_name": "RedHatEnterprise",
-//                            "os_version": "8.1",
-//                            "vmm_name": "Virsh",
-//                            "vmm_version": "4.5.0",
-//                            "tpm_version": "2.0",
-//                            "tboot_installed": "true"
-//                        },
-//                        "vendor": "INTEL"
-//                    },
-//                    "bios": {
-//                        "bios_name": "Intel Corporation",
-//                        "bios_version": "SE5C620.86B.00.01.6016.032720190737"
-//                    },
-//                    "pcrs": {
-//                        "SHA1": {
-//                            "pcr_17": {
-//                                "value": "c83860a466f7595bac3558394a2c4df0e0ac0cb1",
-//                                "event": [
-//                                    {
-//                                        "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
-//                                        "value": "5b870664c50ead0421e4a67514724759aa9a9d5b",
-//                                        "label": "vmlinuz",
-//                                        "info": {
-//                                            "ComponentName": "vmlinuz",
-//                                            "EventName": "OpenSource.EventName"
-//                                        }
-//                                    }
-//                                ]
-//                            }
-//                        },
-//                        "SHA256": {
-//                            "pcr_17": {
-//                                "value": "b9a3b48397df5cbd8f184c3a85324c3f85723482b7f71a2f72fb0a5d239d170c",
-//                                "event": [
-//                                    {
-//                                        "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
-//                                        "value": "348a6284f46123a913681d53a201c05750d4527483ceaa2a2adbc7dda52cf506",
-//                                        "label": "vmlinuz",
-//                                        "info": {
-//                                            "ComponentName": "vmlinuz",
-//                                            "EventName": "OpenSource.EventName"
-//                                        }
-//                                    }
-//                                ]
-//                            }
-//                        }
-//                    }
-//                },
-//                "signature": "aas8/Nv7yYuwx2ZIOMrXFpNf333tBJgr87Dpo7Z5jjUR36Estlb8pYaTGN4Dz9JtbXZy2uIBLr1wjhkHVWm2r1FQq+2yJznXGCpkxWiQSZK84dmmr9tPxIxwxH5U/y8iYgSOnAdvWOn5E7tecil0WcYI/pDlXOs6WtsOWWDsHNXLswzw5qOhqU8WY/2ZVp0l1dnIFT17qQM9SOPi67Jdt75rMAqgl3gOmh9hygqa8KCmF7lrILv3u8ALxNyrqNqbInLGrWaHz5jSka1U+aF6ffmyPFUEmVwT3dp41kCNQshHor9wYo0nD1SAcls8EGZehM/xDokUCjUbfTJfTawYHgwGrXtWEpQVIPI+0xOtLK5NfUl/ZrQiJ9Vn95NQ0FYjfctuDJmlVjCTF/EXiAQmbEAh5WneGvXOzp6Ovp8SoJD5OWRuGhfaT7si3Z0KqGZ2Q6U0ppa8oJ3l4uPSfYlRdg4DFb4PyIScHSo93euQ6AnzGiMT7Tvk3e+lxymkNBwX"
-//            },
-//            {
-//                "flavor": {
-//                    "meta": {
-//                        "id": "b98df5dd-ec68-4115-944f-99e9a022b0ed",
-//                        "description": {
-//                            "flavor_part": "HOST_UNIQUE",
-//                            "source": "127.0.0.1",
-//                            "label": "INTEL_00B61DA0-5ADA-E811-906E-00163566263E_05-27-2020_02-57-56",
-//                            "bios_name": "Intel Corporation",
-//                            "bios_version": "SE5C620.86B.00.01.6016.032720190737",
-//                            "os_name": "RedHatEnterprise",
-//                            "os_version": "8.1",
-//                            "tpm_version": "2.0",
-//                            "hardware_uuid": "00B61DA0-5ADA-E811-906E-00163566263E",
-//                            "tboot_installed": "true"
-//                        },
-//                        "vendor": "INTEL"
-//                    },
-//                    "bios": {
-//                        "bios_name": "Intel Corporation",
-//                        "bios_version": "SE5C620.86B.00.01.6016.032720190737"
-//                    },
-//                    "pcrs": {
-//                        "SHA1": {
-//                            "pcr_17": {
-//                                "value": "c83860a466f7595bac3558394a2c4df0e0ac0cb1",
-//                                "event": [
-//                                    {
-//                                        "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
-//                                        "value": "9069ca78e7450a285173431b3e52c5c25299e473",
-//                                        "label": "LCP_CONTROL_HASH",
-//                                        "info": {
-//                                            "ComponentName": "LCP_CONTROL_HASH",
-//                                            "EventName": "OpenSource.EventName"
-//                                        }
-//                                    },
-//                                    {
-//                                        "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
-//                                        "value": "f51a0544599649e9e356f67beae16dd78994a23e",
-//                                        "label": "initrd",
-//                                        "info": {
-//                                            "ComponentName": "initrd",
-//                                            "EventName": "OpenSource.EventName"
-//                                        }
-//                                    }
-//                                ]
-//                            },
-//                            "pcr_18": {
-//                                "value": "86da61107994a14c0d154fd87ca509f82377aa30",
-//                                "event": [
-//                                    {
-//                                        "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
-//                                        "value": "9069ca78e7450a285173431b3e52c5c25299e473",
-//                                        "label": "LCP_CONTROL_HASH",
-//                                        "info": {
-//                                            "ComponentName": "LCP_CONTROL_HASH",
-//                                            "EventName": "OpenSource.EventName"
-//                                        }
-//                                    }
-//                                ]
-//                            }
-//                        },
-//                        "SHA256": {
-//                            "pcr_17": {
-//                                "value": "b9a3b48397df5cbd8f184c3a85324c3f85723482b7f71a2f72fb0a5d239d170c",
-//                                "event": [
-//                                    {
-//                                        "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
-//                                        "value": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
-//                                        "label": "LCP_CONTROL_HASH",
-//                                        "info": {
-//                                            "ComponentName": "LCP_CONTROL_HASH",
-//                                            "EventName": "OpenSource.EventName"
-//                                        }
-//                                     },
-//                                     {
-//                                        "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
-//                                        "value": "22cd1ae4ecf934348d4a970e1400956327971382ad9697a59d3e5de5f2d0160f",
-//                                        "label": "initrd",
-//                                        "info": {
-//                                            "ComponentName": "initrd",
-//                                            "EventName": "OpenSource.EventName"
-//                                        }
-//                                    }
-//                                ]
-//                            },
-//                            "pcr_18": {
-//                                "value": "d9e55bd1c570a6408fb1368f3663ae92747241fc4d2a3622cef0efadae284d75",
-//                                "event": [
-//                                    {
-//                                        "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
-//                                        "value": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
-//                                        "label": "LCP_CONTROL_HASH",
-//                                        "info": {
-//                                            "ComponentName": "LCP_CONTROL_HASH",
-//                                            "EventName": "OpenSource.EventName"
-//                                        }
-//                                    }
-//                                ]
-//                            }
-//                        }
-//                    }
-//                },
-//                "signature": "mT2qGOj6p0+sRtM5RuXxAZ4Hg0bDmkqILPVPMyTURYQNcSNKqP9vG9wek/7KMdoIpP20Qc9z8tdNIHbQqdBS21j2Z3tI2WMdGWyFkEgqlZzubtVFnQ3WspMAq1D+hhJWsAUDX+OF2kcFmZSoS7lI8aVjGkBs94k47s7FqeCyGzKnDzFTWSFX/mIWBNMcFMQ3tDzYJZrp70tiu4r1AdrznqfAHWpgeXce4H7a0pk5VmHAQ4jevsTs0LkM8osKLhiI44NOBRie1gQTLnGC1yQ/mTiA4PXeyg6Xig+sUqja/fim2fBYkHaZm3GnVmsvlEddWcQEtPvsnGDI7nV+bxn24f75YwpbB80jmf8giZMWamXw68VZwdrwhMofyslVmh3SGKY4/0dYGE1H1DFZB75w753RXi6rH8p4xcnt3FOL9vEDNX0BTC+2ro5lORCEP3q2JHdlbldKw3a4GWBGt3qcTBQSRUVR++/xjOWNk0C3oEb28XL8Y6QgBQBz+EFrT7"
-//            }
-//        ]
+//     "signed_flavors": [
+//         {
+//             "flavor": {
+//                 "meta": {
+//                     "id": "1347c8a4-10ff-4cd4-81e6-75ec765a3be3",
+//                     "description": {
+//                         "bios_name": "Intel Corporation",
+//                         "bios_version": "WLYDCRB1.SYS.0021.D02.2011260651",
+//                         "cbnt_enabled": true,
+//                         "flavor_part": "PLATFORM",
+//                         "flavor_template_ids": [
+//                             "48df0b29-9b05-485c-a005-8379aa2f4e5d",
+//                             "0969de9f-8c84-4024-808e-8d87ab03e7f4",
+//                             "9732b264-9a09-46d5-ad1d-dbf4a0028623"
+//                         ],
+//                         "label": "INTEL_IntelCorporation_WLYDCRB1.SYS.0021.D02.2011260651_CBNT_BTGP3_TPM_TXT_UEFI_SecureBootEnabled_2020-12-31T10:06:35.506222-05:00",
+//                         "source": "wlr19s04",
+//                         "suefi_enabled": true,
+//                         "tboot_installed": false,
+//                         "tpm_version": "2.0",
+//                         "uefi_enabled": true,
+//                         "vendor": "Linux"
+//                     },
+//                     "vendor": "INTEL"
+//                 },
+//                 "bios": {
+//                     "bios_name": "Intel Corporation",
+//                     "bios_version": "WLYDCRB1.SYS.0021.D02.2011260651"
+//                 },
+//                 "hardware": {
+//                     "processor_info": "A6 06 06 00 FF FB EB BF",
+//                     "processor_flags": "FPU VME DE PSE TSC MSR PAE MCE CX8 APIC SEP MTRR PGE MCA CMOV PAT PSE-36 CLFSH DS ACPI MMX FXSR SSE SSE2 SS HTT TM PBE",
+//                     "feature": {
+//                         "TXT": {
+//                             "enabled": true
+//                         },
+//                         "TPM": {
+//                             "enabled": true,
+//                             "version": "2.0",
+//                             "pcr_banks": [
+//                                 "SHA1",
+//                                 "SHA256"
+//                             ]
+//                         },
+//                         "CBNT": {
+//                             "enabled": true,
+//                             "profile": "BTGP3"
+//                         },
+//                         "SUEFI": {
+//                             "enabled": true,
+//                             "secure_boot_enabled": true
+//                         }
+//                     }
+//                 },
+//                 "pcr_logs": [
+//                     {
+//                         "pcr": {
+//                             "index": 6,
+//                             "bank": "SHA256"
+//                         },
+//                         "measurement": "3d458cfe55cc03ea1f443f1562beec8df51c75e14a9fcf9a7234a13f198e7969",
+//                         "pcr_matches": true
+//                     },
+//                     {
+//                         "pcr": {
+//                             "index": 7,
+//                             "bank": "SHA256"
+//                         },
+//                         "measurement": "2989281f06f7a4aebd9c1a03869f91918ee7dfb2b4de64d6a0c80bd3a5db3bb5",
+//                         "pcr_matches": true
+//                     },
+//                     {
+//                         "pcr": {
+//                             "index": 0,
+//                             "bank": "SHA256"
+//                         },
+//                         "measurement": "6ff721e905c69ec83db8ae31bef0885982cab0d0c3b98c5e4eb18ceb2afbc354",
+//                         "pcr_matches": true,
+//                         "eventlog_equals": {
+//                             "events": [
+//                                 {
+//                                     "type_id": "0x3",
+//                                     "type_name": "EV_NO_ACTION",
+//                                     "measurement": "0000000000000000000000000000000000000000000000000000000000000000"
+//                                 },
+//                                 {
+//                                     "type_id": "0x7",
+//                                     "type_name": "EV_S_CRTM_CONTENTS",
+//                                     "tags": [
+//                                         "Boot Guard Measured S-CRTM"
+//                                     ],
+//                                     "measurement": "240613f42068696ad49312f41f50e94f22d6801d1128450c425555e955a441f2"
+//                                 },
+//                                 {
+//                                     "type_id": "0x8",
+//                                     "type_name": "EV_S_CRTM_VERSION",
+//                                     "measurement": "96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7"
+//                                 },
+//                                 {
+//                                     "type_id": "0x80000008",
+//                                     "type_name": "EV_EFI_PLATFORM_FIRMWARE_BLOB",
+//                                     "measurement": "c4eefd2fc4037c299ef6270a12a23c62afcc79b41c243f4691a94f92f9ea8013"
+//                                 },
+//                                 {
+//                                     "type_id": "0x80000008",
+//                                     "type_name": "EV_EFI_PLATFORM_FIRMWARE_BLOB",
+//                                     "measurement": "2e3ffa3b146eab8ab958049f512a52342a51dc3bc0ccba2e06a98f8fbf92966b"
+//                                 },
+//                                 {
+//                                     "type_id": "0x80000008",
+//                                     "type_name": "EV_EFI_PLATFORM_FIRMWARE_BLOB",
+//                                     "measurement": "4b8f9e2b2a4f06fb132f325f2a36d6cd7cffa23382b243b0a597d989cf82769b"
+//                                 },
+//                                 {
+//                                     "type_id": "0x80000008",
+//                                     "type_name": "EV_EFI_PLATFORM_FIRMWARE_BLOB",
+//                                     "measurement": "c4eefd2fc4037c299ef6270a12a23c62afcc79b41c243f4691a94f92f9ea8013"
+//                                 },
+//                                 {
+//                                     "type_id": "0x1",
+//                                     "type_name": "EV_POST_CODE",
+//                                     "tags": [
+//                                         "ACPI DATA"
+//                                     ],
+//                                     "measurement": "3d13b2f22e51c24408ee29a1a423cceb48f045fddef8f4604f7b2dbe1692fb07"
+//                                 },
+//                                 {
+//                                     "type_id": "0x1",
+//                                     "type_name": "EV_POST_CODE",
+//                                     "tags": [
+//                                         "ACPI DATA"
+//                                     ],
+//                                     "measurement": "608072d8953921f15718897cbb0a47623e0c29fa7286d20beb0d733756acb643"
+//                                 },
+//                                 {
+//                                     "type_id": "0x4",
+//                                     "type_name": "EV_SEPARATOR",
+//                                     "measurement": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119"
+//                                 }
+//                             ]
+//                         }
+//                     },
+//                     {
+//                         "pcr": {
+//                             "index": 1,
+//                             "bank": "SHA256"
+//                         },
+//                         "measurement": "e2b734ab6ffa25d47efd9af408ecd7d601fd48e029299a090212c447eda02e17",
+//                         "pcr_matches": true
+//                     },
+//                     {
+//                         "pcr": {
+//                             "index": 2,
+//                             "bank": "SHA256"
+//                         },
+//                         "measurement": "bd66b5177062be02c57d7fd158a21e067bbb109a2be621010f858181a31a8420",
+//                         "pcr_matches": true
+//                     },
+//                     {
+//                         "pcr": {
+//                             "index": 3,
+//                             "bank": "SHA256"
+//                         },
+//                         "measurement": "3d458cfe55cc03ea1f443f1562beec8df51c75e14a9fcf9a7234a13f198e7969",
+//                         "pcr_matches": true
+//                     },
+//                     {
+//                         "pcr": {
+//                             "index": 4,
+//                             "bank": "SHA256"
+//                         },
+//                         "measurement": "02fd4da1758128c7a9fb8a2d0631c99f17bed3549950f7681522a763d0a87f53",
+//                         "pcr_matches": true
+//                     },
+//                     {
+//                         "pcr": {
+//                             "index": 5,
+//                             "bank": "SHA256"
+//                         },
+//                         "measurement": "f2e236caadd0014f0f8b970547cbf36ca0cb248d16e4177b619db3594d782d53",
+//                         "pcr_matches": true
+//                     }
+//                 ]
+//             },
+//             "signature": "kEzL48u9q9LrXKJJGmCKeg0U/ZFxCQ4OdZtUV0l9kE2tqYmEtzEmakEgUihiYjN72IMYXr/rbLbINRkByppp2ra2lExhtmoRk3FFZssl8LkjdpAzIIttjGZAwRjdeuyHBC69vSHQKIVtOd2rsruGjiS6QkqbJOGz1A6dI+zEEVI4f6dfeBoLnkJgZ2x8zjWpLbU8u4lN1npewQ9T4cYzw0mOJqZtdcjx8vuwwFJHSkMfIhEoZGaG/b/2+3eUvptbFAhrIVHWQXKjisC8qcl5+pjdao7jawJoY4kMw+3j6zCono2mS9buCfc2FHsuoqUMJw7Z/dHfmIwBVNKet5bWuxB4l6DpKJwk4FJUEpBpJbJPpmqgMgPNFX12fVQn+FJs8/KTsWfUHovIqggN0/ZYfCjG2YIBLgliZOEPH1zMnMReXwBUOQkenNLO81OL3iH89ePBAsKiCNTjM2Hi7pgAQpaWq+vDypGIQ5YshuBZiur94JtrY40FKUHVw78kjV9B"
+//         },
+//         {
+//             "flavor": {
+//                 "meta": {
+//                     "id": "2e9d20f3-47a4-4adb-a930-dac4ed613911",
+//                     "description": {
+//                         "flavor_part": "OS",
+//                         "flavor_template_ids": [
+//                             "48df0b29-9b05-485c-a005-8379aa2f4e5d",
+//                             "0969de9f-8c84-4024-808e-8d87ab03e7f4",
+//                             "9732b264-9a09-46d5-ad1d-dbf4a0028623"
+//                         ],
+//                         "label": "INTEL_RedHatEnterprise_8.2_Virsh_4.5.0_2020-12-31T10:06:35.515548-05:00",
+//                         "os_name": "RedHatEnterprise",
+//                         "os_version": "8.2",
+//                         "source": "wlr19s04",
+//                         "tboot_installed": false,
+//                         "tpm_version": "2.0",
+//                         "uefi_enabled": true,
+//                         "vendor": "Linux",
+//                         "vmm_name": "Virsh",
+//                         "vmm_version": "4.5.0"
+//                     },
+//                     "vendor": "INTEL"
+//                 },
+//                 "bios": {
+//                     "bios_name": "Intel Corporation",
+//                     "bios_version": "WLYDCRB1.SYS.0021.D02.2011260651"
+//                 },
+//                 "pcr_logs": [
+//                     {
+//                         "pcr": {
+//                             "index": 7,
+//                             "bank": "SHA256"
+//                         },
+//                         "measurement": "2989281f06f7a4aebd9c1a03869f91918ee7dfb2b4de64d6a0c80bd3a5db3bb5",
+//                         "pcr_matches": true,
+//                         "eventlog_includes": [
+//                             {
+//                                 "type_id": "0x80000001",
+//                                 "type_name": "EV_EFI_VARIABLE_DRIVER_CONFIG",
+//                                 "tags": [
+//                                     "db"
+//                                 ],
+//                                 "measurement": "5f94ef49bd3a41f60c812aa76812461b670036687f70bc615e3fb78fdf3ac332"
+//                             },
+//                             {
+//                                 "type_id": "0x800000e0",
+//                                 "type_name": "EV_EFI_VARIABLE_AUTHORITY",
+//                                 "tags": [
+//                                     "db"
+//                                 ],
+//                                 "measurement": "e3d4866d84e25279442e3e5eb5d8f282093fba3331dc1c6f829310f642561e79"
+//                             }
+//                         ]
+//                     }
+//                 ]
+//             },
+//             "signature": "SndykHH3mrJxRerjWcH+HF6cy6r57G4qasgrSZY39DunMEkILkESfeync08KT/5nRYbx0yG7foNkYixL7PqfkYrxxjzlbs5oBQIw0j/uk/Tx+/6uMKGV0DDKscperYBiFIg8e3sC7LB34I8SAqBjpru714iiT+KQJ5qCMblJMSvvCij/R7whyMhRbhjlBYnSp9kcupTP6E5DIgoRRhbZgiAi/xFjMDN0KI4PGsTuxWnei95qku2i7c7lYwgtTUAPKYjKhuBlTpjHp6p/836D+h+AawUEPMrufFRgARlqbdl7h9snpdGJ9fJ7nQSdqBCejMEanX8ZQ3YGnRBRVQw2XR3iF+OABcTU0HMjmsix1VjVWhQW52czvQlZPSvp4Szm6al+U2jQbC/pI1Drinq6XyukHHoKN0OAuygmcJngQavTb3KhgyAYtWPKrNaZDDZN2MtdsJD1Mfx9CMVvB5TN1Kf/OWLElPtDZzygQtjNzaPoqYieg8HK3NttvCVyE4qj"
+//         },
 //    }
 
 // ---
