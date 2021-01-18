@@ -91,7 +91,7 @@ func (rule *xmlMeasurementLogIntegrity) Apply(hostManifest *types.HostManifest) 
 			} else {
 
 				// now check the pcr event logs...
-				pcrEventLogs, err := hostManifest.PcrManifest.GetPcrEventLog(types.SHA256, types.PCR15)
+				pcrEventLogs, err := hostManifest.PcrManifest.GetEventLogCriteria(types.SHA256, types.PCR15)
 				if err != nil {
 					// the event log was missing from the manifest...
 					fault := newPcrEventLogMissingFault(types.PCR15)

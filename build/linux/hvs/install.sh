@@ -28,7 +28,7 @@ CERTDIR_TRUSTEDPCAS=$CERTS_PATH/trustedca/privacy-ca
 KEYS_PATH=$CONFIG_PATH/trusted-keys
 CERTDIR_ENDORSEMENTCA=$CERTS_PATH/endorsement
 
-for directory in $BIN_PATH $LOG_PATH $CONFIG_PATH $CERTS_PATH $SCHEMA_PATH $CERTDIR_TRUSTEDJWTCERTS $CERTDIR_TRUSTEDCAS $CERTDIR_TRUSTEDPCAS $KEYS_PATH $CERTDIR_ENDORSEMENTCA; do
+for directory in $BIN_PATH $LOG_PATH $CONFIG_PATH $CERTS_PATH $SCHEMA_PATH $CERTDIR_TRUSTEDJWTCERTS $CERTDIR_TRUSTEDCAS $CERTDIR_TRUSTEDPCAS $KEYS_PATH $CERTDIR_ENDORSEMENTCA $TEMPLATES_PATH; do
   # mkdir -p will return 0 if directory exists or is a symlink to an existing directory or directory and parents can be created
   mkdir -p $directory
   if [ $? -ne 0 ]; then
