@@ -40,14 +40,9 @@ var defaultFlavorTemplateNames = []string{
 func (t *CreateDefaultFlavorTemplate) Run() error {
 	var templates []hvs.FlavorTemplate
 
-	ftStore, err := t.flavorTemplateStore()
-	if err != nil {
-		return errors.Wrap(err, "Failed to initialize flavor template store instance")
-	}
-
 	if len(t.deleted) != 0 {
 		// Recover deleted default template.
-		err := ftStore.Recover(t.deleted)
+		err := t.TemplateStore.Recover(t.deleted)
 		if err != nil {
 			return errors.Wrapf(err, "Failed to recover default flavor template(s) %s", t.deleted)
 		}
@@ -55,13 +50,13 @@ func (t *CreateDefaultFlavorTemplate) Run() error {
 		return nil
 	}
 
-	templates, err = getTemplates()
+	templates, err := getTemplates()
 	if err != nil {
 		return err
 	}
 
 	for _, ft := range templates {
-		_, err := ftStore.Create(&ft)
+		_, err := t.TemplateStore.Create(&ft)
 		if err != nil {
 			return errors.Wrap(err, "Failed to create default flavor template with ID \""+ft.ID.String()+"\"")
 		}
@@ -75,12 +70,20 @@ func (t *CreateDefaultFlavorTemplate) Validate() error {
 	var ftList []hvs.FlavorTemplate
 	defaultFlavorTemplateMap := map[string]bool{}
 	t.deleted = []string{}
+	var err error
+
+	if t.TemplateStore == nil {
+		err = t.flavorTemplateStore()
+		if err != nil {
+			return errors.Wrap(err, "Failed to initialize flavor template store instance")
+		}
+	}
 
 	for _, templateName := range defaultFlavorTemplateNames {
 		defaultFlavorTemplateMap[templateName] = false
 	}
 
-	ftList, err := t.TemplateStore.Search(false)
+	ftList, err = t.TemplateStore.Search(false)
 	if err != nil {
 		return errors.Wrap(err, "Failed to validate "+t.commandName)
 	}
@@ -113,20 +116,20 @@ func (t *CreateDefaultFlavorTemplate) SetName(n, e string) {
 	t.commandName = n
 }
 
-func (t *CreateDefaultFlavorTemplate) flavorTemplateStore() (*postgres.FlavorTemplateStore, error) {
+func (t *CreateDefaultFlavorTemplate) flavorTemplateStore() error {
 	var dataStore *postgres.DataStore
 	var err error
 	if t.TemplateStore == nil {
 		dataStore, err = postgres.NewDataStore(postgres.NewDatabaseConfig(constants.DBTypePostgres, &t.DBConf))
 		if err != nil {
-			return nil, errors.Wrap(err, "Failed to connect database")
+			return errors.Wrap(err, "Failed to connect database")
 		}
 		t.TemplateStore = postgres.NewFlavorTemplateStore(dataStore)
 	}
 	if t.TemplateStore.Store == nil {
-		return nil, errors.New("Failed to create FlavorTemplateStore")
+		return errors.New("Failed to create FlavorTemplateStore")
 	}
-	return t.TemplateStore, nil
+	return nil
 }
 
 func getTemplates() ([]hvs.FlavorTemplate, error) {
