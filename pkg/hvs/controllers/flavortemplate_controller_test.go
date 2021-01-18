@@ -37,8 +37,8 @@ var _ = Describe("FlavorTemplateController", func() {
 	// Specs for HTTP Post to "/flavor-template"
 	Describe("Post a new FlavorTemplate", func() {
 		Context("Provide a valid FlavorTemplate data", func() {
-			It("Should create a new Flavortemplate and get HTTP Status: 201", func() {
-				router.Handle("/flavor-template", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Create))).Methods("POST")
+			It("Should create a new Flavortemplate and get HTTP Status: 200", func() {
+				router.Handle("/flavor-templates", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Create))).Methods("POST")
 				flavorTemplateJson := `{
 					"label": "default-uefi",
 					"condition": [
@@ -92,12 +92,12 @@ var _ = Describe("FlavorTemplateController", func() {
 
 				req, err := http.NewRequest(
 					"POST",
-					"/flavor-template",
+					"/flavor-templates",
 					strings.NewReader(flavorTemplateJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusCreated))
@@ -106,7 +106,7 @@ var _ = Describe("FlavorTemplateController", func() {
 
 		Context("Provide a FlavorTemplate data that contains invalid fileds, to validate against schema", func() {
 			It("Should get HTTP Status: 400", func() {
-				router.Handle("/flavor-template", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Create))).Methods("POST")
+				router.Handle("/flavor-templates", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Create))).Methods("POST")
 				flavorgroupJson := `{
 					"label": "",
 					"condition": [
@@ -136,12 +136,12 @@ var _ = Describe("FlavorTemplateController", func() {
 
 				req, err := http.NewRequest(
 					"POST",
-					"/flavor-template",
+					"/flavor-templates",
 					strings.NewReader(flavorgroupJson),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(400))
@@ -150,15 +150,15 @@ var _ = Describe("FlavorTemplateController", func() {
 
 		Context("Provide a empty data that should give bad request error", func() {
 			It("Should get HTTP Status: 400", func() {
-				router.Handle("/flavor-template", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Create))).Methods("POST")
+				router.Handle("/flavor-templates", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Create))).Methods("POST")
 				req, err := http.NewRequest(
 					"POST",
-					"/flavor-template",
+					"/flavor-templates",
 					strings.NewReader(""),
 				)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(400))
@@ -167,7 +167,7 @@ var _ = Describe("FlavorTemplateController", func() {
 
 		Context("Provide a valid FlavorTemplate data without ACCEPT header", func() {
 			It("Should give HTTP Status: 415", func() {
-				router.Handle("/flavor-template", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Create))).Methods("POST")
+				router.Handle("/flavor-templates", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Create))).Methods("POST")
 				flavorTemplateJson := `{
 					"label": "default-uefi",
 					"condition": [
@@ -221,11 +221,11 @@ var _ = Describe("FlavorTemplateController", func() {
 
 				req, err := http.NewRequest(
 					"POST",
-					"/flavor-template",
+					"/flavor-templates",
 					strings.NewReader(flavorTemplateJson),
 				)
-				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusUnsupportedMediaType))
@@ -234,7 +234,7 @@ var _ = Describe("FlavorTemplateController", func() {
 
 		Context("Provide a valid FlavorTemplate data without Content-Type header", func() {
 			It("Should give HTTP Status: 415", func() {
-				router.Handle("/flavor-template", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Create))).Methods("POST")
+				router.Handle("/flavor-templates", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Create))).Methods("POST")
 				flavorTemplateJson := `{
 					"label": "default-uefi",
 					"condition": [
@@ -288,11 +288,11 @@ var _ = Describe("FlavorTemplateController", func() {
 
 				req, err := http.NewRequest(
 					"POST",
-					"/flavor-template",
+					"/flavor-templates",
 					strings.NewReader(flavorTemplateJson),
 				)
-				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusUnsupportedMediaType))
@@ -303,39 +303,39 @@ var _ = Describe("FlavorTemplateController", func() {
 
 	// Specs for HTTP Post to "/flavor-template/{flavor-template-id}"
 	Describe("Retrieve a FlavorTemplate", func() {
-		Context("Retrieve data from valid FlavorTemplate ID", func() {
+		Context("Retrieve data with valid FlavorTemplate ID", func() {
 			It("Should retrieve Flavortemplate data and get HTTP Status: 200", func() {
-				router.Handle("/flavor-template/{id}", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Retrieve))).Methods("GET")
-				req, err := http.NewRequest("GET", "/flavor-template/426912bd-39b0-4daa-ad21-0c6933230b50", nil)
+				router.Handle("/flavor-templates/{id}", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Retrieve))).Methods("GET")
+				req, err := http.NewRequest("GET", "/flavor-templates/426912bd-39b0-4daa-ad21-0c6933230b50", nil)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusOK))
 			})
 		})
 
-		Context("Retrieve data from not available FlavorTemplate ID", func() {
+		Context("Retrieve data with unavailable FlavorTemplate ID", func() {
 			It("Should not retrieve Flavortemplate data and get HTTP Status: 404", func() {
-				router.Handle("/flavor-template/{id}", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Retrieve))).Methods("GET")
-				req, err := http.NewRequest("GET", "/flavor-template/73755fda-c910-46be-821f-e8ddeab189e9", nil)
+				router.Handle("/flavor-templates/{id}", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Retrieve))).Methods("GET")
+				req, err := http.NewRequest("GET", "/flavor-templates/73755fda-c910-46be-821f-e8ddeab189e9", nil)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusNotFound))
 			})
 		})
 
-		Context("Retrieve data from invalid FlavorTemplate ID", func() {
+		Context("Retrieve data with invalid FlavorTemplate ID", func() {
 			It("Should not retrieve Flavortemplate data and get HTTP Status: 404", func() {
-				router.Handle("/flavor-template/{id}", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Retrieve))).Methods("GET")
-				req, err := http.NewRequest("GET", "/flavor-template/2f5cf0ec-0000-0000-0000-000000000000", nil)
+				router.Handle("/flavor-templates/{id}", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Retrieve))).Methods("GET")
+				req, err := http.NewRequest("GET", "/flavor-templates/2f5cf0ec-0000-0000-0000-000000000000", nil)
+				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				req.Header.Set("Content-Type", consts.HTTPMediaTypeJson)
-				Expect(err).NotTo(HaveOccurred())
 				w = httptest.NewRecorder()
 				router.ServeHTTP(w, req)
 				Expect(w.Code).To(Equal(http.StatusNotFound))
@@ -347,8 +347,8 @@ var _ = Describe("FlavorTemplateController", func() {
 	Describe("Search And Delete Flavor Templates", func() {
 		Context("When no filter arguments are passed", func() {
 			It("All Flavor template records are returned", func() {
-				router.Handle("/flavor-template/", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Search))).Methods("GET")
-				req, err := http.NewRequest("GET", "/flavor-template/", nil)
+				router.Handle("/flavor-templates", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Search))).Methods("GET")
+				req, err := http.NewRequest("GET", "/flavor-templates", nil)
 				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
@@ -360,10 +360,10 @@ var _ = Describe("FlavorTemplateController", func() {
 				Expect(err).ToNot(HaveOccurred())
 			})
 		})
-		Context("Delete a template", func() {
-			It("The templates should be deleted", func() {
-				router.Handle("/flavor-template/{id}", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Delete))).Methods("DELETE")
-				req, err := http.NewRequest("DELETE", "/flavor-template/426912bd-39b0-4daa-ad21-0c6933230b51", nil)
+		Context("Delete a template which is not in the database", func() {
+			It("Appropriate error response should be returned", func() {
+				router.Handle("/flavor-templates/{id}", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Delete))).Methods("DELETE")
+				req, err := http.NewRequest("DELETE", "/flavor-templates/426912bd-39b0-4daa-ad21-0c6933230b51", nil)
 				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
@@ -371,10 +371,10 @@ var _ = Describe("FlavorTemplateController", func() {
 				Expect(w.Code).To(Equal(http.StatusNotFound))
 			})
 		})
-		Context("Delete a template", func() {
-			It("The templates should be deleted", func() {
-				router.Handle("/flavor-template/{id}", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Delete))).Methods("DELETE")
-				req, err := http.NewRequest("DELETE", "/flavor-template/426912bd-39b0-4daa-ad21-0c6933230b50", nil)
+		Context("Delete a template which is available in the database", func() {
+			It("The template with the given uuid must be deleted", func() {
+				router.Handle("/flavor-templates/{id}", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Delete))).Methods("DELETE")
+				req, err := http.NewRequest("DELETE", "/flavor-templates/426912bd-39b0-4daa-ad21-0c6933230b50", nil)
 				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
@@ -382,10 +382,10 @@ var _ = Describe("FlavorTemplateController", func() {
 				Expect(w.Code).To(Equal(http.StatusNoContent))
 			})
 		})
-		Context("When include_deleted parameter is added", func() {
+		Context("When include_deleted parameter is added in search API", func() {
 			It("All Flavor template records are returned", func() {
-				router.Handle("/flavor-template/", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Search))).Methods("GET")
-				req, err := http.NewRequest("GET", "/flavor-template/?include_deleted=true", nil)
+				router.Handle("/flavor-templates/", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Search))).Methods("GET")
+				req, err := http.NewRequest("GET", "/flavor-templates/?include_deleted=true", nil)
 				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
@@ -398,37 +398,5 @@ var _ = Describe("FlavorTemplateController", func() {
 				Expect(len(ft)).To(Equal(1))
 			})
 		})
-		// 		It("Should get a single flavor entry", func() {
-		// 			router.Handle("/flavors", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Search))).Methods("GET")
-		// 			req, err := http.NewRequest("GET", "/flavors?id=c36b5412-8c02-4e08-8a74-8bfa40425cf3", nil)
-		// 			Expect(err).NotTo(HaveOccurred())
-		// 			req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-		// 			w = httptest.NewRecorder()
-		// 			router.ServeHTTP(w, req)
-		// 			Expect(w.Code).To(Equal(http.StatusOK))
-
-		// 			var sfs *hvs.SignedFlavorCollection
-		// 			err = json.Unmarshal(w.Body.Bytes(), &sfs)
-		// 			Expect(err).NotTo(HaveOccurred())
-		// 			Expect(len(sfs.SignedFlavors)).To(Equal(1))
-		// 		})
-		// 	})
-		// 	Context("When filtered by Flavor meta description key-value pair", func() {
-		// 		It("Should get a single flavor entry", func() {
-		// 			router.Handle("/flavors", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Search))).Methods("GET")
-		// 			req, err := http.NewRequest("GET", "/flavors?key=bios_name&&value=Intel Corporation", nil)
-		// 			Expect(err).NotTo(HaveOccurred())
-		// 			req.Header.Set("Accept", consts.HTTPMediaTypeJson)
-		// 			w = httptest.NewRecorder()
-		// 			router.ServeHTTP(w, req)
-		// 			Expect(w.Code).To(Equal(http.StatusOK))
-
-		// 			var sfs *hvs.SignedFlavorCollection
-		// 			err = json.Unmarshal(w.Body.Bytes(), &sfs)
-		// 			Expect(err).NotTo(HaveOccurred())
-		// 			//TODO Requires changes in mock flavor search method for this criteria
-		// 			Expect(len(sfs.SignedFlavors)).To(Equal(0))
-		// 		})
-		// 	})
 	})
 })

@@ -25,9 +25,9 @@ func SetFlavorTemplateRoutes(router *mux.Router, store *postgres.DataStore, flav
 
 	flavorTemplateController := controllers.NewFlavorTemplateController(flavorTemplateStore, constants.CommonDefinitionsSchema, constants.FlavorTemplateSchema)
 
-	flavorTemplateIdExpr := fmt.Sprintf("%s%s", "/flavor-template/", validation.IdReg)
+	flavorTemplateIdExpr := fmt.Sprintf("%s%s", "/flavor-templates/", validation.IdReg)
 
-	router.Handle("/flavor-template",
+	router.Handle("/flavor-templates",
 		ErrorHandler(permissionsHandler(JsonResponseHandler(flavorTemplateController.Create),
 			[]string{constants.FlavorTemplateCreate}))).Methods("POST")
 
@@ -35,9 +35,9 @@ func SetFlavorTemplateRoutes(router *mux.Router, store *postgres.DataStore, flav
 		ErrorHandler(permissionsHandler(JsonResponseHandler(flavorTemplateController.Retrieve),
 			[]string{constants.FlavorTemplateRetrieve}))).Methods("GET")
 
-	router.Handle("/flavor-template/",
+	router.Handle("/flavor-templates",
 		ErrorHandler(permissionsHandler(JsonResponseHandler(flavorTemplateController.Search),
-			[]string{constants.FlavorTemplateRetrieve}))).Methods("GET")
+			[]string{constants.FlavorTemplateSearch}))).Methods("GET")
 
 	router.Handle(flavorTemplateIdExpr,
 		ErrorHandler(permissionsHandler(JsonResponseHandler(flavorTemplateController.Delete),

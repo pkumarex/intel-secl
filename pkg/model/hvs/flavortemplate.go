@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-//PCR- Tp stpre PCR index with respective PCR bank.
+//PCR- Tp store PCR index with respective PCR bank.
 type PCR struct {
 	Index int    `json:"index"`
 	Bank  string `json:"bank"`
