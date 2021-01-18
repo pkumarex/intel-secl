@@ -16,7 +16,7 @@ import (
 
 // MockFlavorTemplateStore provides a mocked implementation of interface hvs.FlavorTemplate
 type MockFlavorTemplateStore struct {
-	FlavorTemplates   []hvs.FlavorTemplate
+	FlavorTemplates  []hvs.FlavorTemplate
 	DeletedTemplates []hvs.FlavorTemplate
 }
 
@@ -79,15 +79,15 @@ func (store *MockFlavorTemplateStore) Create(ft *hvs.FlavorTemplate) (*hvs.Flavo
 		ft.ID = uuid.New()
 	}
 
-	store.FlavorTemplateStore = append(store.FlavorTemplateStore, ft)
+	store.FlavorTemplates = append(store.FlavorTemplates, *ft)
 
-	return &rec, nil
+	return ft, nil
 }
 
 // Retrieve a Flavortemplate
 func (store *MockFlavorTemplateStore) Retrieve(templateID uuid.UUID) (*hvs.FlavorTemplate, error) {
 
-	for _, template := range store.FlavorTemplateStore {
+	for _, template := range store.FlavorTemplates {
 		if template.ID == templateID {
 			return &template, nil
 		}
@@ -97,21 +97,21 @@ func (store *MockFlavorTemplateStore) Retrieve(templateID uuid.UUID) (*hvs.Flavo
 
 // Search a Flavortemplate(s)
 func (store *MockFlavorTemplateStore) Search(includeDeleted bool) ([]hvs.FlavorTemplate, error) {
-	rec := store.FlavorTemplateStore
+	rec := store.FlavorTemplates
 	if includeDeleted {
-		rec = append(rec, store.DeletedTemplatesStore...)
+		rec = append(rec, store.DeletedTemplates...)
 	}
 	return rec, nil
 }
 
 // Detele a Flavortemplate
 func (store *MockFlavorTemplateStore) Delete(templateID uuid.UUID) error {
-	flavorTemplates := store.FlavorTemplateStore
+	flavorTemplates := store.FlavorTemplates
 	for i, template := range flavorTemplates {
 		if template.ID == templateID {
-			store.DeletedTemplatesStore = append(store.DeletedTemplatesStore, template)
-			store.FlavorTemplateStore[i] = store.FlavorTemplateStore[len(store.FlavorTemplateStore)-1]
-			store.FlavorTemplateStore = store.FlavorTemplateStore[:len(store.FlavorTemplateStore)-1]
+			store.DeletedTemplates = append(store.DeletedTemplates, template)
+			store.FlavorTemplates[i] = store.FlavorTemplates[len(store.FlavorTemplates)-1]
+			store.FlavorTemplates = store.FlavorTemplates[:len(store.FlavorTemplates)-1]
 			return nil
 		}
 	}
