@@ -120,13 +120,6 @@ type FlavorTemplate struct {
 //   A particular flavor template can be used for the creation of flavors using the condition section in flavor template.
 //   The conditions in the flavor template will be matched against the host manifest to determine whether the flavor template can be used for
 //   the generation of flavors.
-//   The goals of flavor-templates are…
-//        1.	Be extendable to generate flavors for future scenarios (without code changes).
-//        2.	Support the creation of flavor-parts for existing vendors (Linux, ESXI).
-//        3.	Support the creation of flavor-parts for existing hardware scenarios (TXT, CBNT, SUEFI, etc.).
-//        4.	Provide a default flavor-templates that generate pcrs/event-log measurements for Shim/UEFI/PFR/BMC.
-//
-//   The serialized flavor template Go struct object represents the content of the request body.
 //
 //    | Attribute                      | Description|
 //    |--------------------------------|------------|
