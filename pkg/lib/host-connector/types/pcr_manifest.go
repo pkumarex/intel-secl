@@ -545,8 +545,9 @@ func (pcrManifest *PcrManifest) GetPcrEventLog(pcrBank SHAAlgorithm, pcrIndex Pc
 	return nil, fmt.Errorf("Invalid PcrIndex %d", pcrIndex)
 }
 
-// GetPcrEventLogNew returns the EventLogs for a specific PcrBank/PcrIndex, as per latest hostmanifest
-func (pcrManifest *PcrManifest) GetPcrEventLogNew(pcrBank SHAAlgorithm, pcrIndex PcrIndex) ([]EventLogCriteria, error) {
+// GetEventLogCriteria returns the EventLogs for a specific PcrBank/PcrIndex, as per latest hostmanifest
+func (pcrManifest *PcrManifest) GetEventLogCriteria(pcrBank SHAAlgorithm, pcrIndex PcrIndex) ([]EventLogCriteria, error) {
+
 	pI := int(pcrIndex)
 
 	switch pcrBank {
@@ -567,35 +568,6 @@ func (pcrManifest *PcrManifest) GetPcrEventLogNew(pcrBank SHAAlgorithm, pcrIndex
 	}
 
 	return nil, fmt.Errorf("Invalid PcrIndex %d", pcrIndex)
-}
-
-func (pcrManifest *PcrManifest) GetPcrValueForLinux(pcrBank string, pcrIndex int) (*Pcr, error) {
-	// TODO: Is this the right data model for the PcrManifest?  Two things...
-	// - Flavor API returns a map[bank]map[pcrindex]
-	// - Finding the PCR by bank/index is a linear search.
-	var pcrValue *Pcr
-	pcrIndexString := "pcr_" + strconv.Itoa(pcrIndex)
-
-	switch pcrBank {
-	case "SHA1":
-		for _, pcr := range pcrManifest.Sha1Pcrs {
-			if pcr.Index.String() == pcrIndexString {
-				pcrValue = &pcr
-				break
-			}
-		}
-	case "SHA256":
-		for _, pcr := range pcrManifest.Sha256Pcrs {
-			if pcr.Index.String() == pcrIndexString {
-				pcrValue = &pcr
-				break
-			}
-		}
-	default:
-		return nil, errors.Errorf("Unsupported sha algorithm %s", pcrBank)
-	}
-
-	return pcrValue, nil
 }
 
 // GetPcrBanks returns the list of banks currently supported by the PcrManifest

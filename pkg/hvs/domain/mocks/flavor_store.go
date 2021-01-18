@@ -6,7 +6,6 @@ package mocks
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"reflect"
 
@@ -654,11 +653,11 @@ func (store *MockFlavorStore) Create(sf *hvs.SignedFlavor) (*hvs.SignedFlavor, e
 func NewMockFlavorStore() *MockFlavorStore {
 	store := &MockFlavorStore{}
 
-	fmt.Println("Create Flavor")
-
 	var sf hvs.SignedFlavor
 	err := json.Unmarshal([]byte(flavor), &sf)
-	fmt.Println("error: ", err)
+	if err != nil {
+		defaultLog.WithError(err).Errorf("Error unmarshalling flavor")
+	}
 	// add to store
 	_, err = store.Create(&sf)
 	if err != nil {
@@ -667,7 +666,9 @@ func NewMockFlavorStore() *MockFlavorStore {
 
 	var sf1 hvs.SignedFlavor
 	err = json.Unmarshal([]byte(LatestFlavor), &sf1)
-	fmt.Println("error: ", err)
+	if err != nil {
+		defaultLog.WithError(err).Errorf("Error unmarshalling flavor")
+	}
 
 	// add to store
 	_, err = store.Create(&sf1)

@@ -28,7 +28,10 @@ func GetImageFlavor(label string, encryptionRequired bool, keyURL string, digest
 
 	var encryption *model.Encryption
 
-	description := map[string]interface{}{model.Label: label, model.FlavorPart: "IMAGE"}
+	description := map[string]interface{}{
+		model.Label:      label,
+		model.FlavorPart: "IMAGE",
+	}
 
 	meta := model.Meta{
 		Description: description,
@@ -68,7 +71,10 @@ func GetContainerImageFlavor(label string, encryptionRequired bool, keyURL strin
 		return nil, errors.Errorf("label cannot be empty")
 	}
 
-	description := map[string]interface{}{model.Label: label, model.FlavorPart: "CONTAINER_IMAGE"}
+	description := map[string]interface{}{
+		model.Label:      label,
+		model.FlavorPart: "CONTAINER_IMAGE",
+	}
 
 	meta := model.Meta{
 		Description: description,
