@@ -237,7 +237,7 @@ type FlavorTemplate struct {
 
 // ---
 
-// swagger:operation GET /flavor-templates Flavortemplate Search-FlavorTemplate
+// swagger:operation GET /flavor-templates Flavortemplate Search-FlavorTemplates
 // ---
 //
 // description: |
