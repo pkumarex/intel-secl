@@ -167,7 +167,11 @@ func (rule *xmlMeasurementLogIntegrity) Apply(hostManifest *types.HostManifest) 
 						calculatedSha384Bytes, _ := hex.DecodeString(calculatedHash)
 
 						hash := sha256.New()
-						hash.Write(calculatedSha384Bytes)
+						_, err = hash.Write(calculatedSha384Bytes)
+						if err != nil {
+							return nil, errors.Wrapf(err, "Failed to write calculated hash")
+						}
+
 						calculatedSha256Bytes := hash.Sum(nil)
 
 						calculatedSha256String := hex.EncodeToString(calculatedSha256Bytes)

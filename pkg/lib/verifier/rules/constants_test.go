@@ -37,7 +37,7 @@ var (
 		Measurement: PCR_VALID_256,
 	}
 
-	testExpectedPcrEventLogEntry = types.EventLogEntryFC{
+	testExpectedPcrEventLogEntry = types.TpmEventLog{
 		Pcr: types.PCR{
 			Index: 0,
 			Bank:  "SHA256",
@@ -74,7 +74,7 @@ var (
 )
 
 var (
-	testHostManifestPcrEventLogEntry = types.EventLogEntryFC{
+	testHostManifestPcrEventLogEntry = types.TpmEventLog{
 		Pcr: types.PCR{
 			Index: 0,
 			Bank:  "SHA256",
@@ -120,14 +120,6 @@ var (
 				TypeName:    util.EVENT_LOG_DIGEST_SHA256,
 				Measurement: "f",
 				Tags:        []string{"componentName.onetime.tgz"},
-			},
-			{
-				TypeName:    util.EVENT_LOG_DIGEST_SHA256,
-				Measurement: "g",
-			},
-			{
-				TypeName:    util.EVENT_LOG_DIGEST_SHA256,
-				Measurement: "h",
 			},
 		},
 	}

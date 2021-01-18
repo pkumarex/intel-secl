@@ -236,7 +236,7 @@ func TestPcrEventLogIntegrityPcrEventLogInvalidFault(t *testing.T) {
 		Measurement: expectedCumulativeHash,
 	}
 
-	invalidPcrEventLogEntry := types.EventLogEntryFC{
+	invalidPcrEventLogEntry := types.TpmEventLog{
 		Pcr: types.PCR{
 			Index: 0,
 			Bank:  "SHA256",

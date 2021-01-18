@@ -49,7 +49,7 @@ func newPcrValueMismatchFault(pcrIndex types.PcrIndex, PcrBank types.SHAAlgorith
 	}
 }
 
-func newPcrEventLogMissingExpectedEntries(eventLogEntry *types.EventLogEntry, pcrEventLogEntry *types.EventLogEntryFC) hvs.Fault {
+func newPcrEventLogMissingExpectedEntries(eventLogEntry *types.EventLogEntry, pcrEventLogEntry *types.TpmEventLog) hvs.Fault {
 
 	if pcrEventLogEntry != nil {
 		pIndex := types.PcrIndex(pcrEventLogEntry.Pcr.Index)
@@ -80,7 +80,7 @@ func newPcrEventLogMissingFault(pcrIndex types.PcrIndex, PcrBank types.SHAAlgori
 	}
 }
 
-func newPcrEventLogContainsUnexpectedEntries(eventLogEntry *types.EventLogEntry, pcrEventLogEntry *types.EventLogEntryFC) hvs.Fault {
+func newPcrEventLogContainsUnexpectedEntries(eventLogEntry *types.EventLogEntry, pcrEventLogEntry *types.TpmEventLog) hvs.Fault {
 
 	if pcrEventLogEntry != nil {
 		pIndex := types.PcrIndex(pcrEventLogEntry.Pcr.Index)

@@ -9,6 +9,7 @@ package verifier
 //
 
 import (
+	hvsconstants "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants/verifier-rules-and-faults"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/verifier/rules"
@@ -33,7 +34,7 @@ func newRuleBuilderVMWare20(verifierCertificates VerifierCertificates, hostManif
 }
 
 func (builder *ruleBuilderVMWare20) GetName() string {
-	return "VMware Host Trust Policy"
+	return hvsconstants.VmwareBuilder
 }
 
 // From 'design' repo at isecl/libraries/verifier/verifier.md...

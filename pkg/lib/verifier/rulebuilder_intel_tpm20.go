@@ -11,6 +11,7 @@ package verifier
 import (
 	"reflect"
 
+	hvsconstants "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants/verifier-rules-and-faults"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	flavormodel "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
@@ -38,7 +39,7 @@ func newRuleBuilderIntelTpm20(verifierCertificates VerifierCertificates, hostMan
 }
 
 func (builder *ruleBuilderIntelTpm20) GetName() string {
-	return "Intel Host Trust Policy"
+	return hvsconstants.IntelBuilder
 }
 
 // From 'design' repo at isecl/libraries/verifier/verifier.md...

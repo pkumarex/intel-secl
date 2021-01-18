@@ -37,10 +37,7 @@ var (
 
 // NewPcrEventLogEquals create the rule without the ExcludeTags,Components/labels
 // so that all events are evaluated (i.e. no 'excludes').
-func NewPcrEventLogEquals(expectedEventLogEntry *types.EventLogEntry, expectedPcrEventLogEntry *types.EventLogEntryFC, flavorID uuid.UUID, marker common.FlavorPart) (Rule, error) {
-
-	// create
-
+func NewPcrEventLogEquals(expectedEventLogEntry *types.EventLogEntry, expectedPcrEventLogEntry *types.TpmEventLog, flavorID uuid.UUID, marker common.FlavorPart) (Rule, error) {
 	var rule pcrEventLogEquals
 
 	if expectedEventLogEntry != nil {
@@ -64,8 +61,7 @@ func NewPcrEventLogEquals(expectedEventLogEntry *types.EventLogEntry, expectedPc
 
 //NewPcrEventLogEqualsExcluding create the rule providing the Exclude tags,Components and labels
 //so they are not included for evaluation during 'Apply'.
-func NewPcrEventLogEqualsExcluding(expectedEventLogEntry *types.EventLogEntry, expectedPcrEventLogEntry *types.EventLogEntryFC, expectedPcr *types.Pcr, excludedEvents []string, flavorID uuid.UUID, marker common.FlavorPart) (Rule, error) {
-
+func NewPcrEventLogEqualsExcluding(expectedEventLogEntry *types.EventLogEntry, expectedPcrEventLogEntry *types.TpmEventLog, expectedPcr *types.Pcr, excludedEvents []string, flavorID uuid.UUID, marker common.FlavorPart) (Rule, error) {
 	var rule pcrEventLogEquals
 
 	if expectedEventLogEntry != nil {
@@ -93,7 +89,7 @@ func NewPcrEventLogEqualsExcluding(expectedEventLogEntry *types.EventLogEntry, e
 
 type pcrEventLogEquals struct {
 	expectedEventLogEntry    *types.EventLogEntry
-	expectedPcrEventLogEntry *types.EventLogEntryFC
+	expectedPcrEventLogEntry *types.TpmEventLog
 	expectedPcr              *types.Pcr
 	flavorID                 *uuid.UUID
 	marker                   common.FlavorPart
@@ -132,7 +128,7 @@ func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.Rul
 			if actualEventLogCriteria == nil {
 				result.Faults = append(result.Faults, newPcrEventLogMissingFault(types.PcrIndex(rule.expectedPcrEventLogEntry.Pcr.Index), types.SHAAlgorithm(rule.expectedPcrEventLogEntry.Pcr.Bank)))
 			} else {
-				actualEventLog := &types.EventLogEntryFC{}
+				actualEventLog := &types.TpmEventLog{}
 				actualEventLog.TpmEvent = actualEventLogCriteria
 				actualEventLog.Pcr.Index = pIndex
 				actualEventLog.Pcr.Bank = bank
@@ -161,7 +157,6 @@ func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.Rul
 					pcrBank := types.SHAAlgorithm(actualEventLog.Pcr.Bank)
 
 					mismatchInfo := hvs.MismatchField{
-
 						Name:              constants.PcrEventLogUnexpectedFields,
 						Description:       fmt.Sprintf("Module manifest for PCR %d of %s value contains %d unexpected entries", actualEventLog.Pcr.Index, actualEventLog.Pcr.Bank, len(unexpectedFields.TpmEvent)),
 						PcrIndex:          &pcrIndex,
@@ -186,7 +181,6 @@ func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.Rul
 					pcrBank := types.SHAAlgorithm(rule.expectedPcrEventLogEntry.Pcr.Bank)
 
 					mismatchInfo := hvs.MismatchField{
-
 						Name:           constants.PcrEventLogMissingFields,
 						Description:    fmt.Sprintf("Module manifest for PCR %d of %s value missing %d expected entries", rule.expectedPcrEventLogEntry.Pcr.Index, rule.expectedPcrEventLogEntry.Pcr.Bank, len(missingFields.TpmEvent)),
 						PcrIndex:       &pcrIndex,
@@ -260,10 +254,9 @@ func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.Rul
 
 // Creates a new EventLogEntry without events given in excludetags
 
-func (rule *pcrEventLogEquals) removeExcludedEvents(eventLogEntry *types.EventLogEntry, pcrEventLogEntry *types.EventLogEntryFC) (*types.EventLogEntry, *types.EventLogEntryFC, error) {
-
+func (rule *pcrEventLogEquals) removeExcludedEvents(eventLogEntry *types.EventLogEntry, pcrEventLogEntry *types.TpmEventLog) (*types.EventLogEntry, *types.TpmEventLog, error) {
 	var eventLogs *types.EventLogEntry
-	var pcrEventLogs *types.EventLogEntryFC
+	var pcrEventLogs *types.TpmEventLog
 
 	if pcrEventLogEntry != nil {
 		var eventsWithoutComponentName []types.EventLogCriteria
@@ -296,7 +289,7 @@ func (rule *pcrEventLogEquals) removeExcludedEvents(eventLogEntry *types.EventLo
 
 		}
 
-		pcrEventLogs = &types.EventLogEntryFC{
+		pcrEventLogs = &types.TpmEventLog{
 			Pcr: types.PCR{
 				Index: pcrEventLogEntry.Pcr.Index,
 				Bank:  pcrEventLogEntry.Pcr.Bank,
@@ -342,7 +335,6 @@ func (rule *pcrEventLogEquals) removeExcludedEvents(eventLogEntry *types.EventLo
 
 // Creates a new EventLogEntry without events where EventLog.label matches 'label'
 func (rule *pcrEventLogEquals) removeEventsWithLabel(eventLogEntry *types.EventLogEntry) (*types.EventLogEntry, error) {
-
 	var eventsWithoutLabel []types.EventLog
 
 	for _, eventLog := range eventLogEntry.EventLogs {

@@ -54,7 +54,7 @@ type RuleInfo struct {
 	ExpectedEventLogs        []types.EventLog       `json:"expected,omitempty"`
 	ExpectedMeasurements     []ta.FlavorMeasurement `json:"expected_measurements,omitempty"`
 	ExpectedEventLogEntry    *types.EventLogEntry   `json:"expected_values,omitempty"`
-	ExpectedPcrEventLogEntry *types.EventLogEntryFC `json:"expected_pcrvalues,omitempty"`
+	ExpectedPcrEventLogEntry *types.TpmEventLog `json:"expected_pcrvalues,omitempty"`
 	Exclude_Tags             []string               `json:"excluding_tag,omitempty"`
 	ExpectedTag              []byte                 `json:"expected_tag,omitempty"`
 	Tags                     map[string]string      `json:"tags,omitempty"`
