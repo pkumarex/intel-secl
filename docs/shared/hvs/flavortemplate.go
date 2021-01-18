@@ -56,7 +56,7 @@ type FlavorTemplate struct {
 //   '500':
 //     description: Internal server error
 //
-// x-sample-call-endpoint: https://hvs.com:8443/hvs/v2/flavor-template/d6f81340-b033-4fae-8ccf-795430f486e7
+// x-sample-call-endpoint: https://hvs.com:8443/hvs/v2/flavor-templates/d6f81340-b033-4fae-8ccf-795430f486e7
 // x-sample-call-output: |
 //   {
 //       "id": "d6f81340-b033-4fae-8ccf-795430f486e7",
@@ -110,7 +110,7 @@ type FlavorTemplate struct {
 
 // ---
 
-// swagger:operation POST /flavor-template Flavortemplate Create-FlavorTemplate
+// swagger:operation POST /flavor-templates Flavortemplate Create-FlavorTemplate
 // ---
 // description: |
 //   Flavor Template: Flavor templates are used to implement dynamic flavor generation.
@@ -183,7 +183,7 @@ type FlavorTemplate struct {
 //   '500':
 //     description: Internal server error
 //
-// x-sample-call-endpoint: https://hvs.com:8443/hvs/v2/flavor-template
+// x-sample-call-endpoint: https://hvs.com:8443/hvs/v2/flavor-templates
 // x-sample-call-input: |
 //    {
 //      "label": "default-pfr",
@@ -244,7 +244,7 @@ type FlavorTemplate struct {
 
 // ---
 
-// swagger:operation GET /flavor-template/ Flavortemplate Search-FlavorTemplate
+// swagger:operation GET /flavor-templates Flavortemplate Search-FlavorTemplate
 // ---
 //
 // description: |
@@ -285,7 +285,7 @@ type FlavorTemplate struct {
 //   '500':
 //     description: Internal server error
 //
-// x-sample-call-endpoint: https://hvs.com:8443/hvs/v2/flavor-template/
+// x-sample-call-endpoint: https://hvs.com:8443/hvs/v2/flavor-templates
 // x-sample-call-output: |
 //   [
 //     {
@@ -367,7 +367,7 @@ type FlavorTemplate struct {
 
 // ---
 
-// swagger:operation DELETE /flavor-template/{flavortemplate_id} Flavortemplate Delete-FlavorTemplate
+// swagger:operation DELETE /flavor-templates/{flavortemplate_id} Flavortemplate Delete-FlavorTemplate
 // ---
 //
 // description: |
@@ -394,7 +394,6 @@ type FlavorTemplate struct {
 //   '500':
 //     description: Internal server error
 //
-// x-sample-call-endpoint: https://hvs.com:8443/hvs/v2/flavor-template/d6f81340-b033-4fae-8ccf-795430f486e7
-// x-sample-call-output: |
+// x-sample-call-endpoint: https://hvs.com:8443/hvs/v2/flavor-templates/d6f81340-b033-4fae-8ccf-795430f486e7
 
 // ---
