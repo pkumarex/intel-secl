@@ -79,7 +79,7 @@ func (rule *pcrEventLogIntegrity) Apply(hostManifest *types.HostManifest) (*hvs.
 				if actualEventLogCriteria == nil {
 					result.Faults = append(result.Faults, newPcrEventLogMissingFault(types.PcrIndex(rule.expectedPcrLog.PCR.Index), types.SHAAlgorithm(rule.expectedPcrLog.PCR.Bank)))
 				} else {
-					actualEventLog := &types.EventLogEntryFC{}
+					actualEventLog := &types.TpmEventLog{}
 					actualEventLog.TpmEvent = actualEventLogCriteria
 					actualEventLog.Pcr.Index = pIndex
 					actualEventLog.Pcr.Bank = bank

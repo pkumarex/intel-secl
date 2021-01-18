@@ -82,7 +82,7 @@ func TestPcrEventLogIncludesMissingMeasurement(t *testing.T) {
 		},
 	}
 
-	flavorEventsLog := types.EventLogEntryFC{
+	flavorEventsLog := types.TpmEventLog{
 		Pcr: types.PCR{
 			Index: 0,
 			Bank:  "SHA256",
@@ -101,7 +101,7 @@ func TestPcrEventLogIncludesMissingMeasurement(t *testing.T) {
 		//EventLogs: []types.EventLog{},
 	}
 
-	hostEventsLog := types.EventLogEntryFC{
+	hostEventsLog := types.TpmEventLog{
 		Pcr: types.PCR{
 			Index: 0,
 			Bank:  "SHA256",
@@ -205,7 +205,7 @@ func TestPcrEventLogIncludesDifferentMeasurement(t *testing.T) {
 		},
 	}
 
-	flavorEventsLog := types.EventLogEntryFC{
+	flavorEventsLog := types.TpmEventLog{
 
 		Pcr: types.PCR{
 			Index: 0,
@@ -222,7 +222,7 @@ func TestPcrEventLogIncludesDifferentMeasurement(t *testing.T) {
 	}
 
 	// host manifest has 'ones' for the measurement (not 'zeros')
-	hostEventsLog := types.EventLogEntryFC{
+	hostEventsLog := types.TpmEventLog{
 
 		Pcr: types.PCR{
 			Index: 0,
@@ -322,7 +322,7 @@ func TestPcrEventLogIncludesPcrEventLogMissingFault(t *testing.T) {
 		},
 	}
 
-	flavorEventsLog := types.EventLogEntryFC{
+	flavorEventsLog := types.TpmEventLog{
 		Pcr: types.PCR{
 			Index: 0,
 			Bank:  "SHA256",
@@ -337,7 +337,7 @@ func TestPcrEventLogIncludesPcrEventLogMissingFault(t *testing.T) {
 	}
 
 	// Put something in PCR1 (not PCR0) to invoke PcrMissingEventLog fault
-	hostEventsLog := types.EventLogEntryFC{
+	hostEventsLog := types.TpmEventLog{
 		Pcr: types.PCR{
 			Index: 1,
 			Bank:  "SHA256",
@@ -429,7 +429,7 @@ func TestPcrEventLogIncludesNoEventLogInHostManifest(t *testing.T) {
 		},
 	}
 
-	flavorEventsLog := types.EventLogEntryFC{
+	flavorEventsLog := types.TpmEventLog{
 		Pcr: types.PCR{
 			Index: 0,
 			Bank:  "SHA256",

@@ -22,7 +22,7 @@ import (
 //return nil if error occurs
 func getPcrMatchesConstantRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcrLogData *types.PCRS, marker common.FlavorPart) ([]rules.Rule, error) {
 
-	var results []rules.Rule
+	var pcrRules []rules.Rule
 	var rule rules.Rule
 	var err error
 
@@ -45,24 +45,24 @@ func getPcrMatchesConstantRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcrLo
 						return nil, errors.Wrapf(err, "An error occurred creating a PcrMatchesConstant rule for bank '%s', index '%s'", bank, index)
 					}
 
-					results = append(results, rule)
+					pcrRules = append(pcrRules, rule)
 				}
 			}
 		}
 	}
-	results = append(results, rule)
+	pcrRules = append(pcrRules, rule)
 
-	return results, nil
+	return pcrRules, nil
 }
 
 //getPcrEventLogEqualsRules method will create PcrEventLogEqualsRule and return the rule
 //return nil if error occurs
 func getPcrEventLogEqualsRules(pcrs []types.PcrIndex, pcrLogData *types.PCRS, flavor *hvs.Flavor, marker common.FlavorPart) ([]rules.Rule, error) {
 
-	var results []rules.Rule
+	var pcrRules []rules.Rule
 
 	if pcrLogData != nil {
-		expectedPcrEventLogEntry := types.EventLogEntryFC{
+		expectedPcrEventLogEntry := types.TpmEventLog{
 			Pcr: types.PCR{
 				Index: pcrLogData.PCR.Index,
 				Bank:  pcrLogData.PCR.Bank,
@@ -74,7 +74,7 @@ func getPcrEventLogEqualsRules(pcrs []types.PcrIndex, pcrLogData *types.PCRS, fl
 		if err != nil {
 			return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogEquals rule for bank '%s', index '%d'", pcrLogData.PCR.Bank, pcrLogData.PCR.Index)
 		}
-		results = append(results, rule)
+		pcrRules = append(pcrRules, rule)
 
 	} else {
 		// iterate over the banks, collecting the values for each supplied index
@@ -94,22 +94,22 @@ func getPcrEventLogEqualsRules(pcrs []types.PcrIndex, pcrLogData *types.PCRS, fl
 						return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogEqualsExcluding rule for bank '%s', index '%s'", bank, index)
 					}
 
-					results = append(results, rule)
+					pcrRules = append(pcrRules, rule)
 				}
 			}
 		}
 	}
 
-	return results, nil
+	return pcrRules, nil
 }
 
 //getPcrEventLogEqualsExcludingRules method will create PcrEventLogEqualsRule and return the rule
 //return nil if error occurs
 func getPcrEventLogEqualsExcludingRules(pcrs []types.PcrIndex, pcrLogData *types.PCRS, flavor *hvs.Flavor, marker common.FlavorPart) ([]rules.Rule, error) {
-	var results []rules.Rule
+	var pcrRules []rules.Rule
 
 	if pcrLogData != nil {
-		expectedPcrEventLogEntry := types.EventLogEntryFC{
+		expectedPcrEventLogEntry := types.TpmEventLog{
 			Pcr: types.PCR{
 				Index: pcrLogData.PCR.Index,
 				Bank:  pcrLogData.PCR.Bank,
@@ -120,7 +120,7 @@ func getPcrEventLogEqualsExcludingRules(pcrs []types.PcrIndex, pcrLogData *types
 		if err != nil {
 			return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogEqualsExcluding rule for bank '%s', index '%d'", pcrLogData.PCR.Bank, pcrLogData.PCR.Index)
 		}
-		results = append(results, rule)
+		pcrRules = append(pcrRules, rule)
 	} else {
 
 		// iterate over the banks, collecting the values for each supplied index
@@ -140,20 +140,20 @@ func getPcrEventLogEqualsExcludingRules(pcrs []types.PcrIndex, pcrLogData *types
 						return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogEqualsExcluding rule for bank '%s', index '%s'", bank, index)
 					}
 
-					results = append(results, rule)
+					pcrRules = append(pcrRules, rule)
 				}
 			}
 		}
 	}
 
-	return results, nil
+	return pcrRules, nil
 }
 
 //getPcrEventLogIntegrityRules method will create PcrEventLogIntegrityRule and return the rule
 //return nil if error occurs
 func getPcrEventLogIntegrityRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcrLogData *types.PCRS, marker common.FlavorPart) ([]rules.Rule, error) {
 
-	var results []rules.Rule
+	var pcrRules []rules.Rule
 
 	if pcrLogData != nil {
 		rule, err := rules.NewPcrEventLogIntegrity(pcrLogData, nil, marker)
@@ -161,7 +161,7 @@ func getPcrEventLogIntegrityRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcr
 			return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogIntegrity rule for bank '%s', index '%d'", pcrLogData.PCR.Bank, pcrLogData.PCR.Index)
 		}
 
-		results = append(results, rule)
+		pcrRules = append(pcrRules, rule)
 	} else {
 		// iterate over the banks, collecting the values for each supplied index
 		// and create PcrEventLogIntegrity rules (when present).
@@ -175,13 +175,13 @@ func getPcrEventLogIntegrityRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcr
 						return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogIntegrity rule for bank '%s', index '%s'", bank, index)
 					}
 
-					results = append(results, rule)
+					pcrRules = append(pcrRules, rule)
 				}
 			}
 		}
 	}
 
-	return results, nil
+	return pcrRules, nil
 }
 
 //getAssetTagMatchesRule method will create AssetTagMatchesRule and return the rule
@@ -253,10 +253,10 @@ func getTagCertificateTrustedRule(assetTagCACertificates *x509.CertPool, flavor 
 //return nil if error occurs
 func getPcrEventLogIncludesRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcrLogData *types.PCRS, marker common.FlavorPart) ([]rules.Rule, error) {
 
-	var results []rules.Rule
+	var pcrRules []rules.Rule
 
 	if pcrLogData != nil {
-		expectedPcrEventLogEntry := types.EventLogEntryFC{
+		expectedPcrEventLogEntry := types.TpmEventLog{
 			Pcr: types.PCR{
 				Index: pcrLogData.PCR.Index,
 				Bank:  pcrLogData.PCR.Bank,
@@ -269,7 +269,7 @@ func getPcrEventLogIncludesRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcrL
 			return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogIncludes rule for bank '%s', index '%d'", pcrLogData.PCR.Bank, pcrLogData.PCR.Index)
 		}
 
-		results = append(results, rule)
+		pcrRules = append(pcrRules, rule)
 	} else {
 		for bank, pcrMap := range flavor.Pcrs {
 			for _, index := range pcrs {
@@ -287,11 +287,11 @@ func getPcrEventLogIncludesRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcrL
 						return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogEqualsExcluding rule for bank '%s', index '%s'", bank, index)
 					}
 
-					results = append(results, rule)
+					pcrRules = append(pcrRules, rule)
 				}
 			}
 		}
 	}
 
-	return results, nil
+	return pcrRules, nil
 }

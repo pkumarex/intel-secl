@@ -62,3 +62,16 @@ const (
 	PcrEventLogUnexpectedFields                     = "PcrEventLogUnexpectedFields"
 	PcrEventLogMissingFields                        = "PcrEventLogMissingFields"
 )
+
+//Builder names
+const (
+	IntelBuilder  = "Intel Host Trust Policy"
+	VmwareBuilder = "VMware Host Trust Policy"
+)
+
+//Rule names
+const (
+	EventlogEqualRule    = "EventlogEqual"
+	EventlogIncludesRule = "EventlogIncludes"
+	PCRMatchesRule       = "PCRMatches"
+)

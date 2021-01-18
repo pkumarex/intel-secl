@@ -74,7 +74,7 @@ func TestPcrEventLogEqualsNoFault(t *testing.T) {
 // should ignore.
 func TestPcrEventLogEqualsExcludingNoFault(t *testing.T) {
 
-	var excludetag = []string{"commandline.", "LCP_CONTROL_HASH", "initrd", "vmlinuz", "componentName.imgdb.tgz", "componentName.onetime.tgz"}
+	var excludetag = []string{"commandLine.", "LCP_CONTROL_HASH", "initrd", "vmlinuz", "componentName.imgdb.tgz", "componentName.onetime.tgz"}
 
 	//linux
 	hostManifest := types.HostManifest{
@@ -126,7 +126,7 @@ func TestPcrEventLogEqualsExcludingNoFault(t *testing.T) {
 // in the flavor event log to invoke a 'PcrEventLogMissing' fault.
 func TestPcrEventLogEqualsExcludingPcrEventLogMissingFault(t *testing.T) {
 
-	var excludetag = []string{"commandline.", "LCP_CONTROL_HASH", "initrd", "vmlinuz", "componentName.imgdb.tgz", "componentName.onetime.tgz"}
+	var excludetag = []string{"commandLine.", "LCP_CONTROL_HASH", "initrd", "vmlinuz", "componentName.imgdb.tgz", "componentName.onetime.tgz"}
 
 	//linux
 	hostManifest := types.HostManifest{
@@ -141,7 +141,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingFault(t *testing.T) {
 		},
 	}
 
-	flavorEventsLog := types.EventLogEntryFC{
+	flavorEventsLog := types.TpmEventLog{
 
 		Pcr: types.PCR{
 
@@ -158,7 +158,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingFault(t *testing.T) {
 	}
 
 	// Put something in PCR1 (not PCR0) to invoke PcrMissingEventLog fault
-	hostEventsLog := types.EventLogEntryFC{
+	hostEventsLog := types.TpmEventLog{
 
 		Pcr: types.PCR{
 			Index: 1,
@@ -237,7 +237,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingFault(t *testing.T) {
 // create a copy of 'testExpectedEventLogEntries' and add new eventlog in the
 // host manifest so that a PcrEventLogContainsUnexpectedEntries fault is raised.
 func TestPcrEventLogEqualsExcludingPcrEventLogContainsUnexpectedEntriesFault(t *testing.T) {
-	var excludetag = []string{"commandline.", "LCP_CONTROL_HASH", "initrd", "vmlinuz", "componentName.imgdb.tgz", "componentName.onetime.tgz"}
+	var excludetag = []string{"commandLine.", "LCP_CONTROL_HASH", "initrd", "vmlinuz", "componentName.imgdb.tgz", "componentName.onetime.tgz"}
 
 	//linux
 	hostManifest := types.HostManifest{
@@ -252,7 +252,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogContainsUnexpectedEntriesFault(t *
 		},
 	}
 
-	unexpectedPcrEventLogs := types.EventLogEntryFC{
+	unexpectedPcrEventLogs := types.TpmEventLog{
 		Pcr: types.PCR{
 			Index: testHostManifestPcrEventLogEntry.Pcr.Index,
 			Bank:  testHostManifestPcrEventLogEntry.Pcr.Bank,
@@ -315,7 +315,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogContainsUnexpectedEntriesFault(t *
 // create a copy of 'testExpectedEventLogEntries' and remove an eventlog in the
 // host manifest so that a PcrEventLogMissingExpectedEntries fault is raised.
 func TestPcrEventLogEqualsExcludingPcrEventLogMissingExpectedEntriesFault(t *testing.T) {
-	var excludetag = []string{"commandline.", "LCP_CONTROL_HASH", "initrd", "vmlinuz", "componentName.imgdb.tgz", "componentName.onetime.tgz"}
+	var excludetag = []string{"commandLine.", "LCP_CONTROL_HASH", "initrd", "vmlinuz", "componentName.imgdb.tgz", "componentName.onetime.tgz"}
 
 	//linux
 	hostManifest := types.HostManifest{
@@ -330,7 +330,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingExpectedEntriesFault(t *tes
 		},
 	}
 
-	unexpectedPcrEventLogs := types.EventLogEntryFC{
+	unexpectedPcrEventLogs := types.TpmEventLog{
 		Pcr: types.PCR{
 			Index: testHostManifestPcrEventLogEntry.Pcr.Index,
 			Bank:  testHostManifestPcrEventLogEntry.Pcr.Bank,
@@ -346,10 +346,10 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingExpectedEntriesFault(t *tes
 	result, err := rule.Apply(&hostManifest)
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
-	assert.Equal(t, 2, len(result.Faults))
-	assert.Equal(t, constants.FaultPcrEventLogMissingExpectedEntries, result.Faults[1].Name)
-	assert.NotNil(t, result.Faults[1].MissingEntriesNew)
-	t.Logf("Intel Host Trust Policy - Fault description: %s", result.Faults[1].Description)
+	assert.Equal(t, 1, len(result.Faults))
+	assert.Equal(t, constants.FaultPcrEventLogMissingExpectedEntries, result.Faults[0].Name)
+	assert.NotNil(t, result.Faults[0].MissingEntriesNew)
+	t.Logf("Intel Host Trust Policy - Fault description: %s", result.Faults[0].Description)
 
 	//vmware
 	vmHostManifest := types.HostManifest{

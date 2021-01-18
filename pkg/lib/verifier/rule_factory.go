@@ -7,6 +7,7 @@ package verifier
 import (
 	"reflect"
 
+	hvsconstants "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants/verifier-rules-and-faults"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	flavormodel "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/constants"
@@ -55,7 +56,7 @@ func NewRuleFactory(verifierCertificates VerifierCertificates,
 func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error) {
 
 	var flavorPart common.FlavorPart
-	var requiredRules, pcrRule []rules.Rule
+	var requiredRules, pcrRules []rules.Rule
 
 	ruleBuilder, err := factory.getRuleBuilder()
 	if err != nil {
@@ -83,7 +84,7 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 
 	}
 
-	if ruleBuilder.GetName() == "Intel Host Trust Policy" {
+	if ruleBuilder.GetName() == hvsconstants.IntelBuilder {
 		flavorPcrs := factory.signedFlavor.Flavor.PcrLogs
 
 		// Iterate the pcrs section to get rules
@@ -95,31 +96,31 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 
 			for i := 0; i < value.NumField(); i++ {
 
-				if value.Type().Field(i).Name == "EventlogEqual" && rule.EventlogEqual != nil {
+				if value.Type().Field(i).Name == hvsconstants.EventlogEqualRule && rule.EventlogEqual != nil {
 					eventsPresent = true
 					//call method to create pcr event log equals rule
 					if len(rule.EventlogEqual.ExcludeTags) == 0 {
-						pcrRule, err = getPcrEventLogEqualsRules(nil, &rule, nil, flavorPart)
+						pcrRules, err = getPcrEventLogEqualsRules(nil, &rule, nil, flavorPart)
 					} else {
-						pcrRule, err = getPcrEventLogEqualsExcludingRules(nil, &rule, nil, flavorPart)
+						pcrRules, err = getPcrEventLogEqualsExcludingRules(nil, &rule, nil, flavorPart)
 					}
-					requiredRules = append(requiredRules, pcrRule...)
-				} else if value.Type().Field(i).Name == "EventlogIncludes" && len(rule.EventlogIncludes) > 0 {
+					requiredRules = append(requiredRules, pcrRules...)
+				} else if value.Type().Field(i).Name == hvsconstants.EventlogIncludesRule && len(rule.EventlogIncludes) > 0 {
 					eventsPresent = true
 					//call method to create pcr event log includes rule
-					pcrRule, err = getPcrEventLogIncludesRules(nil, nil, &rule, flavorPart)
-					requiredRules = append(requiredRules, pcrRule...)
-				} else if value.Type().Field(i).Name == "PCRMatches" && rule.PCRMatches {
+					pcrRules, err = getPcrEventLogIncludesRules(nil, nil, &rule, flavorPart)
+					requiredRules = append(requiredRules, pcrRules...)
+				} else if value.Type().Field(i).Name == hvsconstants.PCRMatchesRule && rule.PCRMatches {
 					//call method to create pcr matches constant rule
-					pcrRule, err = getPcrMatchesConstantRules(nil, nil, &rule, flavorPart)
-					requiredRules = append(requiredRules, pcrRule...)
+					pcrRules, err = getPcrMatchesConstantRules(nil, nil, &rule, flavorPart)
+					requiredRules = append(requiredRules, pcrRules...)
 				}
 
 				if eventsPresent == true && integrityRuleAdded == false {
 					//add Integrity rules//
 					integrityRuleAdded = true
-					pcrRule, err = getPcrEventLogIntegrityRules(nil, nil, &rule, flavorPart)
-					requiredRules = append(requiredRules, pcrRule...)
+					pcrRules, err = getPcrEventLogIntegrityRules(nil, nil, &rule, flavorPart)
+					requiredRules = append(requiredRules, pcrRules...)
 				}
 				if err != nil {
 					return nil, "", errors.Wrapf(err, "Error creating trust requiredRules for flavor '%s'", factory.signedFlavor.Flavor.Meta.ID)

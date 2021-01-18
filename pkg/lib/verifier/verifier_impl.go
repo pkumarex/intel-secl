@@ -67,27 +67,25 @@ func (v *verifierImpl) applyRules(rulesToApply []rules.Rule, hostManifest *types
 
 	for _, rule := range rulesToApply {
 
-		if rule != nil {
-			log.Debugf("Applying verifier rule %T", rule)
-			result, err := rule.Apply(hostManifest)
+		log.Debugf("Applying verifier rule %T", rule)
+		result, err := rule.Apply(hostManifest)
 
-			if err != nil {
-				return nil, errors.Wrapf(err, "Error ocrurred applying rule type '%T'", rule)
-			}
-
-			// if 'Apply' returned a result with any faults, then the
-			// rule is not trusted
-			if len(result.Faults) > 0 {
-				result.Trusted = false
-				v.overallTrust = false
-			}
-
-			// assign the flavor id to all rules
-			flavorID := v.signedFlavor.Flavor.Meta.ID
-			result.FlavorId = &flavorID
-
-			results = append(results, *result)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Error ocrurred applying rule type '%T'", rule)
 		}
+
+		// if 'Apply' returned a result with any faults, then the
+		// rule is not trusted
+		if len(result.Faults) > 0 {
+			result.Trusted = false
+			v.overallTrust = false
+		}
+
+		// assign the flavor id to all rules
+		flavorID := v.signedFlavor.Flavor.Meta.ID
+		result.FlavorId = &flavorID
+
+		results = append(results, *result)
 	}
 
 	return results, nil

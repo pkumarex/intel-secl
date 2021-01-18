@@ -16,7 +16,7 @@ import (
 
 //NewPcrEventLogIncludes creates the rule that will check
 //if all the actual event log measurements included in expected
-func NewPcrEventLogIncludes(expectedEventLogEntry *types.EventLogEntry, expectedPcrEventLogEntry *types.EventLogEntryFC, expectedPcr *types.Pcr, marker common.FlavorPart) (Rule, error) {
+func NewPcrEventLogIncludes(expectedEventLogEntry *types.EventLogEntry, expectedPcrEventLogEntry *types.TpmEventLog, expectedPcr *types.Pcr, marker common.FlavorPart) (Rule, error) {
 
 	var rule pcrEventLogIncludes
 
@@ -39,7 +39,7 @@ func NewPcrEventLogIncludes(expectedEventLogEntry *types.EventLogEntry, expected
 
 type pcrEventLogIncludes struct {
 	expectedEventLogEntry    *types.EventLogEntry
-	expectedPcrEventLogEntry *types.EventLogEntryFC
+	expectedPcrEventLogEntry *types.TpmEventLog
 	expectedPcr              *types.Pcr
 	marker                   common.FlavorPart
 }
@@ -71,7 +71,7 @@ func (rule *pcrEventLogIncludes) Apply(hostManifest *types.HostManifest) (*hvs.R
 			if actualEventLogCriteria == nil {
 				result.Faults = append(result.Faults, newPcrEventLogMissingFault(types.PcrIndex(rule.expectedPcrEventLogEntry.Pcr.Index), types.SHAAlgorithm(rule.expectedPcrEventLogEntry.Pcr.Bank)))
 			} else {
-				actualEventLog := &types.EventLogEntryFC{}
+				actualEventLog := &types.TpmEventLog{}
 				actualEventLog.TpmEvent = actualEventLogCriteria
 				actualEventLog.Pcr.Index = pIndex
 				actualEventLog.Pcr.Bank = bank
