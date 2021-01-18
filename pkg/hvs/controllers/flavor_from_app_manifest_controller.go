@@ -8,9 +8,6 @@ package controllers
 import (
 	"encoding/xml"
 	"errors"
-	"net/http"
-	"strings"
-
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/utils"
@@ -20,6 +17,8 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
+	"net/http"
+	"strings"
 )
 
 type FlavorFromAppManifestController struct {
@@ -122,7 +121,6 @@ func (controller FlavorFromAppManifestController) CreateSoftwareFlavor(w http.Re
 		}
 		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Error creating new SOFTWARE flavor"}
 	}
-
 	return softwareFlavor, http.StatusCreated, nil
 }
 
