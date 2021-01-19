@@ -246,9 +246,7 @@ func (svc *Service) Retrieve(ctx context.Context, host hvs.Host) (*types.HostMan
 	hostData, err := svc.GetHostData(host.ConnectionString)
 	hostStatus := &hvs.HostStatus{
 		HostID: host.Id,
-		HostStatusInformation: hvs.HostStatusInformation{
-			LastTimeConnected: time.Now(),
-		},
+		HostStatusInformation: hvs.HostStatusInformation{},
 	}
 	if err != nil {
 		hostState := utils.DetermineHostState(err)
@@ -261,6 +259,7 @@ func (svc *Service) Retrieve(ctx context.Context, host hvs.Host) (*types.HostMan
 	}
 
 	hostStatus.HostStatusInformation.HostState = hvs.HostStateConnected
+	hostStatus.HostStatusInformation.LastTimeConnected = time.Now()
 	hostStatus.HostManifest = *hostData
 	svc.updateMissingHostDetails(host.Id, hostData)
 	if err := svc.hss.Persist(hostStatus); err != nil {
@@ -324,7 +323,6 @@ func (svc *Service) FetchDataAndRespond(hId uuid.UUID, connUrl string) {
 			HostID: hId,
 			HostStatusInformation: hvs.HostStatusInformation{
 				HostState:         hostState,
-				LastTimeConnected: time.Now(),
 			},
 		})
 		if err != nil {
