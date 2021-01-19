@@ -27,14 +27,11 @@ type IdentityProofRequest struct {
 	Credential                 []byte                `json:"credential"`
 	TpmSymmetricKeyParams      TpmSymmetricKeyParams `json:"symmetric_params"`
 	SymmetricBlob              []byte                `json:"symmetric_blob"`
-	EndorsementCertificateBlob []byte                `json:"ek_blob"`
 }
 
 type IdentityRequest struct {
 	TpmVersion           string `json:"tpm_version"`
-	IdentityRequestBlock []byte `json:"identity_request_blob"`
 	AikModulus           []byte `json:"aik_modulus"`
-	AikBlob              []byte `json:"aik_blob"`
 	AikName              []byte `json:"aik_name"`
 }
 
