@@ -24,6 +24,8 @@ if [ -z $env_file ]; then
     IHUB_NOSETUP="true"
 else
     source $env_file
+    env_file_exports=$(cat $env_file | grep -E '^[A-Z0-9_]+\s*=' | cut -d = -f 1)
+    if [ -n "$env_file_exports" ]; then eval export $env_file_exports; fi
 fi
 
 if [[ $EUID -ne 0 ]]; then
