@@ -20,7 +20,6 @@ import (
 	cm "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	hcConstants "github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/constants"
 	hcTypes "github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/util"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
 )
@@ -308,8 +307,7 @@ func (esxpf ESXPlatformFlavor) getAssetTagFlavor() ([]cm.Flavor, error) {
 		PcrBank:  hcTypes.SHA1,
 		EventLogs: []hcTypes.EventLog{
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA1,
-				Value:      hex.EncodeToString(tagCertificateHash),
+				Value: hex.EncodeToString(tagCertificateHash),
 			},
 		},
 	}

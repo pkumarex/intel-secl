@@ -21,12 +21,7 @@ const (
 	Uefi  = "UEFI"
 	Sboot = "SecureBootEnabled"
 
-	//Pcr
-	PcrClassNamePrefix = "com.intel.mtwilson.core.common.model.PcrSha"
-
-	// Manifest / Measurement
-	MeasurementTypeClassNamePrefix = "com.intel.mtwilson.core.common.model.MeasurementSha"
-	IslMeasurementSchema           = "lib:wml:measurements:1.0"
+	IslMeasurementSchema = "lib:wml:measurements:1.0"
 
 	// ESXFlavor
 	VMWareComponentName = "Vim25Api.HostTpmSoftwareComponentEventDetails"
