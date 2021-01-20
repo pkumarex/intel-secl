@@ -7,16 +7,16 @@ package host_connector
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
+	"strconv"
+	"strings"
+
 	"github.com/intel-secl/intel-secl/v3/pkg/clients/vmware"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
 	"github.com/vmware/govmomi/vim25/mo"
 	vim25Types "github.com/vmware/govmomi/vim25/types"
-	"sort"
-	"strconv"
-	"strings"
 )
 
 type VmwareConnector struct {
@@ -24,8 +24,6 @@ type VmwareConnector struct {
 }
 
 const (
-	EVENT_LOG_DIGEST_SHA1               = "com.intel.mtwilson.core.common.model.MeasurementSha1"
-	EVENT_LOG_DIGEST_SHA256             = "com.intel.mtwilson.core.common.model.MeasurementSha256"
 	TPM_SOFTWARE_COMPONENT_EVENT_TYPE   = "HostTpmSoftwareComponentEvent"
 	TPM_COMMAND_EVENT_TYPE              = "HostTpmCommandEvent"
 	TPM_OPTION_EVENT_TYPE               = "HostTpmOptionEvent"
@@ -128,17 +126,15 @@ func createPCRManifest(hostTpmAttestationReport *vim25Types.HostTpmAttestationRe
 		}
 		if strings.EqualFold(pcrDetails.DigestMethod, "SHA256") {
 			pcrManifest.Sha256Pcrs = append(pcrManifest.Sha256Pcrs, types.Pcr{
-				DigestType: fmt.Sprintf(constants.PcrClassNamePrefix+"%d", 256),
-				Index:      pcrIndex,
-				Value:      intArrayToHexString(pcrDetails.DigestValue),
-				PcrBank:    shaAlgorithm,
+				Index:   pcrIndex,
+				Value:   intArrayToHexString(pcrDetails.DigestValue),
+				PcrBank: shaAlgorithm,
 			})
 		} else if strings.EqualFold(pcrDetails.DigestMethod, "SHA1") {
 			pcrManifest.Sha1Pcrs = append(pcrManifest.Sha1Pcrs, types.Pcr{
-				DigestType: fmt.Sprintf(constants.PcrClassNamePrefix+"%d", 1),
-				Index:      pcrIndex,
-				Value:      intArrayToHexString(pcrDetails.DigestValue),
-				PcrBank:    shaAlgorithm,
+				Index:   pcrIndex,
+				Value:   intArrayToHexString(pcrDetails.DigestValue),
+				PcrBank: shaAlgorithm,
 			})
 		} else {
 			log.Warn("vmware_host_connector:createPCRManifest() Result PCR invalid")
@@ -196,7 +192,6 @@ func getPcrEventLog(hostTpmEventLogEntry []vim25Types.HostTpmEventLogEntry, even
 				index++
 			}
 			eventLog := getEventLogInfo(parsedEventLogEntry)
-			eventLog.DigestType = EVENT_LOG_DIGEST_SHA1
 
 			if !pcrFound {
 				eventLogMap.Sha1EventLogs = append(eventLogMap.Sha1EventLogs, types.EventLogEntry{PcrIndex: pcrIndex, PcrBank: parsedEventLogEntry.EventDetails.DataHashMethod, EventLogs: []types.EventLog{eventLog}})
@@ -214,7 +209,6 @@ func getPcrEventLog(hostTpmEventLogEntry []vim25Types.HostTpmEventLogEntry, even
 			}
 
 			eventLog := getEventLogInfo(parsedEventLogEntry)
-			eventLog.DigestType = EVENT_LOG_DIGEST_SHA256
 
 			if !pcrFound {
 				eventLogMap.Sha256EventLogs = append(eventLogMap.Sha256EventLogs, types.EventLogEntry{PcrIndex: pcrIndex, PcrBank: parsedEventLogEntry.EventDetails.DataHashMethod, EventLogs: []types.EventLog{eventLog}})

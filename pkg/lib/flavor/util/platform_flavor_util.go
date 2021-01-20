@@ -7,7 +7,6 @@ package util
 import (
 	"crypto/rsa"
 	"encoding/xml"
-	"fmt"
 	"strings"
 	"time"
 
@@ -324,12 +323,6 @@ func (pfutil PlatformFlavorUtil) GetPcrDetails(pcrManifest hcTypes.PcrManifest, 
 						for _, manifestEventLog := range manifestPcrEventLogs {
 							var currPcrEvent hcTypes.EventLog
 							currPcrEvent = manifestEventLog
-							switch digestBank {
-							case hcTypes.SHA1:
-								currPcrEvent.DigestType = fmt.Sprintf(constants.MeasurementTypeClassNamePrefix+"%d", 1)
-							case hcTypes.SHA256:
-								currPcrEvent.DigestType = fmt.Sprintf(constants.MeasurementTypeClassNamePrefix+"%d", 256)
-							}
 							currPcrEx.Event = append(currPcrEx.Event, currPcrEvent)
 						}
 					}

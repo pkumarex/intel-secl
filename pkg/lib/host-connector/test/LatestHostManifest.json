@@ -32,145 +32,121 @@
     "pcr_manifest": {
         "sha1pcrs": [
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_0",
                 "value": "96de47dfaf85a9f9a3ba4143f086a9c07c0fd817",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_1",
                 "value": "20afb7dd06725e8bf0debd9970c8170d29a10a3e",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_2",
                 "value": "a8fa7017a39d66c3be221a925234df5461eee691",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_3",
                 "value": "b2a83b0ebf2f8374299a5b2bdfc31ea955ad7236",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_4",
                 "value": "b2a83b0ebf2f8374299a5b2bdfc31ea955ad7236",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_5",
                 "value": "af4555c5e3033c33ea5e5f73873f76a7fa0ae192",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_6",
                 "value": "b2a83b0ebf2f8374299a5b2bdfc31ea955ad7236",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_7",
                 "value": "366cf01e612ea1ad180a2e52976fc718f2317ba7",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_8",
                 "value": "0000000000000000000000000000000000000000",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_9",
                 "value": "0000000000000000000000000000000000000000",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_10",
                 "value": "1a9e88478e30f1d94952eeb65c7d843d9a53fa13",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_11",
                 "value": "0000000000000000000000000000000000000000",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_12",
                 "value": "0000000000000000000000000000000000000000",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_13",
                 "value": "0000000000000000000000000000000000000000",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_14",
                 "value": "0000000000000000000000000000000000000000",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_15",
                 "value": "0000000000000000000000000000000000000000",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_16",
                 "value": "0000000000000000000000000000000000000000",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_17",
                 "value": "55a9aa8e276d3196affb7ecff100bda23d51d0af",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_18",
                 "value": "82bf809255ee179ac5478bc9ba12db6879dbd31b",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_19",
                 "value": "0000000000000000000000000000000000000000",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_20",
                 "value": "0000000000000000000000000000000000000000",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_21",
                 "value": "0000000000000000000000000000000000000000",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_22",
                 "value": "0000000000000000000000000000000000000000",
                 "pcr_bank": "SHA1"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha1",
                 "index": "pcr_23",
                 "value": "0000000000000000000000000000000000000000",
                 "pcr_bank": "SHA1"
@@ -178,145 +154,121 @@
         ],
         "sha2pcrs": [
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_0",
                 "value": "fad7981e1d16de3269667f4e84bf84a0a0c84f4f8a183e13ac5ba1c441bbfd3c",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_1",
                 "value": "e5bb10e64f9f630011b0c4a54a3994731fb62fc0a4b4db8dda5a0e119c0703f7",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_2",
                 "value": "eb2944e90c41c08d44c3952a01ea6bfc07adfd4f2e7c5ea3addbc5e04a68bc49",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_3",
                 "value": "3d458cfe55cc03ea1f443f1562beec8df51c75e14a9fcf9a7234a13f198e7969",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_4",
                 "value": "3d458cfe55cc03ea1f443f1562beec8df51c75e14a9fcf9a7234a13f198e7969",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_5",
                 "value": "142a1fc798d0f8e1b9176a5126d8de256e02c16e8175f4d4de9ddc6c4c696424",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_6",
                 "value": "3d458cfe55cc03ea1f443f1562beec8df51c75e14a9fcf9a7234a13f198e7969",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_7",
                 "value": "1d792e7db28fe00ca4a7e6ccb5bb28babf080a7ff11de3377240eee96c393fcc",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_8",
                 "value": "0000000000000000000000000000000000000000000000000000000000000000",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_9",
                 "value": "0000000000000000000000000000000000000000000000000000000000000000",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_10",
                 "value": "a4db73db0d165f9a8084f189b981e1b29c6f862cfecf31f4b1e36ac5d7e3594f",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_11",
                 "value": "0000000000000000000000000000000000000000000000000000000000000000",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_12",
                 "value": "0000000000000000000000000000000000000000000000000000000000000000",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_13",
                 "value": "0000000000000000000000000000000000000000000000000000000000000000",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_14",
                 "value": "0000000000000000000000000000000000000000000000000000000000000000",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_15",
                 "value": "93b5ae893e138d7040c9ed40541d27aa1e0120629fd98c1249f2a514314a3b23",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_16",
                 "value": "0000000000000000000000000000000000000000000000000000000000000000",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_17",
                 "value": "8bc16f894471b5e53da2e799728d0187dae1951ef84ff95c347b7e53dab83695",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_18",
                 "value": "6f33d58a1fc09382042d2fd650f4c26af20cf2b18ea3bc0fdb075af2fa04f6d9",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_19",
                 "value": "0000000000000000000000000000000000000000000000000000000000000000",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_20",
                 "value": "0000000000000000000000000000000000000000000000000000000000000000",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_21",
                 "value": "0000000000000000000000000000000000000000000000000000000000000000",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_22",
                 "value": "0000000000000000000000000000000000000000000000000000000000000000",
                 "pcr_bank": "SHA256"
             },
             {
-                "digest_type": "com.intel.mtwilson.core.common.model.PcrSha256",
                 "index": "pcr_23",
                 "value": "0000000000000000000000000000000000000000000000000000000000000000",
                 "pcr_bank": "SHA256"

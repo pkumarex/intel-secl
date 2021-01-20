@@ -7,7 +7,6 @@ package rules
 import (
 	asset_tag "github.com/intel-secl/intel-secl/v3/pkg/lib/asset-tag"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/util"
 )
 
 const (
@@ -34,12 +33,10 @@ var (
 		PcrBank:  types.SHA256,
 		EventLogs: []types.EventLog{
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      zeros,
+				Value: zeros,
 			},
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      ones,
+				Value: ones,
 			},
 		},
 	}
@@ -51,65 +48,55 @@ var (
 		PcrBank:  types.SHA256,
 		EventLogs: []types.EventLog{
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      zeros,
+				Value: zeros,
 			},
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      ones,
+				Value: ones,
 			},
 
 			// these should be stripped by the rule...
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      "a",
+				Value: "a",
 				Info: map[string]string{
 					"ComponentName": "commandLine.",
 				},
 			},
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      "b",
+				Value: "b",
 				Info: map[string]string{
 					"ComponentName": "LCP_CONTROL_HASH",
 				},
 			},
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      "c",
+				Value: "c",
 				Info: map[string]string{
 					"ComponentName": "initrd",
 				},
 			},
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      "d",
+				Value: "d",
 				Info: map[string]string{
 					"ComponentName": "vmlinuz",
 				},
 			},
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      "e",
+				Value: "e",
 				Info: map[string]string{
 					"ComponentName": "componentName.imgdb.tgz",
 				},
 			},
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      "f",
+				Value: "f",
 				Info: map[string]string{
 					"ComponentName": "componentName.onetime.tgz",
 				},
 			},
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      "g",
-				Label:      "0x4fe",
+				Value: "g",
+				Label: "0x4fe",
 			},
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      "h",
+				Value: "h",
 				Info: map[string]string{
 					"PackageName":   "",
 					"PackageVendor": "",
