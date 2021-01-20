@@ -5,12 +5,12 @@
 package rules
 
 import (
-	"github.com/intel-secl/intel-secl/v3/pkg/hvs/constants/verifier-rules-and-faults"
+	"testing"
+
+	constants "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants/verifier-rules-and-faults"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/util"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestPcrEventLogIntegrityNoFault(t *testing.T) {
@@ -121,8 +121,7 @@ func TestPcrEventLogIntegrityPcrEventLogInvalidFault(t *testing.T) {
 		PcrBank:  types.SHA256,
 		EventLogs: []types.EventLog{
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      zeros,
+				Value: zeros,
 			},
 		},
 	}

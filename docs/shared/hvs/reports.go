@@ -169,7 +169,6 @@ type ReportCreateRequest struct {
 //                                             "expected":
 //                                              [
 //                                                 {
-//                                             "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 //                                             "value": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
 //                                             "label": "LCP_CONTROL_HASH",
 //                                             "info":
@@ -289,7 +288,6 @@ type ReportCreateRequest struct {
 //                                               "expected":
 //                                                [
 //                                                   {
-//                                               "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 //                                               "value": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
 //                                               "label": "LCP_CONTROL_HASH",
 //                                               "info":
@@ -384,7 +382,6 @@ type ReportCreateRequest struct {
 //                 "pcr_index": "pcr_18",
 //                 "expected": [
 //                   {
-//                     "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 //                     "value": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
 //                     "label": "LCP_CONTROL_HASH",
 //                     "info": {
