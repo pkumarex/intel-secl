@@ -54,7 +54,6 @@ func NewRuleFactory(verifierCertificates VerifierCertificates,
 //GetVerificationRules method is used to get the verification rules dynamically for pcr/event log rules
 //Other rules like aik certificate,asset tag rules will be hardcoded based on vendor and flavor part
 func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error) {
-
 	var flavorPart common.FlavorPart
 	var requiredRules, pcrRules []rules.Rule
 
@@ -133,7 +132,6 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 
 	// if skip flavor signing verification is enabled, add the FlavorTrusted.
 	if !factory.skipSignedFlavorVerification {
-
 		var flavorPart common.FlavorPart
 		err := (&flavorPart).Parse(factory.signedFlavor.Flavor.Meta.Description[flavormodel.FlavorPart].(string))
 		if err != nil {
@@ -153,12 +151,10 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 	}
 
 	return requiredRules, ruleBuilder.GetName(), nil
-
 }
 
 //getRuleBuilder method will get the ruler builder based on vendor
 func (factory *ruleFactory) getRuleBuilder() (ruleBuilder, error) {
-
 	var builder ruleBuilder
 	var vendor constants.Vendor
 	var err error

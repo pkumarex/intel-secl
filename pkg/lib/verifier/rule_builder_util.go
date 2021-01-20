@@ -27,7 +27,6 @@ func getPcrMatchesConstantRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcrLo
 	var err error
 
 	if pcrLogData != nil {
-
 		rule, err = rules.NewPcrMatchesConstant(nil, pcrLogData, marker)
 		if err != nil {
 			return nil, errors.Wrapf(err, "An error occurred creating a PcrMatchesConstant rule ")
@@ -58,7 +57,6 @@ func getPcrMatchesConstantRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcrLo
 //getPcrEventLogEqualsRules method will create PcrEventLogEqualsRule and return the rule
 //return nil if error occurs
 func getPcrEventLogEqualsRules(pcrs []types.PcrIndex, pcrLogData *types.PCRS, flavor *hvs.Flavor, marker common.FlavorPart) ([]rules.Rule, error) {
-
 	var pcrRules []rules.Rule
 
 	if pcrLogData != nil {
@@ -152,7 +150,6 @@ func getPcrEventLogEqualsExcludingRules(pcrs []types.PcrIndex, pcrLogData *types
 //getPcrEventLogIntegrityRules method will create PcrEventLogIntegrityRule and return the rule
 //return nil if error occurs
 func getPcrEventLogIntegrityRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcrLogData *types.PCRS, marker common.FlavorPart) ([]rules.Rule, error) {
-
 	var pcrRules []rules.Rule
 
 	if pcrLogData != nil {
@@ -160,7 +157,6 @@ func getPcrEventLogIntegrityRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcr
 		if err != nil {
 			return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogIntegrity rule for bank '%s', index '%d'", pcrLogData.PCR.Bank, pcrLogData.PCR.Index)
 		}
-
 		pcrRules = append(pcrRules, rule)
 	} else {
 		// iterate over the banks, collecting the values for each supplied index
@@ -174,7 +170,6 @@ func getPcrEventLogIntegrityRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcr
 					if err != nil {
 						return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogIntegrity rule for bank '%s', index '%s'", bank, index)
 					}
-
 					pcrRules = append(pcrRules, rule)
 				}
 			}
@@ -187,7 +182,6 @@ func getPcrEventLogIntegrityRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcr
 //getAssetTagMatchesRule method will create AssetTagMatchesRule and return the rule
 //return nil if error occurs
 func getAssetTagMatchesRule(flavor *hvs.Flavor) (rules.Rule, error) {
-
 	var rule rules.Rule
 	var err error
 
@@ -219,7 +213,6 @@ func getAssetTagMatchesRule(flavor *hvs.Flavor) (rules.Rule, error) {
 	}
 
 	expectedAssetTagDigest := hash.Sum(nil)
-
 	// now create the asset tag matches rule...
 	rule, err = rules.NewAssetTagMatches(expectedAssetTagDigest, tags)
 	if err != nil {
@@ -232,7 +225,6 @@ func getAssetTagMatchesRule(flavor *hvs.Flavor) (rules.Rule, error) {
 //getTagCertificateTrustedRule method will create TagCertificateTrustedRule and return the rule
 //return nil if error occurs
 func getTagCertificateTrustedRule(assetTagCACertificates *x509.CertPool, flavor *hvs.Flavor) (rules.Rule, error) {
-
 	var rule rules.Rule
 	var err error
 
@@ -252,7 +244,6 @@ func getTagCertificateTrustedRule(assetTagCACertificates *x509.CertPool, flavor 
 //getPcrEventLogIncludesRules method will create PcrEventLogIncludesRule and return the rule
 //return nil if error occurs
 func getPcrEventLogIncludesRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcrLogData *types.PCRS, marker common.FlavorPart) ([]rules.Rule, error) {
-
 	var pcrRules []rules.Rule
 
 	if pcrLogData != nil {
@@ -268,7 +259,6 @@ func getPcrEventLogIncludesRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcrL
 		if err != nil {
 			return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogIncludes rule for bank '%s', index '%d'", pcrLogData.PCR.Bank, pcrLogData.PCR.Index)
 		}
-
 		pcrRules = append(pcrRules, rule)
 	} else {
 		for bank, pcrMap := range flavor.Pcrs {
@@ -286,7 +276,6 @@ func getPcrEventLogIncludesRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcrL
 					if err != nil {
 						return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogEqualsExcluding rule for bank '%s', index '%s'", bank, index)
 					}
-
 					pcrRules = append(pcrRules, rule)
 				}
 			}

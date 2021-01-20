@@ -17,7 +17,6 @@ import (
 //NewPcrEventLogIncludes creates the rule that will check
 //if all the actual event log measurements included in expected
 func NewPcrEventLogIncludes(expectedEventLogEntry *types.EventLogEntry, expectedPcrEventLogEntry *types.TpmEventLog, expectedPcr *types.Pcr, marker common.FlavorPart) (Rule, error) {
-
 	var rule pcrEventLogIncludes
 
 	if expectedPcrEventLogEntry != nil {
@@ -34,6 +33,7 @@ func NewPcrEventLogIncludes(expectedEventLogEntry *types.EventLogEntry, expected
 	} else {
 		return nil, errors.New("The expected event log cannot be nil")
 	}
+
 	return &rule, nil
 }
 
@@ -50,7 +50,6 @@ type pcrEventLogIncludes struct {
 // - if the log at bank/index does not have the same events as 'expected', raise
 //   "PcrEventLogMissingExpectedEntries".
 func (rule *pcrEventLogIncludes) Apply(hostManifest *types.HostManifest) (*hvs.RuleResult, error) {
-
 	result := hvs.RuleResult{}
 	result.Trusted = true
 	result.Rule.Name = constants.RulePcrEventLogIncludes
@@ -78,9 +77,7 @@ func (rule *pcrEventLogIncludes) Apply(hostManifest *types.HostManifest) (*hvs.R
 
 				// subtract the 'actual' event log measurements from 'expected'.
 				// if there are any left in 'expected', then 'actual' did not include all entries
-
 				missingEvents, missingAttr, err := rule.expectedPcrEventLogEntry.Subtract(actualEventLog)
-
 				if err != nil {
 					return nil, errors.Wrap(err, "Error subtracting actual from expected event logs in pcr eventlog includes rule.")
 				}
@@ -94,7 +91,6 @@ func (rule *pcrEventLogIncludes) Apply(hostManifest *types.HostManifest) (*hvs.R
 					bank := types.SHAAlgorithm(rule.expectedPcrEventLogEntry.Pcr.Bank)
 
 					mismatchInfo := hvs.MismatchField{
-
 						Name:           constants.PcrEventLogMissingFields,
 						Description:    fmt.Sprintf("Module manifest for PCR %d of %s value contains %d missing entries", rule.expectedPcrEventLogEntry.Pcr.Index, rule.expectedPcrEventLogEntry.Pcr.Bank, len(missingAttr.TpmEvent)),
 						PcrIndex:       &index,
@@ -123,7 +119,6 @@ func (rule *pcrEventLogIncludes) Apply(hostManifest *types.HostManifest) (*hvs.R
 			} else {
 				// subtract the 'actual' event log measurements from 'expected'.
 				// if there are any left in 'expected', then 'actual' did not include all entries
-
 				missingEvents, err := rule.expectedEventLogEntry.Subtract(actualEventLog)
 				if err != nil {
 					return nil, errors.Wrap(err, "Error subtracting actual from expected event logs in pcr eventlog includes rule.")
@@ -134,7 +129,6 @@ func (rule *pcrEventLogIncludes) Apply(hostManifest *types.HostManifest) (*hvs.R
 				}
 			}
 		}
-
 	}
 
 	return &result, nil
