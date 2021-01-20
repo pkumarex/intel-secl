@@ -69,7 +69,6 @@ var flavor = ` {
                             "value": "460d626473202cb536b37d56dc0fd43438fae165",
                             "event": [
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                     "value": "19f7c22f6c92d9555d792466b2097443444ebd26",
                                     "label": "HASH_START",
                                     "info": {
@@ -78,7 +77,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                     "value": "3cf4a5c90911c21f6ea71f4ca84425f8e65a2be7",
                                     "label": "BIOSAC_REG_DATA",
                                     "info": {
@@ -87,7 +85,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                     "value": "3c585604e87f855973731fea83e21fab9392d2fc",
                                     "label": "CPU_SCRTM_STAT",
                                     "info": {
@@ -96,7 +93,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                     "value": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
                                     "label": "LCP_DETAILS_HASH",
                                     "info": {
@@ -105,7 +101,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                     "value": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
                                     "label": "STM_HASH",
                                     "info": {
@@ -114,7 +109,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                     "value": "0cf169a95bd32a9a1dc4c3499ade207d30ab8895",
                                     "label": "OSSINITDATA_CAP_HASH",
                                     "info": {
@@ -123,7 +117,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                     "value": "ff86d5446b2cc2e7e3319048715c00aabb7dcc4e",
                                     "label": "MLE_HASH",
                                     "info": {
@@ -132,7 +125,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                     "value": "274f929dbab8b98a7031bbcd9ea5613c2a28e5e6",
                                     "label": "NV_INFO_HASH",
                                     "info": {
@@ -141,7 +133,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                     "value": "ca96de412b4e8c062e570d3013d2fccb4b20250a",
                                     "label": "tb_policy",
                                     "info": {
@@ -155,7 +146,6 @@ var flavor = ` {
                             "value": "86da61107994a14c0d154fd87ca509f82377aa30",
                             "event": [
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                     "value": "a395b723712b3711a89c2bb5295386c0db85fe44",
                                     "label": "SINIT_PUBKEY_HASH",
                                     "info": {
@@ -164,7 +154,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                     "value": "3c585604e87f855973731fea83e21fab9392d2fc",
                                     "label": "CPU_SCRTM_STAT",
                                     "info": {
@@ -173,7 +162,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                     "value": "0cf169a95bd32a9a1dc4c3499ade207d30ab8895",
                                     "label": "OSSINITDATA_CAP_HASH",
                                     "info": {
@@ -182,7 +170,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                     "value": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
                                     "label": "LCP_AUTHORITIES_HASH",
                                     "info": {
@@ -191,7 +178,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                     "value": "274f929dbab8b98a7031bbcd9ea5613c2a28e5e6",
                                     "label": "NV_INFO_HASH",
                                     "info": {
@@ -200,7 +186,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                     "value": "ca96de412b4e8c062e570d3013d2fccb4b20250a",
                                     "label": "tb_policy",
                                     "info": {
@@ -219,7 +204,6 @@ var flavor = ` {
                             "value": "c4a4b0b6601abc9756fdc0cecce173e781096e2ca0ce12650951a933821bd772",
                             "event": [
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                     "value": "14fc51186adf98be977b9e9b65fc9ee26df0599c4f45804fcc45d0bdcf5025db",
                                     "label": "HASH_START",
                                     "info": {
@@ -228,7 +212,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                     "value": "c61aaa86c13133a0f1e661faf82e74ba199cd79cef652097e638a756bd194428",
                                     "label": "BIOSAC_REG_DATA",
                                     "info": {
@@ -237,7 +220,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                     "value": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
                                     "label": "CPU_SCRTM_STAT",
                                     "info": {
@@ -246,7 +228,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                     "value": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
                                     "label": "LCP_DETAILS_HASH",
                                     "info": {
@@ -255,7 +236,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                     "value": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
                                     "label": "STM_HASH",
                                     "info": {
@@ -264,7 +244,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                     "value": "d81fe96dc500bc43e1cd5800bef9d72b3d030bdb7e860e10c522e4246b30bd93",
                                     "label": "OSSINITDATA_CAP_HASH",
                                     "info": {
@@ -273,7 +252,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                     "value": "236043f5120fce826392d2170dc84f2491367cc8d8d403ab3b83ec24ea2ca186",
                                     "label": "MLE_HASH",
                                     "info": {
@@ -282,7 +260,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                     "value": "0f6e0c7a5944963d7081ea494ddff1e9afa689e148e39f684db06578869ea38b",
                                     "label": "NV_INFO_HASH",
                                     "info": {
@@ -291,7 +268,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                     "value": "27808f64e6383982cd3bcc10cfcb3457c0b65f465f779d89b668839eaf263a67",
                                     "label": "tb_policy",
                                     "info": {
@@ -305,7 +281,6 @@ var flavor = ` {
                             "value": "d9e55bd1c570a6408fb1368f3663ae92747241fc4d2a3622cef0efadae284d75",
                             "event": [
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                     "value": "da256395df4046319ef0af857d377a729e5bc0693429ac827002ffafe485b2e7",
                                     "label": "SINIT_PUBKEY_HASH",
                                     "info": {
@@ -314,7 +289,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                     "value": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
                                     "label": "CPU_SCRTM_STAT",
                                     "info": {
@@ -323,7 +297,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                     "value": "d81fe96dc500bc43e1cd5800bef9d72b3d030bdb7e860e10c522e4246b30bd93",
                                     "label": "OSSINITDATA_CAP_HASH",
                                     "info": {
@@ -332,7 +305,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                     "value": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
                                     "label": "LCP_AUTHORITIES_HASH",
                                     "info": {
@@ -341,7 +313,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                     "value": "0f6e0c7a5944963d7081ea494ddff1e9afa689e148e39f684db06578869ea38b",
                                     "label": "NV_INFO_HASH",
                                     "info": {
@@ -350,7 +321,6 @@ var flavor = ` {
                                     }
                                 },
                                 {
-                                    "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                     "value": "27808f64e6383982cd3bcc10cfcb3457c0b65f465f779d89b668839eaf263a67",
                                     "label": "tb_policy",
                                     "info": {
