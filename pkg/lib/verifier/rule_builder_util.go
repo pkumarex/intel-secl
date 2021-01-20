@@ -21,7 +21,6 @@ import (
 //getPcrMatchesConstantRules method will create PcrMatchesConstantRule and return the rule
 //return nil if error occurs
 func getPcrMatchesConstantRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcrLogData *types.PCRS, marker common.FlavorPart) ([]rules.Rule, error) {
-
 	var pcrRules []rules.Rule
 	var rule rules.Rule
 	var err error
