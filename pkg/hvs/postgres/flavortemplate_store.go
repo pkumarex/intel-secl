@@ -50,7 +50,7 @@ func (ft *FlavorTemplateStore) Create(flvrTemplate *hvs.FlavorTemplate) (*hvs.Fl
 }
 
 // Retrieve flavor template
-func (ft *FlavorTemplateStore) Retrieve(templateID uuid.UUID,includeDeleted bool) (*hvs.FlavorTemplate, error) {
+func (ft *FlavorTemplateStore) Retrieve(templateID uuid.UUID, includeDeleted bool) (*hvs.FlavorTemplate, error) {
 	defaultLog.Trace("postgres/flavortemplate_store:Retrieve() Entering")
 	defer defaultLog.Trace("postgres/flavortemplate_store:Retrieve() Leaving")
 
@@ -59,23 +59,23 @@ func (ft *FlavorTemplateStore) Retrieve(templateID uuid.UUID,includeDeleted bool
 	if err := row.Scan(&sf.ID, (*PGFlavorTemplateContent)(&sf.Content), &sf.Deleted); err != nil {
 		if strings.Contains(err.Error(), commErr.RowsNotFound) {
 			defaultLog.Error("postgres/flavortemplate_store:Retrieve() Failed to retrieve record from db, %s", commErr.RowsNotFound)
-			return nil, &commErr.StatusNotFoundError{Message : "Failed to retrieve record from db"}
+			return nil, &commErr.StatusNotFoundError{Message: "Failed to retrieve record from db"}
 		} else {
 			return nil, errors.Wrap(err, "postgres/flavortemplate_store:Retrieve() - Could not scan record")
 		}
 	}
-	flavorTemplate := hvs.FlavorTemplate{}
 
-	if includeDeleted || (!includeDeleted && !sf.Deleted ){
-		flavorTemplate = hvs.FlavorTemplate{
+	if includeDeleted || (!includeDeleted && !sf.Deleted) {
+		flavorTemplate := hvs.FlavorTemplate{
 			ID:          sf.ID,
 			Label:       sf.Content.Label,
 			Condition:   sf.Content.Condition,
 			FlavorParts: sf.Content.FlavorParts,
 		}
+		return &flavorTemplate, nil
 	}
 
-	return &flavorTemplate, nil
+	return nil, &commErr.StatusNotFoundError{Message: "FlavorTemplate with given ID is not found"}
 }
 
 // Search flavor template
@@ -120,14 +120,14 @@ func (ft *FlavorTemplateStore) Delete(templateID uuid.UUID) error {
 	defaultLog.Trace("postgres/flavortemplate_store:Delete() Entering")
 	defer defaultLog.Trace("postgres/flavortemplate_store:Delete() Leaving")
 
-	_, err := ft.Retrieve(templateID,false)
+	_, err := ft.Retrieve(templateID, false)
 	if err != nil {
 		switch err.(type) {
 		case *commErr.StatusNotFoundError:
 			defaultLog.Error("postgres/flavortemplate_store:Delete() Flavor template with given ID does not exist or has been deleted")
 			return err
 		default:
-			return errors.Wrap(err,"postgres/flavortemplate_store:Delete() Failed to retrieve FlavorTemplate with the given ID")
+			return errors.Wrap(err, "postgres/flavortemplate_store:Delete() Failed to retrieve FlavorTemplate with the given ID")
 		}
 	}
 
