@@ -5,7 +5,6 @@
 package rules
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/google/uuid"
@@ -63,7 +62,6 @@ func TestPcrEventLogEqualsNoFault(t *testing.T) {
 	result, err = rule.Apply(&vmHostManifest)
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
-	fmt.Println("fault length:", len(result.Faults))
 	assert.Equal(t, 0, len(result.Faults))
 	t.Logf("Equals rule verified for VMware Host Trust Policy")
 
@@ -203,8 +201,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingFault(t *testing.T) {
 		PcrBank:  types.SHA256,
 		EventLogs: []types.EventLog{
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      zeros,
+				Value: zeros,
 			},
 		},
 	}
@@ -215,8 +212,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingFault(t *testing.T) {
 		PcrBank:  types.SHA256,
 		EventLogs: []types.EventLog{
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      ones,
+				Value: ones,
 			},
 		},
 	}
@@ -294,8 +290,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogContainsUnexpectedEntriesFault(t *
 	}
 	unexpectedEventLogs.EventLogs = append(unexpectedEventLogs.EventLogs, testHostManifestEventLogEntry.EventLogs...)
 	unexpectedEventLogs.EventLogs = append(unexpectedEventLogs.EventLogs, types.EventLog{
-		DigestType: util.EVENT_LOG_DIGEST_SHA256,
-		Value:      "x",
+		Value: "x",
 	})
 
 	vmHostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(vmHostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, unexpectedEventLogs)

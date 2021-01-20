@@ -21,7 +21,6 @@ import (
 	"strings"
 
 	commLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
@@ -325,17 +324,15 @@ func createPCRManifest(pcrList []string, eventLog string) (types.PcrManifest, er
 
 				if strings.EqualFold(pcrBank, "SHA256") {
 					pcrManifest.Sha256Pcrs = append(pcrManifest.Sha256Pcrs, types.Pcr{
-						DigestType: fmt.Sprintf(constants.PcrClassNamePrefix+"%d", 256),
-						Index:      pcrIndex,
-						Value:      pcrValue,
-						PcrBank:    shaAlgorithm,
+						Index:   pcrIndex,
+						Value:   pcrValue,
+						PcrBank: shaAlgorithm,
 					})
 				} else if strings.EqualFold(pcrBank, "SHA1") {
 					pcrManifest.Sha1Pcrs = append(pcrManifest.Sha1Pcrs, types.Pcr{
-						DigestType: fmt.Sprintf(constants.PcrClassNamePrefix+"%d", 1),
-						Index:      pcrIndex,
-						Value:      pcrValue,
-						PcrBank:    shaAlgorithm,
+						Index:   pcrIndex,
+						Value:   pcrValue,
+						PcrBank: shaAlgorithm,
 					})
 				}
 			} else {

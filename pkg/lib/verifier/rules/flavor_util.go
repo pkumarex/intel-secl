@@ -6,7 +6,6 @@ package rules
 
 import (
 	"encoding/xml"
-	"fmt"
 	"strings"
 
 	"github.com/google/uuid"
@@ -40,15 +39,10 @@ func FlavorPcr2ManifestPcr(pcrEx *flavor_model.PcrEx, bank types.SHAAlgorithm, i
 		return nil, errors.New("The pcrex value cannot be nil")
 	}
 
-	digestType := fmt.Sprintf(constants.PcrClassNamePrefix+"%d", 1)
-	if bank == types.SHA256 {
-		digestType = fmt.Sprintf(constants.PcrClassNamePrefix+"%d", 256)
-	}
 	return &types.Pcr{
-		DigestType: digestType,
-		Index:      index,
-		Value:      pcrEx.Value,
-		PcrBank:    bank,
+		Index:   index,
+		Value:   pcrEx.Value,
+		PcrBank: bank,
 	}, nil
 }
 

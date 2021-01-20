@@ -149,12 +149,10 @@ func TestPcrEventLogIncludesMissingMeasurement(t *testing.T) {
 		PcrBank:  types.SHA256,
 		EventLogs: []types.EventLog{
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      zeros,
+				Value: zeros,
 			},
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      ones,
+				Value: ones,
 			},
 		},
 		//PcrEventLogs: []types.EventLogCriteria{},
@@ -165,8 +163,7 @@ func TestPcrEventLogIncludesMissingMeasurement(t *testing.T) {
 		PcrBank:  types.SHA256,
 		EventLogs: []types.EventLog{
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      zeros,
+				Value: zeros,
 			},
 		},
 		//PcrEventLogs: []types.EventLogCriteria{},
@@ -270,8 +267,7 @@ func TestPcrEventLogIncludesDifferentMeasurement(t *testing.T) {
 		PcrBank:  types.SHA256,
 		EventLogs: []types.EventLog{
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      zeros,
+				Value: zeros,
 			},
 		},
 		//PcrEventLogs: []types.EventLogCriteria{},
@@ -283,8 +279,7 @@ func TestPcrEventLogIncludesDifferentMeasurement(t *testing.T) {
 		PcrBank:  types.SHA256,
 		EventLogs: []types.EventLog{
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      ones,
+				Value: ones,
 			},
 		},
 		//PcrEventLogs: []types.EventLogCriteria{},
@@ -379,8 +374,7 @@ func TestPcrEventLogIncludesPcrEventLogMissingFault(t *testing.T) {
 		PcrBank:  types.SHA256,
 		EventLogs: []types.EventLog{
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      zeros,
+				Value: zeros,
 			},
 		},
 		//PcrEventLogs: []types.EventLogCriteria{},
@@ -392,8 +386,7 @@ func TestPcrEventLogIncludesPcrEventLogMissingFault(t *testing.T) {
 		PcrBank:  types.SHA256,
 		EventLogs: []types.EventLog{
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      ones,
+				Value: ones,
 			},
 		},
 		//PcrEventLogs: []types.EventLogCriteria{},
@@ -452,7 +445,15 @@ func TestPcrEventLogIncludesNoEventLogInHostManifest(t *testing.T) {
 	assert.Equal(t, constants.FaultPcrEventLogMissing, result.Faults[0].Name)
 	t.Logf("Intel Host Trust Policy - Fault description: %s", result.Faults[0].Description)
 
-	//vmware
+	flavorEvents := types.EventLogEntry{
+		PcrIndex: types.PCR0,
+		PcrBank:  types.SHA256,
+		EventLogs: []types.EventLog{
+			{
+				Value: zeros,
+			},
+		},
+	}
 
 	vmHostManifest := types.HostManifest{
 		PcrManifest: types.PcrManifest{
@@ -465,18 +466,6 @@ func TestPcrEventLogIncludesNoEventLogInHostManifest(t *testing.T) {
 			},
 		},
 	}
-
-	flavorEvents := types.EventLogEntry{
-		PcrIndex: types.PCR0,
-		PcrBank:  types.SHA256,
-		EventLogs: []types.EventLog{
-			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA256,
-				Value:      zeros,
-			},
-		},
-	}
-
 	rule, err = NewPcrEventLogIncludes(&flavorEvents, nil, nil, common.FlavorPartPlatform)
 
 	result, err = rule.Apply(&vmHostManifest)
