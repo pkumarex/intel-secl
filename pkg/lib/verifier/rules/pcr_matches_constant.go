@@ -20,7 +20,6 @@ import (
 
 //NewPcrMatchesConstant collects the expected PCR values
 func NewPcrMatchesConstant(expectedPcr *types.Pcr, expectedPcrLog *types.PCRS, marker common.FlavorPart) (Rule, error) {
-
 	var rule pcrMatchesConstant
 	if expectedPcrLog != nil {
 
@@ -44,6 +43,7 @@ func NewPcrMatchesConstant(expectedPcr *types.Pcr, expectedPcrLog *types.PCRS, m
 	} else {
 		return nil, errors.New("The expected PCR cannot be nil")
 	}
+
 	return &rule, nil
 }
 
@@ -56,7 +56,6 @@ type pcrMatchesConstant struct {
 //Compare both the final hash of the expected and actual values
 //If it mismatches,raise the faults
 func (rule *pcrMatchesConstant) Apply(hostManifest *types.HostManifest) (*hvs.RuleResult, error) {
-
 	result := hvs.RuleResult{}
 	result.Trusted = true // default to true, set to false in fault logic
 	result.Rule.Name = constants.RulePcrMatchesConstant
@@ -70,7 +69,6 @@ func (rule *pcrMatchesConstant) Apply(hostManifest *types.HostManifest) (*hvs.Ru
 		if hostManifest.PcrManifest.IsEmpty() {
 			result.Faults = append(result.Faults, newPcrManifestMissingFault())
 		} else {
-
 			actualPcr, err := hostManifest.PcrManifest.GetPcrValue(types.SHAAlgorithm(rule.expectedPcrLog.PCR.Bank), types.PcrIndex(rule.expectedPcrLog.PCR.Index))
 			if err != nil {
 				return nil, errors.Wrap(err, "Error in getting actual Pcr in Pcr Matches constant rule")
@@ -89,7 +87,6 @@ func (rule *pcrMatchesConstant) Apply(hostManifest *types.HostManifest) (*hvs.Ru
 		if hostManifest.PcrManifest.IsEmpty() {
 			result.Faults = append(result.Faults, newPcrManifestMissingFault())
 		} else {
-
 			actualPcr, err := hostManifest.PcrManifest.GetPcrValue(rule.expectedPcr.PcrBank, rule.expectedPcr.Index)
 			if err != nil {
 				return nil, errors.Wrap(err, "Error in retrieving the actual pcr value")

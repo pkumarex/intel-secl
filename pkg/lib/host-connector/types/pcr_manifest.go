@@ -547,7 +547,6 @@ func (pcrManifest *PcrManifest) GetPcrEventLog(pcrBank SHAAlgorithm, pcrIndex Pc
 
 // GetEventLogCriteria returns the EventLogs for a specific PcrBank/PcrIndex, as per latest hostmanifest
 func (pcrManifest *PcrManifest) GetEventLogCriteria(pcrBank SHAAlgorithm, pcrIndex PcrIndex) ([]EventLogCriteria, error) {
-
 	pI := int(pcrIndex)
 
 	switch pcrBank {
@@ -581,6 +580,7 @@ func (pcrManifest *PcrManifest) GetPcrBanks() []SHAAlgorithm {
 	if len(pcrManifest.Sha256Pcrs) > 0 {
 		bankList = append(bankList, SHA256)
 	}
+
 	return bankList
 }
 
@@ -602,6 +602,7 @@ func getHash(pcrBank SHAAlgorithm) hash.Hash {
 	case SHA512:
 		hash = sha512.New()
 	}
+
 	return hash
 }
 
@@ -623,5 +624,4 @@ func getCumulativeHash(pcrBank SHAAlgorithm) ([]byte, error) {
 	}
 
 	return cumulativeHash, nil
-
 }

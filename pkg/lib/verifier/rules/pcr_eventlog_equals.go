@@ -107,7 +107,6 @@ type pcrEventLogEquals struct {
 // - Also report the missing events by subtracting 'actual' from 'expected' and raising a
 //   PcrEventLogMissingExpectedEntries fault.
 func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.RuleResult, error) {
-
 	result := hvs.RuleResult{}
 	result.Trusted = true
 	result.Rule.Name = rule.ruleName
