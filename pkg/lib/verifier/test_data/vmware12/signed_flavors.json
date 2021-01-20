@@ -82,7 +82,6 @@
                         "value": "f07f14a45e6ef995f28d4e916c57730b63f0b14c",
                         "event": [
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "622654bbb3133ef384627ff943d3fcc312ac5252",
                                 "label": "/b.b00 vmbTrustedBoot=true tboot=0x101b000 no-auto-partition bootUUID=76318446acdf557319907ab65a749906",
                                 "info": {
@@ -138,7 +137,6 @@
                         "value": "a72d3b9445f2a5a2d5a0b36d29fbe081d8aa171c",
                         "event": [
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "a72d3b9445f2a5a2d5a0b36d29fbe081d8aa171c",
                                 "label": "tboot",
                                 "info": {
@@ -156,7 +154,6 @@
                         "value": "f07f14a45e6ef995f28d4e916c57730b63f0b14c",
                         "event": [
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "c98eee9d99224dff94ad43bd29e1e55e1bfa4337",
                                 "label": "jumpstrt.gz",
                                 "info": {
@@ -166,7 +163,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "adc83b19e793491b1c6ea0fd8b46cd9f32e592fc",
                                 "label": "useropts.gz",
                                 "info": {
@@ -176,7 +172,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "da39a3ee5e6b4b0d3255bfef95601890afd80709",
                                 "label": "features.gz",
                                 "info": {
@@ -186,7 +181,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "21b7e01cf1ef30f1fa62a38ed2aaf284cf7350a5",
                                 "label": "chardevs.b00",
                                 "info": {
@@ -200,7 +194,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "126932c3cd5b6606b797b0164616fc5595044557",
                                 "label": "user.b00",
                                 "info": {
@@ -214,7 +207,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "7d3b57f3f381791ec552936fe1734a42c012d789",
                                 "label": "sb.v00",
                                 "info": {
@@ -228,7 +220,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "1d218387a98126dd8b1ace9c08a2bcaf38e9b78a",
                                 "label": "s.v00",
                                 "info": {
@@ -242,7 +233,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "4f20aa3bcfc91a7ffa3a6971c48bcc5fbf4111ac",
                                 "label": "ata_liba.v00",
                                 "info": {
@@ -256,7 +246,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "3e4dde7138d3ae9cd995bfa541aa8c0dd16d3f92",
                                 "label": "ata_pata.v00",
                                 "info": {
@@ -270,7 +259,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "653948774c159b6c2b170110d32c3a031d9904fd",
                                 "label": "ata_pata.v01",
                                 "info": {
@@ -284,7 +272,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "509e3ac52b7f2d5da560c7126a689fb086f6ce8b",
                                 "label": "ata_pata.v02",
                                 "info": {
@@ -298,7 +285,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "659a620f34537b45803de4bf30ccf5dce57fc35e",
                                 "label": "ata_pata.v03",
                                 "info": {
@@ -312,7 +298,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "8f03468628f0051d4b092010c551536182a9dcec",
                                 "label": "ata_pata.v04",
                                 "info": {
@@ -326,7 +311,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "beba25500b3de4d18edf889e1253bbf54b41e6f1",
                                 "label": "ata_pata.v05",
                                 "info": {
@@ -340,7 +324,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "f78dca9f4a1eeaad4097dcebb41ae4a27eb5b532",
                                 "label": "ata_pata.v06",
                                 "info": {
@@ -354,7 +337,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "2b9e7265444f6f9f4e68f85530104ecd4748a739",
                                 "label": "ata_pata.v07",
                                 "info": {
@@ -368,7 +350,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "fbab28cc110ee2d2ca00644c67ff805e2ddebebc",
                                 "label": "block_cc.v00",
                                 "info": {
@@ -382,7 +363,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "838b25110ead0015ce49dde9810f2728cdeb8653",
                                 "label": "bnxtnet.v00",
                                 "info": {
@@ -396,7 +376,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "120c4b569db349950d197768dea0c2d427c4aff9",
                                 "label": "char_ran.v00",
                                 "info": {
@@ -410,7 +389,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "93987b3570452dc46bb55ef969be183607eadfd5",
                                 "label": "ehci_ehc.v00",
                                 "info": {
@@ -424,7 +402,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "7fbba26e2c82505b338714757b1f1a6a8306ec8e",
                                 "label": "elxnet.v00",
                                 "info": {
@@ -438,7 +415,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "6e8c647f56de0b45f03d3d6d6bfc1c9f6664e562",
                                 "label": "hid_hid.v00",
                                 "info": {
@@ -452,7 +428,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "43529c512da26a1140b6a98a897a94bf7272727e",
                                 "label": "i40en.v00",
                                 "info": {
@@ -466,7 +441,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "7b7376f00a929e5ed13bc8d5993a98435d3b8bdd",
                                 "label": "igbn.v00",
                                 "info": {
@@ -480,7 +454,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "34c96ae19ed99c5c07d6a4fa063a304e674f583d",
                                 "label": "ima_qla4.v00",
                                 "info": {
@@ -494,7 +467,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "f46298ea800406802ad62142543661798efcd747",
                                 "label": "ipmi_ipm.v00",
                                 "info": {
@@ -508,7 +480,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "daf5302baaf30c8d90dcdd0daabed5813797361d",
                                 "label": "ipmi_ipm.v01",
                                 "info": {
@@ -522,7 +493,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "363e6c4a81d66e35082fe506f00b62cca95b3e72",
                                 "label": "ipmi_ipm.v02",
                                 "info": {
@@ -536,7 +506,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "3857d043dd3d443b90265524a7980ae57385563d",
                                 "label": "ixgben.v00",
                                 "info": {
@@ -550,7 +519,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "e46d18bd9e7391ce84b7960a4cb5e9f37f7b822e",
                                 "label": "lpfc.v00",
                                 "info": {
@@ -564,7 +532,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "ea9b66e611cc5f9640c80f20b089dd94f05076ca",
                                 "label": "lsi_mr3.v00",
                                 "info": {
@@ -578,7 +545,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "92e0d8d1a17b5ef038ef5d7be09028da1255b9ba",
                                 "label": "lsi_msgp.v00",
                                 "info": {
@@ -592,7 +558,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "b5b6d61c0b8f0abe8cd12d88a3c01d18c71e4bcf",
                                 "label": "lsi_msgp.v01",
                                 "info": {
@@ -606,7 +571,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "a06b9d2f154518119627f9f1e779aeed9604bc38",
                                 "label": "lsi_msgp.v02",
                                 "info": {
@@ -620,7 +584,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "397c6de1c2bfedbd5d3fa5310b4fb4a40f24c3a3",
                                 "label": "misc_cni.v00",
                                 "info": {
@@ -634,7 +597,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "32a19a67091460e5e96fd6ea1f9243a38b7508c6",
                                 "label": "misc_dri.v00",
                                 "info": {
@@ -648,7 +610,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "5b7b6e8e663ed23dcd8371f2ac01f5b34949cf04",
                                 "label": "mtip32xx.v00",
                                 "info": {
@@ -662,7 +623,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "df6fcec7a84981b4b6567a4ca11bbdf3250cd7e9",
                                 "label": "ne1000.v00",
                                 "info": {
@@ -676,7 +636,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "5c0f2a863ecf3e5ef4df5cd37e8951975749cdc7",
                                 "label": "nenic.v00",
                                 "info": {
@@ -690,7 +649,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "bd504c1724a13ac62d6334b67a8d3c91cb373a22",
                                 "label": "net_bnx2.v00",
                                 "info": {
@@ -704,7 +662,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "48cb93052c779ad3d1674c7a72fbc3b91e205160",
                                 "label": "net_bnx2.v01",
                                 "info": {
@@ -718,7 +675,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "d57c7796b59a00712994ea4020ce48976f0e6bde",
                                 "label": "net_cdc_.v00",
                                 "info": {
@@ -732,7 +688,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "0b4b7440a7ec506e6d36af4c32968486ad7f8d81",
                                 "label": "net_cnic.v00",
                                 "info": {
@@ -746,7 +701,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "eec13d553d22205407b93fcedcca28c1831e0a6f",
                                 "label": "net_e100.v00",
                                 "info": {
@@ -760,7 +714,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "22c034ddf72c2bd4d697983a144b8d568a8d608b",
                                 "label": "net_e100.v01",
                                 "info": {
@@ -774,7 +727,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "7f8ef3568961228f79941ed88811573ef72848d8",
                                 "label": "net_enic.v00",
                                 "info": {
@@ -788,7 +740,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "07c153589a5aafe995309c6a7b8e0571fd2f2844",
                                 "label": "net_fcoe.v00",
                                 "info": {
@@ -802,7 +753,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "d6c31572c0b8b88f2379a553fb0a7d9dd0d4cb35",
                                 "label": "net_forc.v00",
                                 "info": {
@@ -816,7 +766,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "1648df7414ee1f012a1343d00163635d3cdcd46b",
                                 "label": "net_igb.v00",
                                 "info": {
@@ -830,7 +779,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "a1da2ae9c4690e496b01532e992bb7c33e914023",
                                 "label": "net_ixgb.v00",
                                 "info": {
@@ -844,7 +792,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "54b903a2d232559f91c1f0864dc3adddb5d79890",
                                 "label": "net_libf.v00",
                                 "info": {
@@ -858,7 +805,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "ac8937094b95be2a0515cfc7cff5c8677baa4b02",
                                 "label": "net_mlx4.v00",
                                 "info": {
@@ -872,7 +818,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "22116a01d2d81f33be01eaceb1d4fe5f66b04e15",
                                 "label": "net_mlx4.v01",
                                 "info": {
@@ -886,7 +831,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "c81adc81137273181cce54c02b812804f1c8d515",
                                 "label": "net_nx_n.v00",
                                 "info": {
@@ -900,7 +844,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "ada4d3f77d2a219b343ee46ce7e0568cabbd8421",
                                 "label": "net_tg3.v00",
                                 "info": {
@@ -914,7 +857,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "a44c4ad364cb265b43b6be759ed5b96fc3ffdc2e",
                                 "label": "net_usbn.v00",
                                 "info": {
@@ -928,7 +870,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "89a6c161be08677fbf060ae5557f46610face903",
                                 "label": "net_vmxn.v00",
                                 "info": {
@@ -942,7 +883,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "75745d6ebec367c4e719ddb49f2e460e4fc37309",
                                 "label": "nhpsa.v00",
                                 "info": {
@@ -956,7 +896,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "d21bdab0984d74cade2f27cdd6195a0f19131a94",
                                 "label": "nmlx4_co.v00",
                                 "info": {
@@ -970,7 +909,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "aac061a6bb7be33aed80df3eb695f98f8ed36ebd",
                                 "label": "nmlx4_en.v00",
                                 "info": {
@@ -984,7 +922,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "92dbe87eb9aff40b8e0e73e8769aa3df39c53d59",
                                 "label": "nmlx4_rd.v00",
                                 "info": {
@@ -998,7 +935,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "4b0a0ad01208233fbb8fcd6f39ede4f697627a2a",
                                 "label": "nmlx5_co.v00",
                                 "info": {
@@ -1012,7 +948,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "b6e4f4460d15b5b606ad552c8e53826fc48d40dc",
                                 "label": "ntg3.v00",
                                 "info": {
@@ -1026,7 +961,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "12c408d7cf54f517e509c6ab848a77a7f5de3b2b",
                                 "label": "nvme.v00",
                                 "info": {
@@ -1040,7 +974,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "8c02992dce4707da12e8b4fdf848b8b1f50ec9f6",
                                 "label": "nvmxnet3.v00",
                                 "info": {
@@ -1054,7 +987,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "b6e8bd478a8979465dd8cdd761a7fc12857bd300",
                                 "label": "ohci_usb.v00",
                                 "info": {
@@ -1068,7 +1000,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "26cb2ca0cda167a82a117f57aaf461661cc5e954",
                                 "label": "pvscsi.v00",
                                 "info": {
@@ -1082,7 +1013,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "7cd7af3e68284a04c4aac8796086020dec632e5b",
                                 "label": "qedentv.v00",
                                 "info": {
@@ -1096,7 +1026,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "c698ec55c0b73dd144207db26bb76a9280f8fa28",
                                 "label": "qfle3.v00",
                                 "info": {
@@ -1110,7 +1039,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "f74695ab9a82dbf120805547b6a80dc5e0cff042",
                                 "label": "qflge.v00",
                                 "info": {
@@ -1124,7 +1052,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "f6940c821db18fc7a7e52d2295170f5665733c94",
                                 "label": "qlnative.v00",
                                 "info": {
@@ -1138,7 +1065,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "4c087c238176ccbc316d7052fd4c526f0fa4d47f",
                                 "label": "sata_ahc.v00",
                                 "info": {
@@ -1152,7 +1078,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "e7cd1774f46c11e646dc589935ea345a5940915c",
                                 "label": "sata_ata.v00",
                                 "info": {
@@ -1166,7 +1091,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "3cb5d4e9cdc570e68ada742af748dc4d33332ef8",
                                 "label": "sata_sat.v00",
                                 "info": {
@@ -1180,7 +1104,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "05269a014c87dc0882b49029c7bf52e845511cef",
                                 "label": "sata_sat.v01",
                                 "info": {
@@ -1194,7 +1117,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "8535467d6a1ae6babe10a6db326c7742e58ff009",
                                 "label": "sata_sat.v02",
                                 "info": {
@@ -1208,7 +1130,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "0da7b38addeba5a977a019264cd63afd77029128",
                                 "label": "sata_sat.v03",
                                 "info": {
@@ -1222,7 +1143,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "6c4162f02e3d9846e91f353cd6f59df4af31389c",
                                 "label": "sata_sat.v04",
                                 "info": {
@@ -1236,7 +1156,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "41b27abbc1bd9459416e73a5a6a535bbf6d24e33",
                                 "label": "scsi_aac.v00",
                                 "info": {
@@ -1250,7 +1169,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "00d13028ecefd4cbacb622383e2058606544bdbe",
                                 "label": "scsi_adp.v00",
                                 "info": {
@@ -1264,7 +1182,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "aa982eab5b1085eaed678993ae3bf1be3e22e64e",
                                 "label": "scsi_aic.v00",
                                 "info": {
@@ -1278,7 +1195,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "217bd79203412710c5926db66faebda2484866d1",
                                 "label": "scsi_bnx.v00",
                                 "info": {
@@ -1292,7 +1208,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "827538ce3755f94ba37b43ff68be1b9dd3b76cd8",
                                 "label": "scsi_bnx.v01",
                                 "info": {
@@ -1306,7 +1221,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "6cecdfab4770e60f339722a439382c57aaf15000",
                                 "label": "scsi_fni.v00",
                                 "info": {
@@ -1320,7 +1234,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "cfc53a2ac5014ac6286cda568913070ea3b541a9",
                                 "label": "scsi_hps.v00",
                                 "info": {
@@ -1334,7 +1247,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "368f5b9ceaab717acde4604aa9737342336dd89d",
                                 "label": "scsi_ips.v00",
                                 "info": {
@@ -1348,7 +1260,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "ebedfb34a78e9558a2cae863c9780762aba93eb3",
                                 "label": "scsi_isc.v00",
                                 "info": {
@@ -1362,7 +1273,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "39ab94dd74891a3807a7009f9684b0857675c17f",
                                 "label": "scsi_lib.v00",
                                 "info": {
@@ -1376,7 +1286,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "dd12f234f9369c27b2bb33f1882814a99937f939",
                                 "label": "scsi_meg.v00",
                                 "info": {
@@ -1390,7 +1299,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "f8c80f2652f7d1804999a37c1b46e1643fa33c11",
                                 "label": "scsi_meg.v01",
                                 "info": {
@@ -1404,7 +1312,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "520875756f322698092bf2053a6ae4fa2b6ac520",
                                 "label": "scsi_meg.v02",
                                 "info": {
@@ -1418,7 +1325,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "ab3d89c79915a124ac9499036342ff3636b0de6f",
                                 "label": "scsi_mpt.v00",
                                 "info": {
@@ -1432,7 +1338,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "744c7ad9380350582693c2ad8c1304c8709091ba",
                                 "label": "scsi_mpt.v01",
                                 "info": {
@@ -1446,7 +1351,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "3c81d95d9bd1ffb2642852f846ab2614740bd5b8",
                                 "label": "scsi_mpt.v02",
                                 "info": {
@@ -1460,7 +1364,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "2d75ad60059c3cc67fae5fb5583b249b0dd14345",
                                 "label": "scsi_qla.v00",
                                 "info": {
@@ -1474,7 +1377,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "1c22b81544da9813b05985d6b28cf5dc4870df11",
                                 "label": "shim_isc.v00",
                                 "info": {
@@ -1488,7 +1390,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "53c52087468b0460386d96dd2a2c962c14faa651",
                                 "label": "shim_isc.v01",
                                 "info": {
@@ -1502,7 +1403,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "7a7d4413b8761ba949c4f305ff0085476114abac",
                                 "label": "shim_lib.v00",
                                 "info": {
@@ -1516,7 +1416,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "da32cba4d856db9400746d86c598530ba262c67f",
                                 "label": "shim_lib.v01",
                                 "info": {
@@ -1530,7 +1429,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "7e23083d40e206dc704c983f033183e144f69dbc",
                                 "label": "shim_lib.v02",
                                 "info": {
@@ -1544,7 +1442,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "b63680b227797892859c3dd9632d34182adbbd82",
                                 "label": "shim_lib.v03",
                                 "info": {
@@ -1558,7 +1455,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "b1d58cae0175ed43c239ab621775e4821d32dfe2",
                                 "label": "shim_lib.v04",
                                 "info": {
@@ -1572,7 +1468,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "5afddc76d6ac0a39afdea7bf1a519d2f0837d4da",
                                 "label": "shim_lib.v05",
                                 "info": {
@@ -1586,7 +1481,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "05cfaa0c323c0fe9954b68160940e1e5348c09de",
                                 "label": "shim_vmk.v00",
                                 "info": {
@@ -1600,7 +1494,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "ede7c9e87699b40308a1dafaf92fe280ab319edc",
                                 "label": "shim_vmk.v01",
                                 "info": {
@@ -1614,7 +1507,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "1b557ae379c32135a19fb586ffc81710db02107b",
                                 "label": "shim_vmk.v02",
                                 "info": {
@@ -1628,7 +1520,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "4620c19e6a18ba4010386dbee719c232ac5a731c",
                                 "label": "smartpqi.v00",
                                 "info": {
@@ -1642,7 +1533,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "f19486c9de463cdd73bbbb2f83f7c78736848628",
                                 "label": "uhci_usb.v00",
                                 "info": {
@@ -1656,7 +1546,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "5a89e83507d1b2c9f434d08fed68da787a0c8a25",
                                 "label": "usb_stor.v00",
                                 "info": {
@@ -1670,7 +1559,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "fe50e91437c781b4e499083ac604d162c1efa4ad",
                                 "label": "usbcore_.v00",
                                 "info": {
@@ -1684,7 +1572,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "a9480f87dcaa76e37f423be4111e0cd90e8320ce",
                                 "label": "vmkata.v00",
                                 "info": {
@@ -1698,7 +1585,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "379ded60f21a43b0162873785e1aaa0ae363e05c",
                                 "label": "vmkplexe.v00",
                                 "info": {
@@ -1712,7 +1598,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "5b8e12b7b194bd52856a43f843457bf5cc33627b",
                                 "label": "vmkusb.v00",
                                 "info": {
@@ -1726,7 +1611,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "aa6f1ec4568c5435f2683b904dafbc0df1a3c425",
                                 "label": "vmw_ahci.v00",
                                 "info": {
@@ -1740,7 +1624,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "1a6172a951bf18834a0769136e105de797cbf46c",
                                 "label": "xhci_xhc.v00",
                                 "info": {
@@ -1754,7 +1637,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "75ae2f66d22c4b338ed91fd7637ccff6848b032b",
                                 "label": "emulex_e.v00",
                                 "info": {
@@ -1768,7 +1650,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "b52a7c9f26c5028dc89879c5bf46efe53aab1217",
                                 "label": "btldr.t00",
                                 "info": {
@@ -1782,7 +1663,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "9d7957f9033fc3062f72499453f16c985e789aa4",
                                 "label": "weaselin.t00",
                                 "info": {
@@ -1796,7 +1676,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "fd1a8d0ce2fc8d3715068e4b70365306f415253e",
                                 "label": "esx_dvfi.v00",
                                 "info": {
@@ -1810,7 +1689,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "a85680a0cdc0428477172099936aa4cf90216c8a",
                                 "label": "esx_ui.v00",
                                 "info": {
@@ -1824,7 +1702,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "27af8ca7f933f5b76ad04f10c2d513d405dd5e54",
                                 "label": "lsu_hp_h.v00",
                                 "info": {
@@ -1838,7 +1715,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "c3a8902e2400f7fd394a7f26d3dc56276072f132",
                                 "label": "lsu_lsi_.v00",
                                 "info": {
@@ -1852,7 +1728,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "e450d4ec4f9e12682b678f6e24fd5576f9f2e9cd",
                                 "label": "lsu_lsi_.v01",
                                 "info": {
@@ -1866,7 +1741,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "7a916dde710382bc9ce6cb3893f618e3745465f5",
                                 "label": "lsu_lsi_.v02",
                                 "info": {
@@ -1880,7 +1754,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "617e71c27e67e40490ef8b196d92c59600e4d49f",
                                 "label": "lsu_lsi_.v03",
                                 "info": {
@@ -1894,7 +1767,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "df71eb8754aee3b64952f92817fd37358e38ab0e",
                                 "label": "native_m.v00",
                                 "info": {
@@ -1908,7 +1780,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "9ca79b6b905a76d7d04d4ebe52abfabe0eddc091",
                                 "label": "rste.v00",
                                 "info": {
@@ -1922,7 +1793,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "f12c64fba90fb10a057d501a4d3cf1c74972a47c",
                                 "label": "vmware_e.v00",
                                 "info": {
@@ -1936,7 +1806,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "1219a8115bc796b67dfac7ff192c5fc856dc2b97",
                                 "label": "vsan.v00",
                                 "info": {
@@ -1950,7 +1819,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "d35fc7ac1ee525f7e3b89a0dc572373adf483ea3",
                                 "label": "vsanheal.v00",
                                 "info": {
@@ -1964,7 +1832,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "b1e81aa3f19579e9e4999bb6f148e67eed29196f",
                                 "label": "vsanmgmt.v00",
                                 "info": {
@@ -1978,7 +1845,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "1657a7077e54344652f3c2d1cb447bce5521591a",
                                 "label": "xorg.v00",
                                 "info": {
@@ -1992,7 +1858,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "739aff7705b06ba29c915e41491105672507b632",
                                 "label": "execInstalledOnly = FALSE",
                                 "info": {
@@ -2007,7 +1872,6 @@
                         "value": "c26cf02b855d46014b3f16a376a8691013df5e74",
                         "event": [
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "0000000000000000000000000000000000000000",
                                 "label": "b",
                                 "info": {
@@ -2020,7 +1884,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
                                 "value": "0000000000000000000000000000000000000000",
                                 "label": "k",
                                 "info": {

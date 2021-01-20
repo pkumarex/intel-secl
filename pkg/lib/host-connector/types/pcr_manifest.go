@@ -26,17 +26,15 @@ const (
 )
 
 type Pcr struct {
-	DigestType string       `json:"digest_type"`
-	Index      PcrIndex     `json:"index"`
-	Value      string       `json:"value"`
-	PcrBank    SHAAlgorithm `json:"pcr_bank"`
+	Index   PcrIndex     `json:"index"`
+	Value   string       `json:"value"`
+	PcrBank SHAAlgorithm `json:"pcr_bank"`
 }
 
 type EventLog struct {
-	DigestType string            `json:"digest_type"`
-	Value      string            `json:"value"`
-	Label      string            `json:"label"`
-	Info       map[string]string `json:"info"`
+	Value string            `json:"value"`
+	Label string            `json:"label"`
+	Info  map[string]string `json:"info"`
 }
 
 type EventLogCriteria struct {
@@ -94,7 +92,7 @@ type PcrManifest struct {
 type PcrIndex int
 
 func (p Pcr) EqualsWithoutValue(pcr Pcr) bool {
-	return p.DigestType == pcr.DigestType && reflect.DeepEqual(p.Index, pcr.Index) && reflect.DeepEqual(p.PcrBank, pcr.PcrBank)
+	return reflect.DeepEqual(p.Index, pcr.Index) && reflect.DeepEqual(p.PcrBank, pcr.PcrBank)
 }
 
 // String returns the string representation of the PcrIndex
