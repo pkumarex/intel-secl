@@ -346,7 +346,6 @@ func (pcrEventLogMap *PcrEventLogMapFC) GetEventLogNew(pcrBank string, pcrIndex 
 // if the bank/index of 'eventLogEntry' and 'eventsToSubtract' do not match.
 // Note: 'eventLogEntry' and 'eventsToSubract' are not altered.
 func (eventLogEntry *EventLogEntry) Subtract(eventsToSubtract *EventLogEntry) (*EventLogEntry, error) {
-
 	if eventLogEntry.PcrBank != eventsToSubtract.PcrBank {
 		return nil, errors.Errorf("The PCR banks do not match: '%s' != '%s'", eventLogEntry.PcrBank, eventsToSubtract.PcrBank)
 	}
@@ -382,7 +381,6 @@ func (eventLogEntry *EventLogEntry) Subtract(eventsToSubtract *EventLogEntry) (*
 // if the bank/index of 'eventLogEntry' and 'eventsToSubtract' do not match.
 // Note: 'eventLogEntry' and 'eventsToSubract' are not altered.
 func (eventLogEntry *TpmEventLog) Subtract(eventsToSubtract *TpmEventLog) (*TpmEventLog, *TpmEventLog, error) {
-
 	if eventLogEntry.Pcr.Bank != eventsToSubtract.Pcr.Bank {
 		return nil, nil, errors.Errorf("The PCR banks do not match: '%s' != '%s'", eventLogEntry.Pcr.Bank, eventsToSubtract.Pcr.Bank)
 	}
@@ -459,7 +457,6 @@ func (eventLogEntry *TpmEventLog) Subtract(eventsToSubtract *TpmEventLog) (*TpmE
 // Returns the string value of the "cumulative" hash of the
 // an event log.
 func (eventLogEntry *EventLogEntry) Replay() (string, error) {
-
 	//get the cumulative hash based on the pcr bank
 	cumulativeHash, err := getCumulativeHash(eventLogEntry.PcrBank)
 	if err != nil {
@@ -494,7 +491,6 @@ func (eventLogEntry *EventLogEntry) Replay() (string, error) {
 // Returns the string value of the "cumulative" hash of the
 // an event log.
 func (eventLogEntry *TpmEventLog) Replay() (string, error) {
-
 	//get the cumulative hash based on the pcr bank
 	cumulativeHash, err := getCumulativeHash(SHAAlgorithm(eventLogEntry.Pcr.Bank))
 	if err != nil {
