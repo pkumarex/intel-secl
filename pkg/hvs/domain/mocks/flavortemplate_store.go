@@ -6,7 +6,6 @@ package mocks
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -92,7 +91,7 @@ func (store *MockFlavorTemplateStore) Retrieve(templateID uuid.UUID, includeDele
 			return &template, nil
 		}
 	}
-	return nil, errors.New("no rows in result set")
+	return nil, &commErr.StatusNotFoundError{Message: "FlavorTemplate with given ID is not found"}
 }
 
 // Search a Flavortemplate(s)
@@ -115,7 +114,7 @@ func (store *MockFlavorTemplateStore) Delete(templateID uuid.UUID) error {
 			return nil
 		}
 	}
-	return errors.New(commErr.RowsNotFound)
+	return &commErr.StatusNotFoundError{Message: "FlavorTemplate with given ID is not found"}
 }
 
 // Recover a Flavortemplate

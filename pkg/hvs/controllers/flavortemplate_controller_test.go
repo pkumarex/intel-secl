@@ -31,13 +31,13 @@ var _ = Describe("FlavorTemplateController", func() {
 		flavorTemplateStore = mocks.NewFakeFlavorTemplateStore()
 
 		flavorTemplateController = controllers.NewFlavorTemplateController(flavorTemplateStore,
-			"../domain/schema/common.schema.json", "../domain/schema/flavor-template.json")
+			"../../../build/linux/hvs/schema/common.schema.json", "../../../build/linux/hvs/schema/flavor-template.json")
 	})
 
 	// Specs for HTTP Post to "/flavor-template"
 	Describe("Post a new FlavorTemplate", func() {
 		Context("Provide a valid FlavorTemplate data", func() {
-			It("Should create a new Flavortemplate and get HTTP Status: 200", func() {
+			It("Should create a new Flavortemplate and get HTTP Status: 201", func() {
 				router.Handle("/flavor-templates", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Create))).Methods("POST")
 				flavorTemplateJson := `{
 					"label": "default-uefi",
