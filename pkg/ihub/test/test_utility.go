@@ -290,7 +290,7 @@ func MockServer(t *testing.T) (*http.Server, string) {
 		}
 	}).Methods("GET")
 
-	r.HandleFunc("/sgx-hvs/v1/platform-data", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/sgx-hvs/v2/platform-data", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
 
@@ -304,7 +304,7 @@ func MockServer(t *testing.T) (*http.Server, string) {
 		}
 	}).Methods("GET")
 
-	r.HandleFunc("/sgx-hvs/v1/platform-data?HostName=worker-node1", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/sgx-hvs/v2/platform-data?HostName=worker-node1", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
 
@@ -318,7 +318,7 @@ func MockServer(t *testing.T) (*http.Server, string) {
 		}
 	}).Methods("GET")
 
-	r.HandleFunc("/sgx-hvs/v1/noauth/version", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/sgx-hvs/v2/noauth/version", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
 	}).Methods("GET")

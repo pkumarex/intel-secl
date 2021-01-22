@@ -58,7 +58,7 @@ func TestAttestationServiceConnectionRun(t *testing.T) {
 			},
 			EnvValues: map[string]string{
 				"ATTESTATION_TYPE":        "SGX",
-				"ATTESTATION_SERVICE_URL": "http://localhost" + port + "/sgx-hvs/v1/",
+				"ATTESTATION_SERVICE_URL": "http://localhost" + port + "/sgx-hvs/v2/",
 			},
 
 			wantErr: false,

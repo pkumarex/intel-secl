@@ -51,7 +51,7 @@ func TestGetHostReportsSGX(t *testing.T) {
 						Password: "hubAdminPass",
 					},
 					AttestationService: config.AttestationConfig{
-						AttestationURL: "http://localhost" + port + "/sgx-hvs/v1",
+						AttestationURL: "http://localhost" + port + "/sgx-hvs/v2",
 					},
 				},
 			},
@@ -101,7 +101,7 @@ func TestGetSHVSVersion(t *testing.T) {
 						Password: "hubAdminPass",
 					},
 					AttestationService: config.AttestationConfig{
-						AttestationURL: "http://localhost" + port + "/sgx-hvs/v1",
+						AttestationURL: "http://localhost" + port + "/sgx-hvs/v2",
 					},
 				},
 			},
@@ -150,7 +150,7 @@ func Test_initializeSKCClient(t *testing.T) {
 					},
 					AttestationService: config.AttestationConfig{
 						AttestationType: "SGX",
-						AttestationURL:  "http://localhost" + port + "/sgx-hvs/v1",
+						AttestationURL:  "http://localhost" + port + "/sgx-hvs/v2",
 					},
 				},
 			},

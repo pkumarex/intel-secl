@@ -219,7 +219,7 @@ func TestOpenstackPluginInit(t *testing.T) {
 			configuration: &config.Configuration{
 				AASApiUrl: "http://localhost" + port + "/aas",
 				AttestationService: config.AttestationConfig{
-					AttestationType: constants.AttestationTypeSGX, AttestationURL: "http://localhost" + port + "/sgx-hvs/v1"},
+					AttestationType: constants.AttestationTypeSGX, AttestationURL: "http://localhost" + port + "/sgx-hvs/v2"},
 				Endpoint: config.Endpoint{
 					Type:     "OPENSTACK",
 					URL:      "http://localhost" + port + "/openstack/api/",
