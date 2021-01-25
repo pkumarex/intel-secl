@@ -269,7 +269,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogContainsUnexpectedEntriesFault(t *
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, len(result.Faults))
 	assert.Equal(t, constants.FaultPcrEventLogContainsUnexpectedEntries, result.Faults[0].Name)
-	assert.NotNil(t, result.Faults[0].UnexpectedEntriesNew)
+	assert.NotNil(t, result.Faults[0].UnexpectedEventEntries)
 	t.Logf("Intel Host Trust Policy - Fault description: %s", result.Faults[0].Description)
 
 	//vmware
@@ -343,7 +343,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingExpectedEntriesFault(t *tes
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, len(result.Faults))
 	assert.Equal(t, constants.FaultPcrEventLogMissingExpectedEntries, result.Faults[0].Name)
-	assert.NotNil(t, result.Faults[0].MissingEntriesNew)
+	assert.NotNil(t, result.Faults[0].MissingEventEntries)
 	t.Logf("Intel Host Trust Policy - Fault description: %s", result.Faults[0].Description)
 
 	//vmware
