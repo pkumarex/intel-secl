@@ -39,9 +39,9 @@ var svcEnvHelp = map[string]string{
 const svcEnvHelpPrompt2 = "Following generic environment variables are required for Service setup:"
 
 var svcEnvHelp2 = map[string]string{
-	"AAS_BASE_URL":         "The url to AAS",
-	"CMS_BASE_URL":         "The url to CMS",
-	"CMS_TLS_CERT_SHA384":  "The certificate sha384 digest of CMS",
+	"AAS_BASE_URL":        "The url to AAS",
+	"CMS_BASE_URL":        "The url to CMS",
+	"CMS_TLS_CERT_SHA384": "The certificate sha384 digest of CMS",
 }
 
 func (t *ServiceSetup) Run() error {

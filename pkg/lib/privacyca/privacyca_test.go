@@ -33,9 +33,9 @@ var aikModulus, _ = base64.StdEncoding.DecodeString("musrA8GOcUtcD3phno/e4XseAdz
 var aikName, _ = base64.StdEncoding.DecodeString("AAuTbAaKYOG2opc4QXq0QzsUHFRMsV0m5lcmRK4SLrzdRA==")
 
 var identityReq = taModel.IdentityRequest{
-	TpmVersion:           "2.0",
-	AikModulus:           aikModulus,
-	AikName:              aikName,
+	TpmVersion: "2.0",
+	AikModulus: aikModulus,
+	AikName:    aikName,
 }
 
 var publicKeyModulus, _ = base64.StdEncoding.DecodeString("ARYAAQALAAIAcgAAABAAEAgAAAAAAAEAnY4+SdHJYtd2cWgZWJPZYlG77k4nty/4qTXW7ovbx08PCRI2XtiW3x8DaGEOsjpv43vc4GBXOyAP/zZxCBBUTnh8ZxbrQY33vEvK51phPC1ADabMpcmvgntNXOUbYOL95raQpAbA0+ksKpHlA0s+Yx6T5AsLypCYVoCQ+GQoN0pQu9JTmhlo7/+KVP87hmqMiziKr3dYrBDrDlwDd1+UgrN6UvweHNOtct5xKkXa5WCF2GrXTaDZNZpHyL6AXtblGkrnVFbfNGiIuOy1717YqjyCEikXmj1Ar67XogGS0/KG1Aug2C2xEI1wDEZUvkpHg9rU8AAbWhkp756xKFhIcw==")

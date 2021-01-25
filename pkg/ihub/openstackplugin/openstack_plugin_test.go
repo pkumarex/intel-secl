@@ -178,7 +178,7 @@ func TestOpenstackPluginInit(t *testing.T) {
 			name: "Testing for failures 2",
 			configuration: &config.Configuration{
 				AASApiUrl: "http://localhost" + port + "/aas",
-				Endpoint:  config.Endpoint{
+				Endpoint: config.Endpoint{
 					Type:     "OPENSTACK",
 					URL:      "http://localhost" + port + "/openstack/api/",
 					AuthURL:  "http://localhost" + port + "/v3/auth/tokens",

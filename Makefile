@@ -36,7 +36,7 @@ ifeq ($(PROXY_EXISTS),1)
 else
 	docker build -f build/image/Dockerfile-$* -t isecl/$*:$(VERSION) .
 endif
-	docker save isecl/$*:$(VERSION) > deployments/docker/docker-$*-$(VERSION)-$(GITCOMMIT).tar
+	docker save isecl/$*:$(VERSION) > deployments/container-archive/docker/docker-$*-$(VERSION)-$(GITCOMMIT).tar
 
 %-swagger:
 	mkdir -p docs/swagger
@@ -48,10 +48,13 @@ installer: $(patsubst %, %-installer, $(TARGETS)) authservice-installer aas-mana
 
 docker: $(patsubst %, %-docker, $(TARGETS))
 
+%-oci-archive: %-docker
+	skopeo copy docker-daemon:isecl/$*:$(VERSION) oci-archive:deployments/container-archive/oci/$*-$(VERSION)-$(GITCOMMIT).tar
+
 kbs-docker: kbs
 	cp /usr/local/lib/libkmip.so.0.2 build/image/
 	docker build . -f build/image/Dockerfile-kbs -t isecl/kbs:$(VERSION)
-	docker save isecl/kbs:$(VERSION) > deployments/docker/docker-kbs-$(VERSION)-$(GITCOMMIT).tar
+	docker save isecl/kbs:$(VERSION) > deployments/container-archive/docker/docker-kbs-$(VERSION)-$(GITCOMMIT).tar
 
 authservice: aas
 	mv cmd/aas/aas cmd/aas/authservice
@@ -82,6 +85,7 @@ all: clean installer test
 clean:
 	rm -f cover.*
 	rm -rf deployments/installer/*.bin
-	rm -rf deployments/docker/*.tar
+	rm -rf deployments/container-archive/docker/*.tar
+	rm -rf deployments/container-archive/oci/*.tar
 
 .PHONY: installer test all clean kbs-docker aas-manager kbs authservice authservice-installer

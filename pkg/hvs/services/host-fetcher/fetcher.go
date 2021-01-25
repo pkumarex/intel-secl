@@ -245,7 +245,7 @@ func (svc *Service) Retrieve(ctx context.Context, host hvs.Host) (*types.HostMan
 
 	hostData, err := svc.GetHostData(host.ConnectionString)
 	hostStatus := &hvs.HostStatus{
-		HostID: host.Id,
+		HostID:                host.Id,
 		HostStatusInformation: hvs.HostStatusInformation{},
 	}
 	if err != nil {
@@ -322,7 +322,7 @@ func (svc *Service) FetchDataAndRespond(hId uuid.UUID, connUrl string) {
 		err = svc.hss.Persist(&hvs.HostStatus{
 			HostID: hId,
 			HostStatusInformation: hvs.HostStatusInformation{
-				HostState:         hostState,
+				HostState: hostState,
 			},
 		})
 		if err != nil {

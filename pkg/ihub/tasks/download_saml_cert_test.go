@@ -52,16 +52,16 @@ func TestDownloadSamlCertValidate(t *testing.T) {
 			name: "download-saml-cert-validate valid test",
 			d: DownloadSamlCert{
 				AttestationConfig: &c1.AttestationService,
-				SamlCertPath: temp.Name(),
-				ConsoleWriter: os.Stdout,
+				SamlCertPath:      temp.Name(),
+				ConsoleWriter:     os.Stdout,
 			},
 			wantErr: false,
 		}, {
 			name: "download-saml-cert-validate negative test",
 			d: DownloadSamlCert{
 				AttestationConfig: &c2.AttestationService,
-				SamlCertPath: "",
-				ConsoleWriter: os.Stdout,
+				SamlCertPath:      "",
+				ConsoleWriter:     os.Stdout,
 			},
 			wantErr: true,
 		},
@@ -111,8 +111,8 @@ func TestDownloadSamlCertRun(t *testing.T) {
 			name: "download-saml-cert-run valid test",
 			d: DownloadSamlCert{
 				AttestationConfig: &config.AttestationConfig{},
-				SamlCertPath: tempSamlFile.Name(),
-				ConsoleWriter: os.Stdout,
+				SamlCertPath:      tempSamlFile.Name(),
+				ConsoleWriter:     os.Stdout,
 			},
 			EnvValues: map[string]string{
 				"ATTESTATION_TYPE":        "HVS",
@@ -125,8 +125,8 @@ func TestDownloadSamlCertRun(t *testing.T) {
 			name: "download-saml-cert-run negative test",
 			d: DownloadSamlCert{
 				AttestationConfig: &config.AttestationConfig{},
-				SamlCertPath: "",
-				ConsoleWriter: os.Stdout,
+				SamlCertPath:      "",
+				ConsoleWriter:     os.Stdout,
 			},
 			EnvValues: map[string]string{
 				"ATTESTATION_TYPE":        "HVS",

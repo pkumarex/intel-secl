@@ -8,6 +8,7 @@ import (
 	"crypto/x509/pkix"
 	"fmt"
 	cos "github.com/intel-secl/intel-secl/v3/pkg/lib/common/os"
+	"os"
 	"strings"
 
 	"github.com/intel-secl/intel-secl/v3/pkg/kbs/constants"
@@ -90,7 +91,13 @@ func (app *App) setup(args []string) error {
 			return errors.New("Failed to run setup task " + cmd)
 		}
 	}
-	return cos.ConfigDirChown(constants.ServiceUserName, app.configDir())
+
+	// Containers are always run as non root users, does not require changing ownership of config directories
+	if _, err := os.Stat("/.container-env"); err == nil {
+		return nil
+	}
+
+	return cos.ChownDirForUser(constants.ServiceUserName, app.configDir())
 }
 
 // App helper function for setting up the task runner

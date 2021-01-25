@@ -1,5 +1,6 @@
 #!/bin/bash
 
+USER_ID=$(id -u)
 SERVICE_USERNAME=ihub
 PRODUCT_HOME=/opt/$SERVICE_USERNAME
 BIN_PATH=$PRODUCT_HOME/bin
@@ -16,7 +17,7 @@ if [ ! -f $CONFIG_PATH/.setup_done ]; then
       echo "Cannot create directory: $directory"
       exit 1
     fi
-    chown -R $SERVICE_USERNAME:$SERVICE_USERNAME $directory
+    chown -R $USER_ID:$USER_ID $directory
     chmod 700 $directory
   done
   ihub setup all
@@ -24,6 +25,16 @@ if [ ! -f $CONFIG_PATH/.setup_done ]; then
     exit 1
   fi
   touch $CONFIG_PATH/.setup_done
+fi
+
+if [ ! -z $SETUP_TASK ]; then
+  IFS=',' read -ra ADDR <<< "$SETUP_TASK"
+  for task in "${ADDR[@]}"; do
+    ihub setup $task --force
+    if [ $? -ne 0 ]; then
+      exit 1
+    fi
+  done
 fi
 
 ihub run

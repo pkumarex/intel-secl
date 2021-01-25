@@ -89,7 +89,7 @@ func GetDirFileContents(dir, pattern string) ([][]byte, error) {
 	return dirContents, nil
 }
 
-func ConfigDirChown(serviceUserName, configDir string) error {
+func ChownDirForUser(serviceUserName, configDir string) error {
 	svcUser, err := user.Lookup(serviceUserName)
 	if err != nil {
 		return errors.Wrapf(err, "Could not find service user '%s'", serviceUserName)

@@ -1,9 +1,9 @@
 FROM centos:8
 
-RUN useradd -u 1001 --comment "Authservice" --home /opt/authservice  --shell /bin/false aas
-
 COPY cmd/aas/aas /usr/bin/aas
 
-COPY build/image/entrypoint-aas.sh /usr/local/bin/entrypoint.sh
+COPY build/image/entrypoint-aas.sh /entrypoint.sh
 
-ENTRYPOINT [ "/usr/local/bin/entrypoint.sh"]
+RUN touch /.container-env && chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]

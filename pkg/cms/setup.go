@@ -7,6 +7,7 @@ package cms
 import (
 	"fmt"
 	"github.com/intel-secl/intel-secl/v3/pkg/cms/config"
+	"os"
 	"strings"
 
 	"github.com/intel-secl/intel-secl/v3/pkg/cms/constants"
@@ -94,7 +95,12 @@ func (a *App) setup(args []string) error {
 	if err != nil {
 		return errors.Wrap(err, "Error saving config")
 	}
-	return cos.ConfigDirChown(constants.ServiceUserName, a.configDir())
+	// Containers are always run as non root users, does not require changing ownership of config directories
+	if _, err := os.Stat("/.container-env"); err == nil {
+		return nil
+	}
+
+	return cos.ChownDirForUser(constants.ServiceUserName, a.configDir())
 }
 
 // a helper function for setting up the task runner
