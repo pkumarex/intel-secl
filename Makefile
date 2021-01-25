@@ -9,7 +9,7 @@ ifeq ($(PROXY_EXISTS),1)
 	DOCKER_PROXY_FLAGS = --build-arg http_proxy=${http_proxy} --build-arg https_proxy=${https_proxy}
 endif
 
-TARGETS = cms kbs ihub hvs aas
+TARGETS = cms kbs ihub hvs aas flavorgen
 
 $(TARGETS):
 	cd cmd/$@ && env CGO_CFLAGS_ALLOW="-f.*" GOOS=linux GOSUMDB=off GOPROXY=direct \
