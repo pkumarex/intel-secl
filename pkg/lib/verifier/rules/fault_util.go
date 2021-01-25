@@ -59,7 +59,7 @@ func newPcrEventLogMissingExpectedEntries(eventLogEntry *types.EventLogEntry, pc
 			Description:       fmt.Sprintf("Module manifest for PCR %d of %s value missing %d expected entries", pcrEventLogEntry.Pcr.Index, pcrEventLogEntry.Pcr.Bank, len(pcrEventLogEntry.TpmEvent)),
 			PcrIndex:          &pIndex,
 			PcrBank:           &pBank,
-			MissingEntriesNew: pcrEventLogEntry.TpmEvent,
+			MissingEventEntries: pcrEventLogEntry.TpmEvent,
 		}
 	} else {
 		return hvs.Fault{
@@ -90,7 +90,7 @@ func newPcrEventLogContainsUnexpectedEntries(eventLogEntry *types.EventLogEntry,
 			Description:          fmt.Sprintf("Module manifest for PCR %d of %s value contains %d unexpected entries", pcrEventLogEntry.Pcr.Index, pcrEventLogEntry.Pcr.Bank, len(pcrEventLogEntry.TpmEvent)),
 			PcrIndex:             &pIndex,
 			PcrBank:              &pBank,
-			UnexpectedEntriesNew: pcrEventLogEntry.TpmEvent,
+			UnexpectedEventEntries: pcrEventLogEntry.TpmEvent,
 		}
 	} else {
 		return hvs.Fault{

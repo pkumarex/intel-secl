@@ -125,9 +125,9 @@ func TestPcrEventLogIncludesMissingMeasurement(t *testing.T) {
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, len(result.Faults))
 	assert.Equal(t, constants.FaultPcrEventLogMissingExpectedEntries, result.Faults[0].Name)
-	assert.NotNil(t, result.Faults[0].MissingEntriesNew)
-	assert.Equal(t, 1, len(result.Faults[0].MissingEntriesNew))
-	assert.Equal(t, ones, result.Faults[0].MissingEntriesNew[0].Measurement)
+	assert.NotNil(t, result.Faults[0].MissingEventEntries)
+	assert.Equal(t, 1, len(result.Faults[0].MissingEventEntries))
+	assert.Equal(t, ones, result.Faults[0].MissingEventEntries[0].Measurement)
 	t.Logf("Intel Host Trust Policy - Fault description: %s", result.Faults[0].Description)
 
 	//vmware
@@ -244,9 +244,9 @@ func TestPcrEventLogIncludesDifferentMeasurement(t *testing.T) {
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, len(result.Faults))
 	assert.Equal(t, constants.FaultPcrEventLogMissingExpectedEntries, result.Faults[0].Name)
-	assert.NotNil(t, result.Faults[0].MissingEntriesNew)
-	assert.Equal(t, 1, len(result.Faults[0].MissingEntriesNew))
-	assert.Equal(t, zeros, result.Faults[0].MissingEntriesNew[0].Measurement)
+	assert.NotNil(t, result.Faults[0].MissingEventEntries)
+	assert.Equal(t, 1, len(result.Faults[0].MissingEventEntries))
+	assert.Equal(t, zeros, result.Faults[0].MissingEventEntries[0].Measurement)
 	t.Logf("Intel Host Trust Policy - Fault description: %s", result.Faults[0].Description)
 
 	//vmware

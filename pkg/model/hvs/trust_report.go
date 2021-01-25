@@ -54,7 +54,7 @@ type RuleInfo struct {
 	ExpectedEventLogs        []types.EventLog       `json:"expected,omitempty"`
 	ExpectedMeasurements     []ta.FlavorMeasurement `json:"expected_measurements,omitempty"`
 	ExpectedEventLogEntry    *types.EventLogEntry   `json:"expected_values,omitempty"`
-	ExpectedPcrEventLogEntry *types.TpmEventLog `json:"expected_pcrvalues,omitempty"`
+	ExpectedPcrEventLogEntry *types.TpmEventLog     `json:"expected_pcrvalues,omitempty"`
 	Exclude_Tags             []string               `json:"excluding_tag,omitempty"`
 	ExpectedTag              []byte                 `json:"expected_tag,omitempty"`
 	Tags                     map[string]string      `json:"tags,omitempty"`
@@ -68,9 +68,9 @@ type Fault struct {
 	ExpectedPcrValue        *string                  `json:"expected_pcrvalue,omitempty"`
 	ActualPcrValue          *string                  `json:"actual_pcrvalue,omitempty"`
 	MissingEntries          []types.EventLog         `json:"missing_entries,omitempty"`
-	MissingEntriesNew       []types.EventLogCriteria `json:"missing_entries_new,omitempty"`
+	MissingEventEntries     []types.EventLogCriteria `json:"missing_event_entries,omitempty"`
 	UnexpectedEntries       []types.EventLog         `json:"unexpected_entries,omitempty"`
-	UnexpectedEntriesNew    []types.EventLogCriteria `json:"unexpected_entries_new,omitempty"`
+	UnexpectedEventEntries  []types.EventLogCriteria `json:"unexpected_event_entries,omitempty"`
 	ActualEventLog          []types.EventLog         `json:"actual_events,omitempty"`
 	ExpectedEventLog        []types.EventLog         `json:"expected_events,omitempty"`
 	IncludesEventLogEntries []types.EventLog         `json:"includes_entries,omitempty"`
