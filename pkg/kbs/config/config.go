@@ -47,8 +47,9 @@ type KmipConfig struct {
 }
 
 type SKCConfig struct {
-	StmLabel string `yaml:"challenge-type" mapstructure:"challenge-type"`
-	SQVSUrl  string `yaml:"sqvs-url" mapstructure:"sqvs-url"`
+	StmLabel          string `yaml:"challenge-type" mapstructure:"challenge-type"`
+	SQVSUrl           string `yaml:"sqvs-url" mapstructure:"sqvs-url"`
+	SessionExpiryTime int    `yaml:"session-expiry-time" mapstructure:"session-expiry-time"`
 }
 
 // init sets the configuration file name and type

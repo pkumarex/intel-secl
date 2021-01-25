@@ -4,11 +4,16 @@
  */
 package kbs
 
+import (
+	"time"
+)
+
 type KeyTransferSession struct {
-	SWK            []byte `json:"swk"`
-	SessionId      string `json:"sessionid"`
-	ClientCertHash string `json:"clientcerthash"`
-	Stmlabel       string `json:"stmlabel"`
+	SWK               []byte `json:"swk"`
+	SessionId         string `json:"sessionid"`
+	ClientCertHash    string `json:"clientcerthash"`
+	Stmlabel          string `json:"stmlabel"`
+	SessionExpiryTime time.Time
 }
 
 type ChallengeRequest struct {

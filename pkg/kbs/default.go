@@ -80,8 +80,9 @@ func defaultConfig() *config.Configuration {
 			RootCert:   viper.GetString("kmip-root-cert-path"),
 		},
 		Skc: config.SKCConfig{
-			StmLabel: viper.GetString("skc-challenge-type"),
-			SQVSUrl:  viper.GetString("sqvs-url"),
+			StmLabel:          viper.GetString("skc-challenge-type"),
+			SQVSUrl:           viper.GetString("sqvs-url"),
+			SessionExpiryTime: viper.GetInt("session-expiry-time"),
 		},
 	}
 }
