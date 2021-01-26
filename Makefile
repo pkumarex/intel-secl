@@ -49,7 +49,7 @@ installer: $(patsubst %, %-installer, $(TARGETS)) authservice-installer aas-mana
 docker: $(patsubst %, %-docker, $(TARGETS))
 
 %-oci-archive: %-docker
-	skopeo copy docker-daemon:isecl/$*:$(VERSION) oci-archive:deployments/container-archive/oci/$*-$(VERSION)-$(GITCOMMIT).tar
+	skopeo copy docker-daemon:isecl/$*:$(VERSION) oci-archive:deployments/container-archive/oci/$*-$(VERSION)-$(GITCOMMIT).tar:$(VERSION)
 
 kbs-docker: kbs
 	cp /usr/local/lib/libkmip.so.0.2 build/image/
