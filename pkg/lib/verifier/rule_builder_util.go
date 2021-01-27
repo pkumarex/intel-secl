@@ -30,6 +30,7 @@ func getPcrMatchesConstantRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcrLo
 		if err != nil {
 			return nil, errors.Wrapf(err, "An error occurred creating a PcrMatchesConstant rule ")
 		}
+		pcrRules = append(pcrRules, rule)
 	} else {
 		// iterate over the banks, collecting the values for each supplied index
 		// and create PcrMatchesConstant rules.
@@ -48,7 +49,6 @@ func getPcrMatchesConstantRules(pcrs []types.PcrIndex, flavor *hvs.Flavor, pcrLo
 			}
 		}
 	}
-	pcrRules = append(pcrRules, rule)
 
 	return pcrRules, nil
 }
@@ -72,7 +72,6 @@ func getPcrEventLogEqualsRules(pcrs []types.PcrIndex, pcrLogData *types.PCRS, fl
 			return nil, errors.Wrapf(err, "An error occurred creating a PcrEventLogEquals rule for bank '%s', index '%d'", pcrLogData.PCR.Bank, pcrLogData.PCR.Index)
 		}
 		pcrRules = append(pcrRules, rule)
-
 	} else {
 		// iterate over the banks, collecting the values for each supplied index
 		// and create PcrEventLogEquals rules (when present).
