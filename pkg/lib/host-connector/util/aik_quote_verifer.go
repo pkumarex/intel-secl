@@ -340,7 +340,7 @@ func createPCRManifest(pcrList []string, eventLog string) (types.PcrManifest, er
 			}
 		}
 	}
-	pcrManifest.PcrEventLogMapNew, err = getPcrEventLog(eventLog)
+	pcrManifest.PcrEventLogMapLinux, err = getPcrEventLog(eventLog)
 	if err != nil {
 		log.Errorf("util/aik_quote_verifier:createPCRManifest() Error getting PCR event log : %s", err.Error())
 		return pcrManifest, errors.Wrap(err, "util/aik_quote_verifier:createPCRManifest() Error getting PCR "+

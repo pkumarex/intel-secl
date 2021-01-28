@@ -37,7 +37,7 @@ func TestPcrEventLogIntegrityNoFault(t *testing.T) {
 	}
 
 	hostManifest := types.HostManifest{}
-	hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs, testExpectedPcrEventLogEntry)
+	hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs, testExpectedPcrEventLogEntry)
 	hostManifest.PcrManifest.Sha256Pcrs = append(hostManifest.PcrManifest.Sha256Pcrs, expectedPcrLog1)
 
 	rule, err := NewPcrEventLogIntegrity(&expectedPcrLog, nil, common.FlavorPartPlatform)
@@ -99,7 +99,7 @@ func TestPcrEventLogIntegrityPcrValueMissingFault(t *testing.T) {
 		Measurement: expectedCumulativeHash,
 	}
 
-	hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs, testExpectedPcrEventLogEntry)
+	hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs, testExpectedPcrEventLogEntry)
 
 	// if the pcr is no incuded, the PcrEventLogIntegrity rule should return
 	// a PcrMissingFault
@@ -259,7 +259,7 @@ func TestPcrEventLogIntegrityPcrEventLogInvalidFault(t *testing.T) {
 	}
 
 	hostManifest := types.HostManifest{}
-	hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs, invalidPcrEventLogEntry)
+	hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs, invalidPcrEventLogEntry)
 	hostManifest.PcrManifest.Sha256Pcrs = append(hostManifest.PcrManifest.Sha256Pcrs, invalidPcrLog)
 
 	rule, err := NewPcrEventLogIntegrity(&expectedPcrLog, nil, common.FlavorPartPlatform)

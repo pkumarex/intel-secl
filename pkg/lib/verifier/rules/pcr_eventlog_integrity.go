@@ -69,7 +69,7 @@ func (rule *pcrEventLogIntegrity) Apply(hostManifest *types.HostManifest) (*hvs.
 			if actualPcr == nil {
 				result.Faults = append(result.Faults, newPcrValueMissingFault(types.SHAAlgorithm(rule.expectedPcrLog.PCR.Bank), types.PcrIndex(rule.expectedPcrLog.PCR.Index)))
 			} else {
-				actualEventLogCriteria, pIndex, bank, err := hostManifest.PcrManifest.PcrEventLogMapNew.GetEventLogNew(rule.expectedPcrLog.PCR.Bank, rule.expectedPcrLog.PCR.Index)
+				actualEventLogCriteria, pIndex, bank, err := hostManifest.PcrManifest.PcrEventLogMapLinux.GetEventLogNew(rule.expectedPcrLog.PCR.Bank, rule.expectedPcrLog.PCR.Index)
 				if err != nil {
 					return nil, errors.Wrap(err, "Error in getting actual eventlogs in Pcr Eventlog Integrity rule")
 				}

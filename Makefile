@@ -24,7 +24,6 @@ kbs:
 
 hvs:
 	mkdir -p installer
-	cp -r pkg/hvs/tasks/resources/templates installer/templates
 	cd cmd/hvs && env CGO_CFLAGS_ALLOW="-f.*" GOOS=linux GOSUMDB=off GOPROXY=direct \
 		go build -ldflags "-X github.com/intel-secl/intel-secl/v3/pkg/hvs/version.BuildDate=$(BUILDDATE) -X github.com/intel-secl/intel-secl/v3/pkg/hvs/version.Version=$(VERSION) -X github.com/intel-secl/intel-secl/v3/pkg/hvs/version.GitHash=$(GITCOMMIT)" -o hvs
 
