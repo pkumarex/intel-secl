@@ -419,6 +419,8 @@ func SendDataToEndPoint(kubernetes KubernetesDetails) error {
 			err := FilterHostReports(&kubernetes, &hostDetails, kubernetes.TrustedCAsStoreDir, kubernetes.SamlCertFilePath)
 			if err != nil {
 				log.WithError(err).Error("k8splugin/k8s_plugin:SendDataToEndPoint() Error in Filtering Report for Hosts")
+				//host doesn't exist remove from the map
+				delete(kubernetes.HostDetailsMap, key)
 				continue
 			}
 			kubernetes.HostDetailsMap[key] = hostDetails
@@ -458,10 +460,11 @@ func SendDataToEndPoint(kubernetes KubernetesDetails) error {
 		return errors.New("k8splugin/k8s_plugin:SendDataToEndPoint() Given Attestation type is invalid")
 	}
 
-	err = UpdateCRD(&kubernetes)
-	if err != nil {
-		return errors.Wrap(err, "k8splugin/k8s_plugin:SendDataToEndPoint() Error in Updating CRDs for Kubernetes")
+	if len(kubernetes.HostDetailsMap) > 0 {
+		err = UpdateCRD(&kubernetes)
+		if err != nil {
+			return errors.Wrap(err, "k8splugin/k8s_plugin:SendDataToEndPoint() Error in Updating CRDs for Kubernetes")
+		}
 	}
-
 	return nil
 }
