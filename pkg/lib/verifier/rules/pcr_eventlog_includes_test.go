@@ -31,7 +31,7 @@ func TestPcrEventLogIncludesNoFault(t *testing.T) {
 		},
 	}
 
-	hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs, testExpectedPcrEventLogEntry)
+	hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs, testExpectedPcrEventLogEntry)
 
 	rule, err := NewPcrEventLogIncludes(nil, &testExpectedPcrEventLogEntry, nil, common.FlavorPartPlatform)
 
@@ -116,7 +116,7 @@ func TestPcrEventLogIncludesMissingMeasurement(t *testing.T) {
 		//EventLogs: []types.EventLog{},
 	}
 
-	hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs, hostEventsLog)
+	hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs, hostEventsLog)
 
 	rule, err := NewPcrEventLogIncludes(nil, &flavorEventsLog, nil, common.FlavorPartPlatform)
 
@@ -235,7 +235,7 @@ func TestPcrEventLogIncludesDifferentMeasurement(t *testing.T) {
 		//EventLogs: []types.EventLog{},
 	}
 
-	hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs, hostEventsLog)
+	hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs, hostEventsLog)
 
 	rule, err := NewPcrEventLogIncludes(nil, &flavorEventsLog, nil, common.FlavorPartPlatform)
 
@@ -346,7 +346,7 @@ func TestPcrEventLogIncludesPcrEventLogMissingFault(t *testing.T) {
 		},
 	}
 
-	hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapNew.Sha256EventLogs, hostEventsLog)
+	hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs, hostEventsLog)
 
 	rule, err := NewPcrEventLogIncludes(nil, &flavorEventsLog, nil, common.FlavorPartPlatform)
 

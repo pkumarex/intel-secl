@@ -88,10 +88,10 @@ type PcrEventLogMapFC struct {
 	Sha256EventLogs []TpmEventLog `json:"SHA256"`
 }
 type PcrManifest struct {
-	Sha1Pcrs          []Pcr            `json:"sha1pcrs"`
-	Sha256Pcrs        []Pcr            `json:"sha2pcrs"`
-	PcrEventLogMap    PcrEventLogMap   `json:"pcr_event_log_map"`
-	PcrEventLogMapNew PcrEventLogMapFC `json:"pcr_event_log_map_new"`
+	Sha1Pcrs            []Pcr            `json:"sha1pcrs"`
+	Sha256Pcrs          []Pcr            `json:"sha2pcrs"`
+	PcrEventLogMap      PcrEventLogMap   `json:"pcr_event_log_map"`
+	PcrEventLogMapLinux PcrEventLogMapFC `json:"pcr_event_log_map_new"`
 }
 
 type PcrIndex int
@@ -545,13 +545,13 @@ func (pcrManifest *PcrManifest) GetEventLogCriteria(pcrBank SHAAlgorithm, pcrInd
 
 	switch pcrBank {
 	case "SHA1":
-		for _, eventLogEntry := range pcrManifest.PcrEventLogMapNew.Sha1EventLogs {
+		for _, eventLogEntry := range pcrManifest.PcrEventLogMapLinux.Sha1EventLogs {
 			if eventLogEntry.Pcr.Index == pI {
 				return eventLogEntry.TpmEvent, nil
 			}
 		}
 	case "SHA256":
-		for _, eventLogEntry := range pcrManifest.PcrEventLogMapNew.Sha256EventLogs {
+		for _, eventLogEntry := range pcrManifest.PcrEventLogMapLinux.Sha256EventLogs {
 			if eventLogEntry.Pcr.Index == pI {
 				return eventLogEntry.TpmEvent, nil
 			}

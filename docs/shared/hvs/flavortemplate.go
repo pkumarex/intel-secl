@@ -15,7 +15,7 @@ type FlavorTemplate struct {
 
 // ---
 
-// swagger:operation GET /flavor-templates/{flavortemplate_id} Flavortemplate Retrieve-FlavorTemplate
+// swagger:operation GET /flavor-templates/{flavortemplate_id} Flavortemplates Retrieve-FlavorTemplate
 // ---
 //
 // description: |
@@ -110,16 +110,10 @@ type FlavorTemplate struct {
 
 // ---
 
-// swagger:operation POST /flavor-templates Flavortemplate Create-FlavorTemplate
+// swagger:operation POST /flavor-templates Flavortemplates Create-FlavorTemplate
 // ---
 // description: |
-//   Flavor Template: Flavor templates are used to implement dynamic flavor generation.
-//   The dynamic generation of flavors will be implemented through the use of “flavor-templates”.
-//   Flavor template is a JSON which will contain the information about pcr's and rules to be applied for the pcr's for the particular flavor.
-//   The purpose of flavor templates is to customize pcr/event-log rules and verifications without code changes.
-//   A particular flavor template can be used for the creation of flavors using the condition section in flavor template.
-//   The conditions in the flavor template will be matched against the host manifest to determine whether the flavor template can be used for
-//   the generation of flavors.
+//   Flavor Template: Flavor templates are used to implement dynamic flavor generation. It supports definition of rules for Linux & ESXI hosts. The templates need to be defined in JSON format. The rules defined will be used for matching the templates while generating flavors.
 //
 //    | Attribute                      | Description|
 //    |--------------------------------|------------|
@@ -237,7 +231,7 @@ type FlavorTemplate struct {
 
 // ---
 
-// swagger:operation GET /flavor-templates Flavortemplate Search-FlavorTemplates
+// swagger:operation GET /flavor-templates Flavortemplates Search-FlavorTemplates
 // ---
 //
 // description: |
@@ -250,7 +244,7 @@ type FlavorTemplate struct {
 // - application/json
 // parameters:
 // - name: include_deleted
-//   description: In HVS, template object gets lazy deleted and to include them in search result, set include_deleted flag to true
+//   description: Boolean value to indicate whether the deleted templates should be included in the search.
 //   in: query
 //   required: false
 //   type: string
@@ -360,7 +354,7 @@ type FlavorTemplate struct {
 
 // ---
 
-// swagger:operation DELETE /flavor-templates/{flavortemplate_id} Flavortemplate Delete-FlavorTemplate
+// swagger:operation DELETE /flavor-templates/{flavortemplate_id} Flavortemplates Delete-FlavorTemplate
 // ---
 //
 // description: |
