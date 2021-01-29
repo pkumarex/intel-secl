@@ -95,6 +95,8 @@ type App struct {
 	SKCLibUsername          string
 	SKCLibUserPassword      string
 	SKCLibRoleContext       string
+	SGXAgentUsername        string
+	SGXAgentUserPassword    string
 
 	Components     map[string]bool
 	GenPassword    bool
@@ -196,9 +198,6 @@ func (a *App) GetServiceUsers() []UserAndRolesCreate {
 		case "SHVS":
 			urc.Name = a.ShvsServiceUserName
 			urc.Password = a.ShvsServiceUserPassword
-			urc.Roles = append(urc.Roles, NewRole("SGX_AGENT", "HostDataReader", "", nil))
-			urc.Roles = append(urc.Roles, NewRole("SCS", "HostDataUpdater", "", nil))
-			urc.Roles = append(urc.Roles, NewRole("SCS", "HostDataReader", "", nil))
 		case "SIH":
 			urc.Name = a.IhubServiceUserName
 			urc.Password = a.IhubServiceUserPassword
@@ -213,7 +212,12 @@ func (a *App) GetServiceUsers() []UserAndRolesCreate {
 			urc.Name = a.SKCLibUsername
 			urc.Password = a.SKCLibUserPassword
 			urc.Roles = append(urc.Roles, NewRole("KBS", "KeyTransfer", a.SKCLibRoleContext, nil))
-
+		case "SGX_AGENT":
+			urc.Name = a.SGXAgentUsername
+			urc.Password = a.SGXAgentUserPassword
+			urc.Roles = append(urc.Roles, NewRole("SHVS", "HostDataUpdater", "", nil))
+			urc.Roles = append(urc.Roles, NewRole("SCS", "HostDataUpdater", "", nil))
+			urc.Roles = append(urc.Roles, NewRole("SCS", "HostDataReader", "", nil))
 		}
 		if urc.Name != "" {
 			urs = append(urs, urc)
@@ -292,10 +296,6 @@ func (a *App) GetSuperInstallUser() UserAndRolesCreate {
 			urc.Roles = append(urc.Roles, MakeTlsCertificateRole(a.SqvsCN, a.SqvsSanList))
 		case "SHVS":
 			urc.Roles = append(urc.Roles, MakeTlsCertificateRole(a.ShvsCN, a.ShvsSanList))
-		case "SGX_AGENT":
-			urc.Roles = append(urc.Roles, MakeTlsCertificateRole(a.SagentCN, a.SagentSanList))
-			urc.Roles = append(urc.Roles, NewRole("SHVS", "HostRegistration", "", nil))
-			urc.Roles = append(urc.Roles, NewRole("SCS", "HostDataUpdater", "", nil))
 		case "SKC-LIBRARY":
 			urc.Roles = append(urc.Roles, MakeTlsClientCertificateRole(a.SkcLibCN))
 
@@ -415,6 +415,9 @@ func (a *App) LoadAllVariables(envFile string) error {
 		{&a.SKCLibUserPassword, "SKC_LIBRARY_PASSWORD", "", "SKC Library User Password", false, true},
 
 		{&a.SKCLibRoleContext, "SKC_LIBRARY_KEY_TRANSFER_CONTEXT", "", "SKC Library Key Transfer Role Context", false, false},
+
+		{&a.SGXAgentUsername, "SGX_AGENT_USERNAME", "", "SGX Agent User Name", false, false},
+		{&a.SGXAgentUserPassword, "SGX_AGENT_PASSWORD", "", "SGX Agent User Password", false, true},
 	}
 
 	hasError := false
