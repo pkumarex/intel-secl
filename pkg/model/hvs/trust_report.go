@@ -80,6 +80,7 @@ type Fault struct {
 	MissingMeasurements     []ta.FlavorMeasurement   `json:"missing_measurements,omitempty"`
 	MismatchMeasurements    []ta.FlavorMeasurement   `json:"mismatch_measurements,omitempty"`
 	ExpectedValue           *string                  `json:"expected_value,omitempty"`
+	CalculatedValue         *string                  `json:"calculated_value,omitempty"`
 	ActualValue             *string                  `json:"actual_value,omitempty"`
 	MeasurementId           *string                  `json:"measurement_id,omitempty"`
 	FlavorDigestAlg         *string                  `json:"flavor_digest_alg,omitempty"`

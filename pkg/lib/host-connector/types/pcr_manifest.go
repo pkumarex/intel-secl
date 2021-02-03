@@ -497,6 +497,11 @@ func (eventLogEntry *TpmEventLog) Replay() (string, error) {
 		return "", err
 	}
 
+	// use the first EV_NO_ACTION/"StartupLocality" event to send the cumualtive hash
+	if eventLogEntry.Pcr.Index == 0 && eventLogEntry.TpmEvent[0].TypeName == "EV_NO_ACTION" {
+		cumulativeHash[len(cumulativeHash)-1] = 0x3
+	}
+
 	for i, eventLog := range eventLogEntry.TpmEvent {
 		//get the respective hash based on the pcr bank
 		hash := getHash(SHAAlgorithm(eventLogEntry.Pcr.Bank))
@@ -506,7 +511,15 @@ func (eventLogEntry *TpmEventLog) Replay() (string, error) {
 			return "", errors.Wrapf(err, "Failed to decode event log %d using hex string '%s'", i, eventLog.Measurement)
 		}
 
-		hash.Write(cumulativeHash)
+		if len(eventHash) != hash.Size() {
+			return "", fmt.Errorf("Invalid hash length %d", len(eventHash))
+		}
+
+		if eventLog.TypeName != "EV_NO_ACTION" {
+			hash.Write(cumulativeHash)
+		} else {
+			continue
+		}
 		hash.Write(eventHash)
 		cumulativeHash = hash.Sum(nil)
 	}

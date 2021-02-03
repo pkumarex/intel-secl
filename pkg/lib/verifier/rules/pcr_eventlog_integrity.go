@@ -90,11 +90,11 @@ func (rule *pcrEventLogIntegrity) Apply(hostManifest *types.HostManifest) (*hvs.
 					if calculatedValue != actualPcr.Value {
 						PI := types.PcrIndex(rule.expectedPcrLog.PCR.Index)
 						fault := hvs.Fault{
-							Name:           constants.FaultPcrEventLogInvalid,
-							Description:    fmt.Sprintf("PCR %d Event Log is invalid,mismatches between calculated event log values %s and actual pcr values %s", rule.expectedPcrLog.PCR.Index, calculatedValue, actualPcr.Value),
-							PcrIndex:       &PI,
-							ExpectedValue:  &calculatedValue,
-							ActualPcrValue: &actualPcr.Value,
+							Name:            constants.FaultPcrEventLogInvalid,
+							Description:     fmt.Sprintf("PCR %d Event Log is invalid,mismatches between calculated event log values %s and actual pcr values %s", rule.expectedPcrLog.PCR.Index, calculatedValue, actualPcr.Value),
+							PcrIndex:        &PI,
+							CalculatedValue: &calculatedValue,
+							ActualPcrValue:  &actualPcr.Value,
 						}
 						result.Faults = append(result.Faults, fault)
 					}
