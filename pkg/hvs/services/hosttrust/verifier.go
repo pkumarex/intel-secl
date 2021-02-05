@@ -71,9 +71,9 @@ func (v *Verifier) addHostPCRCache(hostId uuid.UUID, existingEntry *quoteReportC
 	v.pcrCacheLock.Unlock()
 
 }
-func (v *Verifier) pcrValuesUnChanged(hostId uuid.UUID, hostData *types.HostManifest) *quoteReportCache {
-	defaultLog.Trace("hosttrust/verifier:pcrValuesUnChanged() Entering")
-	defer defaultLog.Trace("hosttrust/verifier:pcrValuesUnChanged() Leaving")
+func (v *Verifier) getUnchangedCachedQuoteDigest(hostId uuid.UUID, hostData *types.HostManifest) *quoteReportCache {
+	defaultLog.Trace("hosttrust/verifier:getUnchangedCachedQuoteDigest() Entering")
+	defer defaultLog.Trace("hosttrust/verifier:getUnchangedCachedQuoteDigest() Leaving")
 	v.pcrCacheLock.RLock()
 	var cache *quoteReportCache
 	var exists bool
@@ -105,7 +105,7 @@ func (v *Verifier) Verify(hostId uuid.UUID, hostData *types.HostManifest, newDat
 	// check if the data has not changed
 	if preferHashMatch {
 		// check if the PCR Values are unchanged.
-		if cacheEntry = v.pcrValuesUnChanged(hostId, hostData); cacheEntry != nil {
+		if cacheEntry = v.getUnchangedCachedQuoteDigest(hostId, hostData); cacheEntry != nil {
 			// retrieve the stored report
 			log.Debug("hosttrust/verifier:Verify() Quote values matches cached value - skipping flavor verification")
 			if report, err := v.refreshTrustReport(hostId, cacheEntry); err == nil {
@@ -246,6 +246,8 @@ func (v *Verifier) validateCachedFlavors(hostId uuid.UUID,
 }
 
 func (v *Verifier) refreshTrustReport(hostID uuid.UUID, cache *quoteReportCache) (*models.HVSReport, error) {
+	defaultLog.Trace("hosttrust/verifier:refreshTrustReport() Entering")
+	defer defaultLog.Trace("hosttrust/verifier:refreshTrustReport() Leaving")
 	log.Debugf("hosttrust/verifier:refreshTrustReport() Generating SAML for host: %s using existing trust report", hostID)
 
 	samlReportGen := NewSamlReportGenerator(&v.SamlIssuer)
