@@ -59,4 +59,19 @@ const (
 	FaultXmlMeasurementLogValueMismatchEntries384   = FaultPrefix + "XmlMeasurementLogValueMismatchEntriesSha384"
 	FaultXmlMeasurementsDigestValueMismatch         = FaultPrefix + "XmlMeasurementsDigestValueMismatch"
 	FaultXmlMeasurementValueMismatch                = FaultPrefix + "XmlMeasurementValueMismatch"
+	PcrEventLogUnexpectedFields                     = "PcrEventLogUnexpectedFields"
+	PcrEventLogMissingFields                        = "PcrEventLogMissingFields"
+)
+
+//Builder names
+const (
+	IntelBuilder  = "Intel Host Trust Policy"
+	VmwareBuilder = "VMware Host Trust Policy"
+)
+
+//Rule names
+const (
+	EventlogEqualRule    = "EventlogEqual"
+	EventlogIncludesRule = "EventlogIncludes"
+	PCRMatchesRule       = "PCRMatches"
 )

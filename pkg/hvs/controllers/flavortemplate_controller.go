@@ -291,7 +291,7 @@ func (ftc *FlavorTemplateController) validateFlavorTemplateCreateRequest(FlvrTem
 
 	//Check whether each pcr index is associated with not more than one bank.
 	pcrMap := make(map[*hvs.FlavorPart][]hvs.PCR)
-	flavorParts := []*hvs.FlavorPart{FlvrTemp.FlavorParts.Platform, FlvrTemp.FlavorParts.OS, FlvrTemp.FlavorParts.HostUnique, FlvrTemp.FlavorParts.Software}
+	flavorParts := []*hvs.FlavorPart{FlvrTemp.FlavorParts.Platform, FlvrTemp.FlavorParts.OS, FlvrTemp.FlavorParts.HostUnique}
 	for _, flavorPart := range flavorParts {
 		if flavorPart != nil {
 			if _, ok := pcrMap[flavorPart]; !ok {
