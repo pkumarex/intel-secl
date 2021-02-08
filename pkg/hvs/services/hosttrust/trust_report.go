@@ -304,7 +304,7 @@ func getHostManifestMap(hostManifest *types.HostManifest, flavorParts []cf.Flavo
 					})
 					if hostInfo.HardwareFeatures.CBNT.Enabled {
 						pfQueryAttrs = append(pfQueryAttrs, models.FlavorMetaKv{
-							Key:   "hardware.feature.CBNT.profile",
+							Key:   "hardware.feature.CBNT.meta.profile",
 							Value: hostInfo.HardwareFeatures.CBNT.Meta.Profile,
 						})
 					}
@@ -316,7 +316,7 @@ func getHostManifestMap(hostManifest *types.HostManifest, flavorParts []cf.Flavo
 					}
 					if hostInfo.HardwareFeatures.UEFI.Meta.SecureBootEnabled {
 						pfQueryAttrs = append(pfQueryAttrs, models.FlavorMetaKv{
-							Key:   "hardware.feature.UEFI.Meta.SecureBootEnabled",
+							Key:   "hardware.feature.UEFI.meta.secure_boot_enabled",
 							Value: hostInfo.HardwareFeatures.UEFI.Meta.SecureBootEnabled,
 						})
 					}

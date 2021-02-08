@@ -11,6 +11,7 @@ package verifier
 import (
 	"reflect"
 
+	hvsconstants "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants/verifier-rules-and-faults"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	flavormodel "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
@@ -38,7 +39,7 @@ func newRuleBuilderIntelTpm20(verifierCertificates VerifierCertificates, hostMan
 }
 
 func (builder *ruleBuilderIntelTpm20) GetName() string {
-	return "Intel Host Trust Policy"
+	return hvsconstants.IntelBuilder
 }
 
 // From 'design' repo at isecl/libraries/verifier/verifier.md...
@@ -56,49 +57,10 @@ func (builder *ruleBuilderIntelTpm20) GetPlatformRules() ([]rules.Rule, error) {
 	//
 	aikCertificateTrusted, err := rules.NewAikCertificateTrusted(builder.verifierCertificates.PrivacyCACertificates, common.FlavorPartPlatform)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Error in getting AikCertificateTrusted rule")
 	}
 
 	results = append(results, aikCertificateTrusted)
-
-	//
-	// Add 'PcrMatchesConstant' rules...
-	//
-	pcrs, err := builder.getPlatformPcrsFromHardwareMeta()
-	if err != nil {
-		return nil, err
-	}
-
-	pcrMatchesContantsRules, err := getPcrMatchesConstantRules(pcrs, &builder.signedFlavor.Flavor, common.FlavorPartPlatform)
-	if err != nil {
-		return nil, err
-	}
-
-	results = append(results, pcrMatchesContantsRules...)
-
-	//
-	// Add 'PcrEventLogEqualsExcluding' rules...
-	//
-	pcrs = []types.PcrIndex{types.PCR17, types.PCR18}
-	pcrEventLogEqualsExcludingRules, err := getPcrEventLogEqualsExcludingRules(pcrs, &builder.signedFlavor.Flavor, common.FlavorPartPlatform)
-	if err != nil {
-		return nil, err
-	}
-
-	results = append(results, pcrEventLogEqualsExcludingRules...)
-
-	//
-	// Add 'PcrEventLogIntegrity' rules...
-	//
-	tbootInstalled := builder.signedFlavor.Flavor.Meta.Description[flavormodel.TbootInstalled]
-	if tbootInstalled != nil {
-		pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcrs, &builder.signedFlavor.Flavor, common.FlavorPartPlatform)
-		if err != nil {
-			return nil, err
-		}
-
-		results = append(results, pcrEventLogIntegrityRules...)
-	}
 
 	return results, nil
 }
@@ -116,7 +78,7 @@ func (builder *ruleBuilderIntelTpm20) GetAssetTagRules() ([]rules.Rule, error) {
 	//
 	tagCertificateTrusted, err := getTagCertificateTrustedRule(builder.verifierCertificates.AssetTagCACertificates, &builder.signedFlavor.Flavor)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Error in getting TagCertificateTrusted rule")
 	}
 
 	results = append(results, tagCertificateTrusted)
@@ -126,7 +88,7 @@ func (builder *ruleBuilderIntelTpm20) GetAssetTagRules() ([]rules.Rule, error) {
 	//
 	assetTagMatches, err := getAssetTagMatchesRule(&builder.signedFlavor.Flavor)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Error in getting AssetTagMatches rule")
 	}
 
 	results = append(results, assetTagMatches)
@@ -142,40 +104,16 @@ func (builder *ruleBuilderIntelTpm20) GetAssetTagRules() ([]rules.Rule, error) {
 func (builder *ruleBuilderIntelTpm20) GetOsRules() ([]rules.Rule, error) {
 
 	var results []rules.Rule
-	pcr17 := []types.PcrIndex{types.PCR17}
 
 	//
 	// Add 'AikCertificateTrusted' rule...
 	//
 	aikCertificateTrusted, err := rules.NewAikCertificateTrusted(builder.verifierCertificates.PrivacyCACertificates, common.FlavorPartOs)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Error in getting AikCertificateTrusted rule")
 	}
 
 	results = append(results, aikCertificateTrusted)
-
-	//
-	// Add 'PcrEventLogIntegrity' rules...
-	//
-	tbootInstalled := builder.signedFlavor.Flavor.Meta.Description[flavormodel.TbootInstalled]
-	if tbootInstalled != nil {
-		pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcr17, &builder.signedFlavor.Flavor, common.FlavorPartOs)
-		if err != nil {
-			return nil, err
-		}
-
-		results = append(results, pcrEventLogIntegrityRules...)
-	}
-
-	//
-	// Add 'PcrEventLogIncludes' rules...
-	//
-	pcrEventLogIncludesRules, err := getPcrEventLogIncludesRules(pcr17, &builder.signedFlavor.Flavor, common.FlavorPartOs)
-	if err != nil {
-		return nil, err
-	}
-
-	results = append(results, pcrEventLogIncludesRules...)
 
 	return results, nil
 }
@@ -188,40 +126,16 @@ func (builder *ruleBuilderIntelTpm20) GetOsRules() ([]rules.Rule, error) {
 func (builder *ruleBuilderIntelTpm20) GetHostUniqueRules() ([]rules.Rule, error) {
 
 	var results []rules.Rule
-	pcr17and18 := []types.PcrIndex{types.PCR17, types.PCR18}
 
 	//
 	// Add 'AikCertificateTrusted' rule...
 	//
 	aikCertificateTrusted, err := rules.NewAikCertificateTrusted(builder.verifierCertificates.PrivacyCACertificates, common.FlavorPartHostUnique)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Error in getting AikCertificateTrusted rule")
 	}
 
 	results = append(results, aikCertificateTrusted)
-
-	//
-	// Add 'PcrEventLogIntegrity' rules...
-	//
-	tbootInstalled := builder.signedFlavor.Flavor.Meta.Description[flavormodel.TbootInstalled]
-	if tbootInstalled != nil {
-		pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcr17and18, &builder.signedFlavor.Flavor, common.FlavorPartHostUnique)
-		if err != nil {
-			return nil, err
-		}
-
-		results = append(results, pcrEventLogIntegrityRules...)
-	}
-
-	//
-	// Add 'PcrEventLogIncludes' rules...
-	//
-	pcrEventLogIncludesRules, err := getPcrEventLogIncludesRules(pcr17and18, &builder.signedFlavor.Flavor, common.FlavorPartHostUnique)
-	if err != nil {
-		return nil, err
-	}
-
-	results = append(results, pcrEventLogIncludesRules...)
 
 	return results, nil
 }
@@ -246,21 +160,10 @@ func (builder *ruleBuilderIntelTpm20) GetSoftwareRules() ([]rules.Rule, error) {
 
 	xmlMeasurementLogDigestEqualsRule, err := rules.NewXmlMeasurementLogDigestEquals(meta.Description[flavormodel.DigestAlgorithm].(string), meta.ID)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Error in getting xmlMeasurementLogDigestEquals rule")
 	}
 
 	results = append(results, xmlMeasurementLogDigestEqualsRule)
-
-	//
-	// Add 'PcrEventLogIntegrity' rules...
-	//
-	pcr15 := []types.PcrIndex{types.PCR15}
-	pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcr15, &builder.signedFlavor.Flavor, common.FlavorPartSoftware)
-	if err != nil {
-		return nil, err
-	}
-
-	results = append(results, pcrEventLogIntegrityRules...)
 
 	//
 	// Add 'XmlMeasurementLogIntegrity' rule...
@@ -282,7 +185,7 @@ func (builder *ruleBuilderIntelTpm20) GetSoftwareRules() ([]rules.Rule, error) {
 
 	xmlMeasurementLogEqualsRule, err := rules.NewXmlMeasurementLogEquals(&builder.signedFlavor.Flavor)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Error in getting NewXmlMeasurementLogEquals rule")
 	}
 
 	results = append(results, xmlMeasurementLogEqualsRule)

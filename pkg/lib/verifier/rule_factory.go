@@ -5,6 +5,9 @@
 package verifier
 
 import (
+	"reflect"
+
+	hvsconstants "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants/verifier-rules-and-faults"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	flavormodel "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/constants"
@@ -48,10 +51,11 @@ func NewRuleFactory(verifierCertificates VerifierCertificates,
 	}
 }
 
+//GetVerificationRules method is used to get the verification rules dynamically for pcr/event log rules
+//Other rules like aik certificate,asset tag rules will be hardcoded based on vendor and flavor part
 func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error) {
-
 	var flavorPart common.FlavorPart
-	var requiredRules []rules.Rule
+	var requiredRules, pcrRules []rules.Rule
 
 	ruleBuilder, err := factory.getRuleBuilder()
 	if err != nil {
@@ -76,15 +80,58 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 		requiredRules, err = ruleBuilder.GetSoftwareRules()
 	default:
 		return nil, "", errors.Errorf("Cannot build requiredRules for unknown flavor part %s", flavorPart)
+
 	}
 
-	if err != nil {
-		return nil, "", errors.Wrapf(err, "Error creating trust requiredRules for flavor '%s'", factory.signedFlavor.Flavor.Meta.ID)
+	if ruleBuilder.GetName() == hvsconstants.IntelBuilder {
+		flavorPcrs := factory.signedFlavor.Flavor.PcrLogs
+
+		// Iterate the pcrs section to get rules
+		for _, rule := range flavorPcrs {
+
+			eventsPresent := false
+			integrityRuleAdded := false
+			value := reflect.Indirect(reflect.ValueOf(rule))
+
+			for i := 0; i < value.NumField(); i++ {
+
+				if value.Type().Field(i).Name == hvsconstants.EventlogEqualRule && rule.EventlogEqual != nil {
+					eventsPresent = true
+					//call method to create pcr event log equals rule
+					if len(rule.EventlogEqual.ExcludeTags) == 0 {
+						pcrRules, err = getPcrEventLogEqualsRules(nil, &rule, nil, flavorPart)
+					} else {
+						pcrRules, err = getPcrEventLogEqualsExcludingRules(nil, &rule, nil, flavorPart)
+					}
+					requiredRules = append(requiredRules, pcrRules...)
+				} else if value.Type().Field(i).Name == hvsconstants.EventlogIncludesRule && len(rule.EventlogIncludes) > 0 {
+					eventsPresent = true
+					//call method to create pcr event log includes rule
+					pcrRules, err = getPcrEventLogIncludesRules(nil, nil, &rule, flavorPart)
+					requiredRules = append(requiredRules, pcrRules...)
+				} else if value.Type().Field(i).Name == hvsconstants.PCRMatchesRule && rule.PCRMatches {
+					//call method to create pcr matches constant rule
+					pcrRules, err = getPcrMatchesConstantRules(nil, nil, &rule, flavorPart)
+					requiredRules = append(requiredRules, pcrRules...)
+				}
+
+				if eventsPresent == true && integrityRuleAdded == false {
+					//add Integrity rules//
+					integrityRuleAdded = true
+					pcrRules, err = getPcrEventLogIntegrityRules(nil, nil, &rule, flavorPart)
+					requiredRules = append(requiredRules, pcrRules...)
+				}
+				if err != nil {
+					return nil, "", errors.Wrapf(err, "Error creating trust requiredRules for flavor '%s'", factory.signedFlavor.Flavor.Meta.ID)
+				}
+
+			}
+
+		}
 	}
 
 	// if skip flavor signing verification is enabled, add the FlavorTrusted.
 	if !factory.skipSignedFlavorVerification {
-
 		var flavorPart common.FlavorPart
 		err := (&flavorPart).Parse(factory.signedFlavor.Flavor.Meta.Description[flavormodel.FlavorPart].(string))
 		if err != nil {
@@ -106,8 +153,8 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 	return requiredRules, ruleBuilder.GetName(), nil
 }
 
+//getRuleBuilder method will get the ruler builder based on vendor
 func (factory *ruleFactory) getRuleBuilder() (ruleBuilder, error) {
-
 	var builder ruleBuilder
 	var vendor constants.Vendor
 	var err error
@@ -129,7 +176,7 @@ func (factory *ruleFactory) getRuleBuilder() (ruleBuilder, error) {
 			return nil, errors.Wrap(err, "There was an error creating the Intel rule builder")
 		}
 	case constants.VendorVMware:
-		tpmVersionString := factory.signedFlavor.Flavor.Hardware.Feature.TPM.Meta.TPMVersion
+		tpmVersionString := factory.signedFlavor.Flavor.Meta.Description[flavormodel.TpmVersion].(string)
 		if len(tpmVersionString) == 0 {
 			tpmVersionString = factory.hostManifest.HostInfo.HardwareFeatures.TPM.Meta.TPMVersion
 		}
