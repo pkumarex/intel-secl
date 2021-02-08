@@ -8,25 +8,32 @@ import (
 	"github.com/google/uuid"
 )
 
-//PCR- Tp store PCR index with respective PCR bank.
+//PCR - To store PCR index with respective PCR bank.
 type PCR struct {
+	// Valid PCR index is from 0 to 23.
 	Index int    `json:"index"`
+	// Valid PCR banks are SHA1, SHA256, SHA384 and SHA512.
 	Bank  string `json:"bank"`
 }
 
-//EventLogEquals - To store event log need be equal with specified PCR.
+// EventlogEquals key needs to be included when equals rule has to be applied for the particular PCR. Sample value: "eventlog_equals": {"excluding_tags": ["LCP_CONTROL_HASH","initrd","vmlinuz"]}
 type EventLogEquals struct {
+	// To exclude events, list of event tags need to be provided as string array.
 	ExcludingTags []string `json:"excluding_tags,omitempty"`
 }
 
+
 type PcrRules struct {
 	Pcr              PCR             `json:"pcr"`
-	PcrMatches       *bool           `json:"pcr_matches,omitempty"`
+	// Boolean value to denote whether pcr matches rule needs to be applied.
+	PcrMatches       *bool           `json:"pcr_matches,omitempty"` 
 	EventlogEquals   *EventLogEquals `json:"eventlog_equals,omitempty"`
+	// To include events, list of event tags need to be provided as string array. Sample value: "eventlog_includes": ["shim","db","kek","vmlinuz"]
 	EventlogIncludes []string        `json:"eventlog_includes,omitempty"`
 }
 
 type FlavorPart struct {
+	// Meta is key:value pair section used to define flavorparts with its own meta fields.
 	Meta     map[string]interface{} `json:"meta,omitempty"`
 	PcrRules []PcrRules             `json:"pcr_rules"`
 }
@@ -35,15 +42,14 @@ type FlavorPart struct {
 type FlavorParts struct {
 	Platform   *FlavorPart `json:"PLATFORM,omitempty"`
 	OS         *FlavorPart `json:"OS,omitempty"`
-	Software   *FlavorPart `json:"SOFTWARE,omitempty"`
 	HostUnique *FlavorPart `json:"HOST_UNIQUE,omitempty"`
-	AssetTag   *FlavorPart `json:"ASSET_TAG,omitempty"`
 }
 
 type FlavorTemplate struct {
 	// swagger: strfmt uuid
-	ID          uuid.UUID    `json:"id" gorm:"primary_key;type:uuid"`
-	Label       string       `json:"label"`
+	ID    uuid.UUID `json:"id" gorm:"primary_key;type:uuid"`
+	Label string    `json:"label"`
+	// An array of 'jsonquery' statements that are used to determine if the template should be executed. Sample value: ["//host_info/os_name//*[text()='RedHatEnterprise']","//host_info/hardware_features/TPM/meta/tpm_version//*[text()='2.0']"].
 	Condition   []string     `json:"condition" sql:"type:text[]"`
 	FlavorParts *FlavorParts `json:"flavor_parts,omitempty" sql:"type:JSONB"`
 }
