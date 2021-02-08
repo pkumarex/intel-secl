@@ -44,8 +44,8 @@ func defineSubRoutes(router *mux.Router, service string, cfg *config.Configurati
 	defaultLog.Trace("router/router:defineSubRoutes() Entering")
 	defer defaultLog.Trace("router/router:defineSubRoutes() Leaving")
 
-	serviceApi := "/" + service
-	subRouter := router.PathPrefix(serviceApi + "/noauth").Subrouter()
+	serviceApi := "/" + service + "/" + constants.ApiVersion
+	subRouter := router.PathPrefix(serviceApi).Subrouter()
 	subRouter = SetVersionRoutes(subRouter)
 	subRouter = SetJwtCertificateRoutes(subRouter)
 

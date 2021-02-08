@@ -93,7 +93,7 @@ type UserCred struct {
 //         4G0f6M2HpZoo9DZxeQlGf4RmZVqODSW2FH78f0x0a3UTsLsV02Si0KU1GaI2
 // ---
 
-// swagger:operation GET /noauth/jwt-certificates JwtCertificate getJwtCertificate
+// swagger:operation GET /jwt-certificates JwtCertificate getJwtCertificate
 // ---
 // description: |
 //   Retrieves the list of jwt certificates.
@@ -132,7 +132,7 @@ type UserCred struct {
 //         3NqNon34qP7XcDrUErM+fovIfecnDDsd/g==
 //         -----END CERTIFICATE-----
 //
-// x-sample-call-endpoint: https://authservice.com:8444/aas/noauth/jwt-certificates
+// x-sample-call-endpoint: https://authservice.com:8444/aas/v1/jwt-certificates
 // x-sample-call-output: |
 //         -----BEGIN CERTIFICATE-----
 //         MIIENTCCAp2gAwIBAgIBAzANBgkqhkiG9w0BAQwFADBHMQswCQYDVQQGEwJVUzEL
@@ -161,7 +161,7 @@ type UserCred struct {
 //         -----END CERTIFICATE-----
 // ---
 
-// swagger:operation GET /noauth/version Version getVersion
+// swagger:operation GET /version Version getVersion
 // ---
 // description: |
 //   Retrieves the version of Authservice.
@@ -175,6 +175,6 @@ type UserCred struct {
 //       type: string
 //       example: v2.2
 //
-// x-sample-call-endpoint: https://authservice.com:8444/aas/noauth/version
+// x-sample-call-endpoint: https://authservice.com:8444/aas/v1/version
 // x-sample-call-output: v2.2
 // ---

@@ -33,6 +33,7 @@ const (
 
 	ServiceCommand                 = "authservice"
 	ServiceName                    = "AAS"
+	ApiVersion                     = "v1"
 	ServiceUserName                = "aas"
 	DefaultHttpPort                = 8444
 	DefaultKeyAlgorithm            = "rsa"
