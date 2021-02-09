@@ -52,7 +52,6 @@ func (a *App) setup(args []string) error {
 	if err != nil {
 		return err
 	}
-	defer a.Config.Save(constants.DefaultConfigFilePath)
 	cmd := args[1]
 	// print help and return if applicable
 	if len(args) > 2 && args[2] == "--help" {
@@ -92,6 +91,11 @@ func (a *App) setup(args []string) error {
 			}
 			return errors.New("Failed to run setup task " + cmd)
 		}
+	}
+
+	err = a.Config.Save(constants.DefaultConfigFilePath)
+	if err != nil {
+		return errors.Wrap(err, "Failed to save configuration")
 	}
 	// Containers are always run as non root users, does not require changing ownership of config directories
 	if _, err := os.Stat("/.container-env"); err == nil {
