@@ -384,17 +384,17 @@ func (fcon *FlavorController) findTemplatesToApply(hostManifest *hcType.HostMani
 	var filteredTemplates []hvs.FlavorTemplate
 	flavorTemplates, err := fcon.FTStore.Search(false)
 	if err != nil {
-		return nil, errors.Wrap("controllers/flavor_controller:findTemplatesToApply() Error retrieving all flavor templates")
+		return nil, errors.Wrap(err, "controllers/flavor_controller:findTemplatesToApply() Error retrieving all flavor templates")
 	}
 
 	hostManifestBytes, err := json.Marshal(hostManifest)
 	if err != nil {
-		return nil, errors.Wrap("controllers/flavor_controller:findTemplatesToApply() Error Marshalling hostmanifest")
+		return nil, errors.Wrap(err, "controllers/flavor_controller:findTemplatesToApply() Error Marshalling hostmanifest")
 	}
 
 	hostManifestJSON, err := jsonquery.Parse(strings.NewReader(string(hostManifestBytes)))
 	if err != nil {
-		return nil, errors.Wrap("controllers/flavor_controller:findTemplatesToApply() Error in parsing the host manifest")
+		return nil, errors.Wrap(err, "controllers/flavor_controller:findTemplatesToApply() Error in parsing the host manifest")
 	}
 
 	for _, flavorTemplate := range flavorTemplates {
