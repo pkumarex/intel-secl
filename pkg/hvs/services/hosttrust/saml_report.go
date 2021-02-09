@@ -128,7 +128,7 @@ func getHardwareFeaturesMap(features model.HardwareFeatures) map[string]string {
 		hwFeaturesMap[featurePrefix+constants.Uefi] = strconv.FormatBool(features.UEFI.Enabled)
 	}
 	if features.UEFI.Meta.SecureBootEnabled {
-		hwFeaturesMap[featurePrefix+constants.Sboot] = strconv.FormatBool(features.UEFI.Meta.SecureBootEnabled)
+		hwFeaturesMap[featurePrefix+constants.SecureBootEnabled] = strconv.FormatBool(features.UEFI.Meta.SecureBootEnabled)
 	}
 	if features.TPM.Enabled {
 		hwFeaturesMap[featurePrefix+constants.Tpm] = strconv.FormatBool(features.TPM.Enabled)
