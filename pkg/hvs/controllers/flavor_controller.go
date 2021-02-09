@@ -193,9 +193,12 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 		if !strings.EqualFold(hostManifest.HostInfo.OSName, "VMWARE ESXI") {
 			defaultLog.Debug("Getting flavor templates...")
 			flavorTemplates, err = fcon.findTemplatesToApply(hostManifest)
-			if err != nil || len(flavorTemplates) == 0 {
+			if len(flavorTemplates) == 0 {
 				defaultLog.WithError(err).Error("controllers/flavor_controller:CreateFlavors() No templates found to apply")
 				return nil, errors.Wrap(err, "No templates found to create flavors")
+			} else if err != nil {
+				defaultLog.WithError(err).Error("controllers/flavor_controller:CreateFlavors() Error in finding templates")
+				return nil, errors.Wrap(err, "Error in finding templates")
 			}
 
 			defaultLog.Debug("Matched Flavor templates ", flavorTemplates)
@@ -381,20 +384,17 @@ func (fcon *FlavorController) findTemplatesToApply(hostManifest *hcType.HostMani
 	var filteredTemplates []hvs.FlavorTemplate
 	flavorTemplates, err := fcon.FTStore.Search(false)
 	if err != nil {
-		defaultLog.WithError(err).Error("controllers/flavor_controller:findTemplatesToApply() Error retrieving all flavor templates")
-		return nil, err
+		return nil, errors.Wrap("controllers/flavor_controller:findTemplatesToApply() Error retrieving all flavor templates")
 	}
 
 	hostManifestBytes, err := json.Marshal(hostManifest)
 	if err != nil {
-		defaultLog.WithError(err).Error("controllers/flavor_controller:findTemplatesToApply() Error Marshalling hostmanifest")
-		return nil, err
+		return nil, errors.Wrap("controllers/flavor_controller:findTemplatesToApply() Error Marshalling hostmanifest")
 	}
 
 	hostManifestJSON, err := jsonquery.Parse(strings.NewReader(string(hostManifestBytes)))
 	if err != nil {
-		defaultLog.WithError(err).Error("controllers/flavor_controller:findTemplatesToApply() Error in parsing the host manifest")
-		return nil, err
+		return nil, errors.Wrap("controllers/flavor_controller:findTemplatesToApply() Error in parsing the host manifest")
 	}
 
 	for _, flavorTemplate := range flavorTemplates {

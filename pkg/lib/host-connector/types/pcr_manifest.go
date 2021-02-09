@@ -60,11 +60,13 @@ type TpmEventLog struct {
 	TpmEvent []EventLogCriteria `json:"tpm_events"`
 }
 
+//PCR - To store PCR index with respective PCR bank.
 type PCR struct {
-	Index int    `json:"index"`
-	Bank  string `json:"bank"`
+	// Valid PCR index is from 0 to 23.
+	Index int `json:"index"`
+	// Valid PCR banks are SHA1, SHA256, SHA384 and SHA512.
+	Bank string `json:"bank"`
 }
-
 type PCRS struct {
 	PCR              PCR                `json:"pcr"`         //required
 	Measurement      string             `json:"measurement"` //required
