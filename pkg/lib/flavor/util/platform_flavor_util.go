@@ -485,7 +485,7 @@ func (pfutil PlatformFlavorUtil) getSupportedHardwareFeatures(hostDetails *taMod
 		features = append(features, constants.Uefi)
 	}
 	if hostDetails.HardwareFeatures.UEFI.Meta.SecureBootEnabled {
-		features = append(features, constants.Sboot)
+		features = append(features, constants.SecureBootEnabled)
 	}
 
 	return features

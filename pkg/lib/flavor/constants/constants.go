@@ -15,11 +15,11 @@ const (
 	// TPM
 	TPMVersion2 string = "2.0"
 
-	Tpm   = "TPM"
-	Txt   = "TXT"
-	Cbnt  = "CBNT"
-	Uefi  = "UEFI"
-	Sboot = "SecureBootEnabled"
+	Tpm               = "TPM"
+	Txt               = "TXT"
+	Cbnt              = "CBNT"
+	Uefi              = "UEFI"
+	SecureBootEnabled = "SecureBootEnabled"
 
 	IslMeasurementSchema = "lib:wml:measurements:1.0"
 
