@@ -511,10 +511,6 @@ func (eventLogEntry *TpmEventLog) Replay() (string, error) {
 			return "", errors.Wrapf(err, "Failed to decode event log %d using hex string '%s'", i, eventLog.Measurement)
 		}
 
-		if len(eventHash) != hash.Size() {
-			return "", fmt.Errorf("Invalid hash length %d", len(eventHash))
-		}
-
 		if eventLog.TypeName != "EV_NO_ACTION" {
 			hash.Write(cumulativeHash)
 		} else {
