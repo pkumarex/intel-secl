@@ -7,6 +7,7 @@ package host_connector
 import (
 	"crypto/x509"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"encoding/pem"
 	client "github.com/intel-secl/intel-secl/v3/pkg/clients/ta"
@@ -134,7 +135,7 @@ func (ic *IntelConnector) GetHostManifestAcceptNonce(nonce string) (types.HostMa
 	}
 	log.Info("intel_host_connector:GetHostManifestAcceptNonce() Verifying quote and retrieving PCR manifest from TPM quote " +
 		"response ...")
-	pcrManifest, err := util.VerifyQuoteAndGetPCRManifest(decodedEventLog, verificationNonceInBytes,
+	pcrManifest, pcrsDigest, err := util.VerifyQuoteAndGetPCRManifest(decodedEventLog, verificationNonceInBytes,
 		tpmQuoteInBytes, aikCertificate)
 	if err != nil {
 		return types.HostManifest{}, errors.Wrap(err, "intel_host_connector:GetHostManifestAcceptNonce() Error verifying "+
@@ -165,6 +166,7 @@ func (ic *IntelConnector) GetHostManifestAcceptNonce(nonce string) (types.HostMa
 	hostManifest.AssetTagDigest = tpmQuoteResponse.AssetTag
 	hostManifest.BindingKeyCertificate = bindingKeyCertificateBase64
 	hostManifest.MeasurementXmls = tpmQuoteResponse.TcbMeasurements.TcbMeasurements
+	hostManifest.QuoteDigest = hex.EncodeToString(pcrsDigest) + hostManifest.AssetTagDigest
 
 	hostManifestJson, err := json.Marshal(hostManifest)
 	if err != nil {

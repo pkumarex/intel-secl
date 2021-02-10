@@ -16,10 +16,16 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"sync"
 )
 
 var ErrInvalidHostManiFest = errors.New("invalid host data")
 var ErrManifestMissingHwUUID = errors.New("host data missing hardware uuid")
+
+type quoteReportCache struct {
+	quoteDigest string
+	trustReport *hvs.TrustReport
+}
 
 type Verifier struct {
 	FlavorStore                     domain.FlavorStore
@@ -30,6 +36,8 @@ type Verifier struct {
 	CertsStore                      models.CertificatesStore
 	SamlIssuer                      saml.IssuerConfiguration
 	SkipFlavorSignatureVerification bool
+	hostQuoteReportCache            map[uuid.UUID]*quoteReportCache
+	pcrCacheLock                    sync.RWMutex
 }
 
 func NewVerifier(cfg domain.HostTrustVerifierConfig) domain.HostTrustVerifier {
@@ -42,21 +50,72 @@ func NewVerifier(cfg domain.HostTrustVerifierConfig) domain.HostTrustVerifier {
 		CertsStore:                      cfg.CertsStore,
 		SamlIssuer:                      cfg.SamlIssuerConfig,
 		SkipFlavorSignatureVerification: cfg.SkipFlavorSignatureVerification,
+		hostQuoteReportCache:            make(map[uuid.UUID]*quoteReportCache),
 	}
 }
 
-func (v *Verifier) Verify(hostId uuid.UUID, hostData *types.HostManifest, newData bool) (*models.HVSReport, error) {
+func (v *Verifier) addHostPCRCache(hostId uuid.UUID, existingEntry *quoteReportCache, hostManifest *types.HostManifest, report *hvs.TrustReport) {
+	// if we already have the pointer, we do not have to look up in the map again - just update the record
+	if existingEntry != nil {
+		existingEntry.quoteDigest = hostManifest.QuoteDigest
+		existingEntry.trustReport = report
+		return
+	}
+
+	// existing entry does not exist... create it.
+	v.pcrCacheLock.Lock()
+	v.hostQuoteReportCache[hostId] = &quoteReportCache{
+		quoteDigest: hostManifest.QuoteDigest,
+		trustReport: report,
+	}
+	v.pcrCacheLock.Unlock()
+
+}
+func (v *Verifier) getUnchangedCachedQuoteDigest(hostId uuid.UUID, hostData *types.HostManifest) *quoteReportCache {
+	defaultLog.Trace("hosttrust/verifier:getUnchangedCachedQuoteDigest() Entering")
+	defer defaultLog.Trace("hosttrust/verifier:getUnchangedCachedQuoteDigest() Leaving")
+	v.pcrCacheLock.RLock()
+	var cache *quoteReportCache
+	var exists bool
+	if cache, exists = v.hostQuoteReportCache[hostId]; !exists {
+		v.pcrCacheLock.RUnlock()
+		return nil
+	}
+	v.pcrCacheLock.RUnlock()
+
+	if cache.quoteDigest == "" || hostData.QuoteDigest != cache.quoteDigest {
+		return nil
+	}
+	return cache
+}
+
+func (v *Verifier) Verify(hostId uuid.UUID, hostData *types.HostManifest, newData bool, preferHashMatch bool) (*models.HVSReport, error) {
 	defaultLog.Trace("hosttrust/verifier:Verify() Entering")
 	defer defaultLog.Trace("hosttrust/verifier:Verify() Leaving")
 	if hostData == nil {
 		return nil, ErrInvalidHostManiFest
 	}
-	//TODO: Fix HardwareUUID has to be uuid
+
 	hwUuid, err := uuid.Parse(hostData.HostInfo.HardwareUUID)
 	if err != nil || hwUuid == uuid.Nil {
 		return nil, ErrManifestMissingHwUUID
 	}
 
+	var cacheEntry *quoteReportCache
+	// check if the data has not changed
+	if preferHashMatch {
+		// check if the PCR Values are unchanged.
+		if cacheEntry = v.getUnchangedCachedQuoteDigest(hostId, hostData); cacheEntry != nil {
+			// retrieve the stored report
+			log.Debug("hosttrust/verifier:Verify() Quote values matches cached value - skipping flavor verification")
+			if report, err := v.refreshTrustReport(hostId, cacheEntry); err == nil {
+				return report, err
+			} else {
+				// log warning message here - continue as normal and create a report from newly fetched data
+				log.Warn("hosttrust/verifier:Verify() - error encountered while refreshing report - err : ", err)
+			}
+		}
+	}
 	// TODO : remove this when we remove the intermediate collection
 	flvGroupIds, err := v.HostStore.SearchFlavorgroups(hostId)
 	flvGroups, err := v.FlavorGroupStore.Search(&models.FlavorGroupFilterCriteria{Ids: flvGroupIds})
@@ -127,6 +186,8 @@ func (v *Verifier) Verify(hostId uuid.UUID, hostData *types.HostManifest, newDat
 		samlReport := samlReportGen.GenerateSamlReport(&finalTrustReport)
 		finalTrustReport.Trusted = finalTrustReport.IsTrusted()
 		log.Debugf("hosttrust/verifier:Verify() Saving new report for host: %s", hostId)
+		// new report - save it to the cache
+		v.addHostPCRCache(hostId, cacheEntry, hostData, &finalTrustReport)
 		hvsReport = v.storeTrustReport(hostId, &finalTrustReport, &samlReport)
 	}
 	return hvsReport, nil
@@ -182,6 +243,16 @@ func (v *Verifier) validateCachedFlavors(hostId uuid.UUID,
 	}
 	htc.trustReport = collectiveReport
 	return htc, nil
+}
+
+func (v *Verifier) refreshTrustReport(hostID uuid.UUID, cache *quoteReportCache) (*models.HVSReport, error) {
+	defaultLog.Trace("hosttrust/verifier:refreshTrustReport() Entering")
+	defer defaultLog.Trace("hosttrust/verifier:refreshTrustReport() Leaving")
+	log.Debugf("hosttrust/verifier:refreshTrustReport() Generating SAML for host: %s using existing trust report", hostID)
+
+	samlReportGen := NewSamlReportGenerator(&v.SamlIssuer)
+	samlReport := samlReportGen.GenerateSamlReport(cache.trustReport)
+	return v.storeTrustReport(hostID, cache.trustReport, &samlReport), nil
 }
 
 func (v *Verifier) storeTrustReport(hostID uuid.UUID, trustReport *hvs.TrustReport, samlReport *saml.SamlAssertion) *models.HVSReport {

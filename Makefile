@@ -12,7 +12,7 @@ endif
 TARGETS = cms kbs ihub hvs aas
 
 $(TARGETS):
-	cd cmd/$@ && env CGO_CFLAGS_ALLOW="-f.*" GOOS=linux GOSUMDB=off GOPROXY=direct \
+	cd cmd/$@ && env GOOS=linux GOSUMDB=off GOPROXY=direct \
 		go build -ldflags "-X github.com/intel-secl/intel-secl/v3/pkg/$@/version.BuildDate=$(BUILDDATE) -X github.com/intel-secl/intel-secl/v3/pkg/$@/version.Version=$(VERSION) -X github.com/intel-secl/intel-secl/v3/pkg/$@/version.GitHash=$(GITCOMMIT)" -o $@
 
 kbs:
@@ -44,7 +44,6 @@ endif
 	swagger validate ./docs/swagger/$*-openapi.yml
 
 installer: $(patsubst %, %-installer, $(TARGETS)) authservice-installer aas-manager
-	
 
 docker: $(patsubst %, %-docker, $(TARGETS))
 
@@ -76,7 +75,7 @@ aas-manager:
 	chmod +x deployments/installer/create_db.sh
 
 test:
-	go test ./... -coverprofile cover.out
+	CGO_LDFLAGS="-Wl,-rpath -Wl,/usr/local/lib" CGO_CFLAGS_ALLOW="-f.*" go test ./... -coverprofile cover.out
 	go tool cover -func cover.out
 	go tool cover -html=cover.out -o cover.html
 

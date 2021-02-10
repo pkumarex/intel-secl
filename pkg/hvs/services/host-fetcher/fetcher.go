@@ -40,9 +40,10 @@ type retryRequest struct {
 }
 
 type fetchRequest struct {
-	ctx   context.Context
-	host  hvs.Host
-	rcvrs []domain.HostDataReceiver
+	ctx             context.Context
+	host            hvs.Host
+	rcvrs           []domain.HostDataReceiver
+	preferHashMatch bool
 }
 
 type Service struct {
@@ -215,6 +216,7 @@ func (svc *Service) doWork() {
 			svc.wmLock.Lock()
 			frs := svc.workMap[hId]
 			connUrl = frs[0].host.ConnectionString
+			preferHashMatch := frs[0].preferHashMatch
 			getData := false
 			for i, req := range frs {
 				select {
@@ -231,7 +233,7 @@ func (svc *Service) doWork() {
 			svc.wmLock.Unlock()
 
 			if getData {
-				svc.FetchDataAndRespond(hId, connUrl)
+				svc.FetchDataAndRespond(hId, connUrl, preferHashMatch)
 			} else {
 				defaultLog.Info("Fetch data for ", hId, "cancelled")
 			}
@@ -239,7 +241,7 @@ func (svc *Service) doWork() {
 	}
 }
 
-func (svc *Service) Retrieve(ctx context.Context, host hvs.Host) (*types.HostManifest, error) {
+func (svc *Service) Retrieve(host hvs.Host) (*types.HostManifest, error) {
 	defaultLog.Trace("hostfetcher/Service:Retrieve() Entering")
 	defer defaultLog.Trace("hostfetcher/Service:Retrieve() Leaving")
 
@@ -269,20 +271,20 @@ func (svc *Service) Retrieve(ctx context.Context, host hvs.Host) (*types.HostMan
 	return hostData, nil
 }
 
-func (svc *Service) RetrieveAsync(ctx context.Context, host hvs.Host, rcvrs ...domain.HostDataReceiver) error {
+func (svc *Service) RetrieveAsync(ctx context.Context, host hvs.Host, preferHashMatch bool, rcvrs ...domain.HostDataReceiver) error {
 	defaultLog.Trace("hostfetcher/Service:RetrieveAsync() Entering")
 	defer defaultLog.Trace("hostfetcher/Service:RetrieveAsync() Leaving")
 
 	if svc.serviceDone {
 		return errors.New("Host Fetcher has been shut down - cannot accept any more requests")
 	}
-	fr := &fetchRequest{ctx, host, rcvrs}
+	fr := &fetchRequest{ctx, host, rcvrs, preferHashMatch}
 	// queue up the request
 	svc.rqstChan <- fr
 	return nil
 }
 
-func (svc *Service) FetchDataAndRespond(hId uuid.UUID, connUrl string) {
+func (svc *Service) FetchDataAndRespond(hId uuid.UUID, connUrl string, preferHashMatch bool) {
 	defaultLog.Trace("hostfetcher/Service:FetchDataAndRespond() Entering")
 	defer defaultLog.Trace("hostfetcher/Service:FetchDataAndRespond() Leaving")
 
@@ -302,7 +304,7 @@ func (svc *Service) FetchDataAndRespond(hId uuid.UUID, connUrl string) {
 				default:
 				}
 				for _, rcv := range fr.rcvrs {
-					err = rcv.ProcessHostData(fr.ctx, fr.host, nil, errors.New("Host does not exist"))
+					err = rcv.ProcessHostData(fr.ctx, fr.host, nil, preferHashMatch, errors.New("Host does not exist"))
 					if err != nil {
 						defaultLog.WithError(err).Errorf("could not process host data")
 					}
@@ -357,7 +359,7 @@ func (svc *Service) FetchDataAndRespond(hId uuid.UUID, connUrl string) {
 		default:
 		}
 		for _, rcv := range fr.rcvrs {
-			err = rcv.ProcessHostData(fr.ctx, fr.host, hostData, err)
+			err = rcv.ProcessHostData(fr.ctx, fr.host, hostData, preferHashMatch, err)
 			if err != nil {
 				defaultLog.WithError(err).Errorf("could not process host data")
 			}
