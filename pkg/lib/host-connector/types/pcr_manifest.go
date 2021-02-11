@@ -22,6 +22,11 @@ import (
 )
 
 const (
+	StartupLocalityTag   = "StartupLocality3"
+	StartupLocalityEvent = "EV_NO_ACTION"
+)
+
+const (
 	PCR_INDEX_PREFIX = "pcr_"
 )
 
@@ -500,11 +505,16 @@ func (eventLogEntry *TpmEventLog) Replay() (string, error) {
 	}
 
 	// use the first EV_NO_ACTION/"StartupLocality" event to send the cumualtive hash
-	if eventLogEntry.Pcr.Index == 0 && eventLogEntry.TpmEvent[0].TypeName == "EV_NO_ACTION" {
+	if eventLogEntry.Pcr.Index == 0 && eventLogEntry.TpmEvent[0].TypeName == StartupLocalityEvent &&
+		eventLogEntry.TpmEvent[0].Tags[0] == StartupLocalityTag {
 		cumulativeHash[len(cumulativeHash)-1] = 0x3
 	}
 
 	for i, eventLog := range eventLogEntry.TpmEvent {
+		//if the event is EV_NO_ACTION, skip from summing the hash
+		if eventLog.TypeName == StartupLocalityEvent {
+			continue
+		}
 		//get the respective hash based on the pcr bank
 		hash := getHash(SHAAlgorithm(eventLogEntry.Pcr.Bank))
 
@@ -513,11 +523,7 @@ func (eventLogEntry *TpmEventLog) Replay() (string, error) {
 			return "", errors.Wrapf(err, "Failed to decode event log %d using hex string '%s'", i, eventLog.Measurement)
 		}
 
-		if eventLog.TypeName != "EV_NO_ACTION" {
-			hash.Write(cumulativeHash)
-		} else {
-			continue
-		}
+		hash.Write(cumulativeHash)
 		hash.Write(eventHash)
 		cumulativeHash = hash.Sum(nil)
 	}
