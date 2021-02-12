@@ -198,10 +198,10 @@ func (a *App) GetServiceUsers() []UserAndRolesCreate {
 		case "SHVS":
 			urc.Name = a.ShvsServiceUserName
 			urc.Password = a.ShvsServiceUserPassword
+			urc.Roles = append(urc.Roles, NewRole("SHVS", "HostsListReader", "", nil))
 		case "SIH":
 			urc.Name = a.IhubServiceUserName
 			urc.Password = a.IhubServiceUserPassword
-			urc.Roles = append(urc.Roles, NewRole("SHVS", "HostsListReader", "", nil))
 			urc.Roles = append(urc.Roles, NewRole("SHVS", "HostDataReader", "", nil))
 		case "SKBS":
 			urc.Name = a.KbsServiceUsername
