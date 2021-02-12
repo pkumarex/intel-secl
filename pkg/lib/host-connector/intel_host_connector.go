@@ -143,21 +143,33 @@ func (ic *IntelConnector) GetHostManifestAcceptNonce(nonce string) (types.HostMa
 	}
 	log.Info("intel_host_connector:GetHostManifestAcceptNonce() Successfully retrieved PCR manifest from quote")
 
-	bindingKeyBytes, err := ic.client.GetBindingKeyCertificate()
-	if err != nil {
-		log.WithError(err).Debugf("intel_host_connector:GetHostManifestAcceptNonce() Error getting " +
-			"binding key certificate from TA")
+	isWlaInstalled := false
+	for _, component := range hostManifest.HostInfo.InstalledComponents {
+		if component == types.HostComponentWlagent.String() {
+			isWlaInstalled = true
+			break
+		}
 	}
 
-	// The bindingkey certificate may not always be returned by the trust-agent,
-	// it will only be there if workload-agent is installed.
 	bindingKeyCertificateBase64 := ""
-	if bindingKeyBytes != nil && len(bindingKeyBytes) > 0 {
-		if bindingKeyCertificate, _ := pem.Decode(bindingKeyBytes); bindingKeyCertificate == nil {
-			log.Warn("intel_host_connector:GetHostManifestAcceptNonce() - Could not decode Binding key certificate. Unexpected response from client")
-		} else {
-			bindingKeyCertificateBase64 = base64.StdEncoding.EncodeToString(bindingKeyCertificate.Bytes)
+	if isWlaInstalled {
+		bindingKeyBytes, err := ic.client.GetBindingKeyCertificate()
+		if err != nil {
+			return types.HostManifest{}, errors.Wrap(err, "intel_host_connector:GetHostManifestAcceptNonce() " +
+				"Error getting binding key certificate from TA")
 		}
+
+		if bindingKeyBytes == nil || len(bindingKeyBytes) == 0 {
+			return types.HostManifest{}, errors.New("intel_host_connector:GetHostManifestAcceptNonce() " +
+				"Empty Binding Key received")
+		}
+
+		bindingKeyCertificate, _ := pem.Decode(bindingKeyBytes)
+		if bindingKeyCertificate == nil {
+			return types.HostManifest{}, errors.New("intel_host_connector:GetHostManifestAcceptNonce() - " +
+				"Could not decode Binding key certificate. Unexpected response from client")
+		}
+		bindingKeyCertificateBase64 = base64.StdEncoding.EncodeToString(bindingKeyCertificate.Bytes)
 	}
 	aikCertificateBase64 := base64.StdEncoding.EncodeToString(aikPem.Bytes)
 
