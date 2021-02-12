@@ -7,6 +7,7 @@ package hvs
 import (
 	"crypto/x509/pkix"
 	"fmt"
+	"github.com/intel-secl/intel-secl/v3/pkg/hvs/config"
 	cos "github.com/intel-secl/intel-secl/v3/pkg/lib/common/os"
 	"os"
 	"strings"
@@ -207,9 +208,11 @@ func (a *App) setupTaskRunner() (*setup.Runner, error) {
 func (a *App) downloadCertTask(certType string) setup.Task {
 	certTypeReq := certType
 	var updateConfig *commConfig.SigningCertConfig
+	var updateSAMLConfig *config.SAMLConfig
 	switch certType {
 	case "saml":
 		updateConfig = &a.configuration().SAML.CommonConfig
+		updateSAMLConfig = &a.configuration().SAML
 		certTypeReq = "signing"
 	case "flavor-signing":
 		updateConfig = &a.configuration().FlavorSigning
@@ -218,6 +221,11 @@ func (a *App) downloadCertTask(certType string) setup.Task {
 		updateConfig.KeyFile = viper.GetString(certType + "-key-file")
 		updateConfig.CertFile = viper.GetString(certType + "-cert-file")
 		updateConfig.CommonName = viper.GetString(certType + "-common-name")
+	}
+	if updateSAMLConfig != nil && updateConfig != nil {
+		updateSAMLConfig.CommonConfig = *updateConfig
+		updateSAMLConfig.ValiditySeconds = viper.GetInt("saml-validity-seconds")
+		updateSAMLConfig.Issuer = viper.GetString("saml-issuer-name")
 	}
 	return &setup.DownloadCert{
 		KeyFile:      viper.GetString(certType + "-key-file"),
