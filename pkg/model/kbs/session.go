@@ -46,7 +46,6 @@ type ChallengeReplyToNode struct {
 }
 
 type QuoteVerifyAttributes struct {
-	Status                         string `json:"Status"`
 	Message                        string `json:"Message"`
 	ChallengeKeyType               string `json:"ChallengeKeyType"`
 	ChallengeRsaPublicKey          string `json:"ChallengeRsaPublicKey"`
