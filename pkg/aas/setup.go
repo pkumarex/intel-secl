@@ -169,7 +169,8 @@ func (a *App) setupTaskRunner() (*setup.Runner, error) {
 		ServiceConfigPtr: &a.Config.AAS,
 		AASConfig:        serviceConfig,
 		DatabaseFactory: func() (domain.AASDatabase, error) {
-			p, err := postgres.Open(dbConf.Host, dbConf.Port, dbConf.DBName, dbConf.Username, dbConf.Password, dbConf.SSLMode, dbConf.SSLCert)
+			p, err := postgres.Open(a.Config.DB.Host, a.Config.DB.Port, a.Config.DB.DBName, a.Config.DB.Username,
+				a.Config.DB.Password, a.Config.DB.SSLMode, a.Config.DB.SSLCert)
 			if err != nil {
 				defaultLog.WithError(err).Error("Failed to open postgres connection for setup task")
 				return nil, err
