@@ -32,11 +32,11 @@ type (
 
 	HostStore interface {
 		Create(*hvs.Host) (*hvs.Host, error)
-		Retrieve(uuid.UUID) (*hvs.Host, error)
+		Retrieve(uuid.UUID, *models.HostInfoFetchCriteria) (*hvs.Host, error)
 		Update(*hvs.Host) error
 		Delete(uuid.UUID) error
 		DeleteByHostName(string) error
-		Search(*models.HostFilterCriteria) ([]*hvs.Host, error)
+		Search(*models.HostFilterCriteria, *models.HostInfoFetchCriteria) ([]*hvs.Host, error)
 		AddFlavorgroups(uuid.UUID, []uuid.UUID) error
 		RetrieveFlavorgroup(uuid.UUID, uuid.UUID) (*hvs.HostFlavorgroup, error)
 		RemoveFlavorgroups(uuid.UUID, []uuid.UUID) error

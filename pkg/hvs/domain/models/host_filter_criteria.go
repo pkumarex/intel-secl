@@ -14,4 +14,5 @@ type HostFilterCriteria struct {
 	Key            string
 	Value          string
 	IdList         []uuid.UUID
+	Trusted        *bool
 }

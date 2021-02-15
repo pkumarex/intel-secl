@@ -101,6 +101,7 @@ func (r *ReportStore) Create(re *models.HVSReport) (*models.HVSReport, error) {
 		Expiration:  re.Expiration,
 		Saml:        re.Saml,
 		TrustReport: PGTrustReport(re.TrustReport),
+		Trusted:     re.TrustReport.Trusted,
 	}
 	if err := r.Store.Db.Create(&dbReport).Error; err != nil {
 		return nil, errors.Wrap(err, "postgres/report_store:Create() failed to create HVSReport")
