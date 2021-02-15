@@ -58,13 +58,13 @@ func (hs *HostStore) Retrieve(id uuid.UUID, criteria *models.HostInfoFetchCriter
 		row := hs.Store.Db.Model(&host{}).Joins("left join report on report.host_id = host.id").
 			Joins("left join host_status on host_status.host_id = host.id").Where(&host{Id: id}).Row()
 		if err := row.Scan(&h.Id, &h.HostName, &h.Description, &h.ConnectionString, &h.HardwareUuid,
-			&h.Report, &h.ConnectionStatus); err != nil {
+			(*PGTrustReport)(&h.Report), &h.ConnectionStatus); err != nil {
 			return nil, errors.Wrap(err, "postgres/host_store:Search() failed to scan record")
 		}
 	} else if criteria.GetReport != nil {
 		row := hs.Store.Db.Model(&host{}).Joins("left join report on report.host_id = host.id").Where(&host{Id: id}).Row()
 		if err := row.Scan(&h.Id, &h.HostName, &h.Description, &h.ConnectionString, &h.HardwareUuid,
-			&h.Report); err != nil {
+			(*PGTrustReport)(&h.Report)); err != nil {
 			return nil, errors.Wrap(err, "postgres/host_store:Search() failed to scan record")
 		}
 	} else if criteria.GetConnectionStatus != nil {

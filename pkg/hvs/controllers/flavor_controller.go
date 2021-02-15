@@ -413,7 +413,7 @@ func (fcon *FlavorController) addFlavorToFlavorgroup(flavorFlavorPartMap map[fc.
 
 					hosts, err := fcon.HStore.Search(&dm.HostFilterCriteria{
 						HostHardwareId: hostHardwareUUID,
-					})
+					}, &dm.HostInfoFetchCriteria{})
 					if len(hosts) == 0 || err != nil {
 						defaultLog.Infof("Host with matching hardware UUID not registered")
 					}
@@ -690,7 +690,7 @@ func getHostsAssociatedWithFlavor(hStore domain.HostStore, fgStore domain.Flavor
 		if flavorGroup.Name == dm.FlavorGroupsHostUnique.String() {
 			hosts, err := hStore.Search(&dm.HostFilterCriteria{
 				HostHardwareId: *flavor.Flavor.Meta.Description.HardwareUUID,
-			})
+			}, &dm.HostInfoFetchCriteria{})
 			if err != nil {
 				return nil, errors.Wrapf(err, "controllers/flavor_controller:getHostsAssociatedWithFlavor() Failed to retrieve hosts "+
 					"associated with flavor %v for trust re-verification", id)
