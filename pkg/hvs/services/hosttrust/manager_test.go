@@ -146,7 +146,7 @@ func TestHostTrustManagerNewService(t *testing.T) {
 		HardwareUuid:     &hwUuid,
 	})
 	assert.NoError(t, err)
-	hrec, err := hs.Retrieve(newHost.Id)
+	hrec, err := hs.Retrieve(newHost.Id, &models.HostInfoFetchCriteria{})
 	fmt.Println(hrec)
 	assert.NoError(t, err)
 
@@ -183,7 +183,7 @@ func TestHostTrustManagerShutdown(t *testing.T) {
 		HardwareUuid:     &hwUuid,
 	})
 	assert.NoError(t, err)
-	hrec, err := hs.Retrieve(newHost.Id)
+	hrec, err := hs.Retrieve(newHost.Id, &models.HostInfoFetchCriteria{})
 	fmt.Println(hrec)
 	assert.NoError(t, err)
 

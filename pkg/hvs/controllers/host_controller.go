@@ -735,7 +735,7 @@ func populateHostInfoFetchCriteria(params url.Values) (*models.HostInfoFetchCrit
 			return nil, errors.New("Invalid getReport query param value, must be boolean")
 		}
 
-		criteria.GetReport = &getReport
+		criteria.GetReport = getReport
 
 	}
 	 if params.Get("getTrustStatus") != "" {
@@ -743,7 +743,7 @@ func populateHostInfoFetchCriteria(params url.Values) (*models.HostInfoFetchCrit
 		if err != nil {
 			return nil, errors.Wrap(err, "Invalid getTrustStatus query param value, must be boolean")
 		}
-		criteria.GetTrustStatus = &getTrustStatus
+		criteria.GetTrustStatus = getTrustStatus
 
 	}
 
@@ -752,7 +752,7 @@ func populateHostInfoFetchCriteria(params url.Values) (*models.HostInfoFetchCrit
 		if err != nil {
 			return nil, errors.Wrap(err, "Invalid getConnectionStatus query param value, must be boolean")
 		}
-		criteria.GetConnectionStatus = &getConnectionStatus
+		criteria.GetConnectionStatus = getConnectionStatus
 	}
 
 	return &criteria, nil
