@@ -58,7 +58,7 @@ var downloadTlsCAEnvHelp = map[string]string{
 
 var downloadSamlCAEnvHelp = map[string]string{
 	"ISSUER":        "The issuer of signed certificate",
-	"VALIDITY_DAYS": "The validity time in days of signed certificate",
+	"VALIDITY_SECONDS": "The validity time in seconds of signed certificate",
 }
 
 const downloadCAEnvHelpPrompt2 = "Following environment variables are required in "

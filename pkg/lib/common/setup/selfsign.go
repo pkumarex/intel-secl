@@ -142,7 +142,7 @@ func (t *SelfSignedCert) Run() error {
 
 // nothing to print for this task
 func (t *SelfSignedCert) PrintHelp(w io.Writer) {
-	PrintEnvHelp(w, selfSignEnvHelpPrompt+t.commandName, "", selfSignEnvHelp)
+	PrintEnvHelp(w, selfSignEnvHelpPrompt+t.commandName, t.envPrefix, selfSignEnvHelp)
 	fmt.Fprintln(w, "")
 }
 
