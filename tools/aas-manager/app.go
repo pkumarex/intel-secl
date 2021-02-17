@@ -163,7 +163,7 @@ func NewRole(service, name, context string, perms []string) aas.RoleCreate {
 func (a *App) GetServiceUsers() []UserAndRolesCreate {
 
 	urs := []UserAndRolesCreate{}
-	for k, _ := range a.Components {
+	for k := range a.Components {
 
 		urc := UserAndRolesCreate{}
 		urc.Roles = []aas.RoleCreate{}
@@ -199,6 +199,7 @@ func (a *App) GetServiceUsers() []UserAndRolesCreate {
 			urc.Name = a.ShvsServiceUserName
 			urc.Password = a.ShvsServiceUserPassword
 			urc.Roles = append(urc.Roles, NewRole("SHVS", "HostsListReader", "", nil))
+			urc.Roles = append(urc.Roles, NewRole("SHVS", "HostListManager", "", nil))
 		case "SIH":
 			urc.Name = a.IhubServiceUserName
 			urc.Password = a.IhubServiceUserPassword
@@ -239,7 +240,7 @@ func (a *App) GetGlobalAdminUser() *UserAndRolesCreate {
 	urc.Password = a.GlobalAdminPassword
 	urc.Roles = []aas.RoleCreate{}
 
-	for k, _ := range a.Components {
+	for k := range a.Components {
 
 		switch k {
 		case "HVS":
@@ -268,7 +269,7 @@ func (a *App) GetSuperInstallUser() UserAndRolesCreate {
 
 	// set the roles depending on the components that are to be installed
 
-	for k, _ := range a.Components {
+	for k := range a.Components {
 		switch k {
 		case "HVS":
 			urc.Roles = append(urc.Roles, NewRole("CMS", "CertApprover", "CN=HVS Flavor Signing Certificate;certType=Signing", nil))
@@ -573,7 +574,7 @@ func (a *App) AddUsersAndRoles(asr *AasUsersAndRolesSetup) error {
 	aascl := &claas.Client{asr.AasApiUrl, token, clients.HTTPClientTLSNoVerify()}
 
 	//fmt.Println("BEARER_TOKEN="+string(token))
-	for idx, _ := range asr.UsersAndRoles {
+	for idx := range asr.UsersAndRoles {
 		userid := ""
 		if a.RegenTokenOnly && !asr.UsersAndRoles[idx].PrintBearerToken {
 			continue
@@ -609,7 +610,7 @@ func (a *App) AddUsersAndRoles(asr *AasUsersAndRolesSetup) error {
 
 		}
 		roleList := []string{}
-		for key, _ := range roleMap {
+		for key := range roleMap {
 			roleList = append(roleList, key)
 		}
 
