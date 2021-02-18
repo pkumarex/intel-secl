@@ -154,7 +154,7 @@ func (hs *HostStore) Search(filterCriteria *models.HostFilterCriteria, infoFetch
 			"report.trusted").Joins("join report on report.host_id = host.id")
 	}
 
-	rows, err := tx.Rows()
+	rows, err := tx.Order("id asc").Rows()
 	if err != nil {
 		return nil, errors.Wrap(err, "postgres/host_store:Search() failed to retrieve records from db")
 	}
