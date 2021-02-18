@@ -33,7 +33,6 @@ Usage of hvs setup:
 
 Available Tasks for setup:
 	all                             Runs all setup tasks
-	server                          Setup http server on given port
 	database                        Setup hvs database
 	create-default-flavorgroup      Create default flavor groups in database
 	create-dek                      Create data encryption key for HVS
@@ -44,6 +43,7 @@ Available Tasks for setup:
 	create-endorsement-ca           Generate self-signed endorsement certificate
 	create-privacy-ca               Generate self-signed privacy certificate
 	create-tag-ca                   Generate self-signed tag certificate
+	update-service-config           Sets or Updates the Service configuration  
 `
 
 func (a *App) printUsage() {

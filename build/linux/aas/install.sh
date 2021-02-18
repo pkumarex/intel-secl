@@ -150,7 +150,7 @@ if [ "${AAS_NOSETUP,,}" == "true" ]; then
     echo "Run \"authservice setup all\" for manual setup"
     echo "Installation completed successfully!"
 else 
-    $COMPONENT_NAME setup all
+    $COMPONENT_NAME setup all --force
     SETUPRESULT=$?
     chown -R aas:aas /etc/authservice/
     if [ ${SETUPRESULT} == 0 ]; then 

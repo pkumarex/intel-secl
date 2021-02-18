@@ -32,7 +32,6 @@ func (a *App) setup(args []string) error {
 		if s == "-f" || s == "--file" {
 			if i+1 < len(args) {
 				ansFile = args[i+1]
-				break
 			} else {
 				return errors.New("Invalid answer file name")
 			}
@@ -121,33 +120,6 @@ func (a *App) setupTaskRunner() (*setup.Runner, error) {
 	runner.ConsoleWriter = a.consoleWriter()
 	runner.ErrorWriter = a.errorWriter()
 
-	runner.AddTask("server", "", &setup.ServerSetup{
-		SvrConfigPtr: &a.Config.Server,
-		ServerConfig: commConfig.ServerConfig{
-			Port:              viper.GetInt("server-port"),
-			ReadTimeout:       viper.GetDuration("server-read-timeout"),
-			ReadHeaderTimeout: viper.GetDuration("server-read-header-timeout"),
-			WriteTimeout:      viper.GetDuration("server-write-timeout"),
-			IdleTimeout:       viper.GetDuration("server-idle-timeout"),
-			MaxHeaderBytes:    viper.GetInt("server-max-header-bytes"),
-		},
-		ConsoleWriter: a.consoleWriter(),
-		DefaultPort:   constants.DefaultHVSListenerPort,
-	})
-	runner.AddTask("service", "hvs", &setup.ServiceSetup{
-		SvcConfigPtr:        &a.Config.HVS,
-		AASApiUrlPtr:        &a.Config.AASApiUrl,
-		CMSBaseURLPtr:       &a.Config.CMSBaseURL,
-		CmsTlsCertDigestPtr: &a.Config.CmsTlsCertDigest,
-		ServiceConfig: commConfig.ServiceConfig{
-			Username: viper.GetString("hvs-service-username"),
-			Password: viper.GetString("hvs-service-password"),
-		},
-		AASApiUrl:        viper.GetString("aas-base-url"),
-		CMSBaseURL:       viper.GetString("cms-base-url"),
-		CmsTlsCertDigest: viper.GetString("cms-tls-cert-sha384"),
-		ConsoleWriter:    a.consoleWriter(),
-	})
 	dbConf := commConfig.DBConfig{
 		Vendor:   viper.GetString("db-vendor"),
 		Host:     viper.GetString("db-host"),
@@ -193,6 +165,24 @@ func (a *App) setupTaskRunner() (*setup.Runner, error) {
 		ConsoleWriter: a.consoleWriter(),
 		CmsBaseURL:    viper.GetString("cms-base-url"),
 		BearerToken:   viper.GetString("bearer-token"),
+	})
+	runner.AddTask("update-service-config", "", &tasks.UpdateServiceConfig{
+		ServiceConfig: commConfig.ServiceConfig{
+			Username: viper.GetString("hvs-service-username"),
+			Password: viper.GetString("hvs-service-password"),
+		},
+		AASApiUrl: viper.GetString("aas-base-url"),
+		ServerConfig: commConfig.ServerConfig{
+			Port:              viper.GetInt("server-port"),
+			ReadTimeout:       viper.GetDuration("server-read-timeout"),
+			ReadHeaderTimeout: viper.GetDuration("server-read-header-timeout"),
+			WriteTimeout:      viper.GetDuration("server-write-timeout"),
+			IdleTimeout:       viper.GetDuration("server-idle-timeout"),
+			MaxHeaderBytes:    viper.GetInt("server-max-header-bytes"),
+		},
+		DefaultPort:   constants.DefaultHVSListenerPort,
+		AppConfig:     &a.Config,
+		ConsoleWriter: a.consoleWriter(),
 	})
 	runner.AddTask("download-cert-saml", "saml", a.downloadCertTask("saml"))
 	runner.AddTask("download-cert-flavor-signing", "flavor-signing", a.downloadCertTask("flavor-signing"))
@@ -280,7 +270,7 @@ func (a *App) selfSignTask(name string) setup.Task {
 // are different from the defaults.
 func (a *App) setupHRRSConfig() {
 
-	refreshPeriod := viper.GetDuration(hrrsRefreshPeriod)
+	refreshPeriod := viper.GetDuration(constants.HrrsRefreshPeriod)
 	if refreshPeriod != hrrs.DefaultRefreshPeriod {
 		a.Config.HRRS.RefreshPeriod = refreshPeriod
 	}

@@ -7,13 +7,13 @@ package ihub
 import (
 	"crypto/x509/pkix"
 	"fmt"
+	commConfig "github.com/intel-secl/intel-secl/v3/pkg/lib/common/config"
 	cos "github.com/intel-secl/intel-secl/v3/pkg/lib/common/os"
 	"os"
 	"strings"
 
 	"github.com/intel-secl/intel-secl/v3/pkg/ihub/constants"
 	"github.com/intel-secl/intel-secl/v3/pkg/ihub/tasks"
-	commConfig "github.com/intel-secl/intel-secl/v3/pkg/lib/common/config"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/setup"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
@@ -28,16 +28,15 @@ func (app *App) setup(args []string) error {
 	var ansFile string
 	var force bool
 	for i, flag := range args {
+		if flag == "--force" {
+			force = true
+		}
 		if flag == "-f" || flag == "--file" {
 			if i+1 < len(args) {
 				ansFile = args[i+1]
-				break
 			} else {
 				return errors.New("Invalid answer file name")
 			}
-		}
-		if flag == "--force" {
-			force = true
 		}
 	}
 	// dump answer file to env
@@ -141,21 +140,6 @@ func (app *App) setupTaskRunner() (*setup.Runner, error) {
 		BearerToken:   viper.GetString("bearer-token"),
 	})
 
-	runner.AddTask("service", "ihub", &setup.ServiceSetup{
-		SvcConfigPtr:        &app.Config.IHUB,
-		AASApiUrlPtr:        &app.Config.AASApiUrl,
-		CMSBaseURLPtr:       &app.Config.CMSBaseURL,
-		CmsTlsCertDigestPtr: &app.Config.CmsTlsCertDigest,
-		ServiceConfig: commConfig.ServiceConfig{
-			Username: viper.GetString("ihub-service-username"),
-			Password: viper.GetString("ihub-service-password"),
-		},
-		AASApiUrl:        viper.GetString("aas-base-url"),
-		CMSBaseURL:       viper.GetString("cms-base-url"),
-		CmsTlsCertDigest: viper.GetString("cms-tls-cert-sha384"),
-		ConsoleWriter:    app.consoleWriter(),
-	})
-
 	runner.AddTask("attestation-service-connection", "", &tasks.AttestationServiceConnection{
 		AttestationConfig: &app.Config.AttestationService,
 		ConsoleWriter:     app.consoleWriter(),
@@ -176,6 +160,16 @@ func (app *App) setupTaskRunner() (*setup.Runner, error) {
 		AttestationConfig: &app.Config.AttestationService,
 		SamlCertPath:      constants.SamlCertFilePath,
 		ConsoleWriter:     app.consoleWriter(),
+	})
+
+	runner.AddTask("update-service-config", "", &tasks.UpdateServiceConfig{
+		ConsoleWriter: app.consoleWriter(),
+		ServiceConfig: commConfig.ServiceConfig{
+			Username: viper.GetString("ihub-service-username"),
+			Password: viper.GetString("ihub-service-password"),
+		},
+		AASApiUrl: viper.GetString("aas-base-url"),
+		AppConfig: &app.Config,
 	})
 
 	return runner, nil

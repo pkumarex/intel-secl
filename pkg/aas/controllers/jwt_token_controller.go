@@ -83,7 +83,6 @@ func (controller JwtTokenController) CreateJwtToken(w http.ResponseWriter, r *ht
 	return jwt, http.StatusOK, nil
 }
 
-
 func (controller JwtTokenController) CreateCustomClaimsJwtToken(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 
 	defaultLog.Trace("call to createCustomClaimsJwtToken")

@@ -35,7 +35,7 @@ const (
 	ServiceName                    = "AAS"
 	ApiVersion                     = "v1"
 	ServiceUserName                = "aas"
-	DefaultHttpPort                = 8444
+	DefaultPort                    = 8444
 	DefaultKeyAlgorithm            = "rsa"
 	DefaultKeyLength               = 3072
 	DefaultAasJwtCn                = "AAS JWT Signing Certificate"

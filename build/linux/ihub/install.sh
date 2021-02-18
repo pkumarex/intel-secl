@@ -146,7 +146,7 @@ if [ "${IHUB_NOSETUP,,}" == "true" ]; then
     echo "Run \"$COMPONENT_NAME setup all\" for manual setup"
     echo "Installation completed successfully!"
 else    
-    $COMPONENT_NAME setup all
+    $COMPONENT_NAME setup all --force
     SETUPRESULT=$?
     chown -R $SERVICE_USERNAME:$SERVICE_USERNAME $CONFIG_PATH
     if [ ${SETUPRESULT} == 0 ]; then

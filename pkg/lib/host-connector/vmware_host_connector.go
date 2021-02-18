@@ -159,7 +159,7 @@ func createPCRManifest(hostTpmAttestationReport *vim25Types.HostTpmAttestationRe
 	pcrsDigestBytes, err := crypt.GetHashData([]byte(cumulativePcrsValue), crypto.SHA384)
 	if err != nil {
 		log.Errorf("vmware_host_connector:createPCRManifest() Error evaluating PCRs digest : %s", err.Error())
-		return pcrManifest, "", errors.Wrap(err, "vmware_host_connector:createPCRManifest() Error evaluating " +
+		return pcrManifest, "", errors.Wrap(err, "vmware_host_connector:createPCRManifest() Error evaluating "+
 			"PCRs digest")
 	}
 	pcrsDigest := hex.EncodeToString(pcrsDigestBytes)

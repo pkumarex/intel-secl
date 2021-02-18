@@ -29,14 +29,14 @@ Usage of authservice setup:
 		-f|--file <answer-file>     the answer file with required arguments
 
 	Available Tasks for setup:
-		all                   Runs all setup tasks
-		download-ca-cert      Download CMS root CA certificate
-		download-cert-tls     Download CA certificate from CMS for tls
-		database              Setup authservice database
-		admin                 Add authservice admin username and password to database and assign respective 
-		                      roles to the user
-		jwt                   Create jwt signing key and jwt certificate signed by CMS
-		server                Setup http server on given port
+		all                      Runs all setup tasks
+		download-ca-cert         Download CMS root CA certificate
+		download-cert-tls        Download CA certificate from CMS for tls
+		database                 Setup authservice database
+		admin                    Add authservice admin username and password to database and assign respective 
+		                         roles to the user
+		jwt                      Create jwt signing key and jwt certificate signed by CMS
+		update-service-config    Sets or Updates the Service configuration 
 `
 
 func (a *App) printUsage() {

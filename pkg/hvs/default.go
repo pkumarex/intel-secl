@@ -13,14 +13,6 @@ import (
 	"os"
 )
 
-const (
-	fvsNumberOfVerifiers               = "fvs-number-of-verifiers"
-	fvsNumberOfDataFetchers            = "fvs-number-of-data-fetchers"
-	fvsSkipFlavorSignatureVerification = "fvs-skip-flavor-signature-verification"
-	hrrsRefreshPeriod                  = "hrrs-refresh-period"
-	vcssRefreshPeriod                  = "vcss-refresh-period"
-)
-
 // this func sets the default values for viper keys
 func init() {
 	// set default values for tls
@@ -94,13 +86,13 @@ func init() {
 	viper.SetDefault("db-conn-retry-time", constants.DefaultDbConnRetryTime)
 
 	// set default for fvs
-	viper.SetDefault(fvsNumberOfVerifiers, constants.DefaultFvsNumberOfVerifiers)
-	viper.SetDefault(fvsNumberOfDataFetchers, constants.DefaultFvsNumberOfDataFetchers)
-	viper.SetDefault(fvsSkipFlavorSignatureVerification, constants.DefaultSkipFlavorSignatureVerification)
+	viper.SetDefault(constants.FvsNumberOfVerifiers, constants.DefaultFvsNumberOfVerifiers)
+	viper.SetDefault(constants.FvsNumberOfDataFetchers, constants.DefaultFvsNumberOfDataFetchers)
+	viper.SetDefault(constants.FvsSkipFlavorSignatureVerification, constants.DefaultSkipFlavorSignatureVerification)
 
-	viper.SetDefault(hrrsRefreshPeriod, hrrs.DefaultRefreshPeriod)
+	viper.SetDefault(constants.HrrsRefreshPeriod, hrrs.DefaultRefreshPeriod)
 
-	viper.SetDefault(vcssRefreshPeriod, constants.DefaultVcssRefreshPeriod)
+	viper.SetDefault(constants.VcssRefreshPeriod, constants.DefaultVcssRefreshPeriod)
 }
 
 func defaultConfig() *config.Configuration {
@@ -168,15 +160,15 @@ func defaultConfig() *config.Configuration {
 			Level:        viper.GetString("log-level"),
 		},
 		HRRS: hrrs.HRRSConfig{
-			RefreshPeriod: viper.GetDuration(hrrsRefreshPeriod),
+			RefreshPeriod: viper.GetDuration(constants.HrrsRefreshPeriod),
 		},
 		VCSS: config.VCSSConfig{
-			RefreshPeriod: viper.GetDuration(vcssRefreshPeriod),
+			RefreshPeriod: viper.GetDuration(constants.VcssRefreshPeriod),
 		},
 		FVS: config.FVSConfig{
-			NumberOfVerifiers:               viper.GetInt(fvsNumberOfVerifiers),
-			NumberOfDataFetchers:            viper.GetInt(fvsNumberOfDataFetchers),
-			SkipFlavorSignatureVerification: viper.GetBool(fvsSkipFlavorSignatureVerification),
+			NumberOfVerifiers:               viper.GetInt(constants.FvsNumberOfVerifiers),
+			NumberOfDataFetchers:            viper.GetInt(constants.FvsNumberOfDataFetchers),
+			SkipFlavorSignatureVerification: viper.GetBool(constants.FvsSkipFlavorSignatureVerification),
 		},
 	}
 }

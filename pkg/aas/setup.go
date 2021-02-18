@@ -34,7 +34,6 @@ func (a *App) setup(args []string) error {
 		if s == "-f" || s == "--file" {
 			if i+1 < len(args) {
 				ansFile = args[i+1]
-				break
 			} else {
 				return errors.New("Invalid answer file name")
 			}
@@ -182,18 +181,6 @@ func (a *App) setupTaskRunner() (*setup.Runner, error) {
 		},
 		ConsoleWriter: a.consoleWriter(),
 	})
-	runner.AddTask("server", "", &setup.ServerSetup{
-		SvrConfigPtr: &a.Config.Server,
-		ServerConfig: commConfig.ServerConfig{
-			Port:              viper.GetInt("server-port"),
-			ReadTimeout:       viper.GetDuration("server-read-timeout"),
-			ReadHeaderTimeout: viper.GetDuration("server-read-header-timeout"),
-			WriteTimeout:      viper.GetDuration("server-write-timeout"),
-			IdleTimeout:       viper.GetDuration("server-idle-timeout"),
-			MaxHeaderBytes:    viper.GetInt("server-max-header-bytes"),
-		},
-		ConsoleWriter: a.consoleWriter(),
-	})
 	runner.AddTask("jwt", "", &setup.DownloadCert{
 		KeyFile:      constants.TokenSignKeyFile,
 		CertFile:     constants.TokenSignCertFile,
@@ -207,6 +194,19 @@ func (a *App) setupTaskRunner() (*setup.Runner, error) {
 		ConsoleWriter: a.consoleWriter(),
 		CmsBaseURL:    viper.GetString("cms-base-url"),
 		BearerToken:   viper.GetString("bearer-token"),
+	})
+	runner.AddTask("update-service-config", "", &tasks.UpdateServiceConfig{
+		ConsoleWriter: a.consoleWriter(),
+		ServerConfig: commConfig.ServerConfig{
+			Port:              viper.GetInt("server-port"),
+			ReadTimeout:       viper.GetDuration("server-read-timeout"),
+			ReadHeaderTimeout: viper.GetDuration("server-read-header-timeout"),
+			WriteTimeout:      viper.GetDuration("server-write-timeout"),
+			IdleTimeout:       viper.GetDuration("server-idle-timeout"),
+			MaxHeaderBytes:    viper.GetInt("server-max-header-bytes"),
+		},
+		DefaultPort: constants.DefaultPort,
+		AppConfig:   &a.Config,
 	})
 
 	return runner, nil

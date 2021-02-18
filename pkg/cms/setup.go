@@ -7,12 +7,12 @@ package cms
 import (
 	"fmt"
 	"github.com/intel-secl/intel-secl/v3/pkg/cms/config"
+	commConfig "github.com/intel-secl/intel-secl/v3/pkg/lib/common/config"
 	"os"
 	"strings"
 
 	"github.com/intel-secl/intel-secl/v3/pkg/cms/constants"
 	"github.com/intel-secl/intel-secl/v3/pkg/cms/tasks"
-	commConfig "github.com/intel-secl/intel-secl/v3/pkg/lib/common/config"
 	cos "github.com/intel-secl/intel-secl/v3/pkg/lib/common/os"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/setup"
 	"github.com/pkg/errors"
@@ -28,10 +28,10 @@ func (a *App) setup(args []string) error {
 	var ansFile string
 	var force bool
 	for i, s := range args {
+
 		if s == "-f" || s == "--file" {
 			if i+1 < len(args) {
 				ansFile = args[i+1]
-				break
 			} else {
 				return errors.New("Invalid answer file name")
 			}
@@ -118,19 +118,6 @@ func (a *App) setupTaskRunner() (*setup.Runner, error) {
 	runner.ConsoleWriter = a.consoleWriter()
 	runner.ErrorWriter = a.errorWriter()
 
-	runner.AddTask("server", "", &setup.ServerSetup{
-		SvrConfigPtr: &a.Config.Server,
-		ServerConfig: commConfig.ServerConfig{
-			Port:              viper.GetInt("server-port"),
-			ReadTimeout:       viper.GetDuration("server-read-timeout"),
-			ReadHeaderTimeout: viper.GetDuration("server-read-header-timeout"),
-			WriteTimeout:      viper.GetDuration("server-write-timeout"),
-			IdleTimeout:       viper.GetDuration("server-idle-timeout"),
-			MaxHeaderBytes:    viper.GetInt("server-max-header-bytes"),
-		},
-		ConsoleWriter: a.consoleWriter(),
-		DefaultPort:   constants.DefaultPort,
-	})
 	runner.AddTask("root_ca", "", &tasks.RootCa{
 		ConsoleWriter:   a.consoleWriter(),
 		CACertConfigPtr: &a.Config.CACert,
@@ -157,6 +144,20 @@ func (a *App) setupTaskRunner() (*setup.Runner, error) {
 		AasJwtCn:      a.Config.AasJwtCn,
 		AasTlsSan:     a.Config.AasTlsSan,
 		TokenDuration: a.Config.TokenDurationMins,
+	})
+	runner.AddTask("update_service_config", "", &tasks.UpdateServiceConfig{
+		ConsoleWriter: a.consoleWriter(),
+		ServerConfig: commConfig.ServerConfig{
+			Port:              viper.GetInt("server-port"),
+			ReadTimeout:       viper.GetDuration("server-read-timeout"),
+			ReadHeaderTimeout: viper.GetDuration("server-read-header-timeout"),
+			WriteTimeout:      viper.GetDuration("server-write-timeout"),
+			IdleTimeout:       viper.GetDuration("server-idle-timeout"),
+			MaxHeaderBytes:    viper.GetInt("server-max-header-bytes"),
+		},
+		DefaultPort: constants.DefaultPort,
+		AASApiUrl:   viper.GetString("aas-base-url"),
+		AppConfig:   &a.Config,
 	})
 
 	return runner, nil

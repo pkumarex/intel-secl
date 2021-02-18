@@ -143,7 +143,7 @@ if [ "${HVS_NOSETUP,,}" == "true" ]; then
     echo "Run \"$COMPONENT_NAME setup all\" for manual setup"
     echo "Installation completed successfully!"
 else 
-    $COMPONENT_NAME setup all -f $env_file
+    $COMPONENT_NAME setup all --force -f $env_file
     SETUPRESULT=$?
     chown -R hvs:hvs /etc/hvs/
     if [ ${SETUPRESULT} == 0 ]; then

@@ -148,7 +148,7 @@ if [ "${CMS_NOSETUP,,}" == "true" ]; then
     echo "Run command \"cms setup all\" and start server"
     echo "Installation completed successfully!"
 else 
-    $COMPONENT_NAME setup all -f $env_file
+    $COMPONENT_NAME setup all -f $env_file --force
     SETUPRESULT=$?
     chown -R cms:cms /etc/cms/
     if [ ${SETUPRESULT} == 0 ]; then 

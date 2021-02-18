@@ -70,7 +70,7 @@ type AuthClaims struct {
 }
 
 type CustomClaims struct {
-	Subject string `json:"subject"`
-	ValiditySecs int `json:"validity_seconds"`
-	Claims map[string] interface{} `json: "claims"`
+	Subject      string                 `json:"subject"`
+	ValiditySecs int                    `json:"validity_seconds"`
+	Claims       map[string]interface{} `json: "claims"`
 }

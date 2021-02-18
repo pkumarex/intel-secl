@@ -172,3 +172,11 @@ const (
 const (
 	MaxNumDaysSearchLimit = 365
 )
+
+const (
+	FvsNumberOfVerifiers               = "fvs-number-of-verifiers"
+	FvsNumberOfDataFetchers            = "fvs-number-of-data-fetchers"
+	FvsSkipFlavorSignatureVerification = "fvs-skip-flavor-signature-verification"
+	HrrsRefreshPeriod                  = "hrrs-refresh-period"
+	VcssRefreshPeriod                  = "vcss-refresh-period"
+)
