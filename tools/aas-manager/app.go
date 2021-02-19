@@ -76,6 +76,8 @@ type App struct {
 	InstallAdminPassword    string
 	GlobalAdminUserName     string
 	GlobalAdminPassword     string
+	CSPAdminUsername        string
+	CSPAdminUserPassword    string
 	HvsServiceUserName      string
 	HvsServiceUserPassword  string
 	IhubServiceUserName     string
@@ -95,8 +97,6 @@ type App struct {
 	SKCLibUsername          string
 	SKCLibUserPassword      string
 	SKCLibRoleContext       string
-	SGXAgentUsername        string
-	SGXAgentUserPassword    string
 
 	Components     map[string]bool
 	GenPassword    bool
@@ -199,7 +199,7 @@ func (a *App) GetServiceUsers() []UserAndRolesCreate {
 			urc.Name = a.ShvsServiceUserName
 			urc.Password = a.ShvsServiceUserPassword
 			urc.Roles = append(urc.Roles, NewRole("SHVS", "HostsListReader", "", nil))
-                        urc.Roles = append(urc.Roles, NewRole("SHVS", "HostListManager", "", nil))
+			urc.Roles = append(urc.Roles, NewRole("SHVS", "HostListManager", "", nil))
 		case "SIH":
 			urc.Name = a.IhubServiceUserName
 			urc.Password = a.IhubServiceUserPassword
@@ -213,12 +213,6 @@ func (a *App) GetServiceUsers() []UserAndRolesCreate {
 			urc.Name = a.SKCLibUsername
 			urc.Password = a.SKCLibUserPassword
 			urc.Roles = append(urc.Roles, NewRole("KBS", "KeyTransfer", a.SKCLibRoleContext, nil))
-		case "SGX_AGENT":
-			urc.Name = a.SGXAgentUsername
-			urc.Password = a.SGXAgentUserPassword
-			urc.Roles = append(urc.Roles, NewRole("SHVS", "HostDataUpdater", "", nil))
-			urc.Roles = append(urc.Roles, NewRole("SCS", "HostDataUpdater", "", nil))
-			urc.Roles = append(urc.Roles, NewRole("SCS", "HostDataReader", "", nil))
 		}
 		if urc.Name != "" {
 			urs = append(urs, urc)
@@ -227,6 +221,22 @@ func (a *App) GetServiceUsers() []UserAndRolesCreate {
 	}
 	return urs
 
+}
+
+func (a *App) GetCSPAdminUser() *UserAndRolesCreate {
+
+	if a.CSPAdminUsername == "" {
+		return nil
+	}
+
+	return &UserAndRolesCreate{
+		UserCreate: aas.UserCreate{
+			Name:     a.CSPAdminUsername,
+			Password: a.CSPAdminUserPassword,
+		},
+		PrintBearerToken: true,
+		Roles:            []aas.RoleCreate{NewRole("AAS", "CustomClaimsCreator", "", []string{"custom_claims:create"})},
+	}
 }
 
 func (a *App) GetGlobalAdminUser() *UserAndRolesCreate {
@@ -417,8 +427,8 @@ func (a *App) LoadAllVariables(envFile string) error {
 
 		{&a.SKCLibRoleContext, "SKC_LIBRARY_KEY_TRANSFER_CONTEXT", "", "SKC Library Key Transfer Role Context", false, false},
 
-		{&a.SGXAgentUsername, "SGX_AGENT_USERNAME", "", "SGX Agent User Name", false, false},
-		{&a.SGXAgentUserPassword, "SGX_AGENT_PASSWORD", "", "SGX Agent User Password", false, true},
+		{&a.CSPAdminUsername, "CSP_ADMIN_USERNAME", "", "CSP Admin User Name", false, false},
+		{&a.CSPAdminUserPassword, "CSP_ADMIN_PASSWORD", "", "CSP Admin User Password", false, true},
 	}
 
 	hasError := false
@@ -678,6 +688,9 @@ func (a *App) Setup(args []string) error {
 		as.UsersAndRoles = append(as.UsersAndRoles, a.GetServiceUsers()...)
 		if glAdmin := a.GetGlobalAdminUser(); glAdmin != nil {
 			as.UsersAndRoles = append(as.UsersAndRoles, *glAdmin)
+		}
+		if cspAdmin := a.GetCSPAdminUser(); cspAdmin != nil {
+			as.UsersAndRoles = append(as.UsersAndRoles, *cspAdmin)
 		}
 
 	}
