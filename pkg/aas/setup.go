@@ -116,6 +116,9 @@ func (a *App) setupTaskRunner() (*setup.Runner, error) {
 	if a.configuration() == nil {
 		a.Config = defaultConfig()
 	}
+	if err := a.configureLogs(false, true); err != nil {
+		return nil, err
+	}
 
 	runner := setup.NewRunner()
 	runner.ConsoleWriter = a.consoleWriter()
