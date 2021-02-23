@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"github.com/intel-secl/intel-secl/v3/pkg/clients/vmware"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
+	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/slice"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
@@ -53,7 +54,7 @@ func (vc *VmwareConnector) GetHostDetails() (taModel.HostInfo, error) {
 	return hostInfo, nil
 }
 
-func (vc *VmwareConnector) GetHostManifest() (types.HostManifest, error) {
+func (vc *VmwareConnector) GetHostManifest(pcrList []int) (types.HostManifest, error) {
 
 	log.Trace("vmware_host_connector :GetHostManifest() Entering")
 	defer log.Trace("vmware_host_connector :GetHostManifest() Leaving")
@@ -71,7 +72,7 @@ func (vc *VmwareConnector) GetHostManifest() (types.HostManifest, error) {
 		return types.HostManifest{}, errors.New("vmware_host_connector: GetHostManifest() TPM log received from" +
 			"VMware host is not reliable")
 	}
-	pcrManifest, pcrsDigest, err := createPCRManifest(tpmAttestationReport.Returnval)
+	pcrManifest, pcrsDigest, err := createPCRManifest(tpmAttestationReport.Returnval, pcrList)
 	if err != nil {
 		return types.HostManifest{}, errors.Wrap(err, "vmware_host_connector: GetHostManifest() Error parsing "+
 			"PCR manifest from Host Attestation Report")
@@ -111,7 +112,7 @@ func (vc *VmwareConnector) GetClusterReference(clusterName string) ([]mo.HostSys
 	return hostInfoList, nil
 }
 
-func createPCRManifest(hostTpmAttestationReport *vim25Types.HostTpmAttestationReport) (types.PcrManifest, string, error) {
+func createPCRManifest(hostTpmAttestationReport *vim25Types.HostTpmAttestationReport, pcrList []int) (types.PcrManifest, string, error) {
 
 	log.Trace("vmware_host_connector :createPCRManifest() Entering")
 	defer log.Trace("vmware_host_connector :createPCRManifest() Leaving")
@@ -137,7 +138,9 @@ func createPCRManifest(hostTpmAttestationReport *vim25Types.HostTpmAttestationRe
 			Value:   pcrValue,
 			PcrBank: shaAlgorithm,
 		}
-		cumulativePcrsValue = cumulativePcrsValue + pcrValue
+		if pcrList == nil || len(pcrList) == 0 || slice.Contains(pcrList, int(pcrIndex)) {
+			cumulativePcrsValue = cumulativePcrsValue + pcrValue
+		}
 
 		if strings.EqualFold(pcrDetails.DigestMethod, "SHA256") {
 			pcr.DigestType = fmt.Sprintf(constants.PcrClassNamePrefix+"%d", 256)

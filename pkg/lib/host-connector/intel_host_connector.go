@@ -31,7 +31,7 @@ func (ic *IntelConnector) GetHostDetails() (taModel.HostInfo, error) {
 	return hostInfo, err
 }
 
-func (ic *IntelConnector) GetHostManifest() (types.HostManifest, error) {
+func (ic *IntelConnector) GetHostManifest(pcrList []int) (types.HostManifest, error) {
 	log.Trace("intel_host_connector:GetHostManifest() Entering")
 	defer log.Trace("intel_host_connector:GetHostManifest() Leaving")
 
@@ -40,7 +40,8 @@ func (ic *IntelConnector) GetHostManifest() (types.HostManifest, error) {
 		return types.HostManifest{}, errors.Wrap(err, "intel_host_connector:GetHostManifest() Error generating "+
 			"nonce for TPM quote request")
 	}
-	hostManifest, err := ic.GetHostManifestAcceptNonce(nonce)
+
+	hostManifest, err := ic.GetHostManifestAcceptNonce(nonce, pcrList)
 	if err != nil {
 		return types.HostManifest{}, errors.Wrap(err, "intel_host_connector:GetHostManifest() Error creating "+
 			"host manifest")
@@ -50,16 +51,19 @@ func (ic *IntelConnector) GetHostManifest() (types.HostManifest, error) {
 
 //Separate function has been created that accepts nonce to support unit test.
 //Else it would be difficult to mock random nonce.
-func (ic *IntelConnector) GetHostManifestAcceptNonce(nonce string) (types.HostManifest, error) {
-
+func (ic *IntelConnector) GetHostManifestAcceptNonce(nonce string, pcrList []int) (types.HostManifest, error) {
 	log.Trace("intel_host_connector:GetHostManifestAcceptNonce() Entering")
 	defer log.Trace("intel_host_connector:GetHostManifestAcceptNonce() Leaving")
+
 	var verificationNonce string
 	var hostManifest types.HostManifest
 	var pcrBankList []string
 
 	//Hardcoded pcr list here since there is no use case for customized pcr list
-	pcrList := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}
+	if pcrList == nil || len(pcrList) == 0 {
+		log.Infof("intel_host_connector:GetHostManifestAcceptNonce() pcrList is empty")
+		pcrList = []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23}
+	}
 	//check if AIK Certificate is present on host before getting host manifest
 	aikInDER, err := ic.client.GetAIK()
 	if err != nil || len(aikInDER) == 0 {

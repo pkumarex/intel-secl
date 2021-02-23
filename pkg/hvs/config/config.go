@@ -48,6 +48,7 @@ type FVSConfig struct {
 	NumberOfVerifiers               int  `yaml:"number-of-verifiers" mapstructure:"number-of-verifiers"`
 	NumberOfDataFetchers            int  `yaml:"number-of-data-fetchers" mapstructure:"number-of-data-fetchers"`
 	SkipFlavorSignatureVerification bool `yaml:"skip-flavor-signature-verification" mapstructure:"skip-flavor-signature-verification"`
+	HostTrustCacheThreshold         int  `yaml:"host-trust-cache-threshold" mapstructure:"host-trust-cache-threshold"`
 }
 
 type SAMLConfig struct {

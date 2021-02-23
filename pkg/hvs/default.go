@@ -13,6 +13,15 @@ import (
 	"os"
 )
 
+const (
+	fvsNumberOfVerifiers               = "fvs-number-of-verifiers"
+	fvsNumberOfDataFetchers            = "fvs-number-of-data-fetchers"
+	fvsSkipFlavorSignatureVerification = "fvs-skip-flavor-signature-verification"
+	fvsHostTrustCacheThreshold         = "fvs-host-trust-cache-threshold"
+	hrrsRefreshPeriod                  = "hrrs-refresh-period"
+	vcssRefreshPeriod                  = "vcss-refresh-period"
+)
+
 // this func sets the default values for viper keys
 func init() {
 	// set default values for tls
@@ -86,9 +95,10 @@ func init() {
 	viper.SetDefault("db-conn-retry-time", constants.DefaultDbConnRetryTime)
 
 	// set default for fvs
-	viper.SetDefault(constants.FvsNumberOfVerifiers, constants.DefaultFvsNumberOfVerifiers)
-	viper.SetDefault(constants.FvsNumberOfDataFetchers, constants.DefaultFvsNumberOfDataFetchers)
-	viper.SetDefault(constants.FvsSkipFlavorSignatureVerification, constants.DefaultSkipFlavorSignatureVerification)
+	viper.SetDefault(fvsNumberOfVerifiers, constants.DefaultFvsNumberOfVerifiers)
+	viper.SetDefault(fvsNumberOfDataFetchers, constants.DefaultFvsNumberOfDataFetchers)
+	viper.SetDefault(fvsSkipFlavorSignatureVerification, constants.DefaultSkipFlavorSignatureVerification)
+	viper.SetDefault(fvsHostTrustCacheThreshold, constants.DefaultHostTrustCacheThreshold)
 
 	viper.SetDefault(constants.HrrsRefreshPeriod, hrrs.DefaultRefreshPeriod)
 
@@ -166,9 +176,10 @@ func defaultConfig() *config.Configuration {
 			RefreshPeriod: viper.GetDuration(constants.VcssRefreshPeriod),
 		},
 		FVS: config.FVSConfig{
-			NumberOfVerifiers:               viper.GetInt(constants.FvsNumberOfVerifiers),
-			NumberOfDataFetchers:            viper.GetInt(constants.FvsNumberOfDataFetchers),
-			SkipFlavorSignatureVerification: viper.GetBool(constants.FvsSkipFlavorSignatureVerification),
+			NumberOfVerifiers:               viper.GetInt(fvsNumberOfVerifiers),
+			NumberOfDataFetchers:            viper.GetInt(fvsNumberOfDataFetchers),
+			SkipFlavorSignatureVerification: viper.GetBool(fvsSkipFlavorSignatureVerification),
+			HostTrustCacheThreshold:         viper.GetInt(fvsHostTrustCacheThreshold),
 		},
 	}
 }

@@ -8,6 +8,7 @@ package hosttrust_test
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/golang/groupcache/lru"
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/mocks"
@@ -66,6 +67,7 @@ func SetupManagerTests() {
 		RetryTimeMinutes: 7,
 		HostStatusStore:  hss,
 		HostStore:        hs,
+		HostTrustCache:   lru.New(5),
 	}
 
 	_, f, _ = hostfetcher.NewService(cfg, 5)
@@ -114,6 +116,7 @@ func SetupManagerTests() {
 		FlavorVerifier:                  flvrVerifier,
 		SamlIssuerConfig:                *getIssuer(),
 		SkipFlavorSignatureVerification: true,
+		HostTrustCache:                  lru.New(5),
 	}
 	v = hosttrust.NewVerifier(htv)
 

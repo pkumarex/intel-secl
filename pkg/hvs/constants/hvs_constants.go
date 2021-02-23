@@ -154,6 +154,7 @@ const (
 	DefaultFvsNumberOfVerifiers            = 20
 	DefaultFvsNumberOfDataFetchers         = 20
 	DefaultSkipFlavorSignatureVerification = false
+	DefaultHostTrustCacheThreshold         = 100000
 )
 
 //VCSS constants

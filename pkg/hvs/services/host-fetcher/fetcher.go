@@ -7,6 +7,7 @@ package hostfetcher
 
 import (
 	"context"
+	"github.com/golang/groupcache/lru"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models/taskstage"
 	"reflect"
 	"sync"
@@ -72,6 +73,7 @@ type Service struct {
 	hcf               hc.HostConnectorProvider
 	hss               domain.HostStatusStore
 	hs                domain.HostStore
+	hostTrustCache    *lru.Cache
 }
 
 func NewService(cfg domain.HostDataFetcherConfig, workers int) (*Service, domain.HostDataFetcher, error) {
@@ -87,6 +89,7 @@ func NewService(cfg domain.HostDataFetcherConfig, workers int) (*Service, domain
 		hss:               cfg.HostStatusStore,
 		hcCfg:             cfg.HostConnectionConfig,
 		hs:                cfg.HostStore,
+		hostTrustCache:    cfg.HostTrustCache,
 	}
 	if svc.hss == nil {
 		return nil, nil, errors.New("host status store cannot be empty")
@@ -245,7 +248,8 @@ func (svc *Service) Retrieve(host hvs.Host) (*types.HostManifest, error) {
 	defaultLog.Trace("hostfetcher/Service:Retrieve() Entering")
 	defer defaultLog.Trace("hostfetcher/Service:Retrieve() Leaving")
 
-	hostData, err := svc.GetHostData(host.ConnectionString)
+	trustPcrList := svc.getTrustPcrListFromCache(host.Id)
+	hostData, err := svc.GetHostData(host.ConnectionString, trustPcrList)
 	hostStatus := &hvs.HostStatus{
 		HostID:                host.Id,
 		HostStatusInformation: hvs.HostStatusInformation{},
@@ -288,7 +292,8 @@ func (svc *Service) FetchDataAndRespond(hId uuid.UUID, connUrl string, preferHas
 	defaultLog.Trace("hostfetcher/Service:FetchDataAndRespond() Entering")
 	defer defaultLog.Trace("hostfetcher/Service:FetchDataAndRespond() Leaving")
 
-	hostData, err := svc.GetHostData(connUrl)
+	trustPcrList := svc.getTrustPcrListFromCache(hId)
+	hostData, err := svc.GetHostData(connUrl, trustPcrList)
 	if err != nil {
 		defaultLog.WithError(err).Errorf("hostfetcher/Service:FetchDataAndRespond() Failed to get data	")
 		// we have an error. Make sure that the host still exists.
@@ -369,7 +374,22 @@ func (svc *Service) FetchDataAndRespond(hId uuid.UUID, connUrl string, preferHas
 
 }
 
-func (svc *Service) GetHostData(connUrl string) (*types.HostManifest, error) {
+func (svc *Service) getTrustPcrListFromCache(hId uuid.UUID) []int {
+	defaultLog.Trace("hostfetcher/Service:getTrustPcrListFromCache() Entering")
+	defer defaultLog.Trace("hostfetcher/Service:getTrustPcrListFromCache() Leaving")
+
+	var trustPcrList []int
+	cacheEntry, ok := svc.hostTrustCache.Get(hId)
+	if ok {
+		cachedQuote := cacheEntry.(*models.QuoteReportCache)
+		trustPcrList = cachedQuote.TrustPcrList
+	}
+
+	defaultLog.Infof("hostfetcher/Service:getTrustPcrListFromCache() PCR List %v for host %v ", hId, trustPcrList)
+	return trustPcrList
+}
+
+func (svc *Service) GetHostData(connUrl string, pcrList []int) (*types.HostManifest, error) {
 	defaultLog.Trace("hostfetcher/Service:GetHostData() Entering")
 	defer defaultLog.Trace("hostfetcher/Service:GetHostData() Leaving")
 
@@ -386,7 +406,8 @@ func (svc *Service) GetHostData(connUrl string) (*types.HostManifest, error) {
 	if err != nil {
 		return nil, err
 	}
-	data, err := connector.GetHostManifest()
+
+	data, err := connector.GetHostManifest(pcrList)
 	return &data, err
 }
 

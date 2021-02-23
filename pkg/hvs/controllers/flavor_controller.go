@@ -350,7 +350,7 @@ func (fcon *FlavorController) getHostManifest(cs string) (*hcType.HostManifest, 
 	if err != nil {
 		return nil, errors.Wrap(err, "Could not instantiate host connector")
 	}
-	hostManifest, err := hostConnector.GetHostManifest()
+	hostManifest, err := hostConnector.GetHostManifest(nil)
 	return &hostManifest, err
 }
 

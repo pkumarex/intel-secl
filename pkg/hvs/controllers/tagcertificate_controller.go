@@ -452,7 +452,7 @@ func (controller TagCertificateController) Deploy(w http.ResponseWriter, r *http
 	}
 
 	// get Host Manifest
-	hmanifest, err := hc.GetHostManifest()
+	hmanifest, err := hc.GetHostManifest(nil)
 	if err != nil {
 		defaultLog.WithField("id", dtcReq.CertID).Error("controllers/tagcertificate_controller:Deploy() Failed "+
 			"to get the HostManifest from Host %s", targetHost.HardwareUuid.String())
