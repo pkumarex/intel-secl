@@ -41,6 +41,11 @@ func openLogFiles() (logFile *os.File, httpLogFile *os.File, secLogFile *os.File
 		return nil, nil, nil, err
 	}
 
+	// Containers are always run as non root users, does not require changing ownership of log directories
+	if _, err := os.Stat("/.container-env"); err == nil {
+		return logFile, httpLogFile, secLogFile, nil
+	}
+
 	cmsUser, err := user.Lookup(ServiceUserName)
 	if err != nil {
 		return nil, nil, nil, err

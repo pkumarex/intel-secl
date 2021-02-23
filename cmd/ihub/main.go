@@ -34,6 +34,11 @@ func openLogFiles() (logFile *os.File, secLogFile *os.File, err error) {
 		return nil, nil, fmt.Errorf("error in setting file permission for file : %s", SecurityLogFile)
 	}
 
+	// Containers are always run as non root users, does not require changing ownership of log directories
+	if _, err := os.Stat("/.container-env"); err == nil {
+		return logFile, secLogFile, nil
+	}
+
 	ihubUser, err := user.Lookup(ServiceUserName)
 	if err != nil {
 		return nil, nil, fmt.Errorf("could not find user '%s'", ServiceUserName)
