@@ -8,7 +8,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3
-	github.com/jinzhu/gorm v1.9.12
+	github.com/jinzhu/gorm v1.9.16
 	github.com/joho/godotenv v1.3.0
 	github.com/lib/pq v1.1.1
 	github.com/mattermost/xml-roundtrip-validator v0.0.0-20201213122252-bcd7e1b9601e
