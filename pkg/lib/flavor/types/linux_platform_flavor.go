@@ -62,7 +62,7 @@ var (
 		"LCP_CONTROL_HASH": 0,
 	}
 
-	suefiPcrList = []int{0, 1, 2, 3, 4, 5, 6, 7}
+	suefiPcrList = []int{0, 2, 3, 4, 6, 7}
 	tbootPcrList = []int{17, 18}
 )
 
