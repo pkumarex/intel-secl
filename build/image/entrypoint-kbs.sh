@@ -30,7 +30,7 @@ if [ ! -f $CONFIG_PATH/.setup_done ]; then
   ln -sfT $LIB_PATH/libkmip.so.0.2 $LIB_PATH/libkmip.so
   ln -sfT $LIB_PATH/libkmip.so.0.2 $LIB_PATH/libkmip.so.0
   export LD_LIBRARY_PATH=$LIB_PATH
-  kbs setup all
+  kbs setup all --force
   if [ $? -ne 0 ]; then
     exit 1
   fi

@@ -22,7 +22,7 @@ if [ ! -f $CONFIG_PATH/.setup_done ]; then
     chmod 700 $directory
   done
   mv /opt/hvs/EndorsementCA-external.pem $ENDORSEMENTS_CA_DIR/
-  hvs setup all
+  hvs setup all --force
   if [ $? -ne 0 ]; then
     exit 1
   fi

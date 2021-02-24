@@ -18,7 +18,7 @@ if [ ! -f $CONFIG_PATH/.setup_done ]; then
     chown -R $USER_ID:$USER_ID $directory
     chmod 700 $directory
   done
-  aas setup all
+  aas setup all --force
   if [ $? -ne 0 ]; then
     exit 1
   fi
