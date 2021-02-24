@@ -52,7 +52,7 @@ func NewHostController(hs domain.HostStore, hss domain.HostStatusStore, fs domai
 }
 
 var hostSearchParams = map[string]bool{"id": true, "nameEqualTo": true, "nameContains": true, "hostHardwareId": true,
-	"key": true, "value": true, "trusted" : true, "getTrustStatus" : true, "getConnectionStatus" : true}
+	"key": true, "value": true, "trusted" : true, "getTrustStatus" : true, "getConnectionStatus" : true, "orderBy" : true}
 
 var hostRetrieveParams = map[string]bool{"getReport" : true, "getConnectionStatus" : true}
 
@@ -718,6 +718,14 @@ func populateHostFilterCriteria(params url.Values) (*models.HostFilterCriteria, 
 			return nil, errors.New("Invalid trusted query param value, must be true/false")
 		}
 		criteria.Trusted = &trustStatus
+	}
+
+	if params.Get("orderBy") != "" {
+		orderType, err := models.GetOrderType(params.Get("orderBy"))
+		if err != nil {
+			return nil, errors.New("Invalid orderBy query param value, must be asc/desc")
+		}
+		criteria.OrderBy = orderType
 	}
 
 	return &criteria, nil
