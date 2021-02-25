@@ -302,6 +302,7 @@ func getHostManifestMap(hostManifest *types.HostManifest, flavorParts []cf.Flavo
 						Key:   "hardware.feature.CBNT.enabled",
 						Value: hostInfo.HardwareFeatures.CBNT.Enabled,
 					})
+					//TODO Need to check supported flag instead of a nil check after platform info changes
 					if hostInfo.HardwareFeatures.CBNT.Enabled {
 						pfQueryAttrs = append(pfQueryAttrs, models.FlavorMetaKv{
 							Key:   "hardware.feature.CBNT.meta.profile",
