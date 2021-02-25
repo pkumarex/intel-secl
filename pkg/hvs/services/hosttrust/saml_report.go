@@ -120,6 +120,7 @@ func getHardwareFeaturesMap(features model.HardwareFeatures) map[string]string {
 
 	hwFeaturesMap := make(map[string]string)
 	featurePrefix := "FEATURE_"
+	//TODO Need to check supported flag instead of a nil check after platform info changes
 	if features.CBNT.Enabled {
 		hwFeaturesMap[featurePrefix+constants.Cbnt] = strconv.FormatBool(features.CBNT.Enabled)
 		hwFeaturesMap["FEATURE_cbntProfile"] = features.CBNT.Meta.Profile
