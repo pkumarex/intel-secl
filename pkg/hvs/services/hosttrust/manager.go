@@ -123,7 +123,7 @@ func (svc *Service) VerifyHost(hostId uuid.UUID, fetchHostData bool, preferHashM
 
 	if fetchHostData {
 		var host *hvs.Host
-		host, err := svc.hostStore.Retrieve(hostId, &models.HostInfoFetchCriteria{})
+		host, err := svc.hostStore.Retrieve(hostId, nil)
 		if err != nil {
 			return nil, errors.Wrap(err, "could not retrieve host id "+hostId.String())
 		}
@@ -273,7 +273,7 @@ func (svc *Service) submitHostDataFetch(hostLists map[uuid.UUID]bool) {
 		// since current store method only support searching one record at a time, use that.
 		// TODO: update to bulk retrieve host records when store method supports it. In this case, iterate by
 		// result from the host store.
-		if host, err := svc.hostStore.Retrieve(hId, &models.HostInfoFetchCriteria{}); err != nil {
+		if host, err := svc.hostStore.Retrieve(hId, nil); err != nil {
 			defaultLog.Info("hosttrust/manager:submitHostDataFetch() - error retrieving host data for id", hId)
 			continue
 		} else {

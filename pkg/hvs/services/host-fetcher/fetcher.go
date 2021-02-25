@@ -297,7 +297,7 @@ func (svc *Service) FetchDataAndRespond(hId uuid.UUID, connUrl string, preferHas
 	if err != nil {
 		defaultLog.WithError(err).Errorf("hostfetcher/Service:FetchDataAndRespond() Failed to get data	")
 		// we have an error. Make sure that the host still exists.
-		if hosts, err := svc.hs.Search(&models.HostFilterCriteria{Id: hId}, &models.HostInfoFetchCriteria{}); err == nil && len(hosts) == 0 {
+		if hosts, err := svc.hs.Search(&models.HostFilterCriteria{Id: hId}, nil); err == nil && len(hosts) == 0 {
 			svc.wmLock.Lock()
 			frs := svc.workMap[hId]
 			delete(svc.workMap, hId)
@@ -416,7 +416,7 @@ func (svc *Service) updateMissingHostDetails(hostId uuid.UUID, manifest *types.H
 	defer defaultLog.Trace("hostfetcher/Service:updateMissingHostDetails() Leaving")
 
 	if manifest != nil && !reflect.DeepEqual(manifest.HostInfo, taModel.HostInfo{}) {
-		host, err := svc.hs.Retrieve(hostId, &models.HostInfoFetchCriteria{})
+		host, err := svc.hs.Retrieve(hostId, nil)
 		if err != nil {
 			defaultLog.Info("hostfetcher/Service:updateMissingHostDetails() Failed to get host information while Verifying host details")
 			return

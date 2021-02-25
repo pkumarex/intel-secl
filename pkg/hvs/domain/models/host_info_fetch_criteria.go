@@ -6,7 +6,7 @@
 package models
 
 type HostInfoFetchCriteria struct {
-	GetReport           bool
-	GetTrustStatus      bool
-	GetConnectionStatus bool
+	GetReport      bool
+	GetTrustStatus bool
+	GetHostStatus  bool
 }

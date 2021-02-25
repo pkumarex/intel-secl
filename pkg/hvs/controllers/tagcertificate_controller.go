@@ -419,7 +419,7 @@ func (controller TagCertificateController) Deploy(w http.ResponseWriter, r *http
 	// lookup Host by Host HardwareUUID
 	defaultLog.WithField("HardwareUUID", tc.HardwareUUID).Debug("controllers/tagcertificate_controller:Deploy() Looking up Host")
 	hosts, err := controller.HostStore.Search(&models.HostFilterCriteria{
-		HostHardwareId: tc.HardwareUUID}, &models.HostInfoFetchCriteria{})
+		HostHardwareId: tc.HardwareUUID}, nil)
 
 	// handle zero records returned
 	if len(hosts) == 0 || err != nil {

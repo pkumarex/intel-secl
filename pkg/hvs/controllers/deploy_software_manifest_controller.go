@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
-	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
 	consts "github.com/intel-secl/intel-secl/v3/pkg/lib/common/constants"
 	commErr "github.com/intel-secl/intel-secl/v3/pkg/lib/common/err"
 	commLogMsg "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log/message"
@@ -100,7 +99,7 @@ func (controller *DeploySoftwareManifestController) deployManifestToHost(hostId 
 	defaultLog.Trace("controllers/deploy_software_manifest_controller:deployManifestToHost() Entering")
 	defer defaultLog.Trace("controllers/deploy_software_manifest_controller:deployManifestToHost() Leaving")
 
-	host, err := controller.HController.HStore.Retrieve(hostId, &models.HostInfoFetchCriteria{})
+	host, err := controller.HController.HStore.Retrieve(hostId, nil)
 	if err != nil {
 		if strings.Contains(err.Error(), commErr.RowsNotFound) {
 			return http.StatusBadRequest, &commErr.ResourceError{Message: "Host with given ID does not exist"}
