@@ -78,13 +78,15 @@ const (
 	KMIP_CRYPTOALG_RSA  = 0x04
 	KMIP_CRYPTOALG_EC   = 0x06
 	KMIP_CLIENT_SUCCESS = 0x00
+
+	NonceLength = 32
 )
 
 ///SKC Specific constants
 const (
 	DefaultSWLabel          = "SW"
 	DefaultSGXLabel         = "SGX"
-	VerifyQuote             = "/verifyQuote"
+	VerifyQuote             = "/sgx_qv_verify_quote"
 	KeyTransferOpertaion    = "transfer key"
 	SessionOperation        = "establish session key"
 	SuccessStatus           = "success"
