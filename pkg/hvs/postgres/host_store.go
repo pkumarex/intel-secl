@@ -58,15 +58,14 @@ func (hs *HostStore) Retrieve(id uuid.UUID, criteria *models.HostInfoFetchCriter
 	defaultLog.Trace("postgres/host_store:Retrieve() Entering")
 	defer defaultLog.Trace("postgres/host_store:Retrieve() Leaving")
 
-	tx := hs.Store.Db.Model(&host{})
+	tx := hs.Store.Db.Model(&host{}).Where(&host{Id: id})
 
-	row := tx.Where(&host{Id: id}).Row()
 	h := hvs.Host{}
 	report := hvs.TrustReport{}
 	connectionStatus := hvs.HostStatusInformation{}
 
-	if criteria != nil && (criteria.GetReport || criteria.GetHostStatus) {
-		row = buildInfoFetchQuery(tx, criteria, nil).Row()
+	if criteria != nil && (criteria.GetReport || criteria.GetHostStatus){
+		row := buildInfoFetchQuery(tx, criteria, nil).Row()
 		if criteria.GetReport && criteria.GetHostStatus {
 			if err := row.Scan(&h.Id, &h.HostName, &h.Description, &h.ConnectionString, &h.HardwareUuid,
 				(*PGTrustReport)(&report), (*PGHostStatusInformation)(&connectionStatus)); err != nil {
@@ -88,7 +87,7 @@ func (hs *HostStore) Retrieve(id uuid.UUID, criteria *models.HostInfoFetchCriter
 			h.ConnectionStatus = &connectionStatus
 		}
 	} else {
-		if err := row.Scan(&h.Id, &h.HostName, &h.Description, &h.ConnectionString, &h.HardwareUuid); err != nil {
+		if err := tx.Row().Scan(&h.Id, &h.HostName, &h.Description, &h.ConnectionString, &h.HardwareUuid); err != nil {
 			return nil, errors.Wrap(err, "postgres/host_store:Retrieve() failed to scan record")
 		}
 	}
@@ -193,6 +192,7 @@ func buildHostSearchQuery(tx *gorm.DB, criteria *models.HostFilterCriteria) *gor
 	tx = tx.Model(&host{})
 
 	if criteria == nil || reflect.DeepEqual(*criteria, models.HostFilterCriteria{}) {
+		tx = tx.Order("name asc")
 		return tx
 	}
 
@@ -222,10 +222,6 @@ func buildInfoFetchQuery(tx *gorm.DB, infoFetchCriteria *models.HostInfoFetchCri
 	filterCriteria *models.HostFilterCriteria) *gorm.DB {
 	defaultLog.Trace("postgres/host_store:buildInfoFetchQuery() Entering")
 	defer defaultLog.Trace("postgres/host_store:buildInfoFetchQuery() Leaving")
-
-	if infoFetchCriteria == nil || reflect.DeepEqual(*infoFetchCriteria, models.HostInfoFetchCriteria{}) {
-		return tx
-	}
 
 	if infoFetchCriteria.GetTrustStatus && infoFetchCriteria.GetHostStatus {
 		tx = tx.Select(hostFields + ", report.trusted, host_status.status").Joins(
