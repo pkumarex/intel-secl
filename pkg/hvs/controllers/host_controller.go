@@ -52,9 +52,9 @@ func NewHostController(hs domain.HostStore, hss domain.HostStatusStore, fs domai
 }
 
 var hostSearchParams = map[string]bool{"id": true, "nameEqualTo": true, "nameContains": true, "hostHardwareId": true,
-	"key": true, "value": true, "trusted": true, "getTrustStatus": true, "getConnectionStatus": true, "orderBy": true}
+	"key": true, "value": true, "trusted": true, "getTrustStatus": true, "getHostStatus": true, "orderBy": true}
 
-var hostRetrieveParams = map[string]bool{"getReport": true, "getConnectionStatus": true}
+var hostRetrieveParams = map[string]bool{"getReport": true, "getHostStatus": true}
 
 func (hc *HostController) Create(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
 	defaultLog.Trace("controllers/host_controller:Create() Entering")
@@ -757,7 +757,7 @@ func populateHostInfoFetchCriteria(params url.Values) (*models.HostInfoFetchCrit
 	if params.Get("getHostStatus") != "" {
 		getHostStatus, err := strconv.ParseBool(params.Get("getHostStatus"))
 		if err != nil {
-			return nil, errors.Wrap(err, "Invalid getConnectionStatus query param value, must be boolean")
+			return nil, errors.Wrap(err, "Invalid getHostStatus query param value, must be boolean")
 		}
 		criteria.GetHostStatus = getHostStatus
 	}
