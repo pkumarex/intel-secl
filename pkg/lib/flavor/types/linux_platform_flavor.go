@@ -253,7 +253,7 @@ func (rhelpf LinuxPlatformFlavor) getPlatformFlavor() ([]cm.Flavor, error) {
 	}
 	log.Debugf("flavor/types/linux_platform_flavor:getPlatformFlavor() New Bios Section: %v", *newBios)
 
-	newHW := pfutil.GetHardwareSectionDetails(rhelpf.HostInfo)
+	newHW := pfutil.GetHardwareSectionDetails(rhelpf.HostManifest)
 	if newHW == nil {
 		return nil, errors.Errorf(errorMessage + " - failure in Hardware section details")
 	}

@@ -45,13 +45,13 @@ type EventLogEntry struct {
 }
 
 type PcrEventLogMap struct {
-	Sha1EventLogs   []EventLogEntry `json:"SHA1"`
-	Sha256EventLogs []EventLogEntry `json:"SHA256"`
+	Sha1EventLogs   []EventLogEntry `json:"SHA1,omitempty"`
+	Sha256EventLogs []EventLogEntry `json:"SHA256,omitempty"`
 }
 
 type PcrManifest struct {
-	Sha1Pcrs       []Pcr          `json:"sha1pcrs"`
-	Sha256Pcrs     []Pcr          `json:"sha2pcrs"`
+	Sha1Pcrs       []Pcr          `json:"sha1pcrs,omitempty"`
+	Sha256Pcrs     []Pcr          `json:"sha2pcrs,omitempty"`
 	PcrEventLogMap PcrEventLogMap `json:"pcr_event_log_map"`
 }
 

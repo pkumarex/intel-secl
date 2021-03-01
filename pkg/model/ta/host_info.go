@@ -41,7 +41,6 @@ type HardwareFeatures struct {
 		Enabled bool `json:"enabled,string"`
 		Meta    struct {
 			TPMVersion string `json:"tpm_version,omitempty"`
-			PCRBanks   string `json:"pcr_banks,omitempty"`
 		} `json:"meta"`
 	} `json:"TPM,omitempty"`
 	CBNT  *CBNT            `json:"CBNT,omitempty"`

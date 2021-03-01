@@ -193,7 +193,7 @@ func (esxpf ESXPlatformFlavor) getPlatformFlavor() ([]cm.Flavor, error) {
 	}
 	log.Debugf("flavor/types/esx_platform_flavor:getPlatformFlavor() New Bios Section: %v", *newBios)
 
-	newHW := pfutil.GetHardwareSectionDetails(esxpf.HostInfo)
+	newHW := pfutil.GetHardwareSectionDetails(esxpf.HostManifest)
 	if newHW == nil {
 		return nil, errors.Errorf(errorMessage + " - Failure in Hardware section details")
 	}
