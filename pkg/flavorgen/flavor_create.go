@@ -22,17 +22,20 @@ import (
 var defaultLog = commLog.GetDefaultLogger()
 
 //create the flavorpart json
-func createFlavor(linuxPlatformFlavor flavorType.PlatformFlavor) error {
+func createFlavor(linuxPlatformFlavor flavorType.PlatformFlavor, flavorSignKey *rsa.PrivateKey) error {
 	defaultLog.Trace("flavorgen/flavor_create:createFlavor() Entering")
 	defer defaultLog.Trace("flavorgen/flavor_create:createFlavor() Leaving")
 
 	var flavors []hvs.SignedFlavor
+	var err error
 
 	flavorParts := []commFlavor.FlavorPart{commFlavor.FlavorPartPlatform, commFlavor.FlavorPartOs, commFlavor.FlavorPartHostUnique}
 
-	flavorSignKey, err := rsa.GenerateKey(rand.Reader, 3072)
-	if err != nil {
-		return errors.Wrap(err, "flavorgen/flavor_create:createFlavor() Couldn't generate RSA key, failed to create flavorsinging key")
+	if flavorSignKey == nil {
+		flavorSignKey, err = rsa.GenerateKey(rand.Reader, 3072)
+		if err != nil {
+			return errors.Wrap(err, "flavorgen/flavor_create:createFlavor() Couldn't generate RSA key, failed to create flavorsinging key")
+		}
 	}
 
 	for _, flavorPart := range flavorParts {

@@ -6,6 +6,7 @@ package flavorgen
 
 import (
 	"bytes"
+	"crypto/rsa"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -15,6 +16,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/types"
 	hcType "github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
@@ -54,7 +56,7 @@ func (templates *Templates) Set(value string) error {
 	for _, template := range strings.Split(value, ",") {
 		*templates = append(*templates, template)
 	}
-	
+
 	return nil
 }
 
@@ -173,6 +175,7 @@ flavor-gen <command> [arguments]
 Available Commands:
 	-f                     To provide Flavor template json file
 	-m                     To provide Hostmanifest json file
+	-k                     To provide Signing key file
 	help|-h|--help         Show this help message
 	-log                   To log the execution
 
@@ -279,6 +282,7 @@ func (flavorgen FlavorGen) GenerateFlavors() {
 	// the flag's name, the default value, and a short description (displayed whith the option --help)
 	flag.Var(&flavortemplateargs, "f", "flavor-template json file")
 	manifestFilePath := flag.String("m", "", "host-manifest json file")
+	signingKeyFilePath := flag.String("k", "", "signing-key file")
 
 	// Showing useful information when the user enters the --help option
 	flag.Usage = func() {
@@ -296,6 +300,18 @@ func (flavorgen FlavorGen) GenerateFlavors() {
 		} else if len(flavortemplateargs) == 0 {
 			exitGracefully(errors.New("Flavor template path missing"))
 		}
+	}
+
+	// Get the private key if signing key file path is provided
+	var flavorSignKey *rsa.PrivateKey
+	if *signingKeyFilePath != "" {
+		key, err := crypt.GetPrivateKeyFromPKCS8File(*signingKeyFilePath)
+		if err != nil {
+			fmt.Println(err)
+			defaultLog.Info("flavorgen/flavor_gen:main() Error getting private key %s", err)
+			exitGracefully(errors.New("Error getting private key"))
+		}
+		flavorSignKey = key.(*rsa.PrivateKey)
 	}
 
 	// Validating the Manifest file entered
@@ -328,7 +344,7 @@ func (flavorgen FlavorGen) GenerateFlavors() {
 	linuxPlatformFlavor := types.NewLinuxPlatformFlavor(&hostmanifest, nil, flavorTemplates)
 
 	// Create the flavor json
-	err = createFlavor(linuxPlatformFlavor)
+	err = createFlavor(linuxPlatformFlavor, flavorSignKey)
 	if err != nil {
 		defaultLog.Info("flavorgen/flavor_gen:main() Unable to create flavorpart(s) %s", err)
 		exitGracefully(errors.New("Unable to create flavorpart(s)"))
