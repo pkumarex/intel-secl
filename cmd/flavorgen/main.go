@@ -19,11 +19,12 @@ import (
 
 var LogWriter io.Writer
 var defaultLog = commLog.GetDefaultLogger()
+
 const LogFile = "flavorgen.log"
 
 func openLogFiles() (logFile *os.File, err error) {
 
-	logFile, err = os.OpenFile(LogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0664)
+	logFile, err = os.OpenFile(LogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		return nil, err
 	}
