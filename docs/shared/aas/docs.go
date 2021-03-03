@@ -8,7 +8,7 @@
 //
 //  Version: 3
 //  Host: aas.com:8444
-//  BasePath: /aas
+//  BasePath: /aas/v1
 //
 //  Schemes: https
 //
@@ -70,7 +70,7 @@ type UserCred struct {
 //         roDctDvds396GUcr1Ra077t8q_ETPStLcuKyAvH994uzyVIIXKZnyb9mjDdYU168
 //         4G0f6M2HpZoo9DZxeQlGf4RmZVqODSW2FH78f0x0a3UTsLsV02Si0KU1GaI2
 //
-// x-sample-call-endpoint: https://authservice.com:8444/aas/token
+// x-sample-call-endpoint: https://authservice.com:8444/aas/v1/token
 // x-sample-call-input: |
 //    {
 //       "username" : "admin@aas",
