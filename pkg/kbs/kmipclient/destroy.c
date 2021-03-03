@@ -21,7 +21,7 @@ extern FILE *log_fp;
 *
 * @id: unique identifier of the object to be destroyed
 */
-int kmipw_destroy(const char *id) {
+int kmipw_destroy(char *id) {
     log_fp = configure_logger();
     if (log_fp == NULL) {
         printf("Failed to configure logger\n");

@@ -25,7 +25,7 @@ extern FILE *log_fp;
 *
 * @kbs_key: buffer which will contain the output key
 */
-int kmipw_get(const char *id, char *kbs_key) {
+int kmipw_get(char *id, char *kbs_key) {
     log_fp = configure_logger();
     if (log_fp == NULL) {
         printf("Failed to configure logger\n");
