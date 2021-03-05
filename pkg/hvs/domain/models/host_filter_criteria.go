@@ -24,8 +24,8 @@ type HostFilterCriteria struct {
 type OrderType string
 
 const (
-	Ascending OrderType = "asc"
-	Descending = "desc"
+	Ascending  OrderType = "asc"
+	Descending           = "desc"
 )
 
 func (ot OrderType) String() string {
@@ -41,10 +41,12 @@ func (ot OrderType) String() string {
 	return "asc"
 }
 
-func GetOrderType (oType string) (OrderType, error) {
+func GetOrderType(oType string) (OrderType, error) {
 	switch oType {
-	case "asc" : return Ascending, nil
-	case "desc" : return Descending, nil
+	case "asc":
+		return Ascending, nil
+	case "desc":
+		return Descending, nil
 	default:
 		return "", errors.New("Invalid order type")
 	}

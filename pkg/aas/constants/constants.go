@@ -33,6 +33,7 @@ const (
 
 	ServiceCommand                 = "authservice"
 	ServiceName                    = "AAS"
+	ExplicitServiceName            = "Authentication and Authorization Service"
 	ApiVersion                     = "v1"
 	ServiceUserName                = "aas"
 	DefaultPort                    = 8444

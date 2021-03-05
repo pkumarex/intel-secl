@@ -8,10 +8,11 @@ import "time"
 
 // general KBS constants
 const (
-	ServiceName     = "KBS"
-	ServiceDir      = "kbs/"
-	ApiVersion      = "/v1"
-	ServiceUserName = "kbs"
+	ServiceName         = "KBS"
+	ExplicitServiceName = "Key Broker Service"
+	ServiceDir          = "kbs/"
+	ApiVersion          = "/v1"
+	ServiceUserName     = "kbs"
 
 	HomeDir      = "/opt/" + ServiceDir
 	RunDirPath   = "/run/" + ServiceDir

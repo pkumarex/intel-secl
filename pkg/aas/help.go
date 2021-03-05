@@ -6,7 +6,6 @@ package aas
 
 import (
 	"fmt"
-
 	"github.com/intel-secl/intel-secl/v3/pkg/aas/version"
 )
 
@@ -49,5 +48,5 @@ func (a *App) printUsageWithError(err error) {
 }
 
 func (a *App) printVersion() {
-	fmt.Fprintf(a.consoleWriter(), "Auth Service %s-%s\nBuilt %s\n", version.Version, version.GitHash, version.BuildDate)
+	fmt.Fprintf(a.consoleWriter(), version.GetVersion())
 }

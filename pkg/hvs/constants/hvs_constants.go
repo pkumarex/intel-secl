@@ -13,11 +13,12 @@ import "time"
 
 // general HVS constants
 const (
-	ServiceName     = "HVS"
-	ServiceDir      = "hvs/"
-	OldServiceName  = "mtwilson"
-	ApiVersion      = "/v2"
-	ServiceUserName = "hvs"
+	ServiceName         = "HVS"
+	ExplicitServiceName = "Host Verification Service"
+	ServiceDir          = "hvs/"
+	OldServiceName      = "mtwilson"
+	ApiVersion          = "/v2"
+	ServiceUserName     = "hvs"
 
 	// Timestamp operations
 	ParamDateFormat        = "2006-01-02"

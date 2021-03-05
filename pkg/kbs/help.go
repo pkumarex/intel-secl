@@ -47,5 +47,5 @@ func (app *App) printUsageWithError(err error) {
 }
 
 func (app *App) printVersion() {
-	fmt.Fprintf(app.consoleWriter(), "Key Broker Service %s-%s\nBuilt %s\n", version.Version, version.GitHash, version.BuildDate)
+	fmt.Fprintf(app.consoleWriter(), version.GetVersion())
 }

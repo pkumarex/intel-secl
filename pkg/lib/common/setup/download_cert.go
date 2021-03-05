@@ -47,17 +47,17 @@ type DownloadCert struct {
 const downloadCAEnvHelpPrompt = "Following environment variables are optionally used in "
 
 var downloadCAEnvCommonHelp = map[string]string{
-	"CERT_FILE":     "The file to which certificate is saved",
-	"KEY_FILE":      "The file to which private key is saved",
-	"COMMON_NAME":   "The common name of signed certificate",
+	"CERT_FILE":   "The file to which certificate is saved",
+	"KEY_FILE":    "The file to which private key is saved",
+	"COMMON_NAME": "The common name of signed certificate",
 }
 
 var downloadTlsCAEnvHelp = map[string]string{
-	"SAN_LIST":      "Comma separated list of hostnames to add to Certificate, including IP addresses and DNS names",
+	"SAN_LIST": "Comma separated list of hostnames to add to Certificate, including IP addresses and DNS names",
 }
 
 var downloadSamlCAEnvHelp = map[string]string{
-	"ISSUER":        "The issuer of signed certificate",
+	"ISSUER":           "The issuer of signed certificate",
 	"VALIDITY_SECONDS": "The validity time in seconds of signed certificate",
 }
 
@@ -132,10 +132,10 @@ func (dc *DownloadCert) Validate() error {
 
 func (t *DownloadCert) PrintHelp(w io.Writer) {
 	PrintEnvHelp(w, downloadCAEnvHelpPrompt2+t.commandName, "", downloadCAEnvHelp2)
-	if(t.commandName == "download-cert-tls") {
+	if t.commandName == "download-cert-tls" {
 		PrintEnvHelp(w, downloadCAEnvHelpPrompt+t.commandName, t.envPrefix, downloadCAEnvCommonHelp)
 		PrintEnvHelp(w, "", t.envPrefix, downloadTlsCAEnvHelp)
-	} else if(t.commandName == "download-cert-saml") {
+	} else if t.commandName == "download-cert-saml" {
 		PrintEnvHelp(w, downloadCAEnvHelpPrompt+t.commandName, t.envPrefix, downloadCAEnvCommonHelp)
 		PrintEnvHelp(w, "", t.envPrefix, downloadSamlCAEnvHelp)
 	} else {

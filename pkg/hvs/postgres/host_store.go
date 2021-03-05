@@ -64,7 +64,7 @@ func (hs *HostStore) Retrieve(id uuid.UUID, criteria *models.HostInfoFetchCriter
 	report := hvs.TrustReport{}
 	connectionStatus := hvs.HostStatusInformation{}
 
-	if criteria != nil && (criteria.GetReport || criteria.GetHostStatus){
+	if criteria != nil && (criteria.GetReport || criteria.GetHostStatus) {
 		row := buildInfoFetchQuery(tx, criteria, nil).Row()
 		if criteria.GetReport && criteria.GetHostStatus {
 			if err := row.Scan(&h.Id, &h.HostName, &h.Description, &h.ConnectionString, &h.HardwareUuid,
