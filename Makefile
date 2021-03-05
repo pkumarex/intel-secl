@@ -69,7 +69,6 @@ authservice-installer: authservice
 aas-manager:
 	cd tools/aas-manager && env GOOS=linux GOSUMDB=off GOPROXY=direct go build -o populate-users
 	cp tools/aas-manager/populate-users deployments/installer/populate-users.sh
-	cp tools/aas-manager/populate-users.env deployments/installer/populate-users.env
 	cp build/linux/aas/install_pgdb.sh deployments/installer/install_pgdb.sh
 	cp build/linux/aas/create_db.sh deployments/installer/create_db.sh
 	chmod +x deployments/installer/install_pgdb.sh
@@ -80,7 +79,13 @@ test:
 	go tool cover -func cover.out
 	go tool cover -html=cover.out -o cover.html
 
-all: clean installer test
+k8s: cms-oci-archive aas-oci-archive ihub-oci-archive kbs-oci-archive aas-manager
+	cp -r build/k8s/* deployments/k8s/
+	cp tools/aas-manager/populate-users deployments/k8s/aas/populate-users
+	cp tools/aas-manager/populate-users.env deployments/k8s/aas/populate-users.env
+	cp build/linux/aas/db_rotation.sql deployments/k8s/aas/
+
+all: clean installer test k8s
 
 clean:
 	rm -f cover.*
