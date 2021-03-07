@@ -7,24 +7,12 @@ kind: Kustomization
 
 namespace: isecl
 
-commonLabels:
-  env: test
-
-secretGenerator:
-  - name: aas-db-certs
-    files:
-      - "secrets/server.crt"
-      - "secrets/server.key"
-    type: "Opaque"
-
 resources:
 - configMap.yml
 - config-pv.yml
 - config-pvc.yml
 - logs-pv.yml
 - logs-pvc.yml
-- db-pv.yml
-- db-pvc.yml
 - secrets.yml
 - deployment.yml
 - service.yml

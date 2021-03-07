@@ -15,5 +15,5 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: nfs
   nfs:
-    path: /mnt/nfs_share/isecl/kbs/lib
+    path: /mnt/nfs_share/isecl/kbs/opt
     server:
