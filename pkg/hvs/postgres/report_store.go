@@ -39,7 +39,8 @@ func (r *ReportStore) Retrieve(reportId uuid.UUID) (*models.HVSReport, error) {
 	re := models.HVSReport{}
 
 	row := r.Store.Db.Model(&report{}).Where(&report{ID: reportId}).Row()
-	if err := row.Scan(&re.ID, &re.HostID, (*PGTrustReport)(&re.TrustReport), &re.CreatedAt, &re.Expiration, &re.Saml); err != nil {
+	ignoreMe := false //The new 'Trusted' field was introduced to v3.5, ignore that field in the query so it returns the correct results
+	if err := row.Scan(&re.ID, &re.HostID, (*PGTrustReport)(&re.TrustReport), &ignoreMe, &re.CreatedAt, &re.Expiration, &re.Saml); err != nil {
 		return nil, errors.Wrap(err, "postgres/report_store:Retrieve() failed to scan record")
 	}
 
@@ -185,8 +186,8 @@ func (r *ReportStore) Search(criteria *models.ReportFilterCriteria) ([]models.HV
 
 		for rows.Next() {
 			result := models.HVSReport{}
-
-			if err := rows.Scan(&result.ID, &result.HostID, (*PGTrustReport)(&result.TrustReport), &result.CreatedAt, &result.Expiration, &result.Saml); err != nil {
+			ignoreMe := false //The new 'Trusted' field was introduced to v3.5, ignore that field in the query so it returns the correct results
+			if err := rows.Scan(&result.ID, &result.HostID, (*PGTrustReport)(&result.TrustReport), &ignoreMe, &result.CreatedAt, &result.Expiration, &result.Saml); err != nil {
 				return nil, errors.Wrap(err, "postgres/report_store:Search() failed to scan record")
 			}
 			reports = append(reports, result)
