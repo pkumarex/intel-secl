@@ -118,7 +118,7 @@ func (a *App) setupTaskRunner() (*setup.Runner, error) {
 	runner.ConsoleWriter = a.consoleWriter()
 	runner.ErrorWriter = a.errorWriter()
 
-	runner.AddTask("root_ca", "", &tasks.RootCa{
+	runner.AddTask("root-ca", "", &tasks.RootCa{
 		ConsoleWriter:   a.consoleWriter(),
 		CACertConfigPtr: &a.Config.CACert,
 		CACertConfig: config.CACertConfig{
@@ -129,7 +129,7 @@ func (a *App) setupTaskRunner() (*setup.Runner, error) {
 			Country:      viper.GetString("cms-ca-country"),
 		},
 	})
-	runner.AddTask("intermediate_ca", "", &tasks.IntermediateCa{
+	runner.AddTask("intermediate-ca", "", &tasks.IntermediateCa{
 		ConsoleWriter: a.consoleWriter(),
 		Config:        &a.Config.CACert,
 	})
@@ -138,14 +138,14 @@ func (a *App) setupTaskRunner() (*setup.Runner, error) {
 		TLSCertDigestPtr: &a.Config.TlsCertDigest,
 		TLSSanList:       a.Config.TlsSanList,
 	})
-	runner.AddTask("cms_auth_token", "", &tasks.CmsAuthToken{
+	runner.AddTask("cms-auth-token", "", &tasks.CmsAuthToken{
 		ConsoleWriter: a.consoleWriter(),
 		AasTlsCn:      a.Config.AasTlsCn,
 		AasJwtCn:      a.Config.AasJwtCn,
 		AasTlsSan:     a.Config.AasTlsSan,
 		TokenDuration: a.Config.TokenDurationMins,
 	})
-	runner.AddTask("update_service_config", "", &tasks.UpdateServiceConfig{
+	runner.AddTask("update-service-config", "", &tasks.UpdateServiceConfig{
 		ConsoleWriter: a.consoleWriter(),
 		ServerConfig: commConfig.ServerConfig{
 			Port:              viper.GetInt("server-port"),

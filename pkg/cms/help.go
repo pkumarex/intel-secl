@@ -32,11 +32,11 @@ Usage of cms setup:
 
 Available Tasks for setup:
     all                       Runs all setup tasks
-    root_ca                   Creates a self signed Root CA key pair in /etc/cms/root-ca/ for quality of life
-    intermediate_ca           Creates a root_ca signed intermediate CA key pair(signing, tls-server and tls-client) in /etc/cms/intermediate-ca/ for quality of life
-    tls                       Creates an intermediate_ca signed TLS key pair in /etc/cms for quality of life
-    cms_auth_token            Create its own self signed JWT key pair in /etc/cms/jwt for quality of life
-	update-service-config     Sets or Updates the Service configuration 
+    root-ca                   Creates a self signed Root CA key pair in /etc/cms/root-ca/ for quality of life
+    intermediate-ca           Creates a Root CA signed intermediate CA key pair(signing, tls-server and tls-client) in /etc/cms/intermediate-ca/ for quality of life
+    tls                       Creates an intermediate-ca signed TLS key pair in /etc/cms for quality of life
+    cms-auth-token            Create its own self signed JWT key pair in /etc/cms/jwt for quality of life
+    update-service-config     Sets or Updates the Service configuration 
 `
 
 func (a *App) printUsage() {
