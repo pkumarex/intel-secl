@@ -23,12 +23,11 @@ var defaultLog = commLog.GetDefaultLogger()
 const LogFile = "flavorgen.log"
 
 func openLogFiles() (logFile *os.File, err error) {
-
 	logFile, err = os.OpenFile(LogFile, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		return nil, err
 	}
-	if err = os.Chmod(LogFile, 0664); err != nil {
+	if err = os.Chmod(LogFile, 0644); err != nil {
 		return nil, err
 	}
 
@@ -46,7 +45,6 @@ func configureLogs() error {
 	}
 	formattedLog := commLog.LogFormatter{MaxLength: 300}
 	commLogInt.SetLogger(commLog.DefaultLoggerName, parsedLevel, &formattedLog, ioWriterDefault, false)
-
 	defaultLog.Info(commLogMsg.LogInit)
 
 	return nil
