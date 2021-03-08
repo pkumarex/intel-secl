@@ -5,12 +5,8 @@
 package flavorgen
 
 import (
-	"crypto/rand"
-	"crypto/rsa"
 	"encoding/json"
 	"fmt"
-
-	flavorUtil "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/util"
 
 	commLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
 	commFlavor "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
@@ -22,39 +18,32 @@ import (
 var defaultLog = commLog.GetDefaultLogger()
 
 //create the flavorpart json
-func createFlavor(linuxPlatformFlavor flavorType.PlatformFlavor, flavorSignKey *rsa.PrivateKey) error {
+func createFlavor(linuxPlatformFlavor flavorType.PlatformFlavor) error {
 	defaultLog.Trace("flavorgen/flavor_create:createFlavor() Entering")
 	defer defaultLog.Trace("flavorgen/flavor_create:createFlavor() Leaving")
 
-	var flavors []hvs.SignedFlavor
+	var flavors []hvs.Flavors
 	var err error
 
 	flavorParts := []commFlavor.FlavorPart{commFlavor.FlavorPartPlatform, commFlavor.FlavorPartOs, commFlavor.FlavorPartHostUnique}
-
-	if flavorSignKey == nil {
-		flavorSignKey, err = rsa.GenerateKey(rand.Reader, 3072)
-		if err != nil {
-			return errors.Wrap(err, "flavorgen/flavor_create:createFlavor() Couldn't generate RSA key, failed to create flavorsinging key")
-		}
-	}
-
 	for _, flavorPart := range flavorParts {
 		unSignedFlavors, err := linuxPlatformFlavor.GetFlavorPartRaw(flavorPart)
 		if err != nil {
 			return errors.Wrapf(err, "flavorgen/flavor_create:createFlavor() Unable to create flavor part %s", flavorPart)
 		}
-		signedFlavors, err := flavorUtil.PlatformFlavorUtil{}.GetSignedFlavorList(unSignedFlavors, flavorSignKey)
-		if err != nil {
-			return errors.Wrapf(err, "flavorgen/flavor_create:createFlavor() Failed to create signed flavor %s", flavorPart)
+		for _, flvr := range unSignedFlavors {
+			flavor := hvs.Flavors{
+				Flavor: flvr,
+			}
+			flavors = append(flavors, flavor)
 		}
-		flavors = append(flavors, signedFlavors...)
 	}
 
-	signedFlavorCollection := hvs.SignedFlavorCollection{
-		SignedFlavors: flavors,
+	flavorCollection := hvs.FlavorCollection{
+		Flavors: flavors,
 	}
 
-	flavorJSON, err := json.Marshal(signedFlavorCollection)
+	flavorJSON, err := json.Marshal(flavorCollection)
 	if err != nil {
 		return errors.Wrapf(err, "flavorgen/flavor_create:createFlavor() Couldn't marshal signedflavorCollection")
 	}

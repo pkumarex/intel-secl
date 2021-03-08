@@ -6,7 +6,6 @@ package flavorgen
 
 import (
 	"bytes"
-	"crypto/rsa"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -16,21 +15,28 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
+	controller "github.com/intel-secl/intel-secl/v3/pkg/hvs/controllers"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/types"
 	hcType "github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/pkg/errors"
-	"github.com/xeipuuv/gojsonschema"
 
 	"github.com/antchfx/jsonquery"
 )
+
+var Version = ""
 
 type FlavorGen struct{}
 
 var flavortemplateargs Templates
 
 type Templates []string
+
+//Schema location constansts
+const (
+	commonDefinitionsSchema = "/opt/flavorgen/common.schema.json"
+	flavorTemplateSchema    = "/opt/flavorgen/flavor-template.json"
+)
 
 // exitGracefully performs exit the from the tool
 func exitGracefully(err error) {
@@ -175,15 +181,17 @@ flavor-gen <command> [arguments]
 Available Commands:
 	-f                     To provide Flavor template json file
 	-m                     To provide Hostmanifest json file
-	-k                     To provide Signing key file
 	help|-h|--help         Show this help message
 	-log                   To log the execution
-
+	-version               print the current version
 `
 
 func validateTemplate(templateFilePath string) (string, error) {
 	defaultLog.Trace("flavorgen/flavor_gen:validate_Template() Entering")
 	defer defaultLog.Trace("flavorgen/flavor_gen:validate_Template() Leaving")
+
+	var ftc controller.FlavorTemplateController
+	var flavorTemplate hvs.FlavorTemplate
 
 	template, err := ioutil.ReadFile(templateFilePath)
 	if err != nil {
@@ -197,98 +205,42 @@ func validateTemplate(templateFilePath string) (string, error) {
 	dec := json.NewDecoder(flavorTemplateJson)
 	dec.DisallowUnknownFields()
 
-	var flavorTemplate hvs.FlavorTemplate
-
 	err = dec.Decode(&flavorTemplate)
 	if err != nil {
 		fmt.Println(err)
 		return "Unable to decode flavor template json", errors.Wrap(err, "flavorgen/flavor_gen:validate_Template() Unable to decode flavor template json")
 	}
 
-	// Check whether the template is adhering to the schema
-	schemaLoader := gojsonschema.NewSchemaLoader()
+	ftc.CommonDefinitionsSchema = commonDefinitionsSchema
+	ftc.FlavorTemplateSchema = flavorTemplateSchema
 
-	definitionsSchema := gojsonschema.NewStringLoader(commonDefinitionsSchema)
-
-	flvrTemplateSchema := gojsonschema.NewStringLoader(flavorTemplateSchema)
-	schemaLoader.AddSchemas(definitionsSchema)
-
-	schema, err := schemaLoader.Compile(flvrTemplateSchema)
+	//call the ValidateFlavorTemplateCreateRequest method from flavortemplate_controller.go to validate the flavor template
+	errMsg, err := ftc.ValidateFlavorTemplateCreateRequest(flavorTemplate, string(template))
 	if err != nil {
 		fmt.Println(err)
-		return "Unable to Validate the template", errors.Wrap(err, "flavorgen/flavor_gen:validate_Template() Unable to compile the schemas")
-	}
-
-	documentLoader := gojsonschema.NewBytesLoader(template)
-
-	result, err := schema.Validate(documentLoader)
-	if err != nil {
-		fmt.Println(err)
-		return "Unable to Validate the template", errors.Wrap(err, "flavorgen/flavor_gen:validate_Template() Unable to validate the template")
-	}
-
-	var errorMsg string
-	if !result.Valid() {
-		for _, desc := range result.Errors() {
-			errorMsg = errorMsg + fmt.Sprintf("- %s\n", desc)
-		}
-		return errorMsg, errors.New("flavorgen/flavor_gen:validate_Template() The provided template is not valid" + errorMsg)
-	}
-
-	//Validation the syntax of the conditions
-	tempDoc, err := jsonquery.Parse(strings.NewReader("{}"))
-	if err != nil {
-		return "Error parsing the json", errors.Wrap(err, "flavorgen/flavor_gen:validate_Template() Error parsing the json")
-	}
-	for _, condition := range flavorTemplate.Condition {
-		_, err := jsonquery.Query(tempDoc, condition)
-		if err != nil {
-			return "Invalid syntax in condition statement", errors.Wrapf(err, "flavorgen/flavor_gen:validate_Template() Invalid syntax in condition : %s", condition)
-		}
-	}
-
-	//Check whether each pcr index is associated with not more than one bank.
-	pcrMap := make(map[*hvs.FlavorPart][]hvs.PCR)
-	flavors := []*hvs.FlavorPart{flavorTemplate.FlavorParts.Platform, flavorTemplate.FlavorParts.OS, flavorTemplate.FlavorParts.HostUnique, flavorTemplate.FlavorParts.Software}
-	for _, flavor := range flavors {
-		if flavor != nil {
-			if _, ok := pcrMap[flavor]; !ok {
-				var pcrs []hvs.PCR
-				for _, pcrRule := range flavor.PcrRules {
-					pcrs = append(pcrs, pcrRule.Pcr)
-				}
-				pcrMap[flavor] = pcrs
-			}
-		}
-	}
-
-	for _, pcrList := range pcrMap {
-		temp := make(map[int]bool)
-		for _, pcr := range pcrList {
-			if _, ok := temp[pcr.Index]; !ok {
-				temp[pcr.Index] = true
-			} else {
-				return "Template has duplicate banks for same PCR index", errors.New("flavorgen/flavor_gen:validate_Template() Template has duplicate banks for same PCR index")
-			}
-		}
+		return errMsg, errors.Wrap(err, "flavorgen/flavor_gen:validate_Template() Unable to create flavor template, validation failed")
 	}
 
 	return "", nil
 }
 
 func (flavorgen FlavorGen) GenerateFlavors() {
-
 	// Defining option flags with three arguments:
 	// the flag's name, the default value, and a short description (displayed whith the option --help)
 	flag.Var(&flavortemplateargs, "f", "flavor-template json file")
 	manifestFilePath := flag.String("m", "", "host-manifest json file")
-	signingKeyFilePath := flag.String("k", "", "signing-key file")
+	versionFlag := flag.Bool("version", false, "Print the current version and exit")
 
 	// Showing useful information when the user enters the --help option
 	flag.Usage = func() {
 		fmt.Print(helpStr)
 	}
 	flag.Parse()
+
+	if *versionFlag {
+		fmt.Println("Current build version: ", Version)
+		os.Exit(1)
+	}
 
 	// Check for both manfest and flavor template
 	if *manifestFilePath == "" || len(flavortemplateargs) == 0 {
@@ -300,18 +252,6 @@ func (flavorgen FlavorGen) GenerateFlavors() {
 		} else if len(flavortemplateargs) == 0 {
 			exitGracefully(errors.New("Flavor template path missing"))
 		}
-	}
-
-	// Get the private key if signing key file path is provided
-	var flavorSignKey *rsa.PrivateKey
-	if *signingKeyFilePath != "" {
-		key, err := crypt.GetPrivateKeyFromPKCS8File(*signingKeyFilePath)
-		if err != nil {
-			fmt.Println(err)
-			defaultLog.Info("flavorgen/flavor_gen:main() Error getting private key %s", err)
-			exitGracefully(errors.New("Error getting private key"))
-		}
-		flavorSignKey = key.(*rsa.PrivateKey)
 	}
 
 	// Validating the Manifest file entered
@@ -344,7 +284,7 @@ func (flavorgen FlavorGen) GenerateFlavors() {
 	linuxPlatformFlavor := types.NewLinuxPlatformFlavor(&hostmanifest, nil, flavorTemplates)
 
 	// Create the flavor json
-	err = createFlavor(linuxPlatformFlavor, flavorSignKey)
+	err = createFlavor(linuxPlatformFlavor)
 	if err != nil {
 		defaultLog.Info("flavorgen/flavor_gen:main() Unable to create flavorpart(s) %s", err)
 		exitGracefully(errors.New("Unable to create flavorpart(s)"))
