@@ -492,19 +492,12 @@ func (fcon *FlavorController) addFlavorToFlavorgroup(flavorFlavorPartMap map[fc.
 		}
 	}
 	// get all the hosts that belong to the same flavor group and add them to flavor-verify queue
-	err := fcon.addFlavorgroupHostsToFlavorVerifyQueue(flavorgroupsForQueue, fgHostIds, fetchHostData)
-	if err != nil {
-		defaultLog.Errorf("controllers/flavor_controller: addFlavorToFlavorgroup(): Error while adding hosts to flavor-verify queue")
-		if cleanUpErr := fcon.createCleanUp(flavorgroupFlavorMap); cleanUpErr != nil {
-			defaultLog.WithError(cleanUpErr).Errorf("controllers/flavor_controller: addFlavorToFlavorgroup() : " +
-				"Error cleaning up already existing flavors on flavor creation failure")
-		}
-		return nil, err
-	}
+	go fcon.addFlavorgroupHostsToFlavorVerifyQueue(flavorgroupsForQueue, fgHostIds, flavorgroupFlavorMap, fetchHostData)
 	return returnSignedFlavors, nil
 }
 
-func (fcon FlavorController) addFlavorgroupHostsToFlavorVerifyQueue(fgs []hvs.FlavorGroup, hostIds []uuid.UUID, forceUpdate bool) error {
+func (fcon FlavorController) addFlavorgroupHostsToFlavorVerifyQueue(fgs []hvs.FlavorGroup, hostIds []uuid.UUID,
+	flavorgroupFlavorMap map[uuid.UUID][]uuid.UUID, forceUpdate bool) {
 	defaultLog.Trace("controllers/flavor_controller:addFlavorgroupHostsToFlavorVerifyQueue() Entering")
 	defer defaultLog.Trace("controllers/flavor_controller:addFlavorgroupHostsToFlavorVerifyQueue() Leaving")
 	fgHosts := make(map[uuid.UUID]bool)
@@ -523,7 +516,6 @@ func (fcon FlavorController) addFlavorgroupHostsToFlavorVerifyQueue(fgs []hvs.Fl
 			hIds, err := fcon.FGStore.SearchHostsByFlavorGroup(fg.ID)
 			if err != nil {
 				defaultLog.Errorf("controllers/flavor_controller:addFlavorgroupHostsToFlavorVerifyQueue(): Failed to fetch hosts linked to FlavorGroup")
-				return err
 			}
 			for _, hId := range hIds {
 				// adding to the list only if not already added
@@ -545,10 +537,8 @@ func (fcon FlavorController) addFlavorgroupHostsToFlavorVerifyQueue(fgs []hvs.Fl
 		err := fcon.HTManager.VerifyHostsAsync(hostIdsForQueue, forceUpdate, false)
 		if err != nil {
 			defaultLog.Error("controllers/flavor_controller:addFlavorToFlavorgroup() Host to Flavor Verify Queue addition failed")
-			return err
 		}
 	}
-	return nil
 }
 
 func (fcon FlavorController) retrieveFlavorCollection(platformFlavor *fType.PlatformFlavor, fgs []hvs.FlavorGroup, flavorParts []fc.FlavorPart) map[fc.FlavorPart][]hvs.SignedFlavor {
