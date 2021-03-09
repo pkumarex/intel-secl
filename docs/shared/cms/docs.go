@@ -19,7 +19,7 @@
 //     description: Enter your bearer token in the format **Bearer &lt;token>**
 //
 // swagger:meta
-package docs
+package cms
 
 // swagger:operation GET /ca-certificates CACertificate GetCACertificates
 // ---

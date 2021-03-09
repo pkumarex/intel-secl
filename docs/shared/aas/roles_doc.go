@@ -101,7 +101,7 @@ type SwaggRolesResponse struct {
 //   in: query
 //   type: string
 // - name: context
-//   description: Context string which contains informations such as CN, SAN and certType.
+//   description: Context string which contains information such as CN, SAN and certType.
 //   in: query
 //   type: string
 // - name: contextContains

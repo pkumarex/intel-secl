@@ -25,6 +25,7 @@ type TrustReport struct {
 
 type RuleResult struct {
 	Rule     RuleInfo   `json:"rule"`
+	// swagger:strfmt uuid
 	FlavorId *uuid.UUID `json:"flavor_id,omitempty"`
 	Faults   []Fault    `json:"faults,omitempty"`
 	Trusted  bool       `json:"trusted"`
@@ -34,6 +35,7 @@ type RuleInfo struct {
 	Name                  string                 `json:"rule_name,omitempty"`
 	Markers               []common.FlavorPart    `json:"markers,omitempty"`
 	ExpectedPcr           *types.Pcr             `json:"expected_pcr,omitempty"`
+	// swagger:strfmt uuid
 	FlavorID              *uuid.UUID             `json:"flavor_id,omitempty"`
 	FlavorName            *string                `json:"flavor_name,omitempty"`
 	ExpectedValue         *string                `json:"expected_value,omitempty"`
@@ -52,6 +54,7 @@ type Fault struct {
 	ActualPcrValue         *string                `json:"actual_value,omitempty"`
 	MissingEntries         []types.EventLog       `json:"missing_entries,omitempty"`
 	UnexpectedEntries      []types.EventLog       `json:"unexpected_entries,omitempty"`
+	// swagger:strfmt uuid
 	FlavorId               *uuid.UUID             `json:"flavor_id,omitempty"`
 	UnexpectedMeasurements []ta.FlavorMeasurement `json:"unexpected_entries,omitempty"`
 	MissingMeasurements    []ta.FlavorMeasurement `json:"missing_entries,omitempty"`
