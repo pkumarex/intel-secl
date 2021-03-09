@@ -90,17 +90,17 @@ func (uc UpdateServiceConfig) Run() error {
 }
 
 func (uc UpdateServiceConfig) Validate() error {
-	if uc.ServiceConfig.Username == "" {
-		return errors.New("HVS configuration not provided: HVS_SERVICE_USERNAME is not set")
+	if (*uc.AppConfig).HVS.Username == "" {
+		return errors.New("HVS username is not set in the configuration")
 	}
-	if uc.ServiceConfig.Password == "" {
-		return errors.New("HVS configuration not provided: HVS_SERVICE_PASSWORD is not set")
+	if (*uc.AppConfig).HVS.Password == "" {
+		return errors.New("HVS password is not set in the configuration")
 	}
-	if uc.AASApiUrl == "" {
-		return errors.New("HVS configuration not provided: AAS_BASE_URL is not set")
+	if (*uc.AppConfig).AASApiUrl == "" {
+		return errors.New("AAS API url is not set in the configuration")
 	}
-	if uc.ServerConfig.Port < 1024 ||
-		uc.ServerConfig.Port > 65535 {
+	if (*uc.AppConfig).Server.Port < 1024 ||
+		(*uc.AppConfig).Server.Port > 65535 {
 		return errors.New("Configured port is not valid")
 	}
 	return nil

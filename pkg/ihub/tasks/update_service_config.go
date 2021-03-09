@@ -64,11 +64,11 @@ func (uc UpdateServiceConfig) Run() error {
 }
 
 func (uc UpdateServiceConfig) Validate() error {
-	if uc.ServiceConfig.Username == "" {
-		return errors.New("IHUB configuration not provided: IHUB_SERVICE_USERNAME is not set")
+	if (*uc.AppConfig).IHUB.Username == "" {
+		return errors.New("IHUB username is not set in the configuration")
 	}
-	if uc.ServiceConfig.Password == "" {
-		return errors.New("IHUB configuration not provided: IHUB_SERVICE_PASSWORD is not set")
+	if (*uc.AppConfig).IHUB.Password == "" {
+		return errors.New("IHUB password is not set in the configuration")
 	}
 	return nil
 }

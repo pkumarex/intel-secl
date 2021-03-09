@@ -61,8 +61,8 @@ func (uc UpdateServiceConfig) Run() error {
 }
 
 func (uc UpdateServiceConfig) Validate() error {
-	if uc.ServerConfig.Port < 1024 ||
-		uc.ServerConfig.Port > 65535 {
+	if (*uc.AppConfig).Server.Port < 1024 ||
+		(*uc.AppConfig).Server.Port > 65535 {
 		return errors.New("Configured port is not valid")
 	}
 	return nil
