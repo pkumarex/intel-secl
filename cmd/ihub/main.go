@@ -76,16 +76,7 @@ func main() {
 		}
 	} else {
 		defer func() {
-			err = logFile.Close()
-			if err != nil {
-				fmt.Println("Failed close log file:", err.Error())
-			}
-		}()
-		defer func() {
-			err = secLogFile.Close()
-			if err != nil {
-				fmt.Println("Failed close log file:", err.Error())
-			}
+			closeLogFiles(logFile, secLogFile)
 		}()
 		app = &ihub.App{
 			LogWriter:    logFile,
@@ -96,6 +87,19 @@ func main() {
 	err = app.Run(os.Args)
 	if err != nil {
 		fmt.Println("Application returned with error : ", err.Error())
+		closeLogFiles(logFile, secLogFile)
 		os.Exit(1)
+	}
+}
+
+func closeLogFiles(logFile, secLogFile *os.File) {
+	var err error
+	err = logFile.Close()
+	if err != nil {
+		fmt.Println("Failed to close default log file:", err.Error())
+	}
+	err = secLogFile.Close()
+	if err != nil {
+		fmt.Println("Failed to close security log file:", err.Error())
 	}
 }
