@@ -31,7 +31,7 @@ type SignedFlavorCollection struct {
 func (s SignedFlavorCollection) GetFlavors(flavorPart string) []SignedFlavor {
 	signedFlavors := []SignedFlavor{}
 	for _, flavor := range s.SignedFlavors {
-		if flavor.Flavor.Meta.Description.FlavorPart == flavorPart {
+		if flavor.Flavor.Meta.Description[model.FlavorPart] == flavorPart {
 			signedFlavors = append(signedFlavors, flavor)
 		}
 	}

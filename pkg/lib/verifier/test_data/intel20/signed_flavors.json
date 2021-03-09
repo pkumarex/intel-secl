@@ -22,10 +22,10 @@
                 "processor_info": "54 06 05 00 FF FB EB BF",
                 "feature": {
                     "txt": {
-                        "enabled": true
+                        "enabled": "true"
                     },
                     "tpm": {
-                        "enabled": true,
+                        "enabled": "true",
                         "version": "2.0",
                         "pcr_banks": [
                             "SHA1",
@@ -43,7 +43,6 @@
                         "value": "9b34aeaec0aa4073c63c37d607e4d039203444318adf204b9ecbf1e6a853467d",
                         "event": [
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                 "value": "940a487b3a2b3a82858b18c20f55ad9c73522f43aab071f62350093bd7c2d6ba",
                                 "label": "HASH_START",
                                 "info": {
@@ -52,7 +51,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                 "value": "7980d1a2034e18a33da6fde28ddd8a296c7147a3e4cea6dc32997f4fc40a97a5",
                                 "label": "BIOSAC_REG_DATA",
                                 "info": {
@@ -61,7 +59,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                 "value": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
                                 "label": "CPU_SCRTM_STAT",
                                 "info": {
@@ -70,7 +67,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                 "value": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
                                 "label": "LCP_DETAILS_HASH",
                                 "info": {
@@ -79,7 +75,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                 "value": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
                                 "label": "STM_HASH",
                                 "info": {
@@ -88,7 +83,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                 "value": "d81fe96dc500bc43e1cd5800bef9d72b3d030bdb7e860e10c522e4246b30bd93",
                                 "label": "OSSINITDATA_CAP_HASH",
                                 "info": {
@@ -97,7 +91,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                 "value": "236043f5120fce826392d2170dc84f2491367cc8d8d403ab3b83ec24ea2ca186",
                                 "label": "MLE_HASH",
                                 "info": {
@@ -106,7 +99,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                 "value": "0f6e0c7a5944963d7081ea494ddff1e9afa689e148e39f684db06578869ea38b",
                                 "label": "NV_INFO_HASH",
                                 "info": {
@@ -115,7 +107,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                 "value": "27808f64e6383982cd3bcc10cfcb3457c0b65f465f779d89b668839eaf263a67",
                                 "label": "tb_policy",
                                 "info": {
@@ -129,7 +120,6 @@
                         "value": "d9e55bd1c570a6408fb1368f3663ae92747241fc4d2a3622cef0efadae284d75",
                         "event": [
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                 "value": "da256395df4046319ef0af857d377a729e5bc0693429ac827002ffafe485b2e7",
                                 "label": "SINIT_PUBKEY_HASH",
                                 "info": {
@@ -138,7 +128,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                 "value": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
                                 "label": "CPU_SCRTM_STAT",
                                 "info": {
@@ -147,7 +136,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                 "value": "d81fe96dc500bc43e1cd5800bef9d72b3d030bdb7e860e10c522e4246b30bd93",
                                 "label": "OSSINITDATA_CAP_HASH",
                                 "info": {
@@ -156,7 +144,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                 "value": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
                                 "label": "LCP_AUTHORITIES_HASH",
                                 "info": {
@@ -165,7 +152,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                 "value": "0f6e0c7a5944963d7081ea494ddff1e9afa689e148e39f684db06578869ea38b",
                                 "label": "NV_INFO_HASH",
                                 "info": {
@@ -174,7 +160,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                 "value": "27808f64e6383982cd3bcc10cfcb3457c0b65f465f779d89b668839eaf263a67",
                                 "label": "tb_policy",
                                 "info": {
@@ -192,8 +177,7 @@
                     "pcr_17": {
                         "value": "eabe1d12c0f965bb936f0bc59b4e8816ab79882c",
                         "event": [
-                            {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
+                           {
                                 "value": "69fba4144e24d63e9fa677b20dd781e84490f038",
                                 "label": "HASH_START",
                                 "info": {
@@ -201,8 +185,7 @@
                                     "EventName": "OpenSource.EventName"
                                 }
                             },
-                            {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
+                           {
                                 "value": "45b0e0ccabd8160d0d019d80c5622cc5415c71a1",
                                 "label": "BIOSAC_REG_DATA",
                                 "info": {
@@ -210,8 +193,7 @@
                                     "EventName": "OpenSource.EventName"
                                 }
                             },
-                            {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
+                           {
                                 "value": "3c585604e87f855973731fea83e21fab9392d2fc",
                                 "label": "CPU_SCRTM_STAT",
                                 "info": {
@@ -219,8 +201,7 @@
                                     "EventName": "OpenSource.EventName"
                                 }
                             },
-                            {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
+                           {
                                 "value": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
                                 "label": "LCP_DETAILS_HASH",
                                 "info": {
@@ -228,8 +209,7 @@
                                     "EventName": "OpenSource.EventName"
                                 }
                             },
-                            {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
+                           {
                                 "value": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
                                 "label": "STM_HASH",
                                 "info": {
@@ -237,8 +217,7 @@
                                     "EventName": "OpenSource.EventName"
                                 }
                             },
-                            {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
+                           {
                                 "value": "0cf169a95bd32a9a1dc4c3499ade207d30ab8895",
                                 "label": "OSSINITDATA_CAP_HASH",
                                 "info": {
@@ -246,8 +225,7 @@
                                     "EventName": "OpenSource.EventName"
                                 }
                             },
-                            {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
+                           {
                                 "value": "ff86d5446b2cc2e7e3319048715c00aabb7dcc4e",
                                 "label": "MLE_HASH",
                                 "info": {
@@ -255,8 +233,7 @@
                                     "EventName": "OpenSource.EventName"
                                 }
                             },
-                            {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
+                           {
                                 "value": "274f929dbab8b98a7031bbcd9ea5613c2a28e5e6",
                                 "label": "NV_INFO_HASH",
                                 "info": {
@@ -264,8 +241,7 @@
                                     "EventName": "OpenSource.EventName"
                                 }
                             },
-                            {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
+                           {
                                 "value": "ca96de412b4e8c062e570d3013d2fccb4b20250a",
                                 "label": "tb_policy",
                                 "info": {
@@ -278,8 +254,7 @@
                     "pcr_18": {
                         "value": "86da61107994a14c0d154fd87ca509f82377aa30",
                         "event": [
-                            {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
+                           {
                                 "value": "a395b723712b3711a89c2bb5295386c0db85fe44",
                                 "label": "SINIT_PUBKEY_HASH",
                                 "info": {
@@ -287,8 +262,7 @@
                                     "EventName": "OpenSource.EventName"
                                 }
                             },
-                            {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
+                           {
                                 "value": "3c585604e87f855973731fea83e21fab9392d2fc",
                                 "label": "CPU_SCRTM_STAT",
                                 "info": {
@@ -296,8 +270,7 @@
                                     "EventName": "OpenSource.EventName"
                                 }
                             },
-                            {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
+                           {
                                 "value": "0cf169a95bd32a9a1dc4c3499ade207d30ab8895",
                                 "label": "OSSINITDATA_CAP_HASH",
                                 "info": {
@@ -305,8 +278,7 @@
                                     "EventName": "OpenSource.EventName"
                                 }
                             },
-                            {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
+                           {
                                 "value": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
                                 "label": "LCP_AUTHORITIES_HASH",
                                 "info": {
@@ -314,8 +286,7 @@
                                     "EventName": "OpenSource.EventName"
                                 }
                             },
-                            {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
+                           {
                                 "value": "274f929dbab8b98a7031bbcd9ea5613c2a28e5e6",
                                 "label": "NV_INFO_HASH",
                                 "info": {
@@ -323,8 +294,7 @@
                                     "EventName": "OpenSource.EventName"
                                 }
                             },
-                            {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
+                           {
                                 "value": "ca96de412b4e8c062e570d3013d2fccb4b20250a",
                                 "label": "tb_policy",
                                 "info": {
@@ -367,7 +337,6 @@
                         "value": "9b34aeaec0aa4073c63c37d607e4d039203444318adf204b9ecbf1e6a853467d",
                         "event": [
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                 "value": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
                                 "label": "LCP_CONTROL_HASH",
                                 "info": {
@@ -376,7 +345,6 @@
                                 }
                             },
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                 "value": "c20e50d91bf1e7eccd5b28b0196e24222c71b9f38a9c19184969d57908de3787",
                                 "label": "initrd",
                                 "info": {
@@ -390,7 +358,6 @@
                         "value": "d9e55bd1c570a6408fb1368f3663ae92747241fc4d2a3622cef0efadae284d75",
                         "event": [
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                 "value": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
                                 "label": "LCP_CONTROL_HASH",
                                 "info": {
@@ -405,8 +372,7 @@
                     "pcr_17": {
                         "value": "eabe1d12c0f965bb936f0bc59b4e8816ab79882c",
                         "event": [
-                            {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
+                           {
                                 "value": "9069ca78e7450a285173431b3e52c5c25299e473",
                                 "label": "LCP_CONTROL_HASH",
                                 "info": {
@@ -414,8 +380,7 @@
                                     "EventName": "OpenSource.EventName"
                                 }
                             },
-                            {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
+                           {
                                 "value": "dcd4fead8fbe6deddf9899a796f49e04fe013c37",
                                 "label": "initrd",
                                 "info": {
@@ -428,8 +393,7 @@
                     "pcr_18": {
                         "value": "86da61107994a14c0d154fd87ca509f82377aa30",
                         "event": [
-                            {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
+                           {
                                 "value": "9069ca78e7450a285173431b3e52c5c25299e473",
                                 "label": "LCP_CONTROL_HASH",
                                 "info": {
@@ -471,7 +435,6 @@
                         "value": "9b34aeaec0aa4073c63c37d607e4d039203444318adf204b9ecbf1e6a853467d",
                         "event": [
                             {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
                                 "value": "eaa699b0d1f10fd7eccdcab9813b174f68b4327b022bf05e93a38b17c1c8e8dc",
                                 "label": "vmlinuz",
                                 "info": {
@@ -486,8 +449,7 @@
                     "pcr_17": {
                         "value": "eabe1d12c0f965bb936f0bc59b4e8816ab79882c",
                         "event": [
-                            {
-                                "digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
+                           {
                                 "value": "47694924b978589a8821d9eb1b39bfc1dba605f8",
                                 "label": "vmlinuz",
                                 "info": {

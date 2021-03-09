@@ -6,14 +6,16 @@ package postgres
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
 	fc "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
+	flavormodel "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
-	"strings"
-	"time"
 )
 
 type FlavorStore struct {
@@ -28,7 +30,7 @@ func NewFlavorStore(store *DataStore) *FlavorStore {
 func (f *FlavorStore) Create(signedFlavor *hvs.SignedFlavor) (*hvs.SignedFlavor, error) {
 	defaultLog.Trace("postgres/flavor_store:Create() Entering")
 	defer defaultLog.Trace("postgres/flavor_store:Create() Leaving")
-	if signedFlavor == nil || signedFlavor.Signature == "" || signedFlavor.Flavor.Meta.Description.Label == "" {
+	if signedFlavor == nil || signedFlavor.Signature == "" || signedFlavor.Flavor.Meta.Description[flavormodel.Label].(string) == "" {
 		return nil, errors.New("postgres/flavor_store:Create()- invalid input : must have content, signature and the label for the flavor")
 	}
 
@@ -44,8 +46,8 @@ func (f *FlavorStore) Create(signedFlavor *hvs.SignedFlavor) (*hvs.SignedFlavor,
 		ID:         signedFlavor.Flavor.Meta.ID,
 		Content:    PGFlavorContent(signedFlavor.Flavor),
 		CreatedAt:  time.Now(),
-		Label:      signedFlavor.Flavor.Meta.Description.Label,
-		FlavorPart: signedFlavor.Flavor.Meta.Description.FlavorPart,
+		Label:      signedFlavor.Flavor.Meta.Description[flavormodel.Label].(string),
+		FlavorPart: signedFlavor.Flavor.Meta.Description[flavormodel.FlavorPart].(string),
 		Signature:  signedFlavor.Signature,
 	}
 

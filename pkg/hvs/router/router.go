@@ -7,11 +7,12 @@ package router
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
 
 	"github.com/gorilla/mux"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/config"
@@ -72,6 +73,7 @@ func defineSubRoutes(router *mux.Router, service string, cfg *config.Configurati
 		constants.TrustedRootCACertsDir, cfgRouter.fnGetJwtCerts,
 		cacheTime))
 	subRouter = SetFlavorGroupRoutes(subRouter, dataStore, fgs, hostTrustManager)
+	subRouter = SetFlavorTemplateRoutes(subRouter, dataStore, fgs, certStore, hostTrustManager, hostControllerConfig)
 	subRouter = SetFlavorRoutes(subRouter, dataStore, fgs, certStore, hostTrustManager, hostControllerConfig)
 	subRouter = SetTpmEndorsementRoutes(subRouter, dataStore)
 	subRouter = SetCertifyAiksRoutes(subRouter, dataStore, certStore, cfg.AikCertValidity)

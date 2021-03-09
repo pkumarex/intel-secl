@@ -7,18 +7,20 @@ package controllers
 
 import (
 	"encoding/json"
+	"net/http"
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
 	consts "github.com/intel-secl/intel-secl/v3/pkg/lib/common/constants"
 	commErr "github.com/intel-secl/intel-secl/v3/pkg/lib/common/err"
 	commLogMsg "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log/message"
+	flavormodel "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/util"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	model "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
-	"net/http"
-	"strings"
 )
 
 type DeploySoftwareManifestController struct {
@@ -78,7 +80,7 @@ func (controller *DeploySoftwareManifestController) DeployManifest(w http.Respon
 		}
 	}
 
-	if signedFlavor.Flavor.Meta.Description.FlavorPart != string(common.FlavorPartSoftware) {
+	if signedFlavor.Flavor.Meta.Description[flavormodel.FlavorPart].(string) != string(common.FlavorPartSoftware) {
 		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: "Flavor associated with the provided flavor " +
 			"id is not a SOFTWARE flavor"}
 	}

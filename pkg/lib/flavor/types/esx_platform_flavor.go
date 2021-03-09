@@ -12,16 +12,16 @@ package types
 import (
 	"crypto"
 	"encoding/hex"
+	"strings"
+
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
 	cf "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
 	cm "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	hcConstants "github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/constants"
 	hcTypes "github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/util"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
-	"strings"
 )
 
 var (
@@ -200,7 +200,7 @@ func (esxpf ESXPlatformFlavor) getPlatformFlavor() ([]cm.Flavor, error) {
 	log.Debugf("flavor/types/esx_platform_flavor:getPlatformFlavor() New Hardware Section: %v", *newHW)
 
 	// Assemble the Platform Flavor
-	platformFlavor := cm.NewFlavor(newMeta, newBios, newHW, flavorPcrs, nil, nil)
+	platformFlavor := cm.NewFlavor(newMeta, newBios, newHW, flavorPcrs, nil, nil, nil)
 
 	log.Debugf("flavor/types/esx_platform_flavor:getPlatformFlavor() New PlatformFlavor: %v", platformFlavor)
 
@@ -236,7 +236,7 @@ func (esxpf ESXPlatformFlavor) getOsFlavor() ([]cm.Flavor, error) {
 	log.Debugf("flavor/types/esx_platform_flavor:getOsFlavor() New Bios Section: %v", *newBios)
 
 	// Assemble the OS Flavor
-	osFlavor := cm.NewFlavor(newMeta, newBios, nil, filteredPcrDetails, nil, nil)
+	osFlavor := cm.NewFlavor(newMeta, newBios, nil, filteredPcrDetails, nil, nil, nil)
 
 	log.Debugf("flavor/types/esx_platform_flavor:getOsFlavor() New OS Flavor: %v", osFlavor)
 
@@ -275,7 +275,7 @@ func (esxpf ESXPlatformFlavor) getHostUniqueFlavor() ([]cm.Flavor, error) {
 	log.Debugf("flavor/types/esx_platform_flavor:getHostUniqueFlavor() New Bios Section: %v", *newBios)
 
 	// Assemble the HOST_UNIQUE Flavor
-	hostUniqueFlavors := cm.NewFlavor(newMeta, newBios, nil, flavorPcrs, nil, nil)
+	hostUniqueFlavors := cm.NewFlavor(newMeta, newBios, nil, flavorPcrs, nil, nil, nil)
 	log.Debugf("flavor/types/esx_platform_flavor:getHostUniqueFlavor() New HOST_UNIQUE Flavor: %v", hostUniqueFlavors)
 
 	return []cm.Flavor{*hostUniqueFlavors}, nil
@@ -307,8 +307,7 @@ func (esxpf ESXPlatformFlavor) getAssetTagFlavor() ([]cm.Flavor, error) {
 		PcrBank:  hcTypes.SHA1,
 		EventLogs: []hcTypes.EventLog{
 			{
-				DigestType: util.EVENT_LOG_DIGEST_SHA1,
-				Value:      hex.EncodeToString(tagCertificateHash),
+				Value: hex.EncodeToString(tagCertificateHash),
 			},
 		},
 	}
@@ -345,7 +344,7 @@ func (esxpf ESXPlatformFlavor) getAssetTagFlavor() ([]cm.Flavor, error) {
 	log.Debugf("flavor/types/esx_platform_flavor:getAssetTagFlavor() New External Section: %v", *newExtConfig)
 
 	// Assemble the ASSET_TAG Flavor
-	assetTagFlavor := cm.NewFlavor(newMeta, newBios, nil, pcrDetails, newExtConfig, nil)
+	assetTagFlavor := cm.NewFlavor(newMeta, newBios, nil, pcrDetails, nil, newExtConfig, nil)
 
 	log.Debugf("flavor/types/esx_platform_flavor:getAssetTagFlavor() New Asset Tag Flavor: %v", assetTagFlavor)
 

@@ -1,0 +1,26 @@
+[
+    {
+        "pcr": {
+            "index": 15,
+            "bank": "SHA256"
+        },
+        "tpm_events": [
+            {
+                "type_id": "0x90000001",
+                "type_name": "APPLICATION_AGENT_MEASUREMENT",
+                "tags": [
+                    "ISecL_Default_Application_Flavor_v3.2_TPM2.0-07ff328c-72fc-40e6-826f-b2951b4e83a5"
+                ],
+                "measurement": "12275d780fd7e11b8906ed6d1878b43cd98804f292a26e810a8a91638dbc72aa"
+            },
+            {
+                "type_id": "0x90000001",
+                "type_name": "APPLICATION_AGENT_MEASUREMENT",
+                "tags": [
+                    "ISecL_Default_Workload_Flavor_v3.2-4d9d53c8-7b3c-4e50-b318-66da68f13884"
+                ],
+                "measurement": "17b0761f87b081d5cf10757ccc89f12be355c70e2e29df288b65b30710dcbcd1"
+            }
+        ]
+    }
+]

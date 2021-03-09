@@ -24,7 +24,7 @@ kbs:
 
 %-installer: %
 	mkdir -p installer
-	cp build/linux/$*/* installer/
+	cp -r build/linux/$*/* installer/
 	chmod +x installer/install.sh
 	cp cmd/$*/$* installer/$*
 	makeself installer deployments/installer/$*-$(VERSION).bin "$* $(VERSION)" ./install.sh

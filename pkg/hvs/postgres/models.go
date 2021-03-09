@@ -6,10 +6,12 @@ package postgres
 
 import (
 	"encoding/json"
-	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"time"
 
+	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
+
 	"database/sql/driver"
+
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
@@ -23,6 +25,7 @@ type (
 	PGHostManifest          types.HostManifest
 	PGHostStatusInformation hvs.HostStatusInformation
 	PGFlavorContent         hvs.Flavor
+	PGFlavorTemplateContent hvs.FlavorTemplate
 
 	flavorGroup struct {
 		ID                    uuid.UUID             `json:"id" gorm:"primary_key;type:uuid"`
@@ -65,6 +68,13 @@ type (
 	hostuniqueFlavor struct {
 		HostId   uuid.UUID `gorm:"type:uuid REFERENCES host(Id) ON UPDATE CASCADE ON DELETE CASCADE;not null;unique_index:idx_hostunique_flavor"`
 		FlavorId uuid.UUID `gorm:"type:uuid REFERENCES flavor(Id) ON UPDATE CASCADE ON DELETE CASCADE;not null;unique_index:idx_hostunique_flavor"`
+	}
+
+	//FlavorTemplate - Table to store flavor templates
+	flavorTemplate struct {
+		ID      uuid.UUID               `gorm:"column:id;not null;primary_key;type:uuid"`
+		Content PGFlavorTemplateContent `gorm:"column:content" sql:"type:JSONB NOT NULL"`
+		Deleted bool                    `gorm:"column:deleted;not null;type:bool"`
 	}
 
 	hostCredential struct {
@@ -233,6 +243,18 @@ func (fl *PGFlavorContent) Scan(value interface{}) error {
 	b, ok := value.([]byte)
 	if !ok {
 		return errors.New("postgres/models:PGFlavorContent_Scan() - type assertion to []byte failed")
+	}
+	return json.Unmarshal(b, &fl)
+}
+
+func (fl PGFlavorTemplateContent) Value() (driver.Value, error) {
+	return json.Marshal(fl)
+}
+
+func (fl *PGFlavorTemplateContent) Scan(value interface{}) error {
+	b, ok := value.([]byte)
+	if !ok {
+		return errors.New("postgres/models:PGFlavorTemplateContent_Scan() - type assertion to []byte failed")
 	}
 	return json.Unmarshal(b, &fl)
 }

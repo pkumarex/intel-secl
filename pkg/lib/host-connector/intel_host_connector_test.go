@@ -9,14 +9,15 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"encoding/xml"
+	"io/ioutil"
+	"net/url"
+	"testing"
+
 	"github.com/intel-secl/intel-secl/v3/pkg/clients/ta"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"io/ioutil"
-	"net/url"
-	"testing"
 )
 
 func TestGetHostDetails(t *testing.T) {
@@ -84,7 +85,7 @@ func TestCreateHostManifestFromSampleData(t *testing.T) {
 	}
 
 	// the sample data in ./test used this nonce which needs to be provided to GetHostManifest...
-	nonce := "tHgfRQED1+pYgEZpq3dZC9ONmBCZKdx10LErTZs1k/k="
+	nonce := "ZGVhZGJlZWZkZWFkYmVlZmRlYWRiZWVmZGVhZGJlZWZkZWFkYmVlZiA="
 
 	hostManifest, err := intelConnector.GetHostManifestAcceptNonce(nonce)
 	assert.NoError(t, err)
@@ -101,7 +102,6 @@ func TestEventReplay256(t *testing.T) {
 		"pcr_index": "pcr_18",
 		"event_log": [
 			{
-				"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 				"value": "da256395df4046319ef0af857d377a729e5bc0693429ac827002ffafe485b2e7",
 				"label": "SINIT_PUBKEY_HASH",
 				"info": {
@@ -110,7 +110,6 @@ func TestEventReplay256(t *testing.T) {
 				}
 			},
 			{
-				"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 				"value": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
 				"label": "CPU_SCRTM_STAT",
 				"info": {
@@ -119,7 +118,6 @@ func TestEventReplay256(t *testing.T) {
 				}
 			},
 			{
-				"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 				"value": "d81fe96dc500bc43e1cd5800bef9d72b3d030bdb7e860e10c522e4246b30bd93",
 				"label": "OSSINITDATA_CAP_HASH",
 				"info": {
@@ -128,7 +126,6 @@ func TestEventReplay256(t *testing.T) {
 				}
 			},
 			{
-				"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 				"value": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
 				"label": "LCP_CONTROL_HASH",
 				"info": {
@@ -137,7 +134,6 @@ func TestEventReplay256(t *testing.T) {
 				}
 			},
 			{
-				"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 				"value": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
 				"label": "LCP_AUTHORITIES_HASH",
 				"info": {
@@ -146,7 +142,6 @@ func TestEventReplay256(t *testing.T) {
 				}
 			},
 			{
-				"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 				"value": "0f6e0c7a5944963d7081ea494ddff1e9afa689e148e39f684db06578869ea38b",
 				"label": "NV_INFO_HASH",
 				"info": {
@@ -155,7 +150,6 @@ func TestEventReplay256(t *testing.T) {
 				}
 			},
 			{
-				"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 				"value": "27808f64e6383982cd3bcc10cfcb3457c0b65f465f779d89b668839eaf263a67",
 				"label": "tb_policy",
 				"info": {
