@@ -4,17 +4,31 @@
  */
 package model
 
-type CBNT struct {
+type HardwareFeature struct {
 	Enabled bool `json:"enabled,string"`
-	Meta    struct {
-		ForceBit bool   `json:"force_bit,string"`
-		Profile  string `json:"profile"`
-		MSR      string `json:"msr"`
+}
+
+type CBNT struct {
+	HardwareFeature
+	Meta struct {
+		Profile string `json:"profile"`
+		MSR     string `json:"msr"`
 	} `json:"meta"`
 }
 
-type HardwareFeature struct {
-	Enabled bool `json:"enabled,string"`
+type TPM struct {
+	HardwareFeature
+	Meta struct {
+		TPMVersion string `json:"tpm_version"`
+		PCRBanks   string `json:"pcr_banks"`
+	} `json:"meta"`
+}
+
+type UEFI struct {
+	HardwareFeature
+	Meta struct {
+		SecureBootEnabled bool `json:"secure_boot_enabled"`
+	} `json:"meta"`
 }
 
 type HostInfo struct {
@@ -27,23 +41,19 @@ type HostInfo struct {
 	HostName            string           `json:"host_name"`
 	BiosName            string           `json:"bios_name"`
 	HardwareUUID        string           `json:"hardware_uuid"`
-	ProcessorFlags      string           `json:"process_flags,omitempty"`
-	NumberOfSockets     int              `json:"no_of_sockets,string,omitempty"`
-	TbootInstalled      bool             `json:"tboot_installed,string,omitempty"`
-	IsDockerEnvironment bool             `json:"is_docker_env,string,omitempty"`
+	ProcessorFlags      string           `json:"process_flags"`
+	NumberOfSockets     int              `json:"no_of_sockets,string"`
+	TbootInstalled      bool             `json:"tboot_installed,string"`
+	IsDockerEnvironment bool             `json:"is_docker_env,string"`
 	HardwareFeatures    HardwareFeatures `json:"hardware_features"`
 	InstalledComponents []string         `json:"installed_components"`
 }
 
 type HardwareFeatures struct {
-	TXT *HardwareFeature `json:"TXT"`
-	TPM struct {
-		Enabled bool `json:"enabled,string"`
-		Meta    struct {
-			TPMVersion string `json:"tpm_version,omitempty"`
-			PCRBanks   string `json:"pcr_banks,omitempty"`
-		} `json:"meta"`
-	} `json:"TPM,omitempty"`
-	CBNT  *CBNT            `json:"CBNT,omitempty"`
-	SUEFI *HardwareFeature `json:"SUEFI,omitempty"`
+	TXT  HardwareFeature `json:"TXT"`
+	TPM  TPM             `json:"TPM"`
+	CBNT CBNT            `json:"CBNT"`
+	UEFI UEFI            `json:"UEFI"`
+	PFR  HardwareFeature `json:"PFR"`
+	BMC  HardwareFeature `json:"BMC"`
 }

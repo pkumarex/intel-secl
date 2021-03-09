@@ -7,18 +7,20 @@ package hosttrust
 
 import (
 	"encoding/xml"
+	"reflect"
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/services/hosttrust/rules"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/utils"
 	cf "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
+	flavormodel "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"reflect"
-	"strings"
 )
 
 // FlavorVerify.java: 529
@@ -162,7 +164,7 @@ func (v *Verifier) verifyFlavors(hostID uuid.UUID, flavors []hvs.SignedFlavor, h
 			// TODO
 			// check nil pointer for Meta, Description
 			// if these field are not changed to value type
-			flvPart := signedFlavor.Flavor.Meta.Description.FlavorPart
+			flvPart := signedFlavor.Flavor.Meta.Description[flavormodel.FlavorPart].(string)
 			if flvPart == flvMatchPolicy.FlavorPart.String() {
 
 				individualTrustReport, err := v.FlavorVerifier.Verify(hostData, &signedFlavor, v.SkipFlavorSignatureVerification)
@@ -296,22 +298,27 @@ func getHostManifestMap(hostManifest *types.HostManifest, flavorParts []cf.Flavo
 					})
 				}
 				if !reflect.DeepEqual(hostInfo.HardwareFeatures, taModel.HardwareFeatures{}) {
-					if hostInfo.HardwareFeatures.CBNT != nil {
+					pfQueryAttrs = append(pfQueryAttrs, models.FlavorMetaKv{
+						Key:   "hardware.feature.CBNT.enabled",
+						Value: hostInfo.HardwareFeatures.CBNT.Enabled,
+					})
+					//TODO Need to check supported flag instead of a nil check after platform info changes
+					if hostInfo.HardwareFeatures.CBNT.Enabled {
 						pfQueryAttrs = append(pfQueryAttrs, models.FlavorMetaKv{
-							Key:   "hardware.feature.CBNT.enabled",
-							Value: hostInfo.HardwareFeatures.CBNT.Enabled,
+							Key:   "hardware.feature.CBNT.meta.profile",
+							Value: hostInfo.HardwareFeatures.CBNT.Meta.Profile,
 						})
-						if hostInfo.HardwareFeatures.CBNT.Enabled {
-							pfQueryAttrs = append(pfQueryAttrs, models.FlavorMetaKv{
-								Key:   "hardware.feature.CBNT.profile",
-								Value: hostInfo.HardwareFeatures.CBNT.Meta.Profile,
-							})
-						}
 					}
-					if hostInfo.HardwareFeatures.SUEFI != nil {
+					if hostInfo.HardwareFeatures.UEFI.Enabled {
 						pfQueryAttrs = append(pfQueryAttrs, models.FlavorMetaKv{
-							Key:   "hardware.feature.SUEFI.enabled",
-							Value: hostInfo.HardwareFeatures.SUEFI.Enabled,
+							Key:   "hardware.feature.UEFI.enabled",
+							Value: hostInfo.HardwareFeatures.UEFI.Enabled,
+						})
+					}
+					if hostInfo.HardwareFeatures.UEFI.Meta.SecureBootEnabled {
+						pfQueryAttrs = append(pfQueryAttrs, models.FlavorMetaKv{
+							Key:   "hardware.feature.UEFI.meta.secure_boot_enabled",
+							Value: hostInfo.HardwareFeatures.UEFI.Meta.SecureBootEnabled,
 						})
 					}
 					if hostInfo.HardwareFeatures.TPM.Enabled {
@@ -320,12 +327,10 @@ func getHostManifestMap(hostManifest *types.HostManifest, flavorParts []cf.Flavo
 							Value: hostInfo.HardwareFeatures.TPM.Enabled,
 						})
 					}
-					if hostInfo.HardwareFeatures.TXT != nil {
-						pfQueryAttrs = append(pfQueryAttrs, models.FlavorMetaKv{
-							Key:   "hardware.feature.TXT.enabled",
-							Value: hostInfo.HardwareFeatures.TXT.Enabled,
-						})
-					}
+					pfQueryAttrs = append(pfQueryAttrs, models.FlavorMetaKv{
+						Key:   "hardware.feature.TXT.enabled",
+						Value: hostInfo.HardwareFeatures.TXT.Enabled,
+					})
 				}
 				hostInfoValues[cf.FlavorPartPlatform] = pfQueryAttrs
 			} else if fp == cf.FlavorPartOs {

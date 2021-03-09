@@ -30,6 +30,12 @@ type ServiceError struct {
 	Message string
 }
 
+type UnsupportedMediaError ServiceError
+
+type BadRequestError ServiceError
+
+type StatusNotFoundError ServiceError
+
 func (e ServiceError) Error() string {
 	return fmt.Sprintf("%s", e.Message)
 }
@@ -43,5 +49,17 @@ func (e ResourceError) Error() string {
 type EndpointError ServiceError
 
 func (e EndpointError) Error() string {
+	return fmt.Sprintf("%s", e.Message)
+}
+
+func (e UnsupportedMediaError) Error() string {
+	return fmt.Sprintf("%s", e.Message)
+}
+
+func (e BadRequestError) Error() string {
+	return fmt.Sprintf("%s", e.Message)
+}
+
+func (e StatusNotFoundError) Error() string {
 	return fmt.Sprintf("%s", e.Message)
 }

@@ -7,6 +7,7 @@ package model
 import (
 	"crypto/sha512"
 	"encoding/json"
+
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
@@ -27,13 +28,14 @@ type Flavor struct {
 	// Hardware section is unique to Platform Flavor type
 	Hardware *Hardware                   `json:"hardware,omitempty"`
 	Pcrs     map[string]map[string]PcrEx `json:"pcrs,omitempty"`
+	PcrLogs  []types.PCRS                `json:"pcr_logs,omitempty"`
 	// External section is unique to AssetTag Flavor type
 	External *External `json:"external,omitempty"`
 	Software *Software `json:"software,omitempty"`
 }
 
 // NewFlavor returns a new instance of Flavor
-func NewFlavor(meta *Meta, bios *Bios, hardware *Hardware, pcrs map[crypt.DigestAlgorithm]map[types.PcrIndex]PcrEx, external *External, software *Software) *Flavor {
+func NewFlavor(meta *Meta, bios *Bios, hardware *Hardware, pcrs map[crypt.DigestAlgorithm]map[types.PcrIndex]PcrEx, pcrLogs []types.PCRS, external *External, software *Software) *Flavor {
 	// Since maps are hard to marshal as JSON, let's try to convert the DigestAlgorithm and PcrIndex to strings
 	pcrx := make(map[string]map[string]PcrEx)
 	for dA, shaBank := range pcrs {
@@ -47,6 +49,7 @@ func NewFlavor(meta *Meta, bios *Bios, hardware *Hardware, pcrs map[crypt.Digest
 		Bios:     bios,
 		Hardware: hardware,
 		Pcrs:     pcrx,
+		PcrLogs:  pcrLogs,
 		External: external,
 		Software: software,
 	}

@@ -9,6 +9,7 @@ package verifier
 //
 
 import (
+	hvsconstants "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants/verifier-rules-and-faults"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/verifier/rules"
@@ -33,7 +34,7 @@ func newRuleBuilderVMWare20(verifierCertificates VerifierCertificates, hostManif
 }
 
 func (builder *ruleBuilderVMWare20) GetName() string {
-	return "VMware Host Trust Policy"
+	return hvsconstants.VmwareBuilder
 }
 
 // From 'design' repo at isecl/libraries/verifier/verifier.md...
@@ -80,7 +81,7 @@ func (builder *ruleBuilderVMWare20) GetPlatformRules() ([]rules.Rule, error) {
 	//
 	// Add 'PcrMatchesConstant' rules...
 	//
-	pcrMatchesContantsRules, err := getPcrMatchesConstantRules(pcrsZero17and18, &builder.signedFlavor.Flavor, common.FlavorPartPlatform)
+	pcrMatchesContantsRules, err := getPcrMatchesConstantRules(pcrsZero17and18, &builder.signedFlavor.Flavor, nil, common.FlavorPartPlatform)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +91,7 @@ func (builder *ruleBuilderVMWare20) GetPlatformRules() ([]rules.Rule, error) {
 	//
 	// Add 'PcrEventLogEquals' rules...
 	//
-	pcrEventLogEqualsRules, err := getPcrEventLogEqualsRules(pcrs17and18, &builder.signedFlavor.Flavor, common.FlavorPartPlatform)
+	pcrEventLogEqualsRules, err := getPcrEventLogEqualsRules(pcrs17and18, nil, &builder.signedFlavor.Flavor, common.FlavorPartPlatform)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +101,7 @@ func (builder *ruleBuilderVMWare20) GetPlatformRules() ([]rules.Rule, error) {
 	//
 	// Add 'PcrEventLogIntegrity' rules...
 	//
-	pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcrs17and18, &builder.signedFlavor.Flavor, common.FlavorPartPlatform)
+	pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcrs17and18, &builder.signedFlavor.Flavor, nil, common.FlavorPartPlatform)
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +127,7 @@ func (builder *ruleBuilderVMWare20) GetOsRules() ([]rules.Rule, error) {
 	//
 	// Add 'PcrMatchesConstant' rules...
 	//
-	pcrMatchesContantsRules, err := getPcrMatchesConstantRules(pcr19, &builder.signedFlavor.Flavor, common.FlavorPartOs)
+	pcrMatchesContantsRules, err := getPcrMatchesConstantRules(pcr19, &builder.signedFlavor.Flavor, nil, common.FlavorPartOs)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +137,7 @@ func (builder *ruleBuilderVMWare20) GetOsRules() ([]rules.Rule, error) {
 	//
 	// Add 'PcrEventLogEquals' rules...
 	//
-	pcrEventLogEqualsRules, err := getPcrEventLogEqualsRules(pcr19, &builder.signedFlavor.Flavor, common.FlavorPartOs)
+	pcrEventLogEqualsRules, err := getPcrEventLogEqualsRules(pcr19, nil, &builder.signedFlavor.Flavor, common.FlavorPartOs)
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +147,7 @@ func (builder *ruleBuilderVMWare20) GetOsRules() ([]rules.Rule, error) {
 	//
 	// Add 'PcrEventLogIntegrity' rules...
 	//
-	pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcrs19thru21, &builder.signedFlavor.Flavor, common.FlavorPartOs)
+	pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcrs19thru21, &builder.signedFlavor.Flavor, nil, common.FlavorPartOs)
 	if err != nil {
 		return nil, err
 	}
@@ -156,7 +157,7 @@ func (builder *ruleBuilderVMWare20) GetOsRules() ([]rules.Rule, error) {
 	//
 	// Add 'PcrEventLogEqualsExcluding' rules...
 	//
-	pcrEventLogEqualsExcludingRules, err := getPcrEventLogEqualsExcludingRules(pcrs20and21, &builder.signedFlavor.Flavor, common.FlavorPartOs)
+	pcrEventLogEqualsExcludingRules, err := getPcrEventLogEqualsExcludingRules(pcrs20and21, nil, &builder.signedFlavor.Flavor, common.FlavorPartOs)
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +178,7 @@ func (builder *ruleBuilderVMWare20) GetHostUniqueRules() ([]rules.Rule, error) {
 	//
 	// Add 'PcrEventLogIncludes' rules...
 	//
-	pcrEventLogIncludesRules, err := getPcrEventLogIncludesRules(pcrs20and21, &builder.signedFlavor.Flavor, common.FlavorPartHostUnique)
+	pcrEventLogIncludesRules, err := getPcrEventLogIncludesRules(pcrs20and21, &builder.signedFlavor.Flavor, nil, common.FlavorPartHostUnique)
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +188,7 @@ func (builder *ruleBuilderVMWare20) GetHostUniqueRules() ([]rules.Rule, error) {
 	//
 	// Add 'PcrEventLogIntegrity' rules...
 	//
-	pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcrs20and21, &builder.signedFlavor.Flavor, common.FlavorPartHostUnique)
+	pcrEventLogIntegrityRules, err := getPcrEventLogIntegrityRules(pcrs20and21, &builder.signedFlavor.Flavor, nil, common.FlavorPartHostUnique)
 	if err != nil {
 		return nil, err
 	}

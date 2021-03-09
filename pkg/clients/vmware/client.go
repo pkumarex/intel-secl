@@ -8,6 +8,9 @@ package vmware
 import (
 	"context"
 	"crypto/x509"
+	"net/url"
+	"strings"
+
 	"github.com/intel-secl/intel-secl/v3/pkg/clients"
 	commLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
@@ -20,8 +23,6 @@ import (
 	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/soap"
 	"github.com/vmware/govmomi/vim25/types"
-	"net/url"
-	"strings"
 )
 
 var log = commLog.GetDefaultLogger()
@@ -92,6 +93,7 @@ func (vc *vmwareClient) GetHostInfo() (taModel.HostInfo, error) {
 	hostInfo.NumberOfSockets = int(vc.hostReference.Hardware.CpuInfo.NumCpuPackages)
 	hostInfo.ProcessorInfo = vc.hostReference.Summary.MaxEVCModeKey
 	hostInfo.HardwareUUID = strings.ToUpper(vc.hostReference.Hardware.SystemInfo.Uuid)
+	hostInfo.HardwareFeatures.TPM = taModel.TPM{}
 	hostInfo.HardwareFeatures.TPM.Enabled = false
 	if vc.hostReference.Capability.TpmSupported != nil && *vc.hostReference.Capability.TpmSupported == true {
 		hostInfo.HardwareFeatures.TPM.Enabled = true
@@ -104,9 +106,9 @@ func (vc *vmwareClient) GetHostInfo() (taModel.HostInfo, error) {
 				"report from vcenter api")
 		}
 		if attestationReport.Returnval.TpmLogReliable {
-			hostInfo.HardwareFeatures.TXT = &taModel.HardwareFeature{Enabled: true}
+			hostInfo.HardwareFeatures.TXT = taModel.HardwareFeature{Enabled: true}
 		} else {
-			hostInfo.HardwareFeatures.TXT = &taModel.HardwareFeature{Enabled: false}
+			hostInfo.HardwareFeatures.TXT = taModel.HardwareFeature{Enabled: false}
 		}
 	} else {
 		hostInfo.HardwareFeatures.TPM.Meta.TPMVersion = vc.hostReference.Capability.TpmVersion
@@ -114,7 +116,7 @@ func (vc *vmwareClient) GetHostInfo() (taModel.HostInfo, error) {
 		if vc.hostReference.Capability.TxtEnabled != nil && *vc.hostReference.Capability.TxtEnabled == true {
 			txtEnabled = true
 		}
-		hostInfo.HardwareFeatures.TXT = &taModel.HardwareFeature{Enabled: txtEnabled}
+		hostInfo.HardwareFeatures.TXT = taModel.HardwareFeature{Enabled: txtEnabled}
 	}
 	return hostInfo, nil
 }

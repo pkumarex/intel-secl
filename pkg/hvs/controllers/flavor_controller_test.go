@@ -7,6 +7,10 @@ package controllers_test
 import (
 	"encoding/base64"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+
 	"github.com/gorilla/mux"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/controllers"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
@@ -18,9 +22,6 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"net/http"
-	"net/http/httptest"
-	"strings"
 )
 
 var _ = Describe("FlavorController", func() {
@@ -145,6 +146,19 @@ var _ = Describe("FlavorController", func() {
 				Expect(w.Code).To(Equal(http.StatusOK))
 			})
 		})
+
+		Context("Retrieve Flavor(created by template) by valid ID from data store", func() {
+			It("Should retrieve Flavor", func() {
+				router.Handle("/flavors/{id}", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorController.Retrieve))).Methods("GET")
+				req, err := http.NewRequest("GET", "/flavors/e6612219-bbd5-4259-8c7e-991e43729a86", nil)
+				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
+				w = httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				Expect(w.Code).To(Equal(http.StatusOK))
+			})
+		})
+
 		Context("Try to retrieve Flavor by non-existent ID from data store", func() {
 			It("Should fail to retrieve Flavor", func() {
 				router.Handle("/flavors/{id}", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorController.Retrieve))).Methods("GET")
@@ -333,7 +347,6 @@ var _ = Describe("FlavorController", func() {
 															"value": "f0c4bc16f4ccc7e813ec562a26ac181264b6b453",
 															"event": [
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "bc6b1c2e40d0d37f0e9415670515f869c14e3fe1",
 																	"label": "HASH_START",
 																	"info": {
@@ -342,7 +355,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "1fad8a10c0f5723017987a842a332d922ff559eb",
 																	"label": "BIOSAC_REG_DATA",
 																	"info": {
@@ -351,7 +363,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "3c585604e87f855973731fea83e21fab9392d2fc",
 																	"label": "CPU_SCRTM_STAT",
 																	"info": {
@@ -360,7 +371,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
 																	"label": "LCP_DETAILS_HASH",
 																	"info": {
@@ -369,7 +379,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
 																	"label": "STM_HASH",
 																	"info": {
@@ -378,7 +387,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "0cf169a95bd32a9a1dc4c3499ade207d30ab8895",
 																	"label": "OSSINITDATA_CAP_HASH",
 																	"info": {
@@ -387,7 +395,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "c49243843032f40ceabf7528f53b7c2cbf8e9355",
 																	"label": "MLE_HASH",
 																	"info": {
@@ -396,7 +403,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "274f929dbab8b98a7031bbcd9ea5613c2a28e5e6",
 																	"label": "NV_INFO_HASH",
 																	"info": {
@@ -405,7 +411,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "ca96de412b4e8c062e570d3013d2fccb4b20250a",
 																	"label": "tb_policy",
 																	"info": {
@@ -419,7 +424,6 @@ var _ = Describe("FlavorController", func() {
 															"value": "86da61107994a14c0d154fd87ca509f82377aa30",
 															"event": [
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "a395b723712b3711a89c2bb5295386c0db85fe44",
 																	"label": "SINIT_PUBKEY_HASH",
 																	"info": {
@@ -428,7 +432,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "3c585604e87f855973731fea83e21fab9392d2fc",
 																	"label": "CPU_SCRTM_STAT",
 																	"info": {
@@ -437,7 +440,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "0cf169a95bd32a9a1dc4c3499ade207d30ab8895",
 																	"label": "OSSINITDATA_CAP_HASH",
 																	"info": {
@@ -446,7 +448,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
 																	"label": "LCP_AUTHORITIES_HASH",
 																	"info": {
@@ -455,7 +456,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "274f929dbab8b98a7031bbcd9ea5613c2a28e5e6",
 																	"label": "NV_INFO_HASH",
 																	"info": {
@@ -464,7 +464,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "ca96de412b4e8c062e570d3013d2fccb4b20250a",
 																	"label": "tb_policy",
 																	"info": {
@@ -483,7 +482,6 @@ var _ = Describe("FlavorController", func() {
 															"value": "412beb56e05525c9522aea6b47a2abe58cb8387e57a6ad434fddb0b4f4ee41eb",
 															"event": [
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "9a31321ff5d4e5699cc368a0684be901837db04b5dca532b805e5895a39e57e7",
 																	"label": "HASH_START",
 																	"info": {
@@ -492,7 +490,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "19f34545cdbf9316036535e6732a349fbe4d85bb6f102523934ba215329293fb",
 																	"label": "BIOSAC_REG_DATA",
 																	"info": {
@@ -501,7 +498,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
 																	"label": "CPU_SCRTM_STAT",
 																	"info": {
@@ -510,7 +506,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
 																	"label": "LCP_DETAILS_HASH",
 																	"info": {
@@ -519,7 +514,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
 																	"label": "STM_HASH",
 																	"info": {
@@ -528,7 +522,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "d81fe96dc500bc43e1cd5800bef9d72b3d030bdb7e860e10c522e4246b30bd93",
 																	"label": "OSSINITDATA_CAP_HASH",
 																	"info": {
@@ -537,7 +530,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "c78680644d8e0cf90174fc78f09b75c99cfd71367433a88ee259f743226f03ec",
 																	"label": "MLE_HASH",
 																	"info": {
@@ -546,7 +538,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "0f6e0c7a5944963d7081ea494ddff1e9afa689e148e39f684db06578869ea38b",
 																	"label": "NV_INFO_HASH",
 																	"info": {
@@ -555,7 +546,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "27808f64e6383982cd3bcc10cfcb3457c0b65f465f779d89b668839eaf263a67",
 																	"label": "tb_policy",
 																	"info": {
@@ -569,7 +559,6 @@ var _ = Describe("FlavorController", func() {
 															"value": "d9e55bd1c570a6408fb1368f3663ae92747241fc4d2a3622cef0efadae284d75",
 															"event": [
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "da256395df4046319ef0af857d377a729e5bc0693429ac827002ffafe485b2e7",
 																	"label": "SINIT_PUBKEY_HASH",
 																	"info": {
@@ -578,7 +567,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
 																	"label": "CPU_SCRTM_STAT",
 																	"info": {
@@ -587,7 +575,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "d81fe96dc500bc43e1cd5800bef9d72b3d030bdb7e860e10c522e4246b30bd93",
 																	"label": "OSSINITDATA_CAP_HASH",
 																	"info": {
@@ -596,7 +583,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
 																	"label": "LCP_AUTHORITIES_HASH",
 																	"info": {
@@ -605,7 +591,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "0f6e0c7a5944963d7081ea494ddff1e9afa689e148e39f684db06578869ea38b",
 																	"label": "NV_INFO_HASH",
 																	"info": {
@@ -614,7 +599,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "27808f64e6383982cd3bcc10cfcb3457c0b65f465f779d89b668839eaf263a67",
 																	"label": "tb_policy",
 																	"info": {
@@ -645,7 +629,6 @@ var _ = Describe("FlavorController", func() {
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
 			})
 		})
-
 		Context("Provide a manually crafted Flavor request with an invalid field name", func() {
 			It("Should return 400 Error code", func() {
 				router.Handle("/flavors", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorController.Create))).Methods("POST")
@@ -696,7 +679,6 @@ var _ = Describe("FlavorController", func() {
 															"value": "f0c4bc16f4ccc7e813ec562a26ac181264b6b453",
 															"event": [
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "bc6b1c2e40d0d37f0e9415670515f869c14e3fe1",
 																	"label": "HASH_START",
 																	"info": {
@@ -705,7 +687,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "1fad8a10c0f5723017987a842a332d922ff559eb",
 																	"label": "BIOSAC_REG_DATA",
 																	"info": {
@@ -714,7 +695,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "3c585604e87f855973731fea83e21fab9392d2fc",
 																	"label": "CPU_SCRTM_STAT",
 																	"info": {
@@ -723,7 +703,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
 																	"label": "LCP_DETAILS_HASH",
 																	"info": {
@@ -732,7 +711,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
 																	"label": "STM_HASH",
 																	"info": {
@@ -741,7 +719,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "0cf169a95bd32a9a1dc4c3499ade207d30ab8895",
 																	"label": "OSSINITDATA_CAP_HASH",
 																	"info": {
@@ -750,7 +727,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "c49243843032f40ceabf7528f53b7c2cbf8e9355",
 																	"label": "MLE_HASH",
 																	"info": {
@@ -759,7 +735,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "274f929dbab8b98a7031bbcd9ea5613c2a28e5e6",
 																	"label": "NV_INFO_HASH",
 																	"info": {
@@ -768,7 +743,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "ca96de412b4e8c062e570d3013d2fccb4b20250a",
 																	"label": "tb_policy",
 																	"info": {
@@ -782,7 +756,6 @@ var _ = Describe("FlavorController", func() {
 															"value": "86da61107994a14c0d154fd87ca509f82377aa30",
 															"event": [
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "a395b723712b3711a89c2bb5295386c0db85fe44",
 																	"label": "SINIT_PUBKEY_HASH",
 																	"info": {
@@ -791,7 +764,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "3c585604e87f855973731fea83e21fab9392d2fc",
 																	"label": "CPU_SCRTM_STAT",
 																	"info": {
@@ -800,7 +772,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "0cf169a95bd32a9a1dc4c3499ade207d30ab8895",
 																	"label": "OSSINITDATA_CAP_HASH",
 																	"info": {
@@ -809,7 +780,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
 																	"label": "LCP_AUTHORITIES_HASH",
 																	"info": {
@@ -818,7 +788,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "274f929dbab8b98a7031bbcd9ea5613c2a28e5e6",
 																	"label": "NV_INFO_HASH",
 																	"info": {
@@ -827,7 +796,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha1",
 																	"value": "ca96de412b4e8c062e570d3013d2fccb4b20250a",
 																	"label": "tb_policy",
 																	"info": {
@@ -846,7 +814,6 @@ var _ = Describe("FlavorController", func() {
 															"value": "412beb56e05525c9522aea6b47a2abe58cb8387e57a6ad434fddb0b4f4ee41eb",
 															"event": [
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "9a31321ff5d4e5699cc368a0684be901837db04b5dca532b805e5895a39e57e7",
 																	"label": "HASH_START",
 																	"info": {
@@ -855,7 +822,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "19f34545cdbf9316036535e6732a349fbe4d85bb6f102523934ba215329293fb",
 																	"label": "BIOSAC_REG_DATA",
 																	"info": {
@@ -864,7 +830,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
 																	"label": "CPU_SCRTM_STAT",
 																	"info": {
@@ -873,7 +838,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
 																	"label": "LCP_DETAILS_HASH",
 																	"info": {
@@ -882,7 +846,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
 																	"label": "STM_HASH",
 																	"info": {
@@ -891,7 +854,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "d81fe96dc500bc43e1cd5800bef9d72b3d030bdb7e860e10c522e4246b30bd93",
 																	"label": "OSSINITDATA_CAP_HASH",
 																	"info": {
@@ -900,7 +862,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "c78680644d8e0cf90174fc78f09b75c99cfd71367433a88ee259f743226f03ec",
 																	"label": "MLE_HASH",
 																	"info": {
@@ -909,7 +870,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "0f6e0c7a5944963d7081ea494ddff1e9afa689e148e39f684db06578869ea38b",
 																	"label": "NV_INFO_HASH",
 																	"info": {
@@ -918,7 +878,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "27808f64e6383982cd3bcc10cfcb3457c0b65f465f779d89b668839eaf263a67",
 																	"label": "tb_policy",
 																	"info": {
@@ -932,7 +891,6 @@ var _ = Describe("FlavorController", func() {
 															"value": "d9e55bd1c570a6408fb1368f3663ae92747241fc4d2a3622cef0efadae284d75",
 															"event": [
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "da256395df4046319ef0af857d377a729e5bc0693429ac827002ffafe485b2e7",
 																	"label": "SINIT_PUBKEY_HASH",
 																	"info": {
@@ -941,7 +899,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
 																	"label": "CPU_SCRTM_STAT",
 																	"info": {
@@ -950,7 +907,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "d81fe96dc500bc43e1cd5800bef9d72b3d030bdb7e860e10c522e4246b30bd93",
 																	"label": "OSSINITDATA_CAP_HASH",
 																	"info": {
@@ -959,7 +915,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
 																	"label": "LCP_AUTHORITIES_HASH",
 																	"info": {
@@ -968,7 +923,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "0f6e0c7a5944963d7081ea494ddff1e9afa689e148e39f684db06578869ea38b",
 																	"label": "NV_INFO_HASH",
 																	"info": {
@@ -977,7 +931,6 @@ var _ = Describe("FlavorController", func() {
 																	}
 																},
 																{
-																	"digest_type": "com.intel.mtwilson.core.common.model.MeasurementSha256",
 																	"value": "27808f64e6383982cd3bcc10cfcb3457c0b65f465f779d89b668839eaf263a67",
 																	"label": "tb_policy",
 																	"info": {

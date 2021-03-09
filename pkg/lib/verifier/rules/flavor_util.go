@@ -6,7 +6,8 @@ package rules
 
 import (
 	"encoding/xml"
-	"fmt"
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
 	flavor_model "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
@@ -14,7 +15,6 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
-	"strings"
 )
 
 // Utility function that finds the hvs.PcrEx at 'bank' and 'index' and returns
@@ -27,7 +27,7 @@ func getPcrValueFromFlavor(flavor *hvs.Flavor, bank types.SHAAlgorithm, index ty
 
 	pcrValue, err := flavor.GetPcrValue(bank, index)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Error in getting Pcr value")
 	}
 
 	return FlavorPcr2ManifestPcr(pcrValue, bank, index)
@@ -39,15 +39,10 @@ func FlavorPcr2ManifestPcr(pcrEx *flavor_model.PcrEx, bank types.SHAAlgorithm, i
 		return nil, errors.New("The pcrex value cannot be nil")
 	}
 
-	digestType := fmt.Sprintf(constants.PcrClassNamePrefix+"%d", 1)
-	if bank == types.SHA256 {
-		digestType = fmt.Sprintf(constants.PcrClassNamePrefix+"%d", 256)
-	}
 	return &types.Pcr{
-		DigestType: digestType,
-		Index:      index,
-		Value:      pcrEx.Value,
-		PcrBank:    bank,
+		Index:   index,
+		Value:   pcrEx.Value,
+		PcrBank: bank,
 	}, nil
 }
 

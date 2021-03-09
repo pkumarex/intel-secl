@@ -15,17 +15,13 @@ const (
 	// TPM
 	TPMVersion2 string = "2.0"
 
-	Tpm   = "TPM"
-	Txt   = "TXT"
-	Cbnt  = "CBNT"
-	Suefi = "SUEFI"
+	Tpm               = "TPM"
+	Txt               = "TXT"
+	Cbnt              = "CBNT"
+	Uefi              = "UEFI"
+	SecureBootEnabled = "SecureBootEnabled"
 
-	//Pcr
-	PcrClassNamePrefix = "com.intel.mtwilson.core.common.model.PcrSha"
-
-	// Manifest / Measurement
-	MeasurementTypeClassNamePrefix = "com.intel.mtwilson.core.common.model.MeasurementSha"
-	IslMeasurementSchema           = "lib:wml:measurements:1.0"
+	IslMeasurementSchema = "lib:wml:measurements:1.0"
 
 	// ESXFlavor
 	VMWareComponentName = "Vim25Api.HostTpmSoftwareComponentEventDetails"
