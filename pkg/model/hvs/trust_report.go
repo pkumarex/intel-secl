@@ -24,7 +24,7 @@ type TrustReport struct {
 }
 
 type RuleResult struct {
-	Rule     RuleInfo   `json:"rule"`
+	Rule RuleInfo `json:"rule"`
 	// swagger:strfmt uuid
 	FlavorId *uuid.UUID `json:"flavor_id,omitempty"`
 	Faults   []Fault    `json:"faults,omitempty"`
@@ -32,9 +32,9 @@ type RuleResult struct {
 }
 
 type RuleInfo struct {
-	Name                  string                 `json:"rule_name,omitempty"`
-	Markers               []common.FlavorPart    `json:"markers,omitempty"`
-	ExpectedPcr           *types.Pcr             `json:"expected_pcr,omitempty"`
+	Name        string              `json:"rule_name,omitempty"`
+	Markers     []common.FlavorPart `json:"markers,omitempty"`
+	ExpectedPcr *types.Pcr          `json:"expected_pcr,omitempty"`
 	// swagger:strfmt uuid
 	FlavorID              *uuid.UUID             `json:"flavor_id,omitempty"`
 	FlavorName            *string                `json:"flavor_name,omitempty"`
@@ -47,13 +47,13 @@ type RuleInfo struct {
 }
 
 type Fault struct {
-	Name                   string                 `json:"fault_name"`
-	Description            string                 `json:"description"`
-	PcrIndex               *types.PcrIndex        `json:"pcr_index,omitempty"`
-	ExpectedPcrValue       *string                `json:"expected_value,omitempty"`
-	ActualPcrValue         *string                `json:"actual_value,omitempty"`
-	MissingEntries         []types.EventLog       `json:"missing_entries,omitempty"`
-	UnexpectedEntries      []types.EventLog       `json:"unexpected_entries,omitempty"`
+	Name              string           `json:"fault_name"`
+	Description       string           `json:"description"`
+	PcrIndex          *types.PcrIndex  `json:"pcr_index,omitempty"`
+	ExpectedPcrValue  *string          `json:"expected_value,omitempty"`
+	ActualPcrValue    *string          `json:"actual_value,omitempty"`
+	MissingEntries    []types.EventLog `json:"missing_entries,omitempty"`
+	UnexpectedEntries []types.EventLog `json:"unexpected_entries,omitempty"`
 	// swagger:strfmt uuid
 	FlavorId               *uuid.UUID             `json:"flavor_id,omitempty"`
 	UnexpectedMeasurements []ta.FlavorMeasurement `json:"unexpected_entries,omitempty"`
