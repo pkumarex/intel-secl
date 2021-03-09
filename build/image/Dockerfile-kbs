@@ -5,7 +5,13 @@ FROM centos:8
 
 COPY cmd/kbs/kbs /usr/bin/kbs
 
-COPY build/image/libkmip.so.0.2 /tmp/libkmip.so.0.2
+COPY build/image/libkmip.so.0.2 /usr/lib64/libkmip.so.0.2
+
+RUN chmod 755 /usr/lib64/libkmip.so.0.2
+
+RUN ln -sfT /usr/lib64/libkmip.so.0.2 /usr/lib64/libkmip.so
+
+RUN ln -sfT /usr/lib64/libkmip.so.0.2  /usr/lib64/libkmip.so.0
 
 COPY build/image/entrypoint-kbs.sh /entrypoint.sh
 
