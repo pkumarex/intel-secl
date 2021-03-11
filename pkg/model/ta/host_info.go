@@ -5,6 +5,7 @@
 package model
 
 type HardwareFeature struct {
+	Supported bool `json:"supported,string"`
 	Enabled bool `json:"enabled,string"`
 }
 

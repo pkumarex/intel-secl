@@ -83,7 +83,7 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 
 	}
 
-	if ruleBuilder.GetName() == hvsconstants.IntelBuilder {
+	//if ruleBuilder.GetName() == hvsconstants.IntelBuilder {
 		flavorPcrs := factory.signedFlavor.Flavor.PcrLogs
 
 		// Iterate the pcrs section to get rules
@@ -99,26 +99,26 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 					eventsPresent = true
 					//call method to create pcr event log equals rule
 					if len(rule.EventlogEqual.ExcludeTags) == 0 {
-						pcrRules, err = getPcrEventLogEqualsRules(nil, &rule, nil, flavorPart)
+						pcrRules, err = getPcrEventLogEqualsRules(&rule, flavorPart)
 					} else {
-						pcrRules, err = getPcrEventLogEqualsExcludingRules(nil, &rule, nil, flavorPart)
+						pcrRules, err = getPcrEventLogEqualsExcludingRules(&rule, flavorPart)
 					}
 					requiredRules = append(requiredRules, pcrRules...)
 				} else if value.Type().Field(i).Name == hvsconstants.EventlogIncludesRule && len(rule.EventlogIncludes) > 0 {
 					eventsPresent = true
 					//call method to create pcr event log includes rule
-					pcrRules, err = getPcrEventLogIncludesRules(nil, nil, &rule, flavorPart)
+					pcrRules, err = getPcrEventLogIncludesRules(&rule, flavorPart)
 					requiredRules = append(requiredRules, pcrRules...)
 				} else if value.Type().Field(i).Name == hvsconstants.PCRMatchesRule && rule.PCRMatches {
 					//call method to create pcr matches constant rule
-					pcrRules, err = getPcrMatchesConstantRules(nil, nil, &rule, flavorPart)
+					pcrRules, err = getPcrMatchesConstantRules(&rule, flavorPart)
 					requiredRules = append(requiredRules, pcrRules...)
 				}
 
 				if eventsPresent == true && integrityRuleAdded == false {
 					//add Integrity rules//
 					integrityRuleAdded = true
-					pcrRules, err = getPcrEventLogIntegrityRules(nil, nil, &rule, flavorPart)
+					pcrRules, err = getPcrEventLogIntegrityRules(&rule, flavorPart)
 					requiredRules = append(requiredRules, pcrRules...)
 				}
 				if err != nil {
@@ -128,7 +128,7 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 			}
 
 		}
-	}
+	//}
 
 	// if skip flavor signing verification is enabled, add the FlavorTrusted.
 	if !factory.skipSignedFlavorVerification {

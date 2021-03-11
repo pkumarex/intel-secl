@@ -190,7 +190,7 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 		}
 
 		var flavorTemplates []hvs.FlavorTemplate
-		if !strings.EqualFold(hostManifest.HostInfo.OSName, "VMWARE ESXI") {
+		//if !strings.EqualFold(hostManifest.HostInfo.OSName, "VMWARE ESXI") {
 			defaultLog.Debug("Getting flavor templates...")
 			flavorTemplates, err = fcon.findTemplatesToApply(hostManifest)
 			if len(flavorTemplates) == 0 {
@@ -202,7 +202,7 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 			}
 
 			defaultLog.Debug("Matched Flavor templates ", flavorTemplates)
-		}
+		//}
 
 		tagCertificate := hvs.TagCertificate{}
 		var tagX509Certificate *x509.Certificate

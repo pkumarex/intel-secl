@@ -306,8 +306,8 @@ func (results ResultsSort) Less(i, j int) bool {
 	sortKey2 := results[j].Rule.Name
 
 	if results[i].Rule.ExpectedPcr != nil && results[j].Rule.ExpectedPcr != nil {
-		sortKey1 += ":" + string(results[i].Rule.ExpectedPcr.PcrBank) + ":" + string(results[i].Rule.ExpectedPcr.Index)
-		sortKey2 += ":" + string(results[j].Rule.ExpectedPcr.PcrBank) + ":" + string(results[j].Rule.ExpectedPcr.Index)
+		sortKey1 += ":" + string(results[i].Rule.ExpectedPcr.PCR.Bank) + ":" + string(results[i].Rule.ExpectedPcr.PCR.Index)
+		sortKey2 += ":" + string(results[j].Rule.ExpectedPcr.PCR.Bank) + ":" + string(results[j].Rule.ExpectedPcr.PCR.Index)
 	}
 
 	return sortKey1 < sortKey2

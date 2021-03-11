@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 
 	"github.com/google/uuid"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/pkg/errors"
 )
@@ -27,7 +26,7 @@ type Flavor struct {
 	Bios *Bios `json:"bios,omitempty"`
 	// Hardware section is unique to Platform Flavor type
 	Hardware *Hardware                   `json:"hardware,omitempty"`
-	Pcrs     map[string]map[string]PcrEx `json:"pcrs,omitempty"`
+//	Pcrs     map[string]map[string]PcrEx `json:"pcrs,omitempty"`
 	PcrLogs  []types.PCRS                `json:"pcr_logs,omitempty"`
 	// External section is unique to AssetTag Flavor type
 	External *External `json:"external,omitempty"`
@@ -35,20 +34,20 @@ type Flavor struct {
 }
 
 // NewFlavor returns a new instance of Flavor
-func NewFlavor(meta *Meta, bios *Bios, hardware *Hardware, pcrs map[crypt.DigestAlgorithm]map[types.PcrIndex]PcrEx, pcrLogs []types.PCRS, external *External, software *Software) *Flavor {
+func NewFlavor(meta *Meta, bios *Bios, hardware *Hardware, pcrLogs []types.PCRS, external *External, software *Software) *Flavor {
 	// Since maps are hard to marshal as JSON, let's try to convert the DigestAlgorithm and PcrIndex to strings
-	pcrx := make(map[string]map[string]PcrEx)
+	/* pcrx := make(map[string]map[string]PcrEx)
 	for dA, shaBank := range pcrs {
 		pcrx[dA.String()] = make(map[string]PcrEx)
 		for pI, pE := range shaBank {
 			pcrx[dA.String()][pI.String()] = pE
 		}
-	}
+	} */
 	return &Flavor{
 		Meta:     *meta,
 		Bios:     bios,
 		Hardware: hardware,
-		Pcrs:     pcrx,
+		//Pcrs:     pcrx,
 		PcrLogs:  pcrLogs,
 		External: external,
 		Software: software,
@@ -57,7 +56,7 @@ func NewFlavor(meta *Meta, bios *Bios, hardware *Hardware, pcrs map[crypt.Digest
 
 // Utility function for retrieving the PcrEx value at 'bank', 'index'.  Returns
 // an error if the pcr cannot be found.
-func (flavor *Flavor) GetPcrValue(bank types.SHAAlgorithm, index types.PcrIndex) (*PcrEx, error) {
+/* func (flavor *Flavor) GetPcrValue(bank types.SHAAlgorithm, index types.PcrIndex) (*PcrEx, error) {
 
 	if indexMap, ok := flavor.Pcrs[string(bank)]; ok {
 		if pcrValue, ok := indexMap[index.String()]; ok {
@@ -68,7 +67,7 @@ func (flavor *Flavor) GetPcrValue(bank types.SHAAlgorithm, index types.PcrIndex)
 	} else {
 		return nil, errors.Errorf("The flavor does not contain any pcr values for bank '%s'", bank)
 	}
-}
+} */
 
 // GetFlavorDigest Calculates the SHA384 hash of the Flavor's json data for use when
 // signing/verifying signed flavors.

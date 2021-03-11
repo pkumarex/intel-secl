@@ -51,5 +51,5 @@ func (sf *SoftwareFlavor) GetSoftwareFlavor() (*cm.Flavor, error) {
 	}
 	log.Debugf("flavor/types/software_flavor:GetSoftwareFlavor() New Meta Section: %v", *newMeta)
 
-	return cm.NewFlavor(newMeta, nil, nil, nil, nil, nil, &software), nil
+	return cm.NewFlavor(newMeta, nil, nil, nil, nil, &software), nil
 }

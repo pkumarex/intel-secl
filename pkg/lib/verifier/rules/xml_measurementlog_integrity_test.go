@@ -33,19 +33,20 @@ func TestXmlMeasurementLogIntegrityNoFault(t *testing.T) {
 		MeasurementXmls: []string{testIntegrityMeasurementsXml},
 	}
 
-	eventLogEntry := types.EventLogEntry{
-		PcrIndex: types.PCR15,
-		PcrBank:  types.SHA256,
-		EventLogs: []types.EventLog{
+	eventLogEntry := types.TpmEventLog{
+		Pcr : types.PCR{
+			Index:15,
+			Bank:"SHA256",
+		},
+		TpmEvent: []types.EventLogCriteria{
 			{
-				Value: getSha256String(testExpectedMeasurement.CumulativeHash),
-				Label: testExpectedMeasurement.Label + "-" + testExpectedMeasurement.Uuid,
+				Measurement: getSha256String(testExpectedMeasurement.CumulativeHash),
+				Tags: []string{testExpectedMeasurement.Label + "-" + testExpectedMeasurement.Uuid},
 			},
 		},
 	}
 
-	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, eventLogEntry)
-
+	hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs, eventLogEntry)
 	// apply the manifest to the rule and expect no faults/trusted
 	result, err := rule.Apply(&hostManifest)
 	assert.NoError(t, err)
@@ -209,18 +210,20 @@ func TestXmlMeasurementLogIntegrityValueMismatchFromInvalidPcrEventLog(t *testin
 		MeasurementXmls: []string{testIntegrityMeasurementsXml},
 	}
 
-	eventLogEntry := types.EventLogEntry{
-		PcrIndex: types.PCR15,
-		PcrBank:  types.SHA256,
-		EventLogs: []types.EventLog{
+	eventLogEntry := types.TpmEventLog{
+		Pcr : types.PCR {
+			Index:15,
+			Bank:"SHA256",
+		},
+		TpmEvent: []types.EventLogCriteria{
 			{
-				Value: "0000000000000000000000000000000000", // ==> NOT RIGHT
-				Label: testExpectedMeasurement.Label + "-" + testExpectedMeasurement.Uuid,
+				Measurement: "0000000000000000000000000000000000", // ==> NOT RIGHT
+				Tags: []string{testExpectedMeasurement.Label + "-" + testExpectedMeasurement.Uuid},
 			},
 		},
 	}
 
-	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, eventLogEntry)
+	hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs, eventLogEntry)
 
 	result, err := rule.Apply(&hostManifest)
 	assert.NoError(t, err)
@@ -270,18 +273,20 @@ func TestXmlMeasurementLogIntegrityValueMismatchFromMissingPcrEventLabel(t *test
 		MeasurementXmls: []string{testIntegrityMeasurementsXml},
 	}
 
-	eventLogEntry := types.EventLogEntry{
-		PcrIndex: types.PCR15,
-		PcrBank:  types.SHA256,
-		EventLogs: []types.EventLog{
+	eventLogEntry := types.TpmEventLog{
+		Pcr : types.PCR {
+			Index:15,
+			Bank:"SHA256",
+		},
+		TpmEvent: []types.EventLogCriteria{
 			{
-				Value: getSha256String(testExpectedMeasurement.CumulativeHash),
-				Label: "invalid labor", // ==> won't match the flavor
+				Measurement: getSha256String(testExpectedMeasurement.CumulativeHash),
+				Tags: []string{"invalid labor"}, // ==> won't match the flavor
 			},
 		},
 	}
 
-	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, eventLogEntry)
+	hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs, eventLogEntry)
 
 	result, err := rule.Apply(&hostManifest)
 	assert.NoError(t, err)

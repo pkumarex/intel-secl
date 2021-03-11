@@ -97,14 +97,14 @@ type PcrEventLogMapFC struct {
 type PcrManifest struct {
 	Sha1Pcrs            []Pcr            `json:"sha1pcrs"`
 	Sha256Pcrs          []Pcr            `json:"sha2pcrs"`
-	PcrEventLogMap      PcrEventLogMap   `json:"pcr_event_log_map"`
-	PcrEventLogMapLinux PcrEventLogMapFC `json:"pcr_event_log_map_new"`
+	//PcrEventLogMap      PcrEventLogMap   `json:"pcr_event_log_map"`
+	PcrEventLogMapLinux PcrEventLogMapFC `json:"pcr_event_log_map"`
 }
 
 type PcrIndex int
 
-func (p Pcr) EqualsWithoutValue(pcr Pcr) bool {
-	return reflect.DeepEqual(p.Index, pcr.Index) && reflect.DeepEqual(p.PcrBank, pcr.PcrBank)
+func (p PCRS) EqualsWithoutValue(pcr PCRS) bool {
+	return reflect.DeepEqual(p.PCR.Index, pcr.PCR.Index) && reflect.DeepEqual(p.PCR.Bank, pcr.PCR.Bank)
 }
 
 // String returns the string representation of the PcrIndex
@@ -532,7 +532,7 @@ func (eventLogEntry *TpmEventLog) Replay() (string, error) {
 	return cumulativeHashString, nil
 }
 
-// GetPcrEventLog returns the EventLogs for a specific PcrBank/PcrIndex
+/* // GetPcrEventLog returns the EventLogs for a specific PcrBank/PcrIndex
 func (pcrManifest *PcrManifest) GetPcrEventLog(pcrBank SHAAlgorithm, pcrIndex PcrIndex) ([]EventLog, error) {
 	pI := PcrIndex(pcrIndex)
 
@@ -554,7 +554,7 @@ func (pcrManifest *PcrManifest) GetPcrEventLog(pcrBank SHAAlgorithm, pcrIndex Pc
 	}
 
 	return nil, fmt.Errorf("Invalid PcrIndex %d", pcrIndex)
-}
+} */
 
 // GetEventLogCriteria returns the EventLogs for a specific PcrBank/PcrIndex, as per latest hostmanifest
 func (pcrManifest *PcrManifest) GetEventLogCriteria(pcrBank SHAAlgorithm, pcrIndex PcrIndex) ([]EventLogCriteria, error) {
