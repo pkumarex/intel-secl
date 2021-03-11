@@ -43,17 +43,14 @@ type MismatchField struct {
 type RuleInfo struct {
 	Name                     string                 `json:"rule_name,omitempty"`
 	Markers                  []common.FlavorPart    `json:"markers,omitempty"`
-	ExpectedPcr              *types.Pcr             `json:"expected_pcr,omitempty"`
-	ExpectedPcrLog           *types.PCRS            `json:"pcr_logs,omitempty"`
+	ExpectedPcr           *types.PCRS            `json:"expected_pcr,omitempty"`
 	PCR                      *types.PCR             `json:"pcr,omitempty"`
 	Measurement              string                 `json:"measurement,omitempty"` //required
 	PCRMatches               bool                   `json:"pcr_matches,omitempty"`
 	FlavorID                 *uuid.UUID             `json:"flavor_id,omitempty"`
 	FlavorName               *string                `json:"flavor_name,omitempty"`
 	ExpectedValue            *string                `json:"expected_value,omitempty"`
-	ExpectedEventLogs        []types.EventLog       `json:"expected,omitempty"`
 	ExpectedMeasurements     []ta.FlavorMeasurement `json:"expected_measurements,omitempty"`
-	ExpectedEventLogEntry    *types.EventLogEntry   `json:"expected_values,omitempty"`
 	ExpectedPcrEventLogEntry *types.TpmEventLog     `json:"expected_pcrvalues,omitempty"`
 	Exclude_Tags             []string               `json:"excluding_tag,omitempty"`
 	ExpectedTag              []byte                 `json:"expected_tag,omitempty"`

@@ -12,7 +12,6 @@ import (
 	"io/ioutil"
 	"math/big"
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
@@ -46,9 +45,9 @@ func getFlavorTemplates(osName string, templatePath string) []hvs.FlavorTemplate
 	var template hvs.FlavorTemplate
 	var templates []hvs.FlavorTemplate
 
-	if strings.EqualFold(osName, "VMWARE ESXI") {
+	/* if strings.EqualFold(osName, "VMWARE ESXI") {
 		return nil
-	}
+	} */
 
 	// load hostmanifest
 	if templatePath != "" {

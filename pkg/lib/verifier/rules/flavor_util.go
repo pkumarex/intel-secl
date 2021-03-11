@@ -12,7 +12,7 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
 	flavor_model "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
-	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
+	//"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
 )
@@ -20,7 +20,7 @@ import (
 // Utility function that finds the hvs.PcrEx at 'bank' and 'index' and returns
 // the corresponding host-connector PCR value.  This is typically used by policies
 // when creating rules from the flavor values.
-func getPcrValueFromFlavor(flavor *hvs.Flavor, bank types.SHAAlgorithm, index types.PcrIndex) (*types.Pcr, error) {
+/* func getPcrValueFromFlavor(flavor *hvs.Flavor, bank types.SHAAlgorithm, index types.PcrIndex) (*types.Pcr, error) {
 	if flavor == nil {
 		return nil, errors.New("The flavor cannot be nil")
 	}
@@ -31,7 +31,7 @@ func getPcrValueFromFlavor(flavor *hvs.Flavor, bank types.SHAAlgorithm, index ty
 	}
 
 	return FlavorPcr2ManifestPcr(pcrValue, bank, index)
-}
+} */
 
 func FlavorPcr2ManifestPcr(pcrEx *flavor_model.PcrEx, bank types.SHAAlgorithm, index types.PcrIndex) (*types.Pcr, error) {
 
