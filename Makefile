@@ -83,7 +83,6 @@ k8s: cms-oci-archive aas-oci-archive ihub-oci-archive kbs-oci-archive aas-manage
 	cp -r build/k8s/* deployments/k8s/
 	cp tools/aas-manager/populate-users deployments/k8s/aas/populate-users
 	cp tools/aas-manager/populate-users.env deployments/k8s/aas/populate-users.env
-	cp build/linux/aas/db_rotation.sql deployments/k8s/aas/
 
 all: clean installer test k8s
 
