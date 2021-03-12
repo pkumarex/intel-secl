@@ -34,7 +34,7 @@ func SetAuthJwtTokenRoutes(r *mux.Router, db domain.AASDatabase, tokFactory *jwt
 		TokenFactory: tokFactory,
 	}
 	r.Handle("/custom-claims-token", ErrorHandler(permissionsHandler(ResponseHandler(controller.CreateCustomClaimsJwtToken,
-		"application/json"), []string{consts.CustomClaimsCreate}))).Methods("POST")
+		"application/jwt"), []string{consts.CustomClaimsCreate}))).Methods("POST")
 
 	return r
 }

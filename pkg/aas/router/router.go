@@ -48,8 +48,6 @@ func defineSubRoutes(router *mux.Router, service string, cfg *config.Configurati
 	subRouter := router.PathPrefix(serviceApi).Subrouter()
 	subRouter = SetVersionRoutes(subRouter)
 	subRouter = SetJwtCertificateRoutes(subRouter)
-
-	subRouter = router.PathPrefix(serviceApi).Subrouter()
 	subRouter = SetJwtTokenRoutes(subRouter, dataStore, tokenFactory)
 	subRouter = SetUsersNoAuthRoutes(subRouter, dataStore)
 
