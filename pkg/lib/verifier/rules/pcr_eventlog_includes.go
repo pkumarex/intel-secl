@@ -55,7 +55,7 @@ func (rule *pcrEventLogIncludes) Apply(hostManifest *types.HostManifest) (*hvs.R
 		result.Faults = append(result.Faults, newPcrManifestMissingFault())
 	} else {
 
-		actualEventLogCriteria, pIndex, bank, err := hostManifest.PcrManifest.PcrEventLogMapLinux.GetEventLogNew(rule.expectedPcrEventLogEntry.Pcr.Bank, rule.expectedPcrEventLogEntry.Pcr.Index)
+		actualEventLogCriteria, pIndex, bank, err := hostManifest.PcrManifest.PcrEventLogMap.GetEventLogNew(rule.expectedPcrEventLogEntry.Pcr.Bank, rule.expectedPcrEventLogEntry.Pcr.Index)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error in retrieving the actual event log values in pcr event log includes rule")
 		}

@@ -36,12 +36,6 @@ type Pcr struct {
 	PcrBank SHAAlgorithm `json:"pcr_bank"`
 }
 
-type EventLog struct {
-	Value string            `json:"value"`
-	Label string            `json:"label"`
-	Info  map[string]string `json:"info"`
-}
-
 type EventLogCriteria struct {
 	TypeID      string   `json:"type_id"`   //oneof-required
 	TypeName    string   `json:"type_name"` //oneof-required
@@ -52,12 +46,6 @@ type EventLogCriteria struct {
 type eventLogKeyAttr struct {
 	TypeID      string `json:"type_id"`
 	Measurement string `json:"measurement"`
-}
-
-type EventLogEntry struct {
-	PcrIndex  PcrIndex     `json:"pcr_index"`
-	EventLogs []EventLog   `json:"event_log"`
-	PcrBank   SHAAlgorithm `json:"pcr_bank"`
 }
 
 type TpmEventLog struct {
@@ -86,19 +74,13 @@ type EventLogEqual struct {
 }
 
 type PcrEventLogMap struct {
-	Sha1EventLogs   []EventLogEntry `json:"SHA1"`
-	Sha256EventLogs []EventLogEntry `json:"SHA256"`
-}
-
-type PcrEventLogMapFC struct {
 	Sha1EventLogs   []TpmEventLog `json:"SHA1"`
 	Sha256EventLogs []TpmEventLog `json:"SHA256"`
 }
 type PcrManifest struct {
-	Sha1Pcrs            []Pcr            `json:"sha1pcrs"`
-	Sha256Pcrs          []Pcr            `json:"sha2pcrs"`
-	//PcrEventLogMap      PcrEventLogMap   `json:"pcr_event_log_map"`
-	PcrEventLogMapLinux PcrEventLogMapFC `json:"pcr_event_log_map"`
+	Sha1Pcrs       []Pcr          `json:"sha1pcrs"`
+	Sha256Pcrs     []Pcr          `json:"sha2pcrs"`
+	PcrEventLogMap PcrEventLogMap `json:"pcr_event_log_map"`
 }
 
 type PcrIndex int
@@ -288,35 +270,7 @@ func (pcrManifest *PcrManifest) IsEmpty() bool {
 // Finds the EventLogEntry in a PcrEventLogMap provided the pcrBank and index.  Returns
 // null if not found.  Returns an error if the pcrBank is not supported
 // by intel-secl (currently supports SHA1 and SHA256).
-func (pcrEventLogMap *PcrEventLogMap) GetEventLog(pcrBank SHAAlgorithm, pcrIndex PcrIndex) (*EventLogEntry, error) {
-	var eventLogEntry *EventLogEntry
-
-	switch pcrBank {
-	case SHA1:
-		for _, entry := range pcrEventLogMap.Sha1EventLogs {
-			if entry.PcrIndex == pcrIndex {
-				eventLogEntry = &entry
-				break
-			}
-		}
-	case SHA256:
-		for _, entry := range pcrEventLogMap.Sha256EventLogs {
-			if entry.PcrIndex == pcrIndex {
-				eventLogEntry = &entry
-				break
-			}
-		}
-	default:
-		return nil, errors.Errorf("Unsupported sha algorithm %s", pcrBank)
-	}
-
-	return eventLogEntry, nil
-}
-
-// Finds the EventLogEntry in a PcrEventLogMap provided the pcrBank and index.  Returns
-// null if not found.  Returns an error if the pcrBank is not supported
-// by intel-secl (currently supports SHA1 and SHA256).
-func (pcrEventLogMap *PcrEventLogMapFC) GetEventLogNew(pcrBank string, pcrIndex int) ([]EventLogCriteria, int, string, error) {
+func (pcrEventLogMap *PcrEventLogMap) GetEventLogNew(pcrBank string, pcrIndex int) ([]EventLogCriteria, int, string, error) {
 	var eventLog []EventLogCriteria
 	var pIndex int
 	var bank string
@@ -345,41 +299,6 @@ func (pcrEventLogMap *PcrEventLogMapFC) GetEventLogNew(pcrBank string, pcrIndex 
 	}
 
 	return eventLog, pIndex, bank, nil
-}
-
-// Provided an EventLogEntry that contains an array of EventLogs, this function
-// will return a new EventLogEntry that contains the events that existed in
-// the original ('eventLogEntry') but not in 'eventsToSubtract'.  Returns an error
-// if the bank/index of 'eventLogEntry' and 'eventsToSubtract' do not match.
-// Note: 'eventLogEntry' and 'eventsToSubract' are not altered.
-func (eventLogEntry *EventLogEntry) Subtract(eventsToSubtract *EventLogEntry) (*EventLogEntry, error) {
-	if eventLogEntry.PcrBank != eventsToSubtract.PcrBank {
-		return nil, errors.Errorf("The PCR banks do not match: '%s' != '%s'", eventLogEntry.PcrBank, eventsToSubtract.PcrBank)
-	}
-
-	if eventLogEntry.PcrIndex != eventsToSubtract.PcrIndex {
-		return nil, errors.Errorf("The PCR indexes do not match: '%d' != '%d'", eventLogEntry.PcrIndex, eventsToSubtract.PcrIndex)
-	}
-
-	// build a new EventLogEntry that will be populated by the event log entries
-	// in the source less those 'eventsToSubtract'.
-	subtractedEvents := EventLogEntry{
-		PcrBank:  eventLogEntry.PcrBank,
-		PcrIndex: eventLogEntry.PcrIndex,
-	}
-
-	eventsToSubtractMap := make(map[string]int)
-	for i, eventLog := range eventsToSubtract.EventLogs {
-		eventsToSubtractMap[eventLog.Value] = i
-	}
-
-	for _, eventLog := range eventLogEntry.EventLogs {
-		if _, ok := eventsToSubtractMap[eventLog.Value]; !ok {
-			subtractedEvents.EventLogs = append(subtractedEvents.EventLogs, eventLog)
-		}
-	}
-
-	return &subtractedEvents, nil
 }
 
 // Provided an EventLogEntry that contains an array of EventLogs, this function
@@ -463,40 +382,6 @@ func (eventLogEntry *TpmEventLog) Subtract(eventsToSubtract *TpmEventLog) (*TpmE
 
 // Returns the string value of the "cumulative" hash of the
 // an event log.
-func (eventLogEntry *EventLogEntry) Replay() (string, error) {
-	//get the cumulative hash based on the pcr bank
-	cumulativeHash, err := getCumulativeHash(eventLogEntry.PcrBank)
-	if err != nil {
-		return "", err
-	}
-
-	for i, eventLog := range eventLogEntry.EventLogs {
-		//get the respective hash based on the pcr bank
-		hash := getHash(eventLogEntry.PcrBank)
-
-		eventHash, err := hex.DecodeString(eventLog.Value)
-		if err != nil {
-			return "", errors.Wrapf(err, "Failed to decode event log %d using hex string '%s'", i, eventLog.Value)
-		}
-
-		_, err = hash.Write(cumulativeHash)
-		if err != nil {
-			return "", errors.Wrap(err, "Error writing cumulative hash")
-		}
-
-		_, err = hash.Write(eventHash)
-		if err != nil {
-			return "", errors.Wrap(err, "Error writing event hash")
-		}
-		cumulativeHash = hash.Sum(nil)
-	}
-
-	cumulativeHashString := hex.EncodeToString(cumulativeHash)
-	return cumulativeHashString, nil
-}
-
-// Returns the string value of the "cumulative" hash of the
-// an event log.
 func (eventLogEntry *TpmEventLog) Replay() (string, error) {
 	//get the cumulative hash based on the pcr bank
 	cumulativeHash, err := getCumulativeHash(SHAAlgorithm(eventLogEntry.Pcr.Bank))
@@ -532,43 +417,19 @@ func (eventLogEntry *TpmEventLog) Replay() (string, error) {
 	return cumulativeHashString, nil
 }
 
-/* // GetPcrEventLog returns the EventLogs for a specific PcrBank/PcrIndex
-func (pcrManifest *PcrManifest) GetPcrEventLog(pcrBank SHAAlgorithm, pcrIndex PcrIndex) ([]EventLog, error) {
-	pI := PcrIndex(pcrIndex)
-
-	switch pcrBank {
-	case SHA1:
-		for _, eventLogEntry := range pcrManifest.PcrEventLogMap.Sha1EventLogs {
-			if eventLogEntry.PcrIndex == pI {
-				return eventLogEntry.EventLogs, nil
-			}
-		}
-	case SHA256:
-		for _, eventLogEntry := range pcrManifest.PcrEventLogMap.Sha256EventLogs {
-			if eventLogEntry.PcrIndex == pI {
-				return eventLogEntry.EventLogs, nil
-			}
-		}
-	default:
-		return nil, fmt.Errorf("Unsupported sha algorithm %s", pcrBank)
-	}
-
-	return nil, fmt.Errorf("Invalid PcrIndex %d", pcrIndex)
-} */
-
 // GetEventLogCriteria returns the EventLogs for a specific PcrBank/PcrIndex, as per latest hostmanifest
 func (pcrManifest *PcrManifest) GetEventLogCriteria(pcrBank SHAAlgorithm, pcrIndex PcrIndex) ([]EventLogCriteria, error) {
 	pI := int(pcrIndex)
 
 	switch pcrBank {
 	case "SHA1":
-		for _, eventLogEntry := range pcrManifest.PcrEventLogMapLinux.Sha1EventLogs {
+		for _, eventLogEntry := range pcrManifest.PcrEventLogMap.Sha1EventLogs {
 			if eventLogEntry.Pcr.Index == pI {
 				return eventLogEntry.TpmEvent, nil
 			}
 		}
 	case "SHA256":
-		for _, eventLogEntry := range pcrManifest.PcrEventLogMapLinux.Sha256EventLogs {
+		for _, eventLogEntry := range pcrManifest.PcrEventLogMap.Sha256EventLogs {
 			if eventLogEntry.Pcr.Index == pI {
 				return eventLogEntry.TpmEvent, nil
 			}

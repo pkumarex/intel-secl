@@ -57,21 +57,6 @@ var (
 )
 
 var (
-	testExpectedEventLogEntry = types.EventLogEntry{
-		PcrIndex: types.PCR0,
-		PcrBank:  types.SHA256,
-		EventLogs: []types.EventLog{
-			{
-				Value: zeros,
-			},
-			{
-				Value: ones,
-			},
-		},
-	}
-)
-
-var (
 	testHostManifestPcrEventLogEntry = types.TpmEventLog{
 		Pcr: types.PCR{
 			Index: 0,
@@ -118,70 +103,6 @@ var (
 				TypeName:    util.EVENT_LOG_DIGEST_SHA256,
 				Measurement: "f",
 				Tags:        []string{"componentName.onetime.tgz"},
-			},
-		},
-	}
-)
-
-var (
-	testHostManifestEventLogEntry = types.EventLogEntry{
-		PcrIndex: types.PCR0,
-		PcrBank:  types.SHA256,
-		EventLogs: []types.EventLog{
-			{
-				Value: zeros,
-			},
-			{
-				Value: ones,
-			},
-
-			// these should be stripped by the rule...
-			{
-				Value: "a",
-				Info: map[string]string{
-					"ComponentName": "commandLine.",
-				},
-			},
-			{
-				Value: "b",
-				Info: map[string]string{
-					"ComponentName": "LCP_CONTROL_HASH",
-				},
-			},
-			{
-				Value: "c",
-				Info: map[string]string{
-					"ComponentName": "initrd",
-				},
-			},
-			{
-				Value: "d",
-				Info: map[string]string{
-					"ComponentName": "vmlinuz",
-				},
-			},
-			{
-				Value: "e",
-				Info: map[string]string{
-					"ComponentName": "componentName.imgdb.tgz",
-				},
-			},
-			{
-				Value: "f",
-				Info: map[string]string{
-					"ComponentName": "componentName.onetime.tgz",
-				},
-			},
-			{
-				Value: "g",
-				Label: "0x4fe",
-			},
-			{
-				Value: "h",
-				Info: map[string]string{
-					"PackageName":   "",
-					"PackageVendor": "",
-				},
 			},
 		},
 	}
