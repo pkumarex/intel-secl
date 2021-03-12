@@ -114,7 +114,7 @@ func (controller TagCertificateController) Create(w http.ResponseWriter, r *http
 	// validate Tag Certificate creation params
 	if err := validateTagCertCreateCriteria(reqTCCriteria); err != nil {
 		secLog.WithError(err).Warnf("controllers/tagcertificate_controller:Create() %s : Error during Tag Certificate creation", commLogMsg.InvalidInputBadParam)
-		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: "Error during Tag Certificate creation"}
+		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: "Error during Tag Certificate creation - " + err.Error()}
 	}
 
 	// get the Tag CA Cert from the certstore
@@ -257,6 +257,15 @@ func validateTagCertCreateCriteria(tcCreateCriteria models.TagCertificateCreateC
 	// if Selection content is empty
 	if tcCreateCriteria.SelectionContent == nil {
 		return errors.New("Tag Selection Content must be specified")
+	}
+
+	for _, tagAttribute := range tcCreateCriteria.SelectionContent {
+		if err := validation.ValidateNameString(tagAttribute.Key); err != nil {
+			return errors.New("Valid contents for Key must be specified")
+		}
+		if err := validation.ValidateNameString(tagAttribute.Value); err != nil {
+			return errors.New("Valid contents for Value must be specified")
+		}
 	}
 
 	return nil
