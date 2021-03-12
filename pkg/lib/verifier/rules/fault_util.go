@@ -41,11 +41,11 @@ func newPcrEventLogMissingExpectedEntries(pcrEventLogEntry *types.TpmEventLog) h
 	pIndex := types.PcrIndex(pcrEventLogEntry.Pcr.Index)
 	pBank := types.SHAAlgorithm(pcrEventLogEntry.Pcr.Bank)
 	return hvs.Fault{
-		Name:                faultsConst.FaultPcrEventLogMissingExpectedEntries,
-		Description:         fmt.Sprintf("Module manifest for PCR %d of %s value missing %d expected entries", pcrEventLogEntry.Pcr.Index, pcrEventLogEntry.Pcr.Bank, len(pcrEventLogEntry.TpmEvent)),
-		PcrIndex:            &pIndex,
-		PcrBank:             &pBank,
-		MissingEventEntries: pcrEventLogEntry.TpmEvent,
+		Name:           faultsConst.FaultPcrEventLogMissingExpectedEntries,
+		Description:    fmt.Sprintf("Module manifest for PCR %d of %s value missing %d expected entries", pcrEventLogEntry.Pcr.Index, pcrEventLogEntry.Pcr.Bank, len(pcrEventLogEntry.TpmEvent)),
+		PcrIndex:       &pIndex,
+		PcrBank:        &pBank,
+		MissingEntries: pcrEventLogEntry.TpmEvent,
 	}
 }
 
@@ -62,11 +62,11 @@ func newPcrEventLogContainsUnexpectedEntries(pcrEventLogEntry *types.TpmEventLog
 	pIndex := types.PcrIndex(pcrEventLogEntry.Pcr.Index)
 	pBank := types.SHAAlgorithm(pcrEventLogEntry.Pcr.Bank)
 	return hvs.Fault{
-		Name:                   faultsConst.FaultPcrEventLogContainsUnexpectedEntries,
-		Description:            fmt.Sprintf("Module manifest for PCR %d of %s value contains %d unexpected entries", pcrEventLogEntry.Pcr.Index, pcrEventLogEntry.Pcr.Bank, len(pcrEventLogEntry.TpmEvent)),
-		PcrIndex:               &pIndex,
-		PcrBank:                &pBank,
-		UnexpectedEventEntries: pcrEventLogEntry.TpmEvent,
+		Name:              faultsConst.FaultPcrEventLogContainsUnexpectedEntries,
+		Description:       fmt.Sprintf("Module manifest for PCR %d of %s value contains %d unexpected entries", pcrEventLogEntry.Pcr.Index, pcrEventLogEntry.Pcr.Bank, len(pcrEventLogEntry.TpmEvent)),
+		PcrIndex:          &pIndex,
+		PcrBank:           &pBank,
+		UnexpectedEntries: pcrEventLogEntry.TpmEvent,
 	}
 }
 

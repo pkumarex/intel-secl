@@ -75,7 +75,7 @@ func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.Rul
 		result.Faults = append(result.Faults, newPcrManifestMissingFault())
 	} else {
 
-		actualEventLogCriteria, pIndex, bank, err := hostManifest.PcrManifest.PcrEventLogMapLinux.GetEventLogNew(rule.expectedPcrEventLogEntry.Pcr.Bank, rule.expectedPcrEventLogEntry.Pcr.Index)
+		actualEventLogCriteria, pIndex, bank, err := hostManifest.PcrManifest.PcrEventLogMap.GetEventLogNew(rule.expectedPcrEventLogEntry.Pcr.Bank, rule.expectedPcrEventLogEntry.Pcr.Index)
 		if err != nil {
 			return nil, errors.Wrap(err, "Error in retrieving the actual event log values in pcr eventlog equals rule")
 		}
@@ -90,7 +90,7 @@ func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.Rul
 
 			// when component excludes are present, strip out the events
 			if rule.excludeTags != nil {
-				_, actualEventLog, err = rule.removeExcludedEvents(actualEventLog)
+				actualEventLog, err = rule.removeExcludedEvents(actualEventLog)
 				if err != nil {
 					return nil, errors.Wrap(err, "Error in removing the exclude tags from actual event log in pcr eventlog equals rule")
 				}
@@ -152,7 +152,7 @@ func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.Rul
 
 // Creates a new EventLogEntry without events given in excludetags
 
-func (rule *pcrEventLogEquals) removeExcludedEvents(pcrEventLogEntry *types.TpmEventLog) (*types.EventLogEntry, *types.TpmEventLog, error) {
+func (rule *pcrEventLogEquals) removeExcludedEvents(pcrEventLogEntry *types.TpmEventLog) (*types.TpmEventLog, error) {
 	var pcrEventLogs *types.TpmEventLog
 
 	var eventsWithoutComponentName []types.EventLogCriteria
@@ -192,5 +192,5 @@ func (rule *pcrEventLogEquals) removeExcludedEvents(pcrEventLogEntry *types.TpmE
 		},
 		TpmEvent: eventsWithoutComponentName,
 	}
-	return nil, pcrEventLogs, nil
+	return pcrEventLogs, nil
 }

@@ -30,7 +30,7 @@ func TestPcrEventLogEqualsNoFault(t *testing.T) {
 		},
 	}
 
-	hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs, testHostManifestPcrEventLogEntry)
+	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, testHostManifestPcrEventLogEntry)
 	rule, err := NewPcrEventLogEquals(&testHostManifestPcrEventLogEntry, uuid.New(), common.FlavorPartPlatform)
 	result, err := rule.Apply(&hostManifest)
 	assert.NoError(t, err)
@@ -39,7 +39,7 @@ func TestPcrEventLogEqualsNoFault(t *testing.T) {
 	t.Logf("Equals rule verified")
 }
 
-// Provide the 'testExpectedEventLogEntry' to the rule (it just contains to events)
+// Provide the 'testExpectedPcrEventLogEntry' to the rule (it just contains to events)
 // and a host manifest event log ('') that has component names that the excluding rule
 // should ignore.
 func TestPcrEventLogEqualsExcludingNoFault(t *testing.T) {
@@ -57,7 +57,7 @@ func TestPcrEventLogEqualsExcludingNoFault(t *testing.T) {
 		},
 	}
 
-	hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs, testExpectedPcrEventLogEntry)
+	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, testExpectedPcrEventLogEntry)
 	rule, err := NewPcrEventLogEqualsExcluding(&testExpectedPcrEventLogEntry, excludetag, uuid.New(), common.FlavorPartPlatform)
 	result, err := rule.Apply(&hostManifest)
 	assert.NoError(t, err)
@@ -110,7 +110,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingFault(t *testing.T) {
 		},
 	}
 
-	hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs, hostEventsLog)
+	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, hostEventsLog)
 	rule, err := NewPcrEventLogEqualsExcluding(&flavorEventsLog, excludetag, uuid.New(), common.FlavorPartPlatform)
 	result, err := rule.Apply(&hostManifest)
 	assert.NoError(t, err)
@@ -149,14 +149,14 @@ func TestPcrEventLogEqualsExcludingPcrEventLogContainsUnexpectedEntriesFault(t *
 		Measurement: "x",
 	})
 
-	hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs, unexpectedPcrEventLogs)
+	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, unexpectedPcrEventLogs)
 	rule, err := NewPcrEventLogEqualsExcluding(&testExpectedPcrEventLogEntry, excludetag, uuid.New(), common.FlavorPartPlatform)
 	result, err := rule.Apply(&hostManifest)
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, len(result.Faults))
 	assert.Equal(t, constants.FaultPcrEventLogContainsUnexpectedEntries, result.Faults[0].Name)
-	assert.NotNil(t, result.Faults[0].UnexpectedEventEntries)
+	assert.NotNil(t, result.Faults[0].UnexpectedEntries)
 	t.Logf("Fault description: %s", result.Faults[0].Description)
 }
 
@@ -185,13 +185,13 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingExpectedEntriesFault(t *tes
 	}
 
 	unexpectedPcrEventLogs.TpmEvent = append(unexpectedPcrEventLogs.TpmEvent, testHostManifestPcrEventLogEntry.TpmEvent[1:]...)
-	hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs, unexpectedPcrEventLogs)
+	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, unexpectedPcrEventLogs)
 	rule, err := NewPcrEventLogEqualsExcluding(&testExpectedPcrEventLogEntry, excludetag, uuid.New(), common.FlavorPartPlatform)
 	result, err := rule.Apply(&hostManifest)
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, len(result.Faults))
 	assert.Equal(t, constants.FaultPcrEventLogMissingExpectedEntries, result.Faults[0].Name)
-	assert.NotNil(t, result.Faults[0].MissingEventEntries)
+	assert.NotNil(t, result.Faults[0].MissingEntries)
 	t.Logf("Fault description: %s", result.Faults[0].Description)
 }

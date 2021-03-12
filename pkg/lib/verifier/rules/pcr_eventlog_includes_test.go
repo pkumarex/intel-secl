@@ -29,7 +29,7 @@ func TestPcrEventLogIncludesNoFault(t *testing.T) {
 		},
 	}
 
-	hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs, testExpectedPcrEventLogEntry)
+	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, testExpectedPcrEventLogEntry)
 	rule, err := NewPcrEventLogIncludes(&testExpectedPcrEventLogEntry, common.FlavorPartPlatform)
 	result, err := rule.Apply(&hostManifest)
 	assert.NoError(t, err)
@@ -84,16 +84,16 @@ func TestPcrEventLogIncludesMissingMeasurement(t *testing.T) {
 		},
 	}
 
-	hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs, hostEventsLog)
+	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, hostEventsLog)
 	rule, err := NewPcrEventLogIncludes(&flavorEventsLog, common.FlavorPartPlatform)
 	result, err := rule.Apply(&hostManifest)
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, len(result.Faults))
 	assert.Equal(t, constants.FaultPcrEventLogMissingExpectedEntries, result.Faults[0].Name)
-	assert.NotNil(t, result.Faults[0].MissingEventEntries)
-	assert.Equal(t, 1, len(result.Faults[0].MissingEventEntries))
-	assert.Equal(t, ones, result.Faults[0].MissingEventEntries[0].Measurement)
+	assert.NotNil(t, result.Faults[0].MissingEntries)
+	assert.Equal(t, 1, len(result.Faults[0].MissingEntries))
+	assert.Equal(t, ones, result.Faults[0].MissingEntries[0].Measurement)
 	t.Logf("Fault description: %s", result.Faults[0].Description)
 }
 
@@ -140,16 +140,16 @@ func TestPcrEventLogIncludesDifferentMeasurement(t *testing.T) {
 		},
 	}
 
-	hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs, hostEventsLog)
+	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, hostEventsLog)
 	rule, err := NewPcrEventLogIncludes(&flavorEventsLog, common.FlavorPartPlatform)
 	result, err := rule.Apply(&hostManifest)
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, 1, len(result.Faults))
 	assert.Equal(t, constants.FaultPcrEventLogMissingExpectedEntries, result.Faults[0].Name)
-	assert.NotNil(t, result.Faults[0].MissingEventEntries)
-	assert.Equal(t, 1, len(result.Faults[0].MissingEventEntries))
-	assert.Equal(t, zeros, result.Faults[0].MissingEventEntries[0].Measurement)
+	assert.NotNil(t, result.Faults[0].MissingEntries)
+	assert.Equal(t, 1, len(result.Faults[0].MissingEntries))
+	assert.Equal(t, zeros, result.Faults[0].MissingEntries[0].Measurement)
 	t.Logf("Fault description: %s", result.Faults[0].Description)
 }
 
@@ -195,7 +195,7 @@ func TestPcrEventLogIncludesPcrEventLogMissingFault(t *testing.T) {
 		},
 	}
 
-	hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMapLinux.Sha256EventLogs, hostEventsLog)
+	hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs = append(hostManifest.PcrManifest.PcrEventLogMap.Sha256EventLogs, hostEventsLog)
 	rule, err := NewPcrEventLogIncludes(&flavorEventsLog, common.FlavorPartPlatform)
 	result, err := rule.Apply(&hostManifest)
 	assert.NoError(t, err)
