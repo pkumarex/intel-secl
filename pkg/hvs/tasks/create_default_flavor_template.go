@@ -86,8 +86,7 @@ func (t *CreateDefaultFlavorTemplate) Validate() error {
 		defaultFlavorTemplateMap[templateName] = false
 	}
 
-	ftc := models.FlavorTemplateFilterCriteria{}
-	ftc.IncludeDeleted = false
+	ftc := models.FlavorTemplateFilterCriteria{IncludeDeleted: false}
 	ftList, err = t.TemplateStore.Search(&ftc)
 	if err != nil {
 		return errors.Wrap(err, "Failed to validate "+t.commandName)

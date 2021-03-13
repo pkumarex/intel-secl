@@ -45,10 +45,6 @@ func getFlavorTemplates(osName string, templatePath string) []hvs.FlavorTemplate
 	var template hvs.FlavorTemplate
 	var templates []hvs.FlavorTemplate
 
-	/* if strings.EqualFold(osName, "VMWARE ESXI") {
-		return nil
-	} */
-
 	// load hostmanifest
 	if templatePath != "" {
 		templateFile, _ := os.Open(templatePath)

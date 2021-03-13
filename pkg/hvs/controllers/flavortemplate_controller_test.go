@@ -382,10 +382,74 @@ var _ = Describe("FlavorTemplateController", func() {
 				Expect(w.Code).To(Equal(http.StatusNoContent))
 			})
 		})
-		Context("When include_deleted parameter is added in search API", func() {
+		Context("When includeDeleted parameter is added in search API", func() {
 			It("All Flavor template records are returned", func() {
 				router.Handle("/flavor-templates/", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Search))).Methods("GET")
-				req, err := http.NewRequest("GET", "/flavor-templates/?include_deleted=true", nil)
+				req, err := http.NewRequest("GET", "/flavor-templates/?includeDeleted=true", nil)
+				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
+				w = httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				Expect(w.Code).To(Equal(http.StatusOK))
+
+				var ft []hvs.FlavorTemplate
+				err = json.Unmarshal(w.Body.Bytes(), &ft)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(len(ft)).To(Equal(1))
+			})
+		})
+		Context("When id parameter is added in search API", func() {
+			It("Flavor template with the given uuid must be returned", func() {
+				router.Handle("/flavor-templates/", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Search))).Methods("GET")
+				req, err := http.NewRequest("GET", "/flavor-templates/?id=426912bd-39b0-4daa-ad21-0c6933230b50", nil)
+				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
+				w = httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				Expect(w.Code).To(Equal(http.StatusOK))
+
+				var ft []hvs.FlavorTemplate
+				err = json.Unmarshal(w.Body.Bytes(), &ft)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(len(ft)).To(Equal(1))
+			})
+		})
+		Context("When label parameter is added in search API", func() {
+			It("Flavor template with the given label must be returned", func() {
+				router.Handle("/flavor-templates/", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Search))).Methods("GET")
+				req, err := http.NewRequest("GET", "/flavor-templates/?label=TPM_1.2", nil)
+				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
+				w = httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				Expect(w.Code).To(Equal(http.StatusOK))
+
+				var ft []hvs.FlavorTemplate
+				err = json.Unmarshal(w.Body.Bytes(), &ft)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(len(ft)).To(Equal(1))
+			})
+		})
+		Context("When flavorPartContains parameter is added in search API", func() {
+			It("Flavor template with the given flavor part must be returned", func() {
+				router.Handle("/flavor-templates/", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Search))).Methods("GET")
+				req, err := http.NewRequest("GET", "/flavor-templates/?flavorPartContains=PLATFORM", nil)
+				Expect(err).NotTo(HaveOccurred())
+				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
+				w = httptest.NewRecorder()
+				router.ServeHTTP(w, req)
+				Expect(w.Code).To(Equal(http.StatusOK))
+
+				var ft []hvs.FlavorTemplate
+				err = json.Unmarshal(w.Body.Bytes(), &ft)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(len(ft)).To(Equal(1))
+			})
+		})
+		Context("When conditionContains parameter is added in search API", func() {
+			It("Flavor template with the given condition must be returned", func() {
+				router.Handle("/flavor-templates/", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Search))).Methods("GET")
+				req, err := http.NewRequest("GET", "/flavor-templates/?conditionContains=//host_info/hardware_features/CBNT/enabled//*[text()='true']", nil)
 				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()

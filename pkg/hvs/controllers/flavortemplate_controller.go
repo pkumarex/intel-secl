@@ -50,7 +50,7 @@ func NewFlavorTemplateController(store domain.FlavorTemplateStore, commonDefinit
 	}
 }
 
-var flavorTemplateSearchParams = map[string]bool{"id": true, "label": true, "conditionContains": true, "flavorPartContains": true}
+var flavorTemplateSearchParams = map[string]bool{"id": true, "label": true, "conditionContains": true, "flavorPartContains": true, "includeDeleted": true}
 
 // Create This method is used to create the flavor template and store it in the database
 func (ftc *FlavorTemplateController) Create(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
@@ -346,14 +346,14 @@ func populateFlavorTemplateFilterCriteria(params url.Values) (*models.FlavorTemp
 
 	var criteria models.FlavorTemplateFilterCriteria
 
-	paramIncludeDelete := params.Get("include_deleted")
-
-	includeDeleted, err := isIncludeDeleted(paramIncludeDelete)
-	if err != nil {
-		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Search() Invalid query parameter given")
-		return nil, &commErr.ResourceError{Message: "Invalid query parameter given"}
+	if params.Get("includeDeleted") != "" {
+		includeDeleted, err := isIncludeDeleted(params.Get("includeDeleted"))
+		if err != nil {
+			defaultLog.WithError(err).Error("controllers/flavortemplate_controller:populateFlavorTemplateFilterCriteria() Invalid query parameter given")
+			return nil, &commErr.ResourceError{Message: "Invalid query parameter given"}
+		}
+		criteria.IncludeDeleted = includeDeleted
 	}
-	criteria.IncludeDeleted = includeDeleted
 
 	if params.Get("id") != "" {
 		id, err := uuid.Parse(params.Get("id"))

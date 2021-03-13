@@ -297,7 +297,7 @@ type FlavorTemplate struct {
 // produces:
 // - application/json
 // parameters:
-// - name: include_deleted
+// - name: includeDeleted
 //   description: Boolean value to indicate whether the deleted templates should be included in the search.
 //   in: query
 //   required: false

@@ -42,7 +42,6 @@ func (builder *ruleBuilderVMWare12) GetName() string {
 func (builder *ruleBuilderVMWare12) GetAssetTagRules() ([]rules.Rule, error) {
 
 	var results []rules.Rule
-
 	//
 	// TagCertificateTrusted
 	//
@@ -50,7 +49,6 @@ func (builder *ruleBuilderVMWare12) GetAssetTagRules() ([]rules.Rule, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	results = append(results, tagCertificateTrusted)
 
 	return results, nil

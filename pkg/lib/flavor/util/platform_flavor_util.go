@@ -211,9 +211,8 @@ func (pfutil PlatformFlavorUtil) GetHardwareSectionDetails(hostInfo *taModel.Hos
 		// Set TPM Feature presence
 		tpm := fm.TPM{}
 		tpm.Enabled = hostInfo.HardwareFeatures.TPM.Enabled
-		if hostInfo.OSName == constants.OsVMware {
-			tpm.Supported = hostInfo.HardwareFeatures.TPM.Supported
-		}
+		tpm.Supported = hostInfo.HardwareFeatures.TPM.Supported
+
 		tpm.Meta.TPMVersion = hostInfo.HardwareFeatures.TPM.Meta.TPMVersion
 		// split into list
 		tpm.Meta.PCRBanks = strings.Split(hostInfo.HardwareFeatures.TPM.Meta.PCRBanks, constants.PCRBankSeparator)
@@ -222,14 +221,13 @@ func (pfutil PlatformFlavorUtil) GetHardwareSectionDetails(hostInfo *taModel.Hos
 		txt := fm.HardwareFeature{}
 		// Set TXT Feature presence
 		txt.Enabled = hostInfo.HardwareFeatures.TXT.Enabled
-		if hostInfo.OSName == constants.OsVMware {
-			txt.Supported = hostInfo.HardwareFeatures.TXT.Supported
-		}
+		txt.Supported = hostInfo.HardwareFeatures.TXT.Supported
 		feature.TXT = txt
 
 		cbnt := fm.CBNT{}
 		// set CBNT
 		cbnt.Enabled = hostInfo.HardwareFeatures.CBNT.Enabled
+		cbnt.Supported = hostInfo.HardwareFeatures.CBNT.Supported
 		cbnt.Meta.Profile = hostInfo.HardwareFeatures.CBNT.Meta.Profile
 		cbnt.Meta.MSR = hostInfo.HardwareFeatures.CBNT.Meta.MSR
 		feature.CBNT = cbnt
@@ -237,23 +235,21 @@ func (pfutil PlatformFlavorUtil) GetHardwareSectionDetails(hostInfo *taModel.Hos
 		uefi := fm.UEFI{}
 		// and UEFI state
 		uefi.Enabled = hostInfo.HardwareFeatures.UEFI.Enabled
+		uefi.Supported = hostInfo.HardwareFeatures.UEFI.Supported
 		uefi.Meta.SecureBootEnabled = hostInfo.HardwareFeatures.UEFI.Meta.SecureBootEnabled
 		feature.UEFI = uefi
 
 		bmc := fm.HardwareFeature{}
 		// Set BMC Feature presence
 		bmc.Enabled = hostInfo.HardwareFeatures.BMC.Enabled
+		bmc.Supported = hostInfo.HardwareFeatures.BMC.Supported
 		feature.BMC = bmc
 
 		pfr := fm.HardwareFeature{}
 		// Set PFR Feature presence
 		pfr.Enabled = hostInfo.HardwareFeatures.PFR.Enabled
+		pfr.Supported = hostInfo.HardwareFeatures.PFR.Supported
 		feature.PFR = pfr
-
-		if hostInfo.OSName == "VMware ESXi" {
-			tpm.Supported = hostInfo.HardwareFeatures.TPM.Supported
-			txt.Supported = hostInfo.HardwareFeatures.TXT.Supported
-		}
 
 		hardware.Feature = &feature
 	}
@@ -339,7 +335,6 @@ func (pfutil PlatformFlavorUtil) GetPcrDetails(pcrManifest hcTypes.PcrManifest, 
 								break
 							} else if rules.PcrEquals.IsPcrEquals {
 								if _, ok := rules.PcrEquals.ExcludingTags[tag]; ok {
-									//eventLogEqualEvents = append(eventLogEqualEvents, manifestEventLog)
 									presentInExcludeTag = true
 									break
 								}
@@ -480,8 +475,8 @@ func (pfutil PlatformFlavorUtil) GetSignedFlavor(unsignedFlavor *hvs.Flavor, pri
 // GetPcrRulesMap Helper function to calculate the list of PCRs for the flavor part specified based
 // on the version of the TPM hardware.
 func (pfutil PlatformFlavorUtil) GetPcrRulesMap(flavorPart cf.FlavorPart, flavorTemplates []hvs.FlavorTemplate) (map[hvs.PCR]hvs.PcrListRules, error) {
-	log.Trace("flavor/types/linux_platform_flavor:getPcrRulesMap() Entering")
-	defer log.Trace("flavor/types/linux_platform_flavor:getPcrRulesMap() Leaving")
+	log.Trace("flavor/util/platform_flavor_util:getPcrRulesMap() Entering")
+	defer log.Trace("flavor/util/platform_flavor_util:getPcrRulesMap() Leaving")
 
 	pcrRulesForFlavorPart := make(map[hvs.PCR]hvs.PcrListRules)
 	var err error
@@ -490,19 +485,19 @@ func (pfutil PlatformFlavorUtil) GetPcrRulesMap(flavorPart cf.FlavorPart, flavor
 		case cf.FlavorPartPlatform:
 			pcrRulesForFlavorPart, err = getPcrRulesForFlavorPart(flavorTemplate.FlavorParts.Platform, pcrRulesForFlavorPart)
 			if err != nil {
-				return nil, errors.Wrap(err, "flavor/types/linux_platform_flavor:getPcrRulesMap() Error getting pcr rules for platform flavor")
+				return nil, errors.Wrap(err, "flavor/util/platform_flavor_util:getPcrRulesMap() Error getting pcr rules for platform flavor")
 			}
 			break
 		case cf.FlavorPartOs:
 			pcrRulesForFlavorPart, err = getPcrRulesForFlavorPart(flavorTemplate.FlavorParts.OS, pcrRulesForFlavorPart)
 			if err != nil {
-				return nil, errors.Wrap(err, "flavor/types/linux_platform_flavor:getPcrRulesMap() Error getting pcr rules for os flavor")
+				return nil, errors.Wrap(err, "flavor/util/platform_flavor_util:getPcrRulesMap() Error getting pcr rules for os flavor")
 			}
 			break
 		case cf.FlavorPartHostUnique:
 			pcrRulesForFlavorPart, err = getPcrRulesForFlavorPart(flavorTemplate.FlavorParts.HostUnique, pcrRulesForFlavorPart)
 			if err != nil {
-				return nil, errors.Wrap(err, "flavor/types/linux_platform_flavor:getPcrRulesMap() Error getting pcr rules for host unique flavor")
+				return nil, errors.Wrap(err, "flavor/util/platform_flavor_util:getPcrRulesMap() Error getting pcr rules for host unique flavor")
 			}
 			break
 		}
@@ -512,8 +507,8 @@ func (pfutil PlatformFlavorUtil) GetPcrRulesMap(flavorPart cf.FlavorPart, flavor
 }
 
 func getPcrRulesForFlavorPart(flavorPart *hvs.FlavorPart, pcrList map[hvs.PCR]hvs.PcrListRules) (map[hvs.PCR]hvs.PcrListRules, error) {
-	log.Trace("flavor/types/linux_platform_flavor:getPcrRulesForFlavorPart() Entering")
-	defer log.Trace("flavor/types/linux_platform_flavor:getPcrRulesForFlavorPart() Leaving")
+	log.Trace("flavor/util/platform_flavor_util:getPcrRulesForFlavorPart() Entering")
+	defer log.Trace("flavor/util/platform_flavor_util:getPcrRulesForFlavorPart() Leaving")
 
 	if flavorPart == nil {
 		return pcrList, nil
@@ -533,7 +528,7 @@ func getPcrRulesForFlavorPart(flavorPart *hvs.FlavorPart, pcrList map[hvs.PCR]hv
 			rulesList.PcrMatches = true
 		}
 		if rulesList.PcrIncludes != nil && pcrRule.EventlogEquals != nil {
-			return nil, errors.New("flavor/types/linux_platform_flavor:getPcrRulesForFlavorPart() Error getting pcrList : Both event log equals and includes rule present for single pcr index/bank")
+			return nil, errors.New("flavor/util/platform_flavor_util:getPcrRulesForFlavorPart() Error getting pcrList : Both event log equals and includes rule present for single pcr index/bank")
 		}
 		if pcrRule.EventlogEquals != nil {
 			rulesList.PcrEquals.IsPcrEquals = true
@@ -548,7 +543,7 @@ func getPcrRulesForFlavorPart(flavorPart *hvs.FlavorPart, pcrList map[hvs.PCR]hv
 		}
 
 		if rulesList.PcrEquals.IsPcrEquals == true && pcrRule.EventlogIncludes != nil {
-			return nil, errors.New("flavor/types/linux_platform_flavor:getPcrRulesForFlavorPart() Error getting pcrList : Both event log equals and includes rule present for single pcr index/bank")
+			return nil, errors.New("flavor/util/platform_flavor_util:getPcrRulesForFlavorPart() Error getting pcrList : Both event log equals and includes rule present for single pcr index/bank")
 		}
 
 		if pcrRule.EventlogIncludes != nil {

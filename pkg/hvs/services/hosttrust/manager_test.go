@@ -8,6 +8,9 @@ package hosttrust_test
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/mocks"
@@ -19,8 +22,6 @@ import (
 	libVerifier "github.com/intel-secl/intel-secl/v3/pkg/lib/verifier"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
-	"time"
 
 	"testing"
 )
@@ -82,17 +83,17 @@ func SetupManagerTests() {
 	flavorgroupStore.HostFlavorgroupStore = hs.HostFlavorgroupStore
 
 	//platform flavor
-	fIds = append(fIds, uuid.MustParse("890bc756-40da-4bde-a707-3b27b23e0149"))
+	fIds = append(fIds, uuid.MustParse("b12eadd7-02da-4c9b-aed2-2252afa0260d"))
 	// os flavor
-	fIds = append(fIds, uuid.MustParse("71e4c52e-595a-429d-9917-1965b437c353"))
+	fIds = append(fIds, uuid.MustParse("49705d53-a75e-414e-998e-049cbb2a0ee6"))
 	// software flavor
-	fIds = append(fIds, uuid.MustParse("339a7ac6-b8be-4356-ab34-be6e3bdfa1ed"))
+	fIds = append(fIds, uuid.MustParse("7f0683c1-a038-4ed4-8b29-286410f2e753"))
 	// flavor group with software and platform
 	flavorgroupStore.AddFlavors(uuid.MustParse("ee37c360-7eae-4250-a677-6ee12adce8e2"), fIds)
 
 	fIds = make([]uuid.UUID, 1)
 	// host_unique flavor
-	fIds = append(fIds, uuid.MustParse("6762b4e2-fa3a-4e57-b3ff-733600c6dadc"))
+	fIds = append(fIds, uuid.MustParse("9a314548-5b36-479f-8158-463593e87193"))
 	//Add host_unique flavor to host_unique flavorgroup
 	flavorgroupStore.AddFlavors(uuid.MustParse("e57e5ea0-d465-461e-882d-1600090caa0d"), fIds)
 	flavorStore.FlavorgroupStore = flavorgroupStore.FlavorgroupStore
