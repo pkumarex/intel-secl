@@ -390,9 +390,12 @@ type HostFlavorgroupCreateRequest struct {
 //   type: boolean
 //   required: false
 // - name: orderBy
-//   description: Orders the host collection in ascending/descending order.
+//   description: Orders the host collection in ascending/descending order. Accepted values are "asc"/"desc" the default being "asc".
 //   in: query
 //   type: string
+//   enum:
+//      - asc
+//      - desc
 //   required: false
 // - name: Accept
 //   description: Accept header
