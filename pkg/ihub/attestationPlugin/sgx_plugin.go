@@ -84,7 +84,7 @@ func initializeSKCClient(con *config.Configuration, certDirectory string) (*skch
 		}
 	}
 
-	aasURL, err := url.Parse(con.AAS.URL)
+	aasURL, err := url.Parse(con.AASApiUrl)
 	if err != nil {
 		return nil, errors.Wrap(err, "attestationPlugin/sgx_plugin:initializeSKCClient() Error parsing AAS URL")
 	}

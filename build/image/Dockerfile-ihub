@@ -1,11 +1,9 @@
 FROM centos:8
 
-RUN useradd -u 1001 --comment "Integration Hub" --home /opt/ihub  --shell /bin/false ihub
-
 COPY cmd/ihub/ihub /usr/bin/ihub
 
 COPY build/image/entrypoint-ihub.sh /entrypoint.sh
 
-RUN chmod +x /entrypoint.sh
+RUN touch /.container-env && chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

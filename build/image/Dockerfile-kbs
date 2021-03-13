@@ -1,13 +1,11 @@
 FROM centos:8
 
-RUN useradd -u 1001 --comment "Key Broker Service" --home /opt/kbs  --shell /bin/false kbs
-
 COPY cmd/kbs/kbs /usr/bin/kbs
 
 COPY build/image/libkmip.so.0.2 /tmp/libkmip.so.0.2
 
-COPY build/image/entrypoint-kbs.sh /entrypoint-kbs.sh
+COPY build/image/entrypoint-kbs.sh /entrypoint.sh
 
-RUN chmod +x /entrypoint-kbs.sh
+RUN touch /.container-env && chmod +x /entrypoint.sh
 
-ENTRYPOINT ["/entrypoint-kbs.sh"]
+ENTRYPOINT ["/entrypoint.sh"]

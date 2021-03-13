@@ -12,7 +12,7 @@ endif
 TARGETS = cms kbs ihub hvs aas
 
 $(TARGETS):
-	cd cmd/$@ && env CGO_CFLAGS_ALLOW="-f.*" GOOS=linux GOSUMDB=off GOPROXY=direct \
+	cd cmd/$@ && env GOOS=linux GOSUMDB=off GOPROXY=direct \
 		go build -ldflags "-X github.com/intel-secl/intel-secl/v3/pkg/$@/version.BuildDate=$(BUILDDATE) -X github.com/intel-secl/intel-secl/v3/pkg/$@/version.Version=$(VERSION) -X github.com/intel-secl/intel-secl/v3/pkg/$@/version.GitHash=$(GITCOMMIT)" -o $@
 
 kbs:
@@ -36,7 +36,7 @@ ifeq ($(PROXY_EXISTS),1)
 else
 	docker build -f build/image/Dockerfile-$* -t isecl/$*:$(VERSION) .
 endif
-	docker save isecl/$*:$(VERSION) > deployments/docker/docker-$*-$(VERSION)-$(GITCOMMIT).tar
+	docker save isecl/$*:$(VERSION) > deployments/container-archive/docker/docker-$*-$(VERSION)-$(GITCOMMIT).tar
 
 %-swagger:
 	mkdir -p docs/swagger
@@ -44,14 +44,16 @@ endif
 	swagger validate ./docs/swagger/$*-openapi.yml
 
 installer: $(patsubst %, %-installer, $(TARGETS)) authservice-installer aas-manager
-	
 
 docker: $(patsubst %, %-docker, $(TARGETS))
+
+%-oci-archive: %-docker
+	skopeo copy docker-daemon:isecl/$*:$(VERSION) oci-archive:deployments/container-archive/oci/$*-$(VERSION)-$(GITCOMMIT).tar:$(VERSION)
 
 kbs-docker: kbs
 	cp /usr/local/lib/libkmip.so.0.2 build/image/
 	docker build . -f build/image/Dockerfile-kbs -t isecl/kbs:$(VERSION)
-	docker save isecl/kbs:$(VERSION) > deployments/docker/docker-kbs-$(VERSION)-$(GITCOMMIT).tar
+	docker save isecl/kbs:$(VERSION) > deployments/container-archive/docker/docker-kbs-$(VERSION)-$(GITCOMMIT).tar
 
 authservice: aas
 	mv cmd/aas/aas cmd/aas/authservice
@@ -73,7 +75,7 @@ aas-manager:
 	chmod +x deployments/installer/create_db.sh
 
 test:
-	go test ./... -coverprofile cover.out
+	CGO_LDFLAGS="-Wl,-rpath -Wl,/usr/local/lib" CGO_CFLAGS_ALLOW="-f.*" go test ./... -coverprofile cover.out
 	go tool cover -func cover.out
 	go tool cover -html=cover.out -o cover.html
 
@@ -82,6 +84,7 @@ all: clean installer test
 clean:
 	rm -f cover.*
 	rm -rf deployments/installer/*.bin
-	rm -rf deployments/docker/*.tar
+	rm -rf deployments/container-archive/docker/*.tar
+	rm -rf deployments/container-archive/oci/*.tar
 
 .PHONY: installer test all clean kbs-docker aas-manager kbs authservice authservice-installer

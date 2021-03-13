@@ -110,16 +110,16 @@ func defaultConfig() *config.Configuration {
 		AASApiUrl:        viper.GetString("aas-base-url"),
 		CMSBaseURL:       viper.GetString("cms-base-url"),
 		CmsTlsCertDigest: viper.GetString("cms-tls-cert-sha384"),
+		Dek:              viper.GetString("data-encryption-key"),
 		AikCertValidity:  viper.GetInt("aik-certificate-validity-years"),
 		AuditLog: config.AuditLogConfig{
 			MaxRowCount: viper.GetInt("audit-log-max-row-count"),
 			NumRotated:  viper.GetInt("audit-log-number-rotated"),
 			BufferSize:  viper.GetInt("audit-log-buffer-size"),
 		},
-		HVS: config.HVSConfig{
+		HVS: commConfig.ServiceConfig{
 			Username: viper.GetString("hvs-service-username"),
 			Password: viper.GetString("hvs-service-password"),
-			Dek:      viper.GetString("hvs-data-encryption-key"),
 		},
 		TLS: commConfig.TLSCertConfig{
 			CertFile:   viper.GetString("tls-cert-file"),
