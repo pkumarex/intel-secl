@@ -1,9 +1,9 @@
 FROM centos:8
 
-RUN useradd -u 1001 --comment "Certificate Management Service" --home /opt/cms  --shell /bin/false cms
-
 COPY cmd/cms/cms /usr/bin/cms
 
-COPY build/image/entrypoint-cms.sh /usr/local/bin/entrypoint.sh
+COPY build/image/entrypoint-cms.sh /entrypoint.sh
 
-ENTRYPOINT [ "/usr/local/bin/entrypoint.sh"]
+RUN touch /.container-env && chmod +x /entrypoint.sh
+
+ENTRYPOINT [ "/entrypoint.sh"]

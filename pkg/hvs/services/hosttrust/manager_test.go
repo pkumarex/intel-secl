@@ -161,7 +161,7 @@ func TestHostTrustManagerNewService(t *testing.T) {
 
 func TestVerifier_Verify_UntrustedHost(t *testing.T) {
 	SetupManagerTests()
-	report, err := v.Verify(hostId, &hostManifest, false)
+	report, err := v.Verify(hostId, &hostManifest, false, false)
 	assert.NoError(t, err)
 	fmt.Println(report.TrustReport.Trusted)
 	assert.Equal(t, report.TrustReport.Trusted, false)

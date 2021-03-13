@@ -1,13 +1,11 @@
 FROM centos:8
 
-RUN useradd -u 1001 --comment "Host Verification Service" --home /opt/hvs  --shell /bin/false hvs
-
 COPY cmd/hvs/hvs /usr/bin/hvs
 
 COPY build/linux/hvs/EndorsementCA-external.pem /opt/hvs/EndorsementCA-external.pem
 
 COPY build/image/entrypoint-hvs.sh /entrypoint.sh
 
-RUN chmod +x /entrypoint.sh
+RUN touch /.container-env && chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

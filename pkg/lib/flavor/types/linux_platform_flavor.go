@@ -33,6 +33,43 @@ type LinuxPlatformFlavor struct {
 	FlavorTemplates []hvs.FlavorTemplate
 }
 
+var (
+	// This is a map of platform specific modules.
+	// The map value (int) is not relevant, just use the map key for efficient lookups.
+	platformModules = map[string]int{
+		"LCP_DETAILS_HASH":     0,
+		"BIOSAC_REG_DATA":      0,
+		"OSSINITDATA_CAP_HASH": 0,
+		"STM_HASH":             0,
+		"MLE_HASH":             0,
+		"NV_INFO_HASH":         0,
+		"tb_policy":            0,
+		"CPU_SCRTM_STAT":       0,
+		"HASH_START":           0,
+		"SINIT_PUBKEY_HASH":    0,
+		"LCP_AUTHORITIES_HASH": 0,
+		"EVTYPE_KM_HASH":       0,
+		"EVTYPE_BPM_HASH":      0,
+		"EVTYPE_KM_INFO_HASH":  0,
+		"EVTYPE_BPM_INFO_HASH": 0,
+		"EVTYPE_BOOT_POL_HASH": 0,
+	}
+
+	// map of os specific modules
+	osModules = map[string]int{
+		"vmlinuz": 0,
+	}
+
+	// map of host specific modules
+	hostUniqueModules = map[string]int{
+		"initrd":           0,
+		"LCP_CONTROL_HASH": 0,
+	}
+
+	suefiPcrList = []int{0, 2, 3, 4, 6, 7}
+	tbootPcrList = []int{17, 18}
+)
+
 var pfutil util.PlatformFlavorUtil
 var sfutil util.SoftwareFlavorUtil
 

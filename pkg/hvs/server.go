@@ -181,7 +181,7 @@ func initHostControllerConfig(cfg *config.Configuration, certStore *models.Certi
 }
 
 func getDecodedDek(cfg *config.Configuration) []byte {
-	dekBase64 := cfg.HVS.Dek
+	dekBase64 := cfg.Dek
 	if dekBase64 == "" {
 		defaultLog.Warn("Data encryption key is not defined")
 	}

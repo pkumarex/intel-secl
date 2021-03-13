@@ -2,41 +2,46 @@
  * Copyright (C) 2020 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
-package tasks
+package setup
 
 import (
 	"fmt"
 	"io"
 
-	"github.com/intel-secl/intel-secl/v3/pkg/hvs/config"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/setup"
+	commConfig "github.com/intel-secl/intel-secl/v3/pkg/lib/common/config"
 	"github.com/pkg/errors"
 )
 
 type ServiceSetup struct {
-	config.HVSConfig
+	commConfig.ServiceConfig
 	AASApiUrl        string
 	CMSBaseURL       string
 	CmsTlsCertDigest string
 
-	SvcConfigPtr        *config.HVSConfig
+	SvcConfigPtr        *commConfig.ServiceConfig
 	AASApiUrlPtr        *string
 	CMSBaseURLPtr       *string
 	CmsTlsCertDigestPtr *string
 
 	ConsoleWriter io.Writer
 
+	envPrefix   string
 	commandName string
 }
 
-const svcEnvHelpPrompt = "Following environment variables are required for Service setup:"
+const svcEnvHelpPrompt = "Following service specific environment variables are required for Service setup:"
 
 var svcEnvHelp = map[string]string{
-	"HVS_SERVICE_USERNAME": "The service username for HVS configured in AAS",
-	"HVS_SERVICE_PASSWORD": "The service password for HVS configured in AAS",
-	"AAS_BASE_URL":         "The url to AAS",
-	"CMS_BASE_URL":         "The url to CMS",
-	"CMS_TLS_CERT_SHA384":  "The certificate sha384 digest of CMS",
+	"SERVICE_USERNAME": "The service username as configured in AAS",
+	"SERVICE_PASSWORD": "The service password as configured in AAS",
+}
+
+const svcEnvHelpPrompt2 = "Following generic environment variables are required for Service setup:"
+
+var svcEnvHelp2 = map[string]string{
+	"AAS_BASE_URL":        "The url to AAS",
+	"CMS_BASE_URL":        "The url to CMS",
+	"CMS_TLS_CERT_SHA384": "The certificate sha384 digest of CMS",
 }
 
 func (t *ServiceSetup) Run() error {
@@ -87,10 +92,12 @@ func (t *ServiceSetup) Validate() error {
 }
 
 func (t *ServiceSetup) PrintHelp(w io.Writer) {
-	setup.PrintEnvHelp(w, svcEnvHelpPrompt, "", svcEnvHelp)
+	PrintEnvHelp(w, svcEnvHelpPrompt, t.envPrefix, svcEnvHelp)
+	PrintEnvHelp(w, svcEnvHelpPrompt2, "", svcEnvHelp2)
 	fmt.Fprintln(w, "")
 }
 
 func (t *ServiceSetup) SetName(n, e string) {
 	t.commandName = n
+	t.envPrefix = PrefixUnderscroll(e)
 }

@@ -1,14 +1,17 @@
 module github.com/intel-secl/intel-secl/v3
 
+go 1.14
+
 require (
 	github.com/DATA-DOG/go-sqlmock v1.4.1
 	github.com/Waterdrips/jwt-go v3.2.1-0.20200915121943-f6506928b72e+incompatible
+	github.com/antchfx/jsonquery v1.1.4
 	github.com/beevik/etree v1.1.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.3
-	github.com/jinzhu/gorm v1.9.12
+	github.com/jinzhu/gorm v1.9.16
 	github.com/joho/godotenv v1.3.0
 	github.com/lib/pq v1.1.1
 	github.com/mattermost/xml-roundtrip-validator v0.0.0-20201213122252-bcd7e1b9601e
@@ -20,8 +23,9 @@ require (
 	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.6.1
 	github.com/vmware/govmomi v0.22.2
+	github.com/xeipuuv/gojsonschema v1.2.0
 	golang.org/x/crypto v0.0.0-20191205180655-e7c4368fe9dd
 	gopkg.in/yaml.v2 v2.3.0
 )
 
-replace github.com/vmware/govmomi => github.com/arijit8972/govmomi fix-tpm-attestation-output
+replace github.com/vmware/govmomi => github.com/arijit8972/govmomi v0.22.2-0.20200607061538-3311e9e4cdb1
