@@ -5,9 +5,8 @@
 package postgres
 
 import (
-	"strings"
-
 	"reflect"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
@@ -89,13 +88,13 @@ func (ft *FlavorTemplateStore) Search(criteria *models.FlavorTemplateFilterCrite
 
 	tx := ft.buildFlavorTemplateSearchQuery(ft.Store.Db, criteria)
 	if tx == nil {
-		return nil, errors.New("postgres/host_store:Search() Unexpected Error. Could not build" +
+		return nil, errors.New("postgres/flavortemplate_store:Search() Unexpected Error. Could not build" +
 			" a gorm query object.")
 	}
 
 	rows, err := tx.Rows()
 	if err != nil {
-		return nil, errors.Wrap(err, "postgres/host_store:Search() failed to retrieve records from db")
+		return nil, errors.Wrap(err, "postgres/flavortemplate_store:Search() failed to retrieve records from db")
 	}
 	defer func() {
 		derr := rows.Close()
@@ -154,9 +153,7 @@ func (ft *FlavorTemplateStore) Recover(recoverTemplates []string) error {
 	defaultLog.Trace("postgres/flavortemplate_store:Recover() Entering")
 	defer defaultLog.Trace("postgres/flavortemplate_store:Recover() Leaving")
 
-	ftc := models.FlavorTemplateFilterCriteria{}
-	ftc.IncludeDeleted = true
-
+	ftc := models.FlavorTemplateFilterCriteria{IncludeDeleted: true}
 	templates, err := ft.Search(&ftc)
 	if err != nil {
 		return errors.Wrap(err, "postgres/flavortemplate_store:Recover() - Could not recover all records")
@@ -190,15 +187,10 @@ func (ft *FlavorTemplateStore) buildFlavorTemplateSearchQuery(tx *gorm.DB, crite
 		return tx
 	}
 
-	defaultLog.Info("ID:", criteria.Id)
-	defaultLog.Info("Label:", criteria.Label)
-
 	if criteria.Id != uuid.Nil {
-		defaultLog.Info("inside id")
 		tx = tx.Where("id = ?", criteria.Id)
 	}
 	if criteria.Label != "" {
-		defaultLog.Info("inside label")
 		tx = tx.Where(convertToPgJsonqueryString("content", "label")+" = ?", criteria.Label)
 	}
 	if criteria.ConditionContains != "" {

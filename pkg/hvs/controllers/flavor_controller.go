@@ -191,7 +191,6 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 		}
 
 		var flavorTemplates []hvs.FlavorTemplate
-		//if !strings.EqualFold(hostManifest.HostInfo.OSName, "VMWARE ESXI") {
 		defaultLog.Debug("Getting flavor templates...")
 		flavorTemplates, err = fcon.findTemplatesToApply(hostManifest)
 		if len(flavorTemplates) == 0 {
@@ -203,7 +202,6 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 		}
 
 		defaultLog.Debug("Matched Flavor templates ", flavorTemplates)
-		//}
 
 		tagCertificate := hvs.TagCertificate{}
 		var tagX509Certificate *x509.Certificate
@@ -384,8 +382,7 @@ func (fcon *FlavorController) findTemplatesToApply(hostManifest *hcType.HostMani
 	defer defaultLog.Trace("controllers/flavor_controller:findTemplatesToApply() Leaving")
 	var filteredTemplates []hvs.FlavorTemplate
 
-	ftc := models.FlavorTemplateFilterCriteria{}
-	ftc.IncludeDeleted = false
+	ftc := models.FlavorTemplateFilterCriteria{IncludeDeleted: false}
 	flavorTemplates, err := fcon.FTStore.Search(&ftc)
 	if err != nil {
 		return nil, errors.Wrap(err, "controllers/flavor_controller:findTemplatesToApply() Error retrieving all flavor templates")

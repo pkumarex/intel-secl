@@ -166,7 +166,7 @@ func (esxpf ESXPlatformFlavor) getOsFlavor() ([]cm.Flavor, error) {
 
 	osPcrs, err := pfutil.GetPcrRulesMap(cf.FlavorPartOs, esxpf.FlavorTemplates)
 	if err != nil {
-		return nil, errors.Wrap(err, "flavor/types/linux_platform_flavor:getOsFlavor() "+errorMessage+" Failure in getting pcrlist")
+		return nil, errors.Wrap(err, "flavor/types/esx_platform_flavor:getOsFlavor() "+errorMessage+" Failure in getting pcrlist")
 	}
 	var includeEventLog = eventLogRequiredForEsx(esxpf.HostInfo.HardwareFeatures.TPM.Meta.TPMVersion, cf.FlavorPartOs)
 
@@ -212,7 +212,7 @@ func (esxpf ESXPlatformFlavor) getHostUniqueFlavor() ([]cm.Flavor, error) {
 
 	hostUniquePcrs, err := pfutil.GetPcrRulesMap(cf.FlavorPartHostUnique, esxpf.FlavorTemplates)
 	if err != nil {
-		return nil, errors.Wrap(err, "flavor/types/linux_platform_flavor:getHostUniqueFlavor() "+errorMessage+" Failure in getting pcrlist")
+		return nil, errors.Wrap(err, "flavor/types/esx_platform_flavor:getHostUniqueFlavor() "+errorMessage+" Failure in getting pcrlist")
 	}
 	var includeEventLog = eventLogRequiredForEsx(esxpf.HostInfo.HardwareFeatures.TPM.Meta.TPMVersion, cf.FlavorPartHostUnique)
 

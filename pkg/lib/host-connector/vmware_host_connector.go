@@ -34,10 +34,10 @@ const (
 	DETAILS_SUFFIX                      = "Details"
 	BOOT_OPTIONS_PREFIX                 = "bootOptions."
 	BOOT_SECURITY_OPTIONS_PREFIX        = "bootSecurityOption."
-	vibNameTypeID                       = "0x60000001"
-	commandLineTypeID                   = "0x60000002"
-	optionsFileNameTypeID               = "0x60000003"
-	bootSecurityOptionTypeID            = "0x60000004"
+	VIB_NAME_TYPE_ID                    = "0x60000001"
+	COMMANDLINE_TYPE_ID                 = "0x60000002"
+	OPTIONS_FILE_NAME_TYPE_ID           = "0x60000003"
+	BOOT_SECURITY_OPTION_TYPE_ID        = "0x60000004"
 )
 
 func (vc *VmwareConnector) GetHostDetails() (taModel.HostInfo, error) {
@@ -260,7 +260,7 @@ func getEventLogInfo(parsedEventLogEntry types.TpmEvent) types.EventLogCriteria 
 	eventLog := types.EventLogCriteria{Measurement: intArrayToHexString(parsedEventLogEntry.EventDetails.DataHash)}
 
 	if parsedEventLogEntry.EventDetails.VibName != nil {
-		eventLog.TypeID = vibNameTypeID
+		eventLog.TypeID = VIB_NAME_TYPE_ID
 		eventLog.TypeName = *parsedEventLogEntry.EventDetails.ComponentName
 		eventLog.Tags = append(eventLog.Tags, COMPONENT_PREFIX+*parsedEventLogEntry.EventDetails.ComponentName)
 		if *parsedEventLogEntry.EventDetails.VibName != "" {
@@ -269,7 +269,7 @@ func getEventLogInfo(parsedEventLogEntry types.TpmEvent) types.EventLogCriteria 
 			eventLog.Tags = append(eventLog.Tags, VIM_API_PREFIX+TPM_SOFTWARE_COMPONENT_EVENT_TYPE+DETAILS_SUFFIX)
 		}
 	} else if parsedEventLogEntry.EventDetails.CommandLine != nil {
-		eventLog.TypeID = commandLineTypeID
+		eventLog.TypeID = COMMANDLINE_TYPE_ID
 		uuid := getBootUUIDFromCL(*parsedEventLogEntry.EventDetails.CommandLine)
 		if uuid != "" {
 			eventLog.Tags = append(eventLog.Tags, COMMANDLINE_PREFIX)
@@ -280,13 +280,13 @@ func getEventLogInfo(parsedEventLogEntry types.TpmEvent) types.EventLogCriteria 
 		eventLog.Tags = append(eventLog.Tags, VIM_API_PREFIX+TPM_COMMAND_EVENT_TYPE+DETAILS_SUFFIX)
 
 	} else if parsedEventLogEntry.EventDetails.OptionsFileName != nil {
-		eventLog.TypeID = optionsFileNameTypeID
+		eventLog.TypeID = OPTIONS_FILE_NAME_TYPE_ID
 		eventLog.TypeName = *parsedEventLogEntry.EventDetails.OptionsFileName
 		eventLog.Tags = append(eventLog.Tags, BOOT_OPTIONS_PREFIX+*parsedEventLogEntry.EventDetails.OptionsFileName)
 		eventLog.Tags = append(eventLog.Tags, VIM_API_PREFIX+TPM_OPTION_EVENT_TYPE+DETAILS_SUFFIX)
 
 	} else if parsedEventLogEntry.EventDetails.BootSecurityOption != nil {
-		eventLog.TypeID = bootSecurityOptionTypeID
+		eventLog.TypeID = BOOT_SECURITY_OPTION_TYPE_ID
 		eventLog.TypeName = *parsedEventLogEntry.EventDetails.BootSecurityOption
 		eventLog.Tags = append(eventLog.Tags, BOOT_SECURITY_OPTIONS_PREFIX+*parsedEventLogEntry.EventDetails.BootSecurityOption)
 		eventLog.Tags = append(eventLog.Tags, VIM_API_PREFIX+TPM_BOOT_SECURITY_OPTION_EVENT_TYPE+DETAILS_SUFFIX)
