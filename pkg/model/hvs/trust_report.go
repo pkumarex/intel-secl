@@ -64,8 +64,8 @@ type Fault struct {
 	PcrBank                *types.SHAAlgorithm      `json:"pcr_bank,omitempty"`
 	ExpectedPcrValue       *string                  `json:"expected_pcrvalue,omitempty"`
 	ActualPcrValue         *string                  `json:"actual_pcrvalue,omitempty"`
-	MissingEntries         []types.EventLogCriteria `json:"missing_event_entries,omitempty"`
-	UnexpectedEntries      []types.EventLogCriteria `json:"unexpected_event_entries,omitempty"`
+	MissingEntries         []types.EventLogCriteria `json:"missing_entries,omitempty"`
+	UnexpectedEntries      []types.EventLogCriteria `json:"unexpected_entries,omitempty"`
 	ExcludeTags            []string                 `json:"exclude_tags,omitempty"`
 	FlavorId               *uuid.UUID               `json:"flavor_id,omitempty"`
 	UnexpectedMeasurements []ta.FlavorMeasurement   `json:"unexpected_measurements,omitempty"`
