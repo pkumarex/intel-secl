@@ -16,7 +16,7 @@
                         "bank": "SHA256"
                     },
                     "pcr_matches": true,
-					"eventlog_equals": {}
+                    "eventlog_equals": {}
                 },
                 {
                     "pcr": {
@@ -56,7 +56,7 @@
                         ]
                     }
                 },
-				{
+                {
                     "pcr": {
                         "index": 20,
                         "bank": "SHA256"
@@ -71,7 +71,7 @@
                         ]
                     }
                 },
-				{
+                {
                     "pcr": {
                         "index": 21,
                         "bank": "SHA256"
@@ -102,7 +102,7 @@
                     "eventlog_includes": [
                         "commandLine.",
                         "componentName.imgdb.tgz",
-						"componentName.onetime.tgz"
+                        "componentName.onetime.tgz"
                     ]
                 },
                 {
@@ -114,7 +114,7 @@
                     "eventlog_includes": [
                         "commandLine.",
                         "componentName.imgdb.tgz",
-						"componentName.onetime.tgz"
+                        "componentName.onetime.tgz"
                     ]
                 }
             ]
