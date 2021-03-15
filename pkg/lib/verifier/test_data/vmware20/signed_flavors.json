@@ -24,7 +24,7 @@
                 "bios_name": "Intel Corporation",
                 "bios_version": "SE5C620.86B.00.01.0014.070920180847"
             },
-            "pcr_logs": [
+            "pcrs": [
                 {
                     "pcr": {
                         "index": 20,
@@ -125,7 +125,7 @@
                     }
                 }
             },
-            "pcr_logs": [
+            "pcrs": [
                 {
                     "pcr": {
                         "index": 0,
@@ -321,7 +321,7 @@
                 "bios_name": "Intel Corporation",
                 "bios_version": "SE5C620.86B.00.01.0014.070920180847"
             },
-            "pcr_logs": [
+            "pcrs": [
                 {
                     "pcr": {
                         "index": 19,
