@@ -1,7 +1,5 @@
 module github.com/intel-secl/intel-secl/v3
 
-go 1.14
-
 require (
 	github.com/DATA-DOG/go-sqlmock v1.4.1
 	github.com/Waterdrips/jwt-go v3.2.1-0.20200915121943-f6506928b72e+incompatible
@@ -28,4 +26,4 @@ require (
 	gopkg.in/yaml.v2 v2.3.0
 )
 
-replace github.com/vmware/govmomi => github.com/arijit8972/govmomi v0.22.2-0.20200607061538-3311e9e4cdb1
+replace github.com/vmware/govmomi => github.com/arijit8972/govmomi fix-tpm-attestation-output

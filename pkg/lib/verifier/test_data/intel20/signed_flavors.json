@@ -71,7 +71,7 @@
                     }
                 }
             },
-            "pcr_logs": [
+            "pcrs": [
                 {
                     "pcr": {
                         "index": 5,
@@ -218,7 +218,7 @@
                 "bios_name": "American Megatrends Inc.",
                 "bios_version": "4.1.8"
             },
-            "pcr_logs": [
+            "pcrs": [
                 {
                     "pcr": {
                         "index": 7,
