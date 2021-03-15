@@ -23,5 +23,5 @@ func (controller VersionController) GetVersion(w http.ResponseWriter, r *http.Re
 	defer defaultLog.Trace("controllers/version_controller:GetVersion() Leaving")
 
 	w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
-	return version.GetVersion(), http.StatusOK, nil
+	return []byte(version.GetVersion()), http.StatusOK, nil
 }
