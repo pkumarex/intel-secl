@@ -53,7 +53,7 @@ func GetSHVSVersion(config *config.Configuration, certDirectory string) ([]byte,
 	log.Trace("attestationPlugin/sgx_plugin:GetSHVSVersion() Entering")
 	defer log.Trace("attestationPlugin/sgx_plugin:GetSHVSVersion() Leaving")
 
-	url := config.AttestationService.AttestationURL + "/" + "noauth/version"
+	url := config.AttestationService.AttestationURL + "/" + "version"
 
 	sgxClient, err := initializeSKCClient(config, certDirectory)
 	if err != nil {

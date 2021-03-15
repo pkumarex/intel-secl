@@ -80,7 +80,7 @@ func (attestationService AttestationServiceConnection) validateService() error {
 		}
 
 	} else if attestationService.AttestationConfig.AttestationType == "SGX" {
-		versionURL := attestationService.AttestationConfig.AttestationURL + "/" + "noauth/version"
+		versionURL := attestationService.AttestationConfig.AttestationURL + "/" + "version"
 		shvsClient := &skchvsclient.Client{}
 
 		_, err := shvsClient.GetSHVSVersion(versionURL)

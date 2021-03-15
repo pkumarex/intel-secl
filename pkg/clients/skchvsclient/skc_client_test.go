@@ -97,7 +97,7 @@ func TestClientGetSHVSVersion(t *testing.T) {
 			c:       client1,
 			wantErr: false,
 			args: args{
-				url: "http://localhost" + port + "/sgx-hvs/v2/noauth/version",
+				url: "http://localhost" + port + "/sgx-hvs/v2/version",
 			},
 		},
 	}
