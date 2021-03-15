@@ -260,10 +260,10 @@ func validateTagCertCreateCriteria(tcCreateCriteria models.TagCertificateCreateC
 	}
 
 	for _, tagAttribute := range tcCreateCriteria.SelectionContent {
-		if err := validation.ValidateNameString(tagAttribute.Key); err != nil {
+		if err := validation.ValidateTextString(tagAttribute.Key); err != nil {
 			return errors.New("Valid contents for Key must be specified")
 		}
-		if err := validation.ValidateNameString(tagAttribute.Value); err != nil {
+		if err := validation.ValidateTextString(tagAttribute.Value); err != nil {
 			return errors.New("Valid contents for Value must be specified")
 		}
 	}
