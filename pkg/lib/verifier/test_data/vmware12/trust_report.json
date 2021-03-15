@@ -51,7 +51,7 @@
                     "markers": [
                         "OS"
                     ],
-                    "pcr_logs": {
+                    "pcrs": {
                         "pcr": {
                             "index": 18,
                             "bank": "SHA1"
@@ -896,7 +896,7 @@
                     "markers": [
                         "OS"
                     ],
-                    "pcr_logs": {
+                    "pcrs": {
                         "pcr": {
                             "index": 19,
                             "bank": "SHA1"
@@ -1741,7 +1741,7 @@
                     "markers": [
                         "OS"
                     ],
-                    "pcr_logs": {
+                    "pcrs": {
                         "pcr": {
                             "index": 20,
                             "bank": "SHA1"
@@ -1845,7 +1845,7 @@
                     "markers": [
                         "HOST_UNIQUE"
                     ],
-                    "pcr_logs": {
+                    "pcrs": {
                         "pcr": {
                             "index": 19,
                             "bank": "SHA1"

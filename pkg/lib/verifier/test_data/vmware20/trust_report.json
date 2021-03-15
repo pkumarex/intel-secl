@@ -78,7 +78,7 @@
                     "markers": [
                         "OS"
                     ],
-                    "pcr_logs": {
+                    "pcrs": {
                         "pcr": {
                             "index": 19,
                             "bank": "SHA256"
@@ -1489,7 +1489,7 @@
                     "markers": [
                         "OS"
                     ],
-                    "pcr_logs": {
+                    "pcrs": {
                         "pcr": {
                             "index": 20,
                             "bank": "SHA256"
@@ -2918,7 +2918,7 @@
                     "markers": [
                         "OS"
                     ],
-                    "pcr_logs": {
+                    "pcrs": {
                         "pcr": {
                             "index": 21,
                             "bank": "SHA256"
@@ -3057,7 +3057,7 @@
                     "markers": [
                         "HOST_UNIQUE"
                     ],
-                    "pcr_logs": {
+                    "pcrs": {
                         "pcr": {
                             "index": 20,
                             "bank": "SHA256"
@@ -3129,7 +3129,7 @@
                     "markers": [
                         "HOST_UNIQUE"
                     ],
-                    "pcr_logs": {
+                    "pcrs": {
                         "pcr": {
                             "index": 21,
                             "bank": "SHA256"
@@ -3304,7 +3304,7 @@
                     "markers": [
                         "PLATFORM"
                     ],
-                    "pcr_logs": {
+                    "pcrs": {
                         "pcr": {
                             "index": 17,
                             "bank": "SHA256"
@@ -3495,7 +3495,7 @@
                     "markers": [
                         "PLATFORM"
                     ],
-                    "pcr_logs": {
+                    "pcrs": {
                         "pcr": {
                             "index": 18,
                             "bank": "SHA256"

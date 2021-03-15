@@ -57,7 +57,7 @@
                     }
                 }
             },
-            "pcr_logs": [
+            "pcrs": [
                 {
                     "pcr": {
                         "index": 0,
@@ -102,7 +102,7 @@
                 "bios_name": "Intel Corporation",
                 "bios_version": "SE5C610.86B.01.01.1008.031920151331"
             },
-            "pcr_logs": [
+            "pcrs": [
                 {
                     "pcr": {
                         "index": 18,
@@ -978,7 +978,7 @@
                 "bios_name": "Intel Corporation",
                 "bios_version": "SE5C610.86B.01.01.1008.031920151331"
             },
-            "pcr_logs": [
+            "pcrs": [
                 {
                     "pcr": {
                         "index": 19,

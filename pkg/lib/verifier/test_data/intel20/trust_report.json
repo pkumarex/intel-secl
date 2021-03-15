@@ -93,7 +93,7 @@
                 "markers":[
                    "OS"
                 ],
-                "pcr_logs":{
+                "pcrs":{
                    "pcr":{
                       "index":7,
                       "bank":"SHA256"
@@ -266,7 +266,7 @@
                 "markers":[
                    "PLATFORM"
                 ],
-                "pcr_logs":{
+                "pcrs":{
                    "pcr":{
                       "index":0,
                       "bank":"SHA256"
