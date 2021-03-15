@@ -278,7 +278,7 @@
          "SHA1": null,
          "SHA256": null
       },
-      "pcr_event_log_map_new": {
+      "pcr_event_log_map": {
          "SHA1": [
             {
                "pcr": {

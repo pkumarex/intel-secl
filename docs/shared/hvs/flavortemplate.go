@@ -303,6 +303,27 @@ type FlavorTemplate struct {
 //   required: false
 //   type: string
 //   format: bool
+// - name: id
+//   description: Flavor template which has given uuid value will be returned
+//   in: query
+//   type: string
+//   format: uuid
+//   required: false
+// - name: label
+//   description: Flavor template which has given label value will be returned
+//   in: query
+//   type: string
+//   required: false
+// - name: conditionContains
+//   description: Flavor template which contains the  given condition will be returned
+//   in: query
+//   type: string
+//   required: false
+// - name: flavorPartContains
+//   description: Flavor template which contains the  given flavor part will be returned
+//   in: query
+//   type: string
+//   required: false
 // - name: Accept
 //   description: Accept header
 //   in: header
