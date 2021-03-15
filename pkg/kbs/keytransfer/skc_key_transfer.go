@@ -382,7 +382,7 @@ func (keyInfo *KeyDetails) IsValidSession(stmLabel string) (validSession, validS
 				if keyInfo.validateSgxEnclaveIssuer(attributes.EnclaveIssuer) &&
 					keyInfo.validateSgxEnclaveIssuerProdId(attributes.EnclaveIssuerProductID) &&
 					keyInfo.validateSgxEnclaveIssuerExtProdId(attributes.EnclaveIssuerExtendedProductID) &&
-					//keyInfo.validateSgxEnclaveMeasurement(attributes.EnclaveMeasurement) &&
+					keyInfo.validateSgxEnclaveMeasurement(attributes.EnclaveMeasurement) &&
 					keyInfo.validateSgxConfigId(attributes.ConfigID) &&
 					keyInfo.validateSgxIsvSvn(attributes.IsvSvn) &&
 					keyInfo.validateSgxConfigIdSvn(attributes.ConfigSvn) {
@@ -390,6 +390,8 @@ func (keyInfo *KeyDetails) IsValidSession(stmLabel string) (validSession, validS
 					defaultLog.Debug("keytransfer/skc_key_transfer:IsValidSession() All sgx attributes in stm attestation report match key transfer policy")
 					return true, true, true
 				} else {
+					///delete session from map
+					delete(keyInfo.SessionMap, sessionID)
 					defaultLog.Debug("keytransfer/skc_key_transfer:IsValidSession() Sgx attribute validation failed")
 					return true, false, true
 				}
