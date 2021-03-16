@@ -83,7 +83,7 @@ int kmipw_get(char *id, char *kbs_key) {
     }
 
     kmip_memset(kbs_key, 0, key_size);
-    memcpy(kbs_key, key, key_size);
+    kmip_memcpy(NULL, kbs_key, key, key_size);
 
     if(key != NULL)
     {
