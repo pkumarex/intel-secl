@@ -52,25 +52,23 @@ type App struct {
 	AasAdminUserName string
 	AasAdminPassword string
 
-	HvsCN         string
-	HvsSanList    string
-	IhubCN        string
-	IhubSanList   string
-	WlsCN         string
-	WlsSanList    string
-	TaCN          string
-	TaSanList     string
-	KbsCN         string
-	KbsSanList    string
-	ScsCN         string
-	ScsSanList    string
-	ShvsCN        string
-	ShvsSanList   string
-	SqvsCN        string
-	SqvsSanList   string
-	SagentCN      string
-	SagentSanList string
-	SkcLibCN      string
+	HvsCN       string
+	HvsSanList  string
+	IhubCN      string
+	IhubSanList string
+	WlsCN       string
+	WlsSanList  string
+	TaCN        string
+	TaSanList   string
+	KbsCN       string
+	KbsSanList  string
+	ScsCN       string
+	ScsSanList  string
+	ShvsCN      string
+	ShvsSanList string
+	SqvsCN      string
+	SqvsSanList string
+	SkcLibCN    string
 
 	InstallAdminUserName    string
 	InstallAdminPassword    string
@@ -389,9 +387,6 @@ func (a *App) LoadAllVariables(envFile string) error {
 
 		{&a.ShvsCN, "SHVS_CERT_COMMON_NAME", "SHVS TLS Certificate", "SGX Host Verification Service TLS Certificate Common Name", false, false},
 		{&a.ShvsSanList, "SHVS_CERT_SAN_LIST", "", "SGX Host Verification Service TLS Certificate SAN LIST", false, false},
-
-		{&a.SagentCN, "SGX_AGENT_CERT_COMMON_NAME", "SGX_AGENT TLS Certificate", "SGX Agent TLS Certificate Common Name", false, false},
-		{&a.SagentSanList, "SGX_AGENT_CERT_SAN_LIST", "", "SGX Agent TLS Certificate SAN LIST", false, false},
 
 		{&a.SkcLibCN, "SKC_LIBRARY_CERT_COMMON_NAME", "skcuser", "SKC Library TLS Client Certificate Common Name", false, false},
 
