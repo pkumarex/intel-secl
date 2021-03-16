@@ -78,7 +78,7 @@ func (pff PlatformFlavorProvider) GetPlatformFlavor() (*types.PlatformFlavor, er
 	if pff.hostManifest != nil {
 		switch strings.ToUpper(strings.TrimSpace(pff.hostManifest.HostInfo.OSName)) {
 		case constants.OsVMware:
-			rp = types.NewESXPlatformFlavor(pff.hostManifest, pff.attributeCertificate)
+			rp = types.NewESXPlatformFlavor(pff.hostManifest, pff.attributeCertificate, pff.FlavorTemplates)
 		// Fallback to Linux
 		default:
 			rp = types.NewLinuxPlatformFlavor(pff.hostManifest, pff.attributeCertificate, pff.FlavorTemplates)

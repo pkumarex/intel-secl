@@ -184,7 +184,7 @@ func TestLinuxPlatformFlavor_GetPcrDetails(t *testing.T) {
 				TagCertificate:  tt.fields.TagCertificate,
 				FlavorTemplates: tt.fields.FlavorTemplates,
 			}
-			if got = rhelpf.GetPcrDetails(tt.args.pcrManifest, tt.args.pcrList, tt.args.includeEventLog); len(got) == 0 {
+			if got = pfutil.GetPcrDetails(rhelpf.HostManifest.PcrManifest, tt.args.pcrList, tt.args.includeEventLog); len(got) == 0 {
 				t.Errorf("LinuxPlatformFlavor.GetPcrDetails() unable to perform GetPcrDetails")
 			}
 		})

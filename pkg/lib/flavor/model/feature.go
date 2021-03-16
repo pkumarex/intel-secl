@@ -16,7 +16,8 @@ type AES_NI struct {
 
 // TPM
 type HardwareFeature struct {
-	Enabled bool `json:"enabled,string"`
+	Supported bool `json:"supported,string"`
+	Enabled   bool `json:"enabled,string"`
 }
 
 type CBNT struct {

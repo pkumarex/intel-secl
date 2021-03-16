@@ -243,15 +243,13 @@ func (flavorgen FlavorGen) GenerateFlavors() {
 	}
 
 	// Check for both manfest and flavor template
-	if *manifestFilePath == "" || len(flavortemplateargs) == 0 {
+	if *manifestFilePath == "" && len(flavortemplateargs) == 0 {
 		fmt.Printf(helpStr)
-		if *manifestFilePath == "" && len(flavortemplateargs) == 0 {
-			exitGracefully(errors.New("Manifest file path and flavor template path missing"))
-		} else if *manifestFilePath == "" {
-			exitGracefully(errors.New("Manifest file path missing"))
-		} else if len(flavortemplateargs) == 0 {
-			exitGracefully(errors.New("Flavor template path missing"))
-		}
+		exitGracefully(errors.New("Manifest file path and flavor template path missing"))
+	} else if *manifestFilePath == "" {
+		exitGracefully(errors.New("Manifest file path missing"))
+	} else if len(flavortemplateargs) == 0 {
+		exitGracefully(errors.New("Flavor template path missing"))
 	}
 
 	// Validating the Manifest file entered

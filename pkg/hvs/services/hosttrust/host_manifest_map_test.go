@@ -6,11 +6,12 @@ package hosttrust
 
 import (
 	"encoding/json"
+	"io/ioutil"
+	"testing"
+
 	cf "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
-	"testing"
 )
 
 func TestGetHostManifestMap(t *testing.T) {
@@ -36,5 +37,5 @@ func TestGetMeasurementLabels(t *testing.T) {
 	assert.NoError(t, err)
 	softwareLabels, err := getMeasurementLabels(hm)
 	assert.NoError(t, err)
-	assert.Equal(t, []string{"ISecL_Default_Application_Flavor_v2.1_TPM2.0", "ISecL_Default_Workload_Flavor_v2.1"}, softwareLabels)
+	assert.Equal(t, []string{"ISecL_Default_Application_Flavor_v3.3_TPM2.0", "ISecL_Default_Workload_Flavor_v3.3"}, softwareLabels)
 }

@@ -265,7 +265,7 @@ type HostStatusCollection struct {
 //                              {
 //                                  "pcr_index": "pcr_17",
 //                                  "event_log": [
-//{
+//                                      {
 //                                          "value": "7636dbbb8b8f40a9b7b7140e6da43e5bf2f531de",
 //                                          "label": "HASH_START",
 //                                          "info": {
@@ -273,7 +273,7 @@ type HostStatusCollection struct {
 //                                              "EventName": "OpenSource.EventName"
 //                                          }
 //                                      },
-//{
+//                                      {
 //                                          "value": "9dcd8ac722c21e60652f0961ad6fe31938c4cc8f",
 //                                          "label": "BIOSAC_REG_DATA",
 //                                          "info": {
@@ -281,7 +281,7 @@ type HostStatusCollection struct {
 //                                              "EventName": "OpenSource.EventName"
 //                                          }
 //                                      },
-//{
+//                                      {
 //                                          "value": "3c585604e87f855973731fea83e21fab9392d2fc",
 //                                          "label": "CPU_SCRTM_STAT",
 //                                          "info": {
@@ -289,7 +289,7 @@ type HostStatusCollection struct {
 //                                              "EventName": "OpenSource.EventName"
 //                                          }
 //                                      },
-//{
+//                                      {
 //                                          "value": "9069ca78e7450a285173431b3e52c5c25299e473",
 //                                          "label": "LCP_CONTROL_HASH",
 //                                          "info": {
@@ -297,7 +297,7 @@ type HostStatusCollection struct {
 //                                              "EventName": "OpenSource.EventName"
 //                                          }
 //                                      },
-//{
+//                                      {
 //                                          "value": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
 //                                          "label": "LCP_DETAILS_HASH",
 //                                          "info": {
@@ -305,7 +305,7 @@ type HostStatusCollection struct {
 //                                              "EventName": "OpenSource.EventName"
 //                                          }
 //                                      },
-//{
+//                                      {
 //                                          "value": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
 //                                          "label": "STM_HASH",
 //                                          "info": {
@@ -313,7 +313,7 @@ type HostStatusCollection struct {
 //                                              "EventName": "OpenSource.EventName"
 //                                          }
 //                                      },
-//{
+//                                      {
 //                                          "value": "0cf169a95bd32a9a1dc4c3499ade207d30ab8895",
 //                                          "label": "OSSINITDATA_CAP_HASH",
 //                                          "info": {
@@ -321,7 +321,7 @@ type HostStatusCollection struct {
 //                                              "EventName": "OpenSource.EventName"
 //                                          }
 //                                      },
-//{
+//                                      {
 //                                          "value": "ff86d5446b2cc2e7e3319048715c00aabb7dcc4e",
 //                                          "label": "MLE_HASH",
 //                                          "info": {
@@ -329,7 +329,7 @@ type HostStatusCollection struct {
 //                                              "EventName": "OpenSource.EventName"
 //                                          }
 //                                      },
-//{
+//                                      {
 //                                          "value": "274f929dbab8b98a7031bbcd9ea5613c2a28e5e6",
 //                                          "label": "NV_INFO_HASH",
 //                                          "info": {
@@ -337,7 +337,7 @@ type HostStatusCollection struct {
 //                                              "EventName": "OpenSource.EventName"
 //                                          }
 //                                      },
-//{
+//                                      {
 //                                          "value": "ca96de412b4e8c062e570d3013d2fccb4b20250a",
 //                                          "label": "tb_policy",
 //                                          "info": {
@@ -345,7 +345,7 @@ type HostStatusCollection struct {
 //                                              "EventName": "OpenSource.EventName"
 //                                          }
 //                                      },
-//{
+//                                      {
 //                                          "value": "5b870664c50ead0421e4a67514724759aa9a9d5b",
 //                                          "label": "vmlinuz",
 //                                          "info": {
@@ -353,7 +353,7 @@ type HostStatusCollection struct {
 //                                              "EventName": "OpenSource.EventName"
 //                                          }
 //                                      },
-//{
+//                                      {
 //                                          "value": "f5fe4b87cd388943202e05442ebf0973c749cf3e",
 //                                          "label": "initrd",
 //                                          "info": {
@@ -367,7 +367,7 @@ type HostStatusCollection struct {
 //                              {
 //                                  "pcr_index": "pcr_18",
 //                                  "event_log": [
-//{
+//                                      {
 //                                          "value": "a395b723712b3711a89c2bb5295386c0db85fe44",
 //                                          "label": "SINIT_PUBKEY_HASH",
 //                                          "info": {
@@ -375,7 +375,7 @@ type HostStatusCollection struct {
 //                                              "EventName": "OpenSource.EventName"
 //                                          }
 //                                      },
-//{
+//                                      {
 //                                          "value": "3c585604e87f855973731fea83e21fab9392d2fc",
 //                                          "label": "CPU_SCRTM_STAT",
 //                                          "info": {
@@ -383,7 +383,7 @@ type HostStatusCollection struct {
 //                                              "EventName": "OpenSource.EventName"
 //                                          }
 //                                      },
-//{
+//                                      {
 //                                          "value": "0cf169a95bd32a9a1dc4c3499ade207d30ab8895",
 //                                          "label": "OSSINITDATA_CAP_HASH",
 //                                          "info": {
@@ -391,7 +391,7 @@ type HostStatusCollection struct {
 //                                              "EventName": "OpenSource.EventName"
 //                                          }
 //                                      },
-//{
+//                                      {
 //                                          "value": "9069ca78e7450a285173431b3e52c5c25299e473",
 //                                          "label": "LCP_CONTROL_HASH",
 //                                          "info": {
@@ -399,7 +399,7 @@ type HostStatusCollection struct {
 //                                              "EventName": "OpenSource.EventName"
 //                                          }
 //                                      },
-//{
+//                                      {
 //                                          "value": "5ba93c9db0cff93f52b521d7420e43f6eda2784f",
 //                                          "label": "LCP_AUTHORITIES_HASH",
 //                                          "info": {
@@ -407,7 +407,7 @@ type HostStatusCollection struct {
 //                                              "EventName": "OpenSource.EventName"
 //                                          }
 //                                      },
-//{
+//                                      {
 //                                          "value": "274f929dbab8b98a7031bbcd9ea5613c2a28e5e6",
 //                                          "label": "NV_INFO_HASH",
 //                                          "info": {
@@ -415,7 +415,7 @@ type HostStatusCollection struct {
 //                                              "EventName": "OpenSource.EventName"
 //                                          }
 //                                      },
-//{
+//                                      {
 //                                          "value": "ca96de412b4e8c062e570d3013d2fccb4b20250a",
 //                                          "label": "tb_policy",
 //                                          "info": {
@@ -1154,7 +1154,7 @@ type HostStatusCollection struct {
 //                        {
 //                            "pcr_index": "pcr_15",
 //                            "event_log": [
-//{
+//                                {
 //                                    "value": "574d669fc8cae83fe53f32fbed23e581d78e0ab9307c8aa0ba1f5615f1194d43",
 //                                    "label": "ISecL_Default_Application_Flavor_v2.2_TPM2.0-77a13c96-c04a-4d21-84f4-3b7c017d076d",
 //                                    "info": {
@@ -1162,7 +1162,7 @@ type HostStatusCollection struct {
 //                                        "EventName": "OpenSource.EventName"
 //                                    }
 //                                },
-//{
+//                                {
 //                                    "value": "2dff3ae87e6dd29fb60c1c4b3bec614fbe5859eb84712318ecfbf41e7511e923",
 //                                    "label": "ISecL_Default_Workload_Flavor_v2.2-eb01c331-57aa-48cd-95db-87c16f1d1102",
 //                                    "info": {
@@ -1176,7 +1176,7 @@ type HostStatusCollection struct {
 //                        {
 //                            "pcr_index": "pcr_17",
 //                            "event_log": [
-//{
+//                                {
 //                                    "value": "940a487b3a2b3a82858b18c20f55ad9c73522f43aab071f62350093bd7c2d6ba",
 //                                    "label": "HASH_START",
 //                                    "info": {
@@ -1184,7 +1184,7 @@ type HostStatusCollection struct {
 //                                        "EventName": "OpenSource.EventName"
 //                                    }
 //                                },
-//{
+//                                {
 //                                    "value": "7980d1a2034e18a33da6fde28ddd8a296c7147a3e4cea6dc32997f4fc40a97a5",
 //                                    "label": "BIOSAC_REG_DATA",
 //                                    "info": {
@@ -1192,7 +1192,7 @@ type HostStatusCollection struct {
 //                                        "EventName": "OpenSource.EventName"
 //                                    }
 //                                },
-//{
+//                                {
 //                                    "value": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
 //                                    "label": "CPU_SCRTM_STAT",
 //                                    "info": {
@@ -1200,7 +1200,7 @@ type HostStatusCollection struct {
 //                                        "EventName": "OpenSource.EventName"
 //                                    }
 //                                },
-//{
+//                                {
 //                                    "value": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
 //                                    "label": "LCP_CONTROL_HASH",
 //                                    "info": {
@@ -1208,7 +1208,7 @@ type HostStatusCollection struct {
 //                                        "EventName": "OpenSource.EventName"
 //                                    }
 //                                },
-//{
+//                                {
 //                                    "value": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
 //                                    "label": "LCP_DETAILS_HASH",
 //                                    "info": {
@@ -1216,7 +1216,7 @@ type HostStatusCollection struct {
 //                                        "EventName": "OpenSource.EventName"
 //                                    }
 //                                },
-//{
+//                                {
 //                                    "value": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
 //                                    "label": "STM_HASH",
 //                                    "info": {
@@ -1224,7 +1224,7 @@ type HostStatusCollection struct {
 //                                        "EventName": "OpenSource.EventName"
 //                                    }
 //                                },
-//{
+//                                {
 //                                    "value": "d81fe96dc500bc43e1cd5800bef9d72b3d030bdb7e860e10c522e4246b30bd93",
 //                                    "label": "OSSINITDATA_CAP_HASH",
 //                                    "info": {
@@ -1232,7 +1232,7 @@ type HostStatusCollection struct {
 //                                        "EventName": "OpenSource.EventName"
 //                                    }
 //                                },
-//{
+//                                {
 //                                    "value": "236043f5120fce826392d2170dc84f2491367cc8d8d403ab3b83ec24ea2ca186",
 //                                    "label": "MLE_HASH",
 //                                    "info": {
@@ -1240,7 +1240,7 @@ type HostStatusCollection struct {
 //                                        "EventName": "OpenSource.EventName"
 //                                    }
 //                                },
-//{
+//                                {
 //                                    "value": "0f6e0c7a5944963d7081ea494ddff1e9afa689e148e39f684db06578869ea38b",
 //                                    "label": "NV_INFO_HASH",
 //                                    "info": {
@@ -1248,7 +1248,7 @@ type HostStatusCollection struct {
 //                                        "EventName": "OpenSource.EventName"
 //                                    }
 //                                },
-//{
+//                                {
 //                                    "value": "27808f64e6383982cd3bcc10cfcb3457c0b65f465f779d89b668839eaf263a67",
 //                                    "label": "tb_policy",
 //                                    "info": {
@@ -1256,7 +1256,7 @@ type HostStatusCollection struct {
 //                                        "EventName": "OpenSource.EventName"
 //                                    }
 //                                },
-//{
+//                                {
 //                                    "value": "7b533984a9a209e70c1770205df45c7ca671cf2f90e0a83737949324e3ec1778",
 //                                    "label": "vmlinuz",
 //                                    "info": {
@@ -1264,7 +1264,7 @@ type HostStatusCollection struct {
 //                                        "EventName": "OpenSource.EventName"
 //                                    }
 //                                },
-//{
+//                                {
 //                                    "value": "2b6b6bcd39f809e87b14a8a47e751a6919c4ee57b46319f29fa35379c8d84f7a",
 //                                    "label": "initrd",
 //                                    "info": {
@@ -1278,7 +1278,7 @@ type HostStatusCollection struct {
 //                        {
 //                            "pcr_index": "pcr_18",
 //                            "event_log": [
-//{
+//                                {
 //                                    "value": "da256395df4046319ef0af857d377a729e5bc0693429ac827002ffafe485b2e7",
 //                                    "label": "SINIT_PUBKEY_HASH",
 //                                    "info": {
@@ -1286,7 +1286,7 @@ type HostStatusCollection struct {
 //                                        "EventName": "OpenSource.EventName"
 //                                    }
 //                                },
-//{
+//                                {
 //                                    "value": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
 //                                    "label": "CPU_SCRTM_STAT",
 //                                    "info": {
@@ -1294,7 +1294,7 @@ type HostStatusCollection struct {
 //                                        "EventName": "OpenSource.EventName"
 //                                    }
 //                                },
-//{
+//                                {
 //                                    "value": "d81fe96dc500bc43e1cd5800bef9d72b3d030bdb7e860e10c522e4246b30bd93",
 //                                    "label": "OSSINITDATA_CAP_HASH",
 //                                    "info": {
@@ -1302,7 +1302,7 @@ type HostStatusCollection struct {
 //                                        "EventName": "OpenSource.EventName"
 //                                    }
 //                                },
-//{
+//                                {
 //                                    "value": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
 //                                    "label": "LCP_CONTROL_HASH",
 //                                    "info": {
@@ -1310,7 +1310,7 @@ type HostStatusCollection struct {
 //                                        "EventName": "OpenSource.EventName"
 //                                    }
 //                                },
-//{
+//                                {
 //                                    "value": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
 //                                    "label": "LCP_AUTHORITIES_HASH",
 //                                    "info": {
@@ -1318,7 +1318,7 @@ type HostStatusCollection struct {
 //                                        "EventName": "OpenSource.EventName"
 //                                    }
 //                                },
-//{
+//                                {
 //                                    "value": "0f6e0c7a5944963d7081ea494ddff1e9afa689e148e39f684db06578869ea38b",
 //                                    "label": "NV_INFO_HASH",
 //                                    "info": {
@@ -1326,7 +1326,7 @@ type HostStatusCollection struct {
 //                                        "EventName": "OpenSource.EventName"
 //                                    }
 //                                },
-//{
+//                                {
 //                                    "value": "27808f64e6383982cd3bcc10cfcb3457c0b65f465f779d89b668839eaf263a67",
 //                                    "label": "tb_policy",
 //                                    "info": {

@@ -268,7 +268,7 @@ type SignedFlavorCollection struct {
 //                         }
 //                     }
 //                 },
-//                 "pcr_logs": [
+//                 "pcrs": [
 //                     {
 //                         "pcr": {
 //                             "index": 6,
@@ -428,7 +428,7 @@ type SignedFlavorCollection struct {
 //                     "bios_name": "Intel Corporation",
 //                     "bios_version": "WLYDCRB1.SYS.0021.D02.2011260651"
 //                 },
-//                 "pcr_logs": [
+//                 "pcrs": [
 //                     {
 //                         "pcr": {
 //                             "index": 7,
