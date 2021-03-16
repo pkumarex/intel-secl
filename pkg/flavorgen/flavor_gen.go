@@ -16,6 +16,7 @@ import (
 
 	"github.com/google/uuid"
 	controller "github.com/intel-secl/intel-secl/v3/pkg/hvs/controllers"
+	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/types"
 	hcType "github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
@@ -78,20 +79,12 @@ func processJsonFile(manifestFilepath string, flavorTemplates []string) (hcType.
 	var hostManifest hcType.HostManifest
 	var flavors []hvs.FlavorTemplate
 
-	// Read the hostmanifestfile
-	hostManifestJSON, err := ioutil.ReadFile(manifestFilepath)
+	//read the host manifest json
+	hostManifestJSON, err := readJson(manifestFilepath)
 	if err != nil {
-		return hcType.HostManifest{}, nil, errors.Wrap(err, "flavorgen/flavor_gen:processJsonFile() Could not load host manifest file")
+		return hcType.HostManifest{}, nil, errors.New("flavorgen/flavor_gen:processJsonFile() Could not read host manifest json")
 	}
 
-	if len(hostManifestJSON) == 0 {
-		return hcType.HostManifest{}, nil, errors.Wrap(err, "flavorgen/flavor_gen:processJsonFile() Empty hostmanifest file given, unable to proceed further")
-	}
-
-	// Validate the format
-	if !json.Valid(hostManifestJSON) {
-		return hcType.HostManifest{}, nil, errors.New("flavorgen/flavor_gen:processJsonFile() Hostmanifest file is not a valid json")
-	}
 	err = json.Unmarshal(hostManifestJSON, &hostManifest)
 	if err != nil {
 		fmt.Errorf("Could not unmarshal host manifest json %s", err)
@@ -106,18 +99,11 @@ func processJsonFile(manifestFilepath string, flavorTemplates []string) (hcType.
 
 	for _, template := range flavorTemplates {
 		var flavorTemplate hvs.FlavorTemplate
-		flavorJSON, err := ioutil.ReadFile(template)
+
+		//read the flavor template json
+		flavorJSON, err := readJson(template)
 		if err != nil {
-			return hcType.HostManifest{}, nil, errors.Wrap(err, "flavorgen/flavor_gen:processJsonFile() Could not load flavor template file")
-		}
-
-		if len(flavorJSON) == 0 {
-			return hcType.HostManifest{}, nil, errors.Wrap(err, "flavorgen/flavor_gen:processJsonFile() Empty flavor template file is given, unable to proceed further")
-		}
-
-		// Validate the format
-		if !json.Valid(flavorJSON) {
-			return hcType.HostManifest{}, nil, errors.New("flavorgen/flavor_gen:processJsonFile() Given flavor template file is not a valid json")
+			return hcType.HostManifest{}, nil, errors.Wrap(err, "flavorgen/flavor_gen:processJsonFile() Could not read flavor template json")
 		}
 
 		err = json.Unmarshal(flavorJSON, &flavorTemplate)
@@ -279,12 +265,39 @@ func (flavorgen FlavorGen) GenerateFlavors() {
 		exitGracefully(errors.New("Error finding matching templates"))
 	}
 
-	linuxPlatformFlavor := types.NewLinuxPlatformFlavor(&hostmanifest, nil, flavorTemplates)
+	var rp types.PlatformFlavor
+	switch strings.ToUpper(strings.TrimSpace(hostmanifest.HostInfo.OSName)) {
+	case constants.OsVMware:
+		rp = types.NewESXPlatformFlavor(&hostmanifest, nil, flavorTemplates)
+	// Fallback to Linux
+	default:
+		rp = types.NewLinuxPlatformFlavor(&hostmanifest, nil, flavorTemplates)
+	}
 
 	// Create the flavor json
-	err = createFlavor(linuxPlatformFlavor)
+	err = createFlavor(rp)
 	if err != nil {
 		defaultLog.Info("flavorgen/flavor_gen:main() Unable to create flavorpart(s) %s", err)
 		exitGracefully(errors.New("Unable to create flavorpart(s)"))
 	}
+}
+
+//readJson method is used to read the file from input file path and validate
+func readJson(filePath string) ([]byte, error) {
+	// Read the input file
+	inputJson, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return nil, errors.Wrap(err, "flavorgen/flavor_gen:readJson() Could not load the input file")
+	}
+
+	if len(inputJson) == 0 {
+		return nil, errors.New("flavorgen/flavor_gen:readJson() Empty file given, unable to proceed further")
+	}
+
+	// Validate the format
+	if !json.Valid(inputJson) {
+		return nil, errors.New("flavorgen/flavor_gen:readJson() Given file is not a valid json")
+	}
+
+	return inputJson, nil
 }
