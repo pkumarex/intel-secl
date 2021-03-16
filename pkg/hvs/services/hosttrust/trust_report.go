@@ -302,13 +302,13 @@ func getHostManifestMap(hostManifest *types.HostManifest, flavorParts []cf.Flavo
 						Key:   "hardware.feature.CBNT.enabled",
 						Value: hostInfo.HardwareFeatures.CBNT.Enabled,
 					})
-					if hostInfo.HardwareFeatures.CBNT.Enabled {
+					if hostInfo.HardwareFeatures.CBNT.Supported && hostInfo.HardwareFeatures.CBNT.Enabled {
 						pfQueryAttrs = append(pfQueryAttrs, models.FlavorMetaKv{
 							Key:   "hardware.feature.CBNT.meta.profile",
 							Value: hostInfo.HardwareFeatures.CBNT.Meta.Profile,
 						})
 					}
-					if hostInfo.HardwareFeatures.UEFI.Enabled {
+					if hostInfo.HardwareFeatures.UEFI.Supported && hostInfo.HardwareFeatures.UEFI.Enabled {
 						pfQueryAttrs = append(pfQueryAttrs, models.FlavorMetaKv{
 							Key:   "hardware.feature.UEFI.enabled",
 							Value: hostInfo.HardwareFeatures.UEFI.Enabled,
@@ -320,7 +320,7 @@ func getHostManifestMap(hostManifest *types.HostManifest, flavorParts []cf.Flavo
 							Value: hostInfo.HardwareFeatures.UEFI.Meta.SecureBootEnabled,
 						})
 					}
-					if hostInfo.HardwareFeatures.TPM.Enabled {
+					if hostInfo.HardwareFeatures.TPM.Supported && hostInfo.HardwareFeatures.TPM.Enabled {
 						pfQueryAttrs = append(pfQueryAttrs, models.FlavorMetaKv{
 							Key:   "hardware.feature.TPM.enabled",
 							Value: hostInfo.HardwareFeatures.TPM.Enabled,

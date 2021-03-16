@@ -14,6 +14,7 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
 	commLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
+	cf "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
 	fm "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	hcConstants "github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/constants"
@@ -210,6 +211,8 @@ func (pfutil PlatformFlavorUtil) GetHardwareSectionDetails(hostInfo *taModel.Hos
 		// Set TPM Feature presence
 		tpm := fm.TPM{}
 		tpm.Enabled = hostInfo.HardwareFeatures.TPM.Enabled
+		tpm.Supported = hostInfo.HardwareFeatures.TPM.Supported
+
 		tpm.Meta.TPMVersion = hostInfo.HardwareFeatures.TPM.Meta.TPMVersion
 		// split into list
 		tpm.Meta.PCRBanks = strings.Split(hostInfo.HardwareFeatures.TPM.Meta.PCRBanks, constants.PCRBankSeparator)
@@ -218,11 +221,13 @@ func (pfutil PlatformFlavorUtil) GetHardwareSectionDetails(hostInfo *taModel.Hos
 		txt := fm.HardwareFeature{}
 		// Set TXT Feature presence
 		txt.Enabled = hostInfo.HardwareFeatures.TXT.Enabled
+		txt.Supported = hostInfo.HardwareFeatures.TXT.Supported
 		feature.TXT = txt
 
 		cbnt := fm.CBNT{}
 		// set CBNT
 		cbnt.Enabled = hostInfo.HardwareFeatures.CBNT.Enabled
+		cbnt.Supported = hostInfo.HardwareFeatures.CBNT.Supported
 		cbnt.Meta.Profile = hostInfo.HardwareFeatures.CBNT.Meta.Profile
 		cbnt.Meta.MSR = hostInfo.HardwareFeatures.CBNT.Meta.MSR
 		feature.CBNT = cbnt
@@ -230,17 +235,20 @@ func (pfutil PlatformFlavorUtil) GetHardwareSectionDetails(hostInfo *taModel.Hos
 		uefi := fm.UEFI{}
 		// and UEFI state
 		uefi.Enabled = hostInfo.HardwareFeatures.UEFI.Enabled
+		uefi.Supported = hostInfo.HardwareFeatures.UEFI.Supported
 		uefi.Meta.SecureBootEnabled = hostInfo.HardwareFeatures.UEFI.Meta.SecureBootEnabled
 		feature.UEFI = uefi
 
 		bmc := fm.HardwareFeature{}
 		// Set BMC Feature presence
 		bmc.Enabled = hostInfo.HardwareFeatures.BMC.Enabled
+		bmc.Supported = hostInfo.HardwareFeatures.BMC.Supported
 		feature.BMC = bmc
 
 		pfr := fm.HardwareFeature{}
 		// Set PFR Feature presence
 		pfr.Enabled = hostInfo.HardwareFeatures.PFR.Enabled
+		pfr.Supported = hostInfo.HardwareFeatures.PFR.Supported
 		feature.PFR = pfr
 
 		hardware.Feature = &feature
@@ -284,60 +292,76 @@ func (pfutil PlatformFlavorUtil) PcrExists(pcrManifest hcTypes.PcrManifest, pcrL
 
 // GetPcrDetails extracts Pcr values and Event Logs from the HostManifest/PcrManifest and  returns
 // in a format suitable for inserting into the flavor
-func (pfutil PlatformFlavorUtil) GetPcrDetails(pcrManifest hcTypes.PcrManifest, pcrList []int, includeEventLog bool) map[crypt.DigestAlgorithm]map[hcTypes.PcrIndex]fm.PcrEx {
+func (pfutil PlatformFlavorUtil) GetPcrDetails(pcrManifest hcTypes.PcrManifest, pcrList map[hvs.PCR]hvs.PcrListRules, includeEventLog bool) []hcTypes.PCRS {
 	log.Trace("flavor/util/platform_flavor_util:GetPcrDetails() Entering")
 	defer log.Trace("flavor/util/platform_flavor_util:GetPcrDetails() Leaving")
 
-	pcrsWithDigestAlgorithmForFlavor := make(map[crypt.DigestAlgorithm]map[hcTypes.PcrIndex]fm.PcrEx)
+	var pcrCollection []hcTypes.PCRS
 
-	for _, digestBank := range pcrManifest.GetPcrBanks() {
-		pcrsForFlavor := make(map[hcTypes.PcrIndex]fm.PcrEx)
-		var digestAlgorithm crypt.DigestAlgorithm
-		switch digestBank {
-		case hcTypes.SHA1:
-			digestAlgorithm = crypt.SHA1()
-		case hcTypes.SHA256:
-			digestAlgorithm = crypt.SHA256()
-		}
+	// pull out the logs for the required PCRs from both banks
+	for pcr, rules := range pcrList {
+		pI := hcTypes.PcrIndex(pcr.Index)
+		var pcrInfo *hcTypes.Pcr
+		pcrInfo, _ = pcrManifest.GetPcrValue(hcTypes.SHAAlgorithm(pcr.Bank), pI)
 
-		// pull out the logs for the required PCRs from both banks
-		for _, pcrIndex := range pcrList {
-			pI := hcTypes.PcrIndex(pcrIndex)
-			var pcrInfo *hcTypes.Pcr
-			pcrInfo, _ = pcrManifest.GetPcrValue(digestBank, pI)
+		if pcrInfo != nil {
 
-			if pcrInfo != nil {
-				// build the PcrEx which will hold the PcrValue and EventLogs
-				var currPcrEx fm.PcrEx
+			var currPcrEx hcTypes.PCRS
+			currPcrEx.PCR.Index = pcr.Index
+			currPcrEx.PCR.Bank = pcr.Bank
+			currPcrEx.Measurement = pcrInfo.Value
+			currPcrEx.PCRMatches = true
 
-				// Populate Value
-				currPcrEx.Value = pcrInfo.Value
+			// Populate Value
+			// Event logs if allowed
+			if includeEventLog {
+				var eventLogEqualEvents []hcTypes.EventLogCriteria
+				manifestPcrEventLogs, err := pcrManifest.GetEventLogCriteria(hcTypes.SHAAlgorithm(pcr.Bank), pI)
 
-				// Event logs if allowed
-				if includeEventLog {
-					manifestPcrEventLogs, err := pcrManifest.GetPcrEventLog(digestBank, pI)
+				// check if returned logset from PCR is nil
+				if manifestPcrEventLogs != nil && err == nil {
 
-					// check if returned logset from PCR is nil
-					if manifestPcrEventLogs != nil && err == nil {
-						// Convert EventLog to flavor format
-						for _, manifestEventLog := range manifestPcrEventLogs {
-							var currPcrEvent hcTypes.EventLog
-							currPcrEvent = manifestEventLog
-							currPcrEx.Event = append(currPcrEx.Event, currPcrEvent)
+					// Convert EventLog to flavor format
+					for _, manifestEventLog := range manifestPcrEventLogs {
+						if len(manifestEventLog.Tags) == 0 {
+							if rules.PcrEquals.IsPcrEquals {
+								eventLogEqualEvents = append(eventLogEqualEvents, manifestEventLog)
+							}
+						}
+						presentInExcludeTag := false
+						for _, tag := range manifestEventLog.Tags {
+							if _, ok := rules.PcrIncludes[tag]; ok {
+								currPcrEx.EventlogIncludes = append(currPcrEx.EventlogIncludes, manifestEventLog)
+								break
+							} else if rules.PcrEquals.IsPcrEquals {
+								if _, ok := rules.PcrEquals.ExcludingTags[tag]; ok {
+									presentInExcludeTag = true
+									break
+								}
+							}
+						}
+						if !presentInExcludeTag {
+							eventLogEqualEvents = append(eventLogEqualEvents, manifestEventLog)
+						}
+					}
+					if rules.PcrEquals.IsPcrEquals {
+						var EventLogExcludes []string
+						for excludeTag, _ := range rules.PcrEquals.ExcludingTags {
+							EventLogExcludes = append(EventLogExcludes, excludeTag)
+						}
+						currPcrEx.EventlogEqual = &hcTypes.EventLogEqual{
+							Events:      eventLogEqualEvents,
+							ExcludeTags: EventLogExcludes,
 						}
 					}
 				}
-
-				// commit to sha-bank
-				pcrsForFlavor[hcTypes.PcrIndex(pcrIndex)] = currPcrEx
 			}
-		}
 
-		// commit pcr sha-bank to the overall map
-		pcrsWithDigestAlgorithmForFlavor[digestAlgorithm] = pcrsForFlavor
+			pcrCollection = append(pcrCollection, currPcrEx)
+		}
 	}
 	// return map for flavor to use
-	return pcrsWithDigestAlgorithmForFlavor
+	return pcrCollection
 }
 
 // GetExternalConfigurationDetails extracts the External field for the flavor from the HostManifest
@@ -354,112 +378,6 @@ func (pfutil PlatformFlavorUtil) GetExternalConfigurationDetails(tagCertificate 
 	assetTag.TagCertificate = *tagCertificate
 	externalconfiguration.AssetTag = assetTag
 	return &externalconfiguration, nil
-}
-
-// copyInstanceOfPcrDetails - returns a full-clone of the PCRManifest state from the HostManifest
-func (pfutil PlatformFlavorUtil) copyInstanceOfPcrDetails(pcrDetails map[crypt.DigestAlgorithm]map[hcTypes.PcrIndex]fm.PcrEx) map[crypt.DigestAlgorithm]map[hcTypes.PcrIndex]fm.PcrEx {
-	log.Trace("flavor/util/platform_flavor_util:copyInstanceOfPcrDetails() Entering")
-	defer log.Trace("flavor/util/platform_flavor_util:copyInstanceOfPcrDetails() Leaving")
-
-	var pcrDetailsCopy = make(map[crypt.DigestAlgorithm]map[hcTypes.PcrIndex]fm.PcrEx)
-
-	for digestAlgorithm, pcrBank := range pcrDetails {
-		var newPcrIndexMap = make(map[hcTypes.PcrIndex]fm.PcrEx)
-		for pI, pE := range pcrBank {
-			newPcrIndexMap[pI] = pE
-		}
-		pcrDetailsCopy[digestAlgorithm] = newPcrIndexMap
-	}
-	return pcrDetailsCopy
-}
-
-// IncludeModulesToEventLog includes the event logs from HostManifest in the respective PCR event log
-func (pfutil PlatformFlavorUtil) IncludeModulesToEventLog(pcrDetails map[crypt.DigestAlgorithm]map[hcTypes.PcrIndex]fm.PcrEx, modulesToInclude map[string]int) map[crypt.DigestAlgorithm]map[hcTypes.PcrIndex]fm.PcrEx {
-	log.Trace("flavor/util/platform_flavor_util:IncludeModulesToEventLog() Entering")
-	defer log.Trace("flavor/util/platform_flavor_util:IncludeModulesToEventLog() Leaving")
-
-	filteredPcrDetails := pfutil.copyInstanceOfPcrDetails(pcrDetails)
-	// loop across digest banks
-	for digestAlgo, pcrMap := range filteredPcrDetails {
-		// loop across pcrindex for each digestbank
-		for pI, pE := range pcrMap {
-			// include only the events that are needed since it's much harder to remove events
-			// from a slice
-			var eventsToInclude []hcTypes.EventLog
-
-			// Loop through each event and see if it contains a ComponentName key/value.
-			// If it does, see if the ComponentName exists in the 'modulesToInclude' map,
-			// and if not, do not add it to the result.
-			for _, eIX := range pE.Event {
-				if componentName, ok := eIX.Info["ComponentName"]; ok {
-					if _, ok := modulesToInclude[componentName]; !ok {
-						continue
-					}
-				}
-
-				// Remove the dynamic modules for VMware
-				if eventName, ok := eIX.Info["EventName"]; ok && strings.ToLower(eventName) ==
-					strings.ToLower(constants.VMWareComponentName) {
-					if packageName, ok := eIX.Info["PackageName"]; ok && len(packageName) == 0 {
-						continue
-					}
-				}
-
-				log.Debugf("Including module '%s' - '%s' for PCR '%s'", eIX.Label, eIX.Info["ComponentName"], pI.String())
-				eventsToInclude = append(eventsToInclude, eIX)
-			}
-
-			// add ONLY included events to the list
-			pE.Event = eventsToInclude
-			filteredPcrDetails[digestAlgo][pI] = pE
-		}
-	}
-	return filteredPcrDetails
-}
-
-// ExcludeModulesFromEventLog - excludes the event logs from HostManifest out of the respective PCR event log
-func (pfutil PlatformFlavorUtil) ExcludeModulesFromEventLog(pcrDetails map[crypt.DigestAlgorithm]map[hcTypes.PcrIndex]fm.PcrEx, modulesToExclude map[string]int) map[crypt.DigestAlgorithm]map[hcTypes.PcrIndex]fm.PcrEx {
-	log.Trace("flavor/util/platform_flavor_util:ExcludeModulesFromEventLog() Entering")
-	defer log.Trace("flavor/util/platform_flavor_util:ExcludeModulesFromEventLog() Leaving")
-
-	filteredPcrDetails := pfutil.copyInstanceOfPcrDetails(pcrDetails)
-	// loop across digest banks
-	for digestAlgo, pcrMap := range filteredPcrDetails {
-		// loop across pcrindex for each digestbank
-		for pI, pE := range pcrMap {
-			// include only the events that are needed since it's much harder to remove events
-			// from a slice
-			var eventsToInclude []hcTypes.EventLog
-
-			// Loop through each event and see if it contains a ComponentName key/value.
-			// If it does, see if the ComponentName exists in the 'modulesToExclude' map,
-			// and if so, do not add it to the result.
-			for _, eIX := range pE.Event {
-				if componentName, ok := eIX.Info["ComponentName"]; ok {
-					if _, ok := modulesToExclude[componentName]; ok {
-						log.Debugf("Excluding module '%s' - '%s' for PCR '%s'", eIX.Label, eIX.Info["ComponentName"], pI.String())
-						continue
-					}
-				}
-
-				// Remove the dynamic modules for VMware
-				if eventName, ok := eIX.Info["EventName"]; ok && strings.ToLower(eventName) ==
-					strings.ToLower(constants.VMWareComponentName) {
-					if packageName, ok := eIX.Info["PackageName"]; ok && len(packageName) == 0 {
-						log.Debugf("Excluding module '%s' - '%s' for PCR '%s'", eIX.Label, eIX.Info["ComponentName"], pI.String())
-						continue
-					}
-				}
-
-				eventsToInclude = append(eventsToInclude, eIX)
-			}
-
-			// add ONLY included events to the list
-			pE.Event = eventsToInclude
-			filteredPcrDetails[digestAlgo][pI] = pE
-		}
-	}
-	return filteredPcrDetails
 }
 
 // getSupportedHardwareFeatures returns a list of hardware features supported by the host from its HostInfo
@@ -485,7 +403,7 @@ func (pfutil PlatformFlavorUtil) getSupportedHardwareFeatures(hostDetails *taMod
 		features = append(features, constants.Uefi)
 	}
 	if hostDetails.HardwareFeatures.UEFI.Meta.SecureBootEnabled {
-		features = append(features, constants.Sboot)
+		features = append(features, constants.SecureBootEnabled)
 	}
 
 	return features
@@ -552,4 +470,92 @@ func (pfutil PlatformFlavorUtil) GetSignedFlavor(unsignedFlavor *hvs.Flavor, pri
 	}
 
 	return signedFlavor, nil
+}
+
+// GetPcrRulesMap Helper function to calculate the list of PCRs for the flavor part specified based
+// on the version of the TPM hardware.
+func (pfutil PlatformFlavorUtil) GetPcrRulesMap(flavorPart cf.FlavorPart, flavorTemplates []hvs.FlavorTemplate) (map[hvs.PCR]hvs.PcrListRules, error) {
+	log.Trace("flavor/util/platform_flavor_util:getPcrRulesMap() Entering")
+	defer log.Trace("flavor/util/platform_flavor_util:getPcrRulesMap() Leaving")
+
+	pcrRulesForFlavorPart := make(map[hvs.PCR]hvs.PcrListRules)
+	var err error
+	for _, flavorTemplate := range flavorTemplates {
+		switch flavorPart {
+		case cf.FlavorPartPlatform:
+			pcrRulesForFlavorPart, err = getPcrRulesForFlavorPart(flavorTemplate.FlavorParts.Platform, pcrRulesForFlavorPart)
+			if err != nil {
+				return nil, errors.Wrap(err, "flavor/util/platform_flavor_util:getPcrRulesMap() Error getting pcr rules for platform flavor")
+			}
+			break
+		case cf.FlavorPartOs:
+			pcrRulesForFlavorPart, err = getPcrRulesForFlavorPart(flavorTemplate.FlavorParts.OS, pcrRulesForFlavorPart)
+			if err != nil {
+				return nil, errors.Wrap(err, "flavor/util/platform_flavor_util:getPcrRulesMap() Error getting pcr rules for os flavor")
+			}
+			break
+		case cf.FlavorPartHostUnique:
+			pcrRulesForFlavorPart, err = getPcrRulesForFlavorPart(flavorTemplate.FlavorParts.HostUnique, pcrRulesForFlavorPart)
+			if err != nil {
+				return nil, errors.Wrap(err, "flavor/util/platform_flavor_util:getPcrRulesMap() Error getting pcr rules for host unique flavor")
+			}
+			break
+		}
+	}
+
+	return pcrRulesForFlavorPart, nil
+}
+
+func getPcrRulesForFlavorPart(flavorPart *hvs.FlavorPart, pcrList map[hvs.PCR]hvs.PcrListRules) (map[hvs.PCR]hvs.PcrListRules, error) {
+	log.Trace("flavor/util/platform_flavor_util:getPcrRulesForFlavorPart() Entering")
+	defer log.Trace("flavor/util/platform_flavor_util:getPcrRulesForFlavorPart() Leaving")
+
+	if flavorPart == nil {
+		return pcrList, nil
+	}
+
+	if pcrList == nil {
+		pcrList = make(map[hvs.PCR]hvs.PcrListRules)
+	}
+
+	for _, pcrRule := range flavorPart.PcrRules {
+		var rulesList hvs.PcrListRules
+
+		if rules, ok := pcrList[pcrRule.Pcr]; ok {
+			rulesList = rules
+		}
+		if pcrRule.PcrMatches != nil && *pcrRule.PcrMatches {
+			rulesList.PcrMatches = true
+		}
+		if rulesList.PcrIncludes != nil && pcrRule.EventlogEquals != nil {
+			return nil, errors.New("flavor/util/platform_flavor_util:getPcrRulesForFlavorPart() Error getting pcrList : Both event log equals and includes rule present for single pcr index/bank")
+		}
+		if pcrRule.EventlogEquals != nil {
+			rulesList.PcrEquals.IsPcrEquals = true
+			if pcrRule.EventlogEquals.ExcludingTags != nil {
+				rulesList.PcrEquals.ExcludingTags = make(map[string]bool)
+				for _, tags := range pcrRule.EventlogEquals.ExcludingTags {
+					if _, ok := rulesList.PcrEquals.ExcludingTags[tags]; !ok {
+						rulesList.PcrEquals.ExcludingTags[tags] = false
+					}
+				}
+			}
+		}
+
+		if rulesList.PcrEquals.IsPcrEquals == true && pcrRule.EventlogIncludes != nil {
+			return nil, errors.New("flavor/util/platform_flavor_util:getPcrRulesForFlavorPart() Error getting pcrList : Both event log equals and includes rule present for single pcr index/bank")
+		}
+
+		if pcrRule.EventlogIncludes != nil {
+			rulesList.PcrIncludes = make(map[string]bool)
+			for _, tags := range pcrRule.EventlogIncludes {
+				if _, ok := rulesList.PcrIncludes[tags]; !ok {
+					rulesList.PcrIncludes[tags] = true
+				}
+			}
+		}
+		pcrList[pcrRule.Pcr] = rulesList
+	}
+
+	return pcrList, nil
 }

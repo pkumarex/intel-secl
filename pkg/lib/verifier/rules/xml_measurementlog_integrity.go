@@ -12,7 +12,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"reflect"
 	"strings"
 
 	"github.com/google/uuid"
@@ -90,65 +89,37 @@ func (rule *xmlMeasurementLogIntegrity) Apply(hostManifest *types.HostManifest) 
 				fault := newXmlMeasurementValueMismatch(rule.expectedCumulativeHash, calculatedHash)
 				result.Faults = append(result.Faults, fault)
 			} else {
-				// If the pcr event log is present, see if it has a measurement that
-				// matches the flavor label.  The event log label will be the concatenation
-				// of the flavor name and the flavor id similar to...
-				// 'ISecL_Default_Application_Flavor_v2.1_TPM2.0-339a7ac6-b8be-4356-ab34-be6e3bdfa1ed'
-				pcrEventLogMeasurement := ""
-				labelToMatch := rule.flavorLabel + "-" + rule.flavorId.String()
-				errLabel := false
-
 				// now check the pcr event logs...
-				if !reflect.DeepEqual(hostManifest.PcrManifest.PcrEventLogMapLinux, types.PcrEventLogMapFC{}) {
-					pcrNewEventLogs, err := hostManifest.PcrManifest.GetEventLogCriteria(types.SHA256, types.PcrIndex(types.PCR15))
-					if err != nil {
-						// the event log was missing from the manifest...
-						fault := newPcrEventLogMissingFault(types.PCR15, types.SHA256)
-						result.Faults = append(result.Faults, fault)
-						errLabel = true
-					} else {
-						for _, eventLog := range pcrNewEventLogs {
+				pcrNewEventLogs, err := hostManifest.PcrManifest.GetEventLogCriteria(types.SHA256, types.PcrIndex(types.PCR15))
+				if err != nil {
+					// the event log was missing from the manifest...
+					fault := newPcrEventLogMissingFault(types.PCR15, types.SHA256)
+					result.Faults = append(result.Faults, fault)
+				} else {
+					// If the pcr event log is present, see if it has a measurement that
+					// matches the flavor label.  The event log label will be the concatenation
+					// of the flavor name and the flavor id similar to...
+					// 'ISecL_Default_Application_Flavor_v2.1_TPM2.0-339a7ac6-b8be-4356-ab34-be6e3bdfa1ed'
+					pcrEventLogMeasurement := ""
+					labelToMatch := rule.flavorLabel + "-" + rule.flavorId.String()
+
+					for _, eventLog := range pcrNewEventLogs {
+						for _, tag := range eventLog.Tags {
+							if tag == labelToMatch {
+								pcrEventLogMeasurement = eventLog.Measurement
+								break
+							}
+						}
+						if strings.Contains(rule.flavorLabel, constants.DefaultSoftwareFlavorPrefix) ||
+							strings.Contains(rule.flavorLabel, constants.DefaultWorkloadFlavorPrefix) {
 							for _, tag := range eventLog.Tags {
-								if tag == labelToMatch {
+								if strings.HasPrefix(tag, rule.flavorLabel) {
 									pcrEventLogMeasurement = eventLog.Measurement
 									break
 								}
 							}
-							if strings.Contains(rule.flavorLabel, constants.DefaultSoftwareFlavorPrefix) ||
-								strings.Contains(rule.flavorLabel, constants.DefaultWorkloadFlavorPrefix) {
-								for _, tag := range eventLog.Tags {
-									if strings.HasPrefix(tag, rule.flavorLabel) {
-										pcrEventLogMeasurement = eventLog.Measurement
-										break
-									}
-								}
-							}
 						}
 					}
-				} else {
-					pcrEventLogs, err := hostManifest.PcrManifest.GetPcrEventLog(types.SHA256, types.PcrIndex(types.PCR15))
-					if err != nil {
-						// the event log was missing from the manifest...
-						fault := newPcrEventLogMissingFault(types.PCR15, types.SHA256)
-						result.Faults = append(result.Faults, fault)
-						errLabel = true
-					} else {
-						for _, eventLog := range pcrEventLogs {
-							if eventLog.Label == labelToMatch {
-								pcrEventLogMeasurement = eventLog.Value
-								break
-							}
-							if (strings.Contains(rule.flavorLabel, constants.DefaultSoftwareFlavorPrefix) ||
-								strings.Contains(rule.flavorLabel, constants.DefaultWorkloadFlavorPrefix)) &&
-								strings.HasPrefix(eventLog.Label, rule.flavorLabel) {
-								pcrEventLogMeasurement = eventLog.Value
-								break
-							}
-						}
-					}
-				}
-
-				if errLabel != true {
 					if pcrEventLogMeasurement == "" {
 						// the pcr event did not have a measurement with the flavor label
 						fault := hvs.Fault{
@@ -157,7 +128,6 @@ func (rule *xmlMeasurementLogIntegrity) Apply(hostManifest *types.HostManifest) 
 							ExpectedValue: &pcrEventLogMeasurement,
 							ActualValue:   &calculatedHash,
 						}
-
 						result.Faults = append(result.Faults, fault)
 					} else {
 
@@ -183,7 +153,6 @@ func (rule *xmlMeasurementLogIntegrity) Apply(hostManifest *types.HostManifest) 
 								ExpectedValue: &pcrEventLogMeasurement,
 								ActualValue:   &calculatedSha256String,
 							}
-
 							result.Faults = append(result.Faults, fault)
 						}
 					}

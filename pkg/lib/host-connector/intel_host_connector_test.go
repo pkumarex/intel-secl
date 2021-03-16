@@ -99,84 +99,49 @@ func TestEventReplay256(t *testing.T) {
 	// this data was extracted from an existing host manifest...
 	eventLogJson := `
 	{
-		"pcr_index": "pcr_18",
-		"event_log": [
+		"pcr": {
+			"index": 18,
+			"bank": "SHA256"
+		},
+		"tpm_events": [
 			{
-				"value": "da256395df4046319ef0af857d377a729e5bc0693429ac827002ffafe485b2e7",
-				"label": "SINIT_PUBKEY_HASH",
-				"info": {
-					"ComponentName": "SINIT_PUBKEY_HASH",
-					"EventName": "OpenSource.EventName"
-				}
+				"type_id": "0x40c",
+				"type_name": "LCP_CONTROL_HASH",
+				"tags": [
+					"LCP_CONTROL_HASH"
+				],
+				"measurement": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119"
 			},
 			{
-				"value": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
-				"label": "CPU_SCRTM_STAT",
-				"info": {
-					"ComponentName": "CPU_SCRTM_STAT",
-					"EventName": "OpenSource.EventName"
-				}
-			},
-			{
-				"value": "d81fe96dc500bc43e1cd5800bef9d72b3d030bdb7e860e10c522e4246b30bd93",
-				"label": "OSSINITDATA_CAP_HASH",
-				"info": {
-					"ComponentName": "OSSINITDATA_CAP_HASH",
-					"EventName": "OpenSource.EventName"
-				}
-			},
-			{
-				"value": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
-				"label": "LCP_CONTROL_HASH",
-				"info": {
-					"ComponentName": "LCP_CONTROL_HASH",
-					"EventName": "OpenSource.EventName"
-				}
-			},
-			{
-				"value": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
-				"label": "LCP_AUTHORITIES_HASH",
-				"info": {
-					"ComponentName": "LCP_AUTHORITIES_HASH",
-					"EventName": "OpenSource.EventName"
-				}
-			},
-			{
-				"value": "0f6e0c7a5944963d7081ea494ddff1e9afa689e148e39f684db06578869ea38b",
-				"label": "NV_INFO_HASH",
-				"info": {
-					"ComponentName": "NV_INFO_HASH",
-					"EventName": "OpenSource.EventName"
-				}
-			},
-			{
-				"value": "27808f64e6383982cd3bcc10cfcb3457c0b65f465f779d89b668839eaf263a67",
-				"label": "tb_policy",
-				"info": {
-					"ComponentName": "tb_policy",
-					"EventName": "OpenSource.EventName"
-				}
+				"type_id": "0x501",
+				"type_name": "initrd",
+				"tags": [
+					"initrd"
+				],
+				"measurement": "22cfecd21f4de210d16829f786719798a351a5554bfc659911064d85e60ebade"
 			}
-		],
-		"pcr_bank": "SHA256"
-	}`
+		]
+	 }`
 
 	pcr18json := `
 	{
-		"index": "pcr_18",
-		"value": "d9e55bd1c570a6408fb1368f3663ae92747241fc4d2a3622cef0efadae284d75",
-		"pcr_bank": "SHA256"
+		"pcr": {
+			"index": 18,
+			"bank": "SHA256"
+		},
+		"measurement": "f35c6f35fd9e16354494f842ebf9f88842a4bf84df059eaf2909e93de90354aa",
+		"pcr_matches": true
 	}`
 
-	var eventLogEntry types.EventLogEntry
-	var pcr18 types.Pcr
+	var eventLogEntry types.TpmEventLog
+	var pcr18 types.PCRS
 
 	assert.NoError(t, json.Unmarshal([]byte(eventLogJson), &eventLogEntry))
 	assert.NoError(t, json.Unmarshal([]byte(pcr18json), &pcr18))
 
 	cumulativeHash, err := eventLogEntry.Replay()
 	assert.NoError(t, err)
-	assert.Equal(t, pcr18.Value, cumulativeHash)
+	assert.Equal(t, pcr18.Measurement, cumulativeHash)
 }
 
 func TestGetMeasurementFromManifest(t *testing.T) {

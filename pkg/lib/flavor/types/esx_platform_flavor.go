@@ -12,7 +12,6 @@ package types
 import (
 	"crypto"
 	"encoding/hex"
-	"strings"
 
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
 	cf "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
@@ -20,6 +19,7 @@ import (
 	cm "github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	hcConstants "github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/constants"
 	hcTypes "github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
+	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
 )
@@ -36,20 +36,22 @@ var (
 
 // ESXPlatformFlavor is used to generate various Flavors for a VMWare ESX-based host
 type ESXPlatformFlavor struct {
-	HostManifest   *hcTypes.HostManifest        `json:"host_manifest"`
-	HostInfo       *taModel.HostInfo            `json:"host_info"`
-	TagCertificate *cm.X509AttributeCertificate `json:"tag_certificate"`
+	HostManifest    *hcTypes.HostManifest        `json:"host_manifest"`
+	HostInfo        *taModel.HostInfo            `json:"host_info"`
+	TagCertificate  *cm.X509AttributeCertificate `json:"tag_certificate"`
+	FlavorTemplates []hvs.FlavorTemplate
 }
 
 // NewESXPlatformFlavor returns an instance of ESXPlaformFlavor
-func NewESXPlatformFlavor(manifest *hcTypes.HostManifest, tagCertificate *cm.X509AttributeCertificate) PlatformFlavor {
+func NewESXPlatformFlavor(manifest *hcTypes.HostManifest, tagCertificate *cm.X509AttributeCertificate, flavorTemplates []hvs.FlavorTemplate) PlatformFlavor {
 	log.Trace("flavor/types/esx_platform_flavor:NewESXPlatformFlavor() Entering")
 	defer log.Trace("flavor/types/esx_platform_flavor:NewESXPlatformFlavor() Leaving")
 
 	return ESXPlatformFlavor{
-		HostManifest:   manifest,
-		HostInfo:       &manifest.HostInfo,
-		TagCertificate: tagCertificate,
+		HostManifest:    manifest,
+		HostInfo:        &manifest.HostInfo,
+		TagCertificate:  tagCertificate,
+		FlavorTemplates: flavorTemplates,
 	}
 }
 
@@ -72,76 +74,13 @@ func (esxpf ESXPlatformFlavor) GetFlavorPartRaw(name cf.FlavorPart) ([]cm.Flavor
 	return nil, cf.UNKNOWN_FLAVOR_PART()
 }
 
-// GetFlavorPartNames retrieves the list of flavor parts that can be obtained using the GetFlavorPartRaw function
 func (esxpf ESXPlatformFlavor) GetFlavorPartNames() ([]cf.FlavorPart, error) {
 	log.Trace("flavor/types/esx_platform_flavor:GetFlavorPartNames() Entering")
 	defer log.Trace("flavor/types/esx_platform_flavor:GetFlavorPartNames() Leaving")
 
-	flavorPartList := []cf.FlavorPart{cf.FlavorPartPlatform, cf.FlavorPartOs, cf.FlavorPartHostUnique, cf.FlavorPartSoftware}
-	var pcrDetails map[crypt.DigestAlgorithm]map[hcTypes.PcrIndex]cm.PcrEx
-
-	// For each of the flavor parts, check what PCRs are required and if those required PCRs are present in the host report.
-	for i := 0; i < len(flavorPartList); i++ {
-		flavorPart := flavorPartList[i]
-		pcrList := esxpf.getPcrList(esxpf.HostInfo.HardwareFeatures.TPM.Meta.TPMVersion, flavorPart)
-		pcrExists := pfutil.PcrExists(esxpf.HostManifest.PcrManifest, pcrList)
-		if !pcrExists {
-			// remove the non-existent FlavorPart from list
-			flavorPartList = append(flavorPartList[:i], flavorPartList[i+1:]...)
-		}
-	}
-
-	// Check if the AssetTag flavor part is available by ascertaining if contents of PCR22 are set
-	pcrDetails = pfutil.GetPcrDetails(esxpf.HostManifest.PcrManifest, []int{22}, false)
-	if pcrDetails == nil {
-		return []cf.FlavorPart{}, errors.Errorf("Error fetching PCR22 Details")
-	}
-
-	// loop through till PCR22 is found and then check if it is unset
-	for _, digestAlgEntry := range pcrDetails {
-		for pcrIndexKey, pcrIndexValue := range digestAlgEntry {
-			if pcrIndexKey == hcTypes.PCR22 && strings.ToLower(pcrIndexValue.Value) != strings.ToLower(string(crypt.SHA1().ZeroHash())) {
-				flavorPartList = append(flavorPartList, cf.FlavorPartAssetTag)
-				break
-			}
-		}
-	}
-	return flavorPartList, nil
-}
-
-// GetPcrList Helper function to calculate the list of PCRs for the flavor part specified based
-// on the version of the TPM hardware. TPM 2.0 support is available since ISecL v1.2
-func (esxpf ESXPlatformFlavor) getPcrList(tpmVersion string, flavorPart cf.FlavorPart) []int {
-	log.Trace("flavor/types/esx_platform_flavor:getPcrList() Entering")
-	defer log.Trace("flavor/types/esx_platform_flavor:getPcrList() Leaving")
-
-	var pcrs []int
-	var isTpm20 bool
-	isTpm20 = tpmVersion == constants.TPMVersion2
-	switch flavorPart {
-	case cf.FlavorPartPlatform:
-		if isTpm20 {
-			pcrs = append(pcrs, []int{0, 17, 18}...)
-		} else {
-			pcrs = append(pcrs, []int{0, 17}...)
-		}
-	case cf.FlavorPartOs:
-		if isTpm20 {
-			pcrs = append(pcrs, []int{19, 20, 21}...)
-		} else {
-			pcrs = append(pcrs, []int{18, 19, 20}...)
-		}
-	case cf.FlavorPartHostUnique:
-		if isTpm20 {
-			pcrs = append(pcrs, []int{20, 21}...)
-		} else {
-			pcrs = append(pcrs, []int{19}...)
-		}
-
-	case cf.FlavorPartAssetTag:
-		pcrs = append(pcrs, []int{22}...)
-	}
-	return pcrs
+	return []cf.FlavorPart{
+		cf.FlavorPartPlatform, cf.FlavorPartOs,
+		cf.FlavorPartHostUnique, cf.FlavorPartAssetTag}, nil
 }
 
 // eventLogRequiredForEsx Helper function to determine if the event log associated with the PCR
@@ -176,7 +115,10 @@ func (esxpf ESXPlatformFlavor) getPlatformFlavor() ([]cm.Flavor, error) {
 	defer log.Trace("flavor/types/esx_platform_flavor:getPlatformFlavor() Leaving")
 
 	var errorMessage = "Error during creation of PLATFORM flavor"
-	var platformPcrs = esxpf.getPcrList(esxpf.HostInfo.HardwareFeatures.TPM.Meta.TPMVersion, cf.FlavorPartPlatform)
+	platformPcrs, err := pfutil.GetPcrRulesMap(cf.FlavorPartPlatform, esxpf.FlavorTemplates)
+	if err != nil {
+		return nil, errors.Wrap(err, "flavor/types/esx_platform_flavor:getPlatformFlavor() "+errorMessage+" Failure in getting pcrlist")
+	}
 	var includeEventLog = eventLogRequiredForEsx(esxpf.HostInfo.HardwareFeatures.TPM.Meta.TPMVersion, cf.FlavorPartPlatform)
 	var flavorPcrs = pfutil.GetPcrDetails(esxpf.HostManifest.PcrManifest, platformPcrs, includeEventLog)
 
@@ -184,6 +126,12 @@ func (esxpf ESXPlatformFlavor) getPlatformFlavor() ([]cm.Flavor, error) {
 		hcConstants.VendorVMware)
 	if err != nil {
 		return nil, errors.Wrap(err, errorMessage+" - Failure in Meta section details")
+	}
+	log.Debugf("flavor/types/esx_platform_flavor:getPlatformFlavor() New Meta Section: %v", *newMeta)
+
+	newMeta = UpdateMetaSectionDetails(cf.FlavorPartPlatform, newMeta, esxpf.FlavorTemplates)
+	if err != nil {
+		return nil, errors.Wrap(err, "flavor/types/esx_platform_flavor:getPlatformFlavor() "+errorMessage+" failure in Updating Meta section details")
 	}
 	log.Debugf("flavor/types/esx_platform_flavor:getPlatformFlavor() New Meta Section: %v", *newMeta)
 
@@ -200,7 +148,7 @@ func (esxpf ESXPlatformFlavor) getPlatformFlavor() ([]cm.Flavor, error) {
 	log.Debugf("flavor/types/esx_platform_flavor:getPlatformFlavor() New Hardware Section: %v", *newHW)
 
 	// Assemble the Platform Flavor
-	platformFlavor := cm.NewFlavor(newMeta, newBios, newHW, flavorPcrs, nil, nil, nil)
+	platformFlavor := cm.NewFlavor(newMeta, newBios, newHW, flavorPcrs, nil, nil)
 
 	log.Debugf("flavor/types/esx_platform_flavor:getPlatformFlavor() New PlatformFlavor: %v", platformFlavor)
 
@@ -216,16 +164,24 @@ func (esxpf ESXPlatformFlavor) getOsFlavor() ([]cm.Flavor, error) {
 	var errorMessage = "Error during creation of OS flavor"
 	var err error
 
-	var osPcrs = esxpf.getPcrList(esxpf.HostInfo.HardwareFeatures.TPM.Meta.TPMVersion, cf.FlavorPartOs)
+	osPcrs, err := pfutil.GetPcrRulesMap(cf.FlavorPartOs, esxpf.FlavorTemplates)
+	if err != nil {
+		return nil, errors.Wrap(err, "flavor/types/esx_platform_flavor:getOsFlavor() "+errorMessage+" Failure in getting pcrlist")
+	}
 	var includeEventLog = eventLogRequiredForEsx(esxpf.HostInfo.HardwareFeatures.TPM.Meta.TPMVersion, cf.FlavorPartOs)
 
-	pcrAllEventDetails := pfutil.GetPcrDetails(esxpf.HostManifest.PcrManifest, osPcrs, includeEventLog)
-	filteredPcrDetails := pfutil.ExcludeModulesFromEventLog(pcrAllEventDetails, hostSpecificModules)
+	filteredPcrDetails := pfutil.GetPcrDetails(esxpf.HostManifest.PcrManifest, osPcrs, includeEventLog)
 
 	newMeta, err := pfutil.GetMetaSectionDetails(esxpf.HostInfo, esxpf.TagCertificate, "", cf.FlavorPartOs,
 		hcConstants.VendorVMware)
 	if err != nil {
 		return nil, errors.Wrap(err, errorMessage+" - Failure in Meta section details")
+	}
+	log.Debugf("flavor/types/esx_platform_flavor:getOsFlavor() New Meta Section: %v", *newMeta)
+
+	newMeta = UpdateMetaSectionDetails(cf.FlavorPartOs, newMeta, esxpf.FlavorTemplates)
+	if err != nil {
+		return nil, errors.Wrap(err, "flavor/types/esx_platform_flavor:getOsFlavor() "+errorMessage+" failure in Updating Meta section details")
 	}
 	log.Debugf("flavor/types/esx_platform_flavor:getOsFlavor() New Meta Section: %v", *newMeta)
 
@@ -236,7 +192,7 @@ func (esxpf ESXPlatformFlavor) getOsFlavor() ([]cm.Flavor, error) {
 	log.Debugf("flavor/types/esx_platform_flavor:getOsFlavor() New Bios Section: %v", *newBios)
 
 	// Assemble the OS Flavor
-	osFlavor := cm.NewFlavor(newMeta, newBios, nil, filteredPcrDetails, nil, nil, nil)
+	osFlavor := cm.NewFlavor(newMeta, newBios, nil, filteredPcrDetails, nil, nil)
 
 	log.Debugf("flavor/types/esx_platform_flavor:getOsFlavor() New OS Flavor: %v", osFlavor)
 
@@ -254,11 +210,13 @@ func (esxpf ESXPlatformFlavor) getHostUniqueFlavor() ([]cm.Flavor, error) {
 	var errorMessage = "Error during creation of HOST_UNIQUE flavor"
 	var err error
 
-	var hostUniquePcrs = esxpf.getPcrList(esxpf.HostInfo.HardwareFeatures.TPM.Meta.TPMVersion, cf.FlavorPartHostUnique)
+	hostUniquePcrs, err := pfutil.GetPcrRulesMap(cf.FlavorPartHostUnique, esxpf.FlavorTemplates)
+	if err != nil {
+		return nil, errors.Wrap(err, "flavor/types/esx_platform_flavor:getHostUniqueFlavor() "+errorMessage+" Failure in getting pcrlist")
+	}
 	var includeEventLog = eventLogRequiredForEsx(esxpf.HostInfo.HardwareFeatures.TPM.Meta.TPMVersion, cf.FlavorPartHostUnique)
 
-	var pcrDetails = pfutil.GetPcrDetails(esxpf.HostManifest.PcrManifest, hostUniquePcrs, includeEventLog)
-	var flavorPcrs = pfutil.IncludeModulesToEventLog(pcrDetails, hostSpecificModules)
+	var flavorPcrs = pfutil.GetPcrDetails(esxpf.HostManifest.PcrManifest, hostUniquePcrs, includeEventLog)
 
 	// Assemble Meta and Bios information for HOST_UNIQUE flavor
 	newMeta, err := pfutil.GetMetaSectionDetails(esxpf.HostInfo, esxpf.TagCertificate, "", cf.FlavorPartHostUnique,
@@ -268,6 +226,12 @@ func (esxpf ESXPlatformFlavor) getHostUniqueFlavor() ([]cm.Flavor, error) {
 	}
 	log.Debugf("flavor/types/esx_platform_flavor:getHostUniqueFlavor() New Meta Section: %v", *newMeta)
 
+	newMeta = UpdateMetaSectionDetails(cf.FlavorPartHostUnique, newMeta, esxpf.FlavorTemplates)
+	if err != nil {
+		return nil, errors.Wrap(err, "flavor/types/esx_platform_flavor:getHostUniqueFlavor() "+errorMessage+" failure in Updating Meta section details")
+	}
+	log.Debugf("flavor/types/esx_platform_flavor:getPlatformFlavor() New Meta Section: %v", *newMeta)
+
 	newBios := pfutil.GetBiosSectionDetails(esxpf.HostInfo)
 	if newBios == nil {
 		return nil, errors.Wrap(err, errorMessage+" Failure in Bios section details")
@@ -275,7 +239,7 @@ func (esxpf ESXPlatformFlavor) getHostUniqueFlavor() ([]cm.Flavor, error) {
 	log.Debugf("flavor/types/esx_platform_flavor:getHostUniqueFlavor() New Bios Section: %v", *newBios)
 
 	// Assemble the HOST_UNIQUE Flavor
-	hostUniqueFlavors := cm.NewFlavor(newMeta, newBios, nil, flavorPcrs, nil, nil, nil)
+	hostUniqueFlavors := cm.NewFlavor(newMeta, newBios, nil, flavorPcrs, nil, nil)
 	log.Debugf("flavor/types/esx_platform_flavor:getHostUniqueFlavor() New HOST_UNIQUE Flavor: %v", hostUniqueFlavors)
 
 	return []cm.Flavor{*hostUniqueFlavors}, nil
@@ -302,12 +266,14 @@ func (esxpf ESXPlatformFlavor) getAssetTagFlavor() ([]cm.Flavor, error) {
 		return nil, errors.Wrap(err, errorMessage+" Failure in evaluating certificate digest")
 	}
 
-	expectedEventLogEntry := hcTypes.EventLogEntry{
-		PcrIndex: hcTypes.PCR22,
-		PcrBank:  hcTypes.SHA1,
-		EventLogs: []hcTypes.EventLog{
+	expectedEventLogEntry := hcTypes.TpmEventLog{
+		Pcr: hcTypes.PCR{
+			Index: 22,
+			Bank:  "SHA1",
+		},
+		TpmEvent: []hcTypes.EventLogCriteria{
 			{
-				Value: hex.EncodeToString(tagCertificateHash),
+				Measurement: hex.EncodeToString(tagCertificateHash),
 			},
 		},
 	}
@@ -317,11 +283,16 @@ func (esxpf ESXPlatformFlavor) getAssetTagFlavor() ([]cm.Flavor, error) {
 		return nil, errors.Wrap(err, errorMessage+" Failure in evaluating PCR22 value")
 	}
 
-	// Add the expected PCR 22 value to respective hash maps
-	var pcr22 = make(map[hcTypes.PcrIndex]cm.PcrEx)
-	pcr22[hcTypes.PCR22] = *cm.NewPcrEx(expectedPcrValue, nil)
-	var pcrDetails = make(map[crypt.DigestAlgorithm]map[hcTypes.PcrIndex]cm.PcrEx)
-	pcrDetails[crypt.SHA1()] = pcr22
+	pcrDetails := []hcTypes.PCRS{
+		{
+			PCR: hcTypes.PCR{
+				Index: 22,
+				Bank:  "SHA1",
+			},
+			Measurement: expectedPcrValue,
+			PCRMatches:  true,
+		},
+	}
 
 	// Assemble meta and bios details
 	newMeta, err := pfutil.GetMetaSectionDetails(esxpf.HostInfo, esxpf.TagCertificate, "", cf.FlavorPartAssetTag,
@@ -344,7 +315,7 @@ func (esxpf ESXPlatformFlavor) getAssetTagFlavor() ([]cm.Flavor, error) {
 	log.Debugf("flavor/types/esx_platform_flavor:getAssetTagFlavor() New External Section: %v", *newExtConfig)
 
 	// Assemble the ASSET_TAG Flavor
-	assetTagFlavor := cm.NewFlavor(newMeta, newBios, nil, pcrDetails, nil, newExtConfig, nil)
+	assetTagFlavor := cm.NewFlavor(newMeta, newBios, nil, pcrDetails, newExtConfig, nil)
 
 	log.Debugf("flavor/types/esx_platform_flavor:getAssetTagFlavor() New Asset Tag Flavor: %v", assetTagFlavor)
 

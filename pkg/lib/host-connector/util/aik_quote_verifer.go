@@ -340,7 +340,7 @@ func createPCRManifest(pcrList []string, eventLog string) (types.PcrManifest, er
 			}
 		}
 	}
-	pcrManifest.PcrEventLogMapLinux, err = getPcrEventLog(eventLog)
+	pcrManifest.PcrEventLogMap, err = getPcrEventLog(eventLog)
 	if err != nil {
 		log.Errorf("util/aik_quote_verifier:createPCRManifest() Error getting PCR event log : %s", err.Error())
 		return pcrManifest, errors.Wrap(err, "util/aik_quote_verifier:createPCRManifest() Error getting PCR "+
@@ -349,15 +349,15 @@ func createPCRManifest(pcrList []string, eventLog string) (types.PcrManifest, er
 	return pcrManifest, nil
 }
 
-func getPcrEventLog(eventLog string) (types.PcrEventLogMapFC, error) {
+func getPcrEventLog(eventLog string) (types.PcrEventLogMap, error) {
 
 	log.Trace("util/aik_quote_verifier:getPcrEventLog() Entering")
 	defer log.Trace("util/aik_quote_verifier:getPcrEventLog() Leaving")
-	var pcrEventLogMap types.PcrEventLogMapFC
+	var pcrEventLogMap types.PcrEventLogMap
 	var measureLogs []types.MeasureLog
 	err := json.Unmarshal([]byte(eventLog), &measureLogs)
 	if err != nil {
-		return types.PcrEventLogMapFC{}, errors.Wrap(err, "util/aik_quote_verifier:getPcrEventLog() Error unmarshalling measureLog")
+		return types.PcrEventLogMap{}, errors.Wrap(err, "util/aik_quote_verifier:getPcrEventLog() Error unmarshalling measureLog")
 	}
 	for _, measureLog := range measureLogs {
 		pcrEventLogMap = addPcrEntry(measureLog, pcrEventLogMap)
@@ -365,7 +365,7 @@ func getPcrEventLog(eventLog string) (types.PcrEventLogMapFC, error) {
 	return pcrEventLogMap, nil
 }
 
-func addPcrEntry(module types.MeasureLog, eventLogMap types.PcrEventLogMapFC) types.PcrEventLogMapFC {
+func addPcrEntry(module types.MeasureLog, eventLogMap types.PcrEventLogMap) types.PcrEventLogMap {
 
 	log.Trace("util/aik_quote_verifier:addPcrEntry() Entering")
 	defer log.Trace("util/aik_quote_verifier:addPcrEntry() Leaving")

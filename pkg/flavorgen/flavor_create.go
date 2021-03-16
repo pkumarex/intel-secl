@@ -18,7 +18,7 @@ import (
 var defaultLog = commLog.GetDefaultLogger()
 
 //create the flavorpart json
-func createFlavor(linuxPlatformFlavor flavorType.PlatformFlavor) error {
+func createFlavor(platformFlavor flavorType.PlatformFlavor) error {
 	defaultLog.Trace("flavorgen/flavor_create:createFlavor() Entering")
 	defer defaultLog.Trace("flavorgen/flavor_create:createFlavor() Leaving")
 
@@ -27,7 +27,7 @@ func createFlavor(linuxPlatformFlavor flavorType.PlatformFlavor) error {
 
 	flavorParts := []commFlavor.FlavorPart{commFlavor.FlavorPartPlatform, commFlavor.FlavorPartOs, commFlavor.FlavorPartHostUnique}
 	for _, flavorPart := range flavorParts {
-		unSignedFlavors, err := linuxPlatformFlavor.GetFlavorPartRaw(flavorPart)
+		unSignedFlavors, err := platformFlavor.GetFlavorPartRaw(flavorPart)
 		if err != nil {
 			return errors.Wrapf(err, "flavorgen/flavor_create:createFlavor() Unable to create flavor part %s", flavorPart)
 		}

@@ -5,11 +5,14 @@
 package postgres
 
 import (
+	"reflect"
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
 	commErr "github.com/intel-secl/intel-secl/v3/pkg/lib/common/err"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
+	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 )
 
@@ -79,14 +82,19 @@ func (ft *FlavorTemplateStore) Retrieve(templateID uuid.UUID, includeDeleted boo
 }
 
 // Search flavor template
-func (ft *FlavorTemplateStore) Search(includeDeleted bool) ([]hvs.FlavorTemplate, error) {
+func (ft *FlavorTemplateStore) Search(criteria *models.FlavorTemplateFilterCriteria) ([]hvs.FlavorTemplate, error) {
 	defaultLog.Trace("postgres/flavortemplate_store:Search() Entering")
 	defer defaultLog.Trace("postgres/flavortemplate_store:Search() Leaving")
 
-	flavortemplates := []hvs.FlavorTemplate{}
-	rows, err := ft.Store.Db.Model(flavorTemplate{}).Select("id,content,deleted").Rows()
+	tx := ft.buildFlavorTemplateSearchQuery(ft.Store.Db, criteria)
+	if tx == nil {
+		return nil, errors.New("postgres/flavortemplate_store:Search() Unexpected Error. Could not build" +
+			" a gorm query object.")
+	}
+
+	rows, err := tx.Rows()
 	if err != nil {
-		return nil, errors.Wrap(err, "postgres/flavortemplate_store:Search() Failed to retrieve records from db")
+		return nil, errors.Wrap(err, "postgres/flavortemplate_store:Search() failed to retrieve records from db")
 	}
 	defer func() {
 		derr := rows.Close()
@@ -95,13 +103,14 @@ func (ft *FlavorTemplateStore) Search(includeDeleted bool) ([]hvs.FlavorTemplate
 		}
 	}()
 
+	flavortemplates := []hvs.FlavorTemplate{}
 	for rows.Next() {
 		template := flavorTemplate{}
 
 		if err := rows.Scan(&template.ID, (*PGFlavorTemplateContent)(&template.Content), &template.Deleted); err != nil {
 			return nil, errors.Wrap(err, "postgres/flavortemplate_store:Search() - Could not scan record")
 		}
-		if includeDeleted || (!includeDeleted && !template.Deleted) {
+		if criteria.IncludeDeleted || (!criteria.IncludeDeleted && !template.Deleted) {
 			flavorTemplate := hvs.FlavorTemplate{
 				ID:          template.ID,
 				Label:       template.Content.Label,
@@ -144,7 +153,8 @@ func (ft *FlavorTemplateStore) Recover(recoverTemplates []string) error {
 	defaultLog.Trace("postgres/flavortemplate_store:Recover() Entering")
 	defer defaultLog.Trace("postgres/flavortemplate_store:Recover() Leaving")
 
-	templates, err := ft.Search(true)
+	ftc := models.FlavorTemplateFilterCriteria{IncludeDeleted: true}
+	templates, err := ft.Search(&ftc)
 	if err != nil {
 		return errors.Wrap(err, "postgres/flavortemplate_store:Recover() - Could not recover all records")
 	}
@@ -162,4 +172,33 @@ func (ft *FlavorTemplateStore) Recover(recoverTemplates []string) error {
 	}
 
 	return nil
+}
+
+func (ft *FlavorTemplateStore) buildFlavorTemplateSearchQuery(tx *gorm.DB, criteria *models.FlavorTemplateFilterCriteria) *gorm.DB {
+	defaultLog.Trace("postgres/flavortemplate_store:buildFlavorTemplateSearchQuery() Entering")
+	defer defaultLog.Trace("postgres/flavortemplate_store:buildFlavorTemplateSearchQuery() Leaving")
+
+	if tx == nil {
+		return nil
+	}
+
+	tx = tx.Model(&flavorTemplate{})
+	if criteria == nil || reflect.DeepEqual(*criteria, models.FlavorTemplateFilterCriteria{}) {
+		return tx
+	}
+
+	if criteria.Id != uuid.Nil {
+		tx = tx.Where("id = ?", criteria.Id)
+	}
+	if criteria.Label != "" {
+		tx = tx.Where(convertToPgJsonqueryString("content", "label")+" = ?", criteria.Label)
+	}
+	if criteria.ConditionContains != "" {
+		tx = tx.Where(convertToPgJsonqueryString("content", "condition")+" like ?", "%"+criteria.ConditionContains+"%")
+	}
+	if criteria.FlavorPartContains != "" {
+		tx = tx.Where(convertToPgJsonqueryString("content", "flavor_parts")+" like ?", "%"+criteria.FlavorPartContains+"%")
+	}
+
+	return tx
 }

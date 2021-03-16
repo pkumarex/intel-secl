@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/antchfx/jsonquery"
@@ -18,8 +19,12 @@ import (
 	"github.com/gorilla/mux"
 	consts "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
+	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
+	"github.com/intel-secl/intel-secl/v3/pkg/hvs/utils"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/constants"
 	commErr "github.com/intel-secl/intel-secl/v3/pkg/lib/common/err"
+	commLogMsg "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log/message"
+	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/validation"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 	"github.com/pkg/errors"
 	"github.com/xeipuuv/gojsonschema"
@@ -44,6 +49,8 @@ func NewFlavorTemplateController(store domain.FlavorTemplateStore, commonDefinit
 		FlavorTemplateSchema:    flavorTemplateSchema,
 	}
 }
+
+var flavorTemplateSearchParams = map[string]bool{"id": true, "label": true, "conditionContains": true, "flavorPartContains": true, "includeDeleted": true}
 
 // Create This method is used to create the flavor template and store it in the database
 func (ftc *FlavorTemplateController) Create(w http.ResponseWriter, r *http.Request) (interface{}, int, error) {
@@ -119,16 +126,19 @@ func (ftc *FlavorTemplateController) Search(w http.ResponseWriter, r *http.Reque
 	defaultLog.Trace("controllers/flavortemplate_controller:Search() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Search() Leaving")
 
-	paramIncludeDelete := r.URL.Query().Get("include_deleted")
+	if err := utils.ValidateQueryParams(r.URL.Query(), flavorTemplateSearchParams); err != nil {
+		secLog.Errorf("controllers/host_controller:Search() %s", err.Error())
+		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: err.Error()}
+	}
 
-	includeDeleted, err := isIncludeDeleted(paramIncludeDelete)
+	criteria, err := populateFlavorTemplateFilterCriteria(r.URL.Query())
 	if err != nil {
-		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Search() Invalid query parameter given")
-		return false, http.StatusBadRequest, &commErr.ResourceError{Message: "Invalid query parameter given"}
+		secLog.WithError(err).Errorf("controllers/host_controller:Search() %s Invalid filter criteria", commLogMsg.InvalidInputBadParam)
+		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: "Invalid filter criteria"}
 	}
 
 	//call store function to retrieve all available templates from DB.
-	flavorTemplates, err := ftc.Store.Search(includeDeleted)
+	flavorTemplates, err := ftc.Store.Search(criteria)
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:Search() Error retrieving all flavor templates")
 		return nil, http.StatusInternalServerError, &commErr.ResourceError{Message: "Error retrieving all flavor templates"}
@@ -291,7 +301,7 @@ func (ftc *FlavorTemplateController) ValidateFlavorTemplateCreateRequest(FlvrTem
 
 	//Check whether each pcr index is associated with not more than one bank.
 	pcrMap := make(map[*hvs.FlavorPart][]hvs.PCR)
-	flavorParts := []*hvs.FlavorPart{FlvrTemp.FlavorParts.Platform, FlvrTemp.FlavorParts.OS, FlvrTemp.FlavorParts.HostUnique, FlvrTemp.FlavorParts.Software}
+	flavorParts := []*hvs.FlavorPart{FlvrTemp.FlavorParts.Platform, FlvrTemp.FlavorParts.OS, FlvrTemp.FlavorParts.HostUnique}
 	for _, flavorPart := range flavorParts {
 		if flavorPart != nil {
 			if _, ok := pcrMap[flavorPart]; !ok {
@@ -327,4 +337,53 @@ func readJSON(jsonFilePath string) (string, error) {
 		return "", errors.Wrap(err, "controllers/flavortemplate_controller:readJSON() unable to read file"+jsonFilePath)
 	}
 	return string(byteValue), nil
+}
+
+//populateFlavorTemplateFilterCriteria This method is used to populate the flavor template filter criteria
+func populateFlavorTemplateFilterCriteria(params url.Values) (*models.FlavorTemplateFilterCriteria, error) {
+	defaultLog.Trace("controllers/flavortemplate_controller:populateFlavorTemplateFilterCriteria() Entering")
+	defer defaultLog.Trace("controllers/flavortemplate_controller:populateFlavorTemplateFilterCriteria() Leaving")
+
+	var criteria models.FlavorTemplateFilterCriteria
+
+	if params.Get("includeDeleted") != "" {
+		includeDeleted, err := isIncludeDeleted(params.Get("includeDeleted"))
+		if err != nil {
+			defaultLog.WithError(err).Error("controllers/flavortemplate_controller:populateFlavorTemplateFilterCriteria() Invalid query parameter given")
+			return nil, &commErr.ResourceError{Message: "Invalid query parameter given"}
+		}
+		criteria.IncludeDeleted = includeDeleted
+	}
+
+	if params.Get("id") != "" {
+		id, err := uuid.Parse(params.Get("id"))
+		if err != nil {
+			return nil, errors.New("Invalid id query param value, must be UUID")
+		}
+		criteria.Id = id
+	}
+	if params.Get("label") != "" {
+		label := params.Get("label")
+		if err := validation.ValidateTextString(label); err != nil {
+			return nil, errors.Wrap(err, "Valid contents for label must be specified")
+		}
+		criteria.Label = label
+	}
+	if params.Get("conditionContains") != "" {
+		condition := params.Get("conditionContains")
+		if err := validation.ValidateTextString(condition); err != nil {
+			return nil, errors.Wrap(err, "Valid contents for condition must be specified")
+		}
+		criteria.ConditionContains = condition
+
+	}
+	if params.Get("flavorPartContains") != "" {
+		flavorPart := params.Get("flavorPartContains")
+		if err := validation.ValidateTextString(flavorPart); err != nil {
+			return nil, errors.Wrap(err, "Valid contents for flavor part must be specified")
+		}
+		criteria.FlavorPartContains = strings.ToUpper(flavorPart)
+	}
+
+	return &criteria, nil
 }
