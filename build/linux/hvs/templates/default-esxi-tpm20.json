@@ -1,19 +1,19 @@
 {
-    "label": "TPM_1.2",
+    "label": "default-esxi-tpm20",
     "condition": [
         "//host_info/os_name//*[text()='VMware ESXi']",
-        "//host_info/hardware_features/TPM/meta/tpm_version//*[text()='1.2']"
+        "//host_info/hardware_features/TPM/meta/tpm_version//*[text()='2.0']"
     ],
     "flavor_parts": {
         "PLATFORM": {
             "meta": {
-                "tpm_version": "1.2"
+                "tpm_version": "2.0"
             },
             "pcr_rules": [
                 {
                     "pcr": {
                         "index": 0,
-                        "bank": "SHA1"
+                        "bank": "SHA256"
                     },
                     "pcr_matches": true,
                     "eventlog_equals": {}
@@ -21,7 +21,15 @@
                 {
                     "pcr": {
                         "index": 17,
-                        "bank": "SHA1"
+                        "bank": "SHA256"
+                    },
+                    "pcr_matches": true,
+                    "eventlog_equals": {}
+                },
+                {
+                    "pcr": {
+                        "index": 18,
+                        "bank": "SHA256"
                     },
                     "pcr_matches": true,
                     "eventlog_equals": {}
@@ -30,28 +38,13 @@
         },
         "OS": {
             "meta": {
-                "tpm_version": "1.2"
+                "tpm_version": "2.0"
             },
             "pcr_rules": [
                 {
                     "pcr": {
-                        "index": 18,
-                        "bank": "SHA1"
-                    },
-                    "pcr_matches": true,
-                    "eventlog_equals": {
-                        "excluding_tags": [
-                            "commandLine.",
-                            "componentName.imgdb.tgz",
-                            "componentName.onetime.tgz",
-                            "Vim25Api.HostTpmSoftwareComponentEventDetails"
-                        ]
-                    }
-                },
-                {
-                    "pcr": {
                         "index": 19,
-                        "bank": "SHA1"
+                        "bank": "SHA256"
                     },
                     "pcr_matches": true,
                     "eventlog_equals": {
@@ -66,7 +59,22 @@
                 {
                     "pcr": {
                         "index": 20,
-                        "bank": "SHA1"
+                        "bank": "SHA256"
+                    },
+                    "pcr_matches": true,
+                    "eventlog_equals": {
+                        "excluding_tags": [
+                            "commandLine.",
+                            "componentName.imgdb.tgz",
+                            "componentName.onetime.tgz",
+                            "Vim25Api.HostTpmSoftwareComponentEventDetails"
+                        ]
+                    }
+                },
+                {
+                    "pcr": {
+                        "index": 21,
+                        "bank": "SHA256"
                     },
                     "pcr_matches": true,
                     "eventlog_equals": {
@@ -82,13 +90,25 @@
         },
         "HOST_UNIQUE": {
             "meta": {
-                "tpm_version": "1.2"
+                "tpm_version": "2.0"
             },
             "pcr_rules": [
                 {
                     "pcr": {
-                        "index": 19,
-                        "bank": "SHA1"
+                        "index": 20,
+                        "bank": "SHA256"
+                    },
+                    "pcr_matches": true,
+                    "eventlog_includes": [
+                        "commandLine.",
+                        "componentName.imgdb.tgz",
+                        "componentName.onetime.tgz"
+                    ]
+                },
+                {
+                    "pcr": {
+                        "index": 21,
+                        "bank": "SHA256"
                     },
                     "pcr_matches": true,
                     "eventlog_includes": [

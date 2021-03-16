@@ -43,7 +43,7 @@ var (
 			Bank:  "SHA256",
 		},
 
-		TpmEvent: []types.EventLogCriteria{
+		TpmEvent: []types.EventLog{
 			{
 				TypeName:    util.EVENT_LOG_DIGEST_SHA256,
 				Measurement: zeros,
@@ -63,7 +63,7 @@ var (
 			Bank:  "SHA256",
 		},
 
-		TpmEvent: []types.EventLogCriteria{
+		TpmEvent: []types.EventLog{
 			{
 				TypeName:    util.EVENT_LOG_DIGEST_SHA256,
 				Measurement: zeros,

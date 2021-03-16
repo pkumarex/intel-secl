@@ -271,7 +271,7 @@ func (esxpf ESXPlatformFlavor) getAssetTagFlavor() ([]cm.Flavor, error) {
 			Index: 22,
 			Bank:  "SHA1",
 		},
-		TpmEvent: []hcTypes.EventLogCriteria{
+		TpmEvent: []hcTypes.EventLog{
 			{
 				Measurement: hex.EncodeToString(tagCertificateHash),
 			},

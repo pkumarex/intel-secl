@@ -32,12 +32,12 @@ type RuleResult struct {
 }
 
 type MismatchField struct {
-	Name              string                   `json:"name"`
-	Description       string                   `json:"description"`
-	PcrIndex          *types.PcrIndex          `json:"pcr_index,omitempty"`
-	PcrBank           *types.SHAAlgorithm      `json:"pcr_bank,omitempty"`
-	MissingEntries    []types.EventLogCriteria `json:"missing_entries,omitempty"`
-	UnexpectedEntries []types.EventLogCriteria `json:"unexpected_entries,omitempty"`
+	Name              string              `json:"name"`
+	Description       string              `json:"description"`
+	PcrIndex          *types.PcrIndex     `json:"pcr_index,omitempty"`
+	PcrBank           *types.SHAAlgorithm `json:"pcr_bank,omitempty"`
+	MissingEntries    []types.EventLog    `json:"missing_entries,omitempty"`
+	UnexpectedEntries []types.EventLog    `json:"unexpected_entries,omitempty"`
 }
 
 type RuleInfo struct {
@@ -58,25 +58,25 @@ type RuleInfo struct {
 }
 
 type Fault struct {
-	Name                   string                   `json:"fault_name"`
-	Description            string                   `json:"description"`
-	PcrIndex               *types.PcrIndex          `json:"pcr_index,omitempty"`
-	PcrBank                *types.SHAAlgorithm      `json:"pcr_bank,omitempty"`
-	ExpectedPcrValue       *string                  `json:"expected_pcrvalue,omitempty"`
-	ActualPcrValue         *string                  `json:"actual_pcrvalue,omitempty"`
-	MissingEntries         []types.EventLogCriteria `json:"missing_entries,omitempty"`
-	UnexpectedEntries      []types.EventLogCriteria `json:"unexpected_entries,omitempty"`
-	ExcludeTags            []string                 `json:"exclude_tags,omitempty"`
-	FlavorId               *uuid.UUID               `json:"flavor_id,omitempty"`
-	UnexpectedMeasurements []ta.FlavorMeasurement   `json:"unexpected_measurements,omitempty"`
-	MissingMeasurements    []ta.FlavorMeasurement   `json:"missing_measurements,omitempty"`
-	MismatchMeasurements   []ta.FlavorMeasurement   `json:"mismatch_measurements,omitempty"`
-	ExpectedValue          *string                  `json:"expected_value,omitempty"`
-	CalculatedValue        *string                  `json:"calculated_value,omitempty"`
-	ActualValue            *string                  `json:"actual_value,omitempty"`
-	MeasurementId          *string                  `json:"measurement_id,omitempty"`
-	FlavorDigestAlg        *string                  `json:"flavor_digest_alg,omitempty"`
-	MeasurementDigestAlg   *string                  `json:"measurement_digest_alg,omitempty"`
+	Name                   string                 `json:"fault_name"`
+	Description            string                 `json:"description"`
+	PcrIndex               *types.PcrIndex        `json:"pcr_index,omitempty"`
+	PcrBank                *types.SHAAlgorithm    `json:"pcr_bank,omitempty"`
+	ExpectedPcrValue       *string                `json:"expected_pcrvalue,omitempty"`
+	ActualPcrValue         *string                `json:"actual_pcrvalue,omitempty"`
+	MissingEntries         []types.EventLog       `json:"missing_entries,omitempty"`
+	UnexpectedEntries      []types.EventLog       `json:"unexpected_entries,omitempty"`
+	ExcludeTags            []string               `json:"exclude_tags,omitempty"`
+	FlavorId               *uuid.UUID             `json:"flavor_id,omitempty"`
+	UnexpectedMeasurements []ta.FlavorMeasurement `json:"unexpected_measurements,omitempty"`
+	MissingMeasurements    []ta.FlavorMeasurement `json:"missing_measurements,omitempty"`
+	MismatchMeasurements   []ta.FlavorMeasurement `json:"mismatch_measurements,omitempty"`
+	ExpectedValue          *string                `json:"expected_value,omitempty"`
+	CalculatedValue        *string                `json:"calculated_value,omitempty"`
+	ActualValue            *string                `json:"actual_value,omitempty"`
+	MeasurementId          *string                `json:"measurement_id,omitempty"`
+	FlavorDigestAlg        *string                `json:"flavor_digest_alg,omitempty"`
+	MeasurementDigestAlg   *string                `json:"measurement_digest_alg,omitempty"`
 }
 
 func NewTrustReport(report TrustReport) *TrustReport {
