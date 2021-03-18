@@ -9,7 +9,7 @@ ifeq ($(PROXY_EXISTS),1)
 	DOCKER_PROXY_FLAGS = --build-arg http_proxy=${http_proxy} --build-arg https_proxy=${https_proxy}
 endif
 
-TARGETS = cms kbs ihub hvs aas
+TARGETS = cms kbs ihub hvs aas flavorgen
 
 $(TARGETS):
 	cd cmd/$@ && env CGO_CFLAGS_ALLOW="-f.*" GOOS=linux GOSUMDB=off GOPROXY=direct \
@@ -29,14 +29,6 @@ kbs:
 	cp cmd/$*/$* installer/$*
 	makeself installer deployments/installer/$*-$(VERSION).bin "$* $(VERSION)" ./install.sh
 	rm -rf installer
-
-flavorgen-installer:
-	rm -rf /opt/flavorgen
-	cp -r build/linux/hvs/schema /opt/flavorgen
-	cd cmd/flavorgen && go build -ldflags "-X github.com/intel-secl/intel-secl/v3/pkg/flavorgen.Version=$(VERSION)" -o flavorgen-$(VERSION)
-	find cmd/flavorgen -perm /a+x -exec cp {} deployments/installer \;
-	find cmd/flavorgen -type f -executable -delete
-	echo "deployments/installer/flavorgen-$(VERSION).bin successfully created"
 	
 %-docker: %
 ifeq ($(PROXY_EXISTS),1)

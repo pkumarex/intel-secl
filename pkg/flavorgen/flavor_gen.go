@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
+	"github.com/intel-secl/intel-secl/v3/pkg/flavorgen/version"
 	controller "github.com/intel-secl/intel-secl/v3/pkg/hvs/controllers"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/types"
@@ -24,8 +25,6 @@ import (
 
 	"github.com/antchfx/jsonquery"
 )
-
-var Version = ""
 
 type FlavorGen struct{}
 
@@ -224,7 +223,8 @@ func (flavorgen FlavorGen) GenerateFlavors() {
 	flag.Parse()
 
 	if *versionFlag {
-		fmt.Println("Current build version: ", Version)
+		fmt.Println("Current build version: ", version.Version)
+		fmt.Println("Build date: ", version.BuildDate)
 		os.Exit(1)
 	}
 
