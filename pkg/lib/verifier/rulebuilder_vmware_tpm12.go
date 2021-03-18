@@ -10,6 +10,7 @@ package verifier
 
 import (
 	hvsconstants "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants/verifier-rules-and-faults"
+	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/verifier/rules"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
@@ -55,23 +56,8 @@ func (builder *ruleBuilderVMWare12) GetAssetTagRules() ([]rules.Rule, error) {
 }
 
 // From 'design' repo at isecl/libraries/verifier/verifier.md...
-// PcrMatchesConstant rule for PCR 0, 17
-func (builder *ruleBuilderVMWare12) GetPlatformRules() ([]rules.Rule, error) {
-	return nil, nil
-}
-
-// From 'design' repo at isecl/libraries/verifier/verifier.md...
-// PcrMatchesConstant rule for PCR 18, 20
-// PcrEventLogEqualsExcluding rule for PCR 19 (excludes dynamic modules based on component name)
-// PcrEventLogIntegrity rule for PCR 19
-func (builder *ruleBuilderVMWare12) GetOsRules() ([]rules.Rule, error) {
-	return nil, nil
-}
-
-// From 'design' repo at isecl/libraries/verifier/verifier.md...
-// PcrEventLogIncludes rule for PCR 19
-// PcrEventLogIntegrity rule for PCR 19
-func (builder *ruleBuilderVMWare12) GetHostUniqueRules() ([]rules.Rule, error) {
+// (none)
+func (builder *ruleBuilderVMWare12) GetAikCertificateTrustedRule(fp common.FlavorPart) ([]rules.Rule, error) {
 	return nil, nil
 }
 

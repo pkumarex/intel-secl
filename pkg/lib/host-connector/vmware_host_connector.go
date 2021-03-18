@@ -194,7 +194,7 @@ func getPcrEventLog(hostTpmEventLogEntry []vim25Types.HostTpmEventLogEntry, even
 			eventLog := getEventLogInfo(parsedEventLogEntry)
 
 			if !pcrFound {
-				eventLogMap.Sha1EventLogs = append(eventLogMap.Sha1EventLogs, types.TpmEventLog{Pcr: types.PCR{Index: parsedEventLogEntry.PcrIndex, Bank: string(parsedEventLogEntry.EventDetails.DataHashMethod)}, TpmEvent: []types.EventLogCriteria{eventLog}})
+				eventLogMap.Sha1EventLogs = append(eventLogMap.Sha1EventLogs, types.TpmEventLog{Pcr: types.PCR{Index: parsedEventLogEntry.PcrIndex, Bank: string(parsedEventLogEntry.EventDetails.DataHashMethod)}, TpmEvent: []types.EventLog{eventLog}})
 			} else {
 				eventLogMap.Sha1EventLogs[index].TpmEvent = append(eventLogMap.Sha1EventLogs[index].TpmEvent, eventLog)
 			}
@@ -212,7 +212,7 @@ func getPcrEventLog(hostTpmEventLogEntry []vim25Types.HostTpmEventLogEntry, even
 
 			if !pcrFound {
 				eventLogMap.Sha256EventLogs = append(eventLogMap.Sha256EventLogs,
-					types.TpmEventLog{Pcr: types.PCR{Index: parsedEventLogEntry.PcrIndex, Bank: string(parsedEventLogEntry.EventDetails.DataHashMethod)}, TpmEvent: []types.EventLogCriteria{eventLog}})
+					types.TpmEventLog{Pcr: types.PCR{Index: parsedEventLogEntry.PcrIndex, Bank: string(parsedEventLogEntry.EventDetails.DataHashMethod)}, TpmEvent: []types.EventLog{eventLog}})
 			} else {
 				eventLogMap.Sha256EventLogs[index].TpmEvent = append(eventLogMap.Sha256EventLogs[index].TpmEvent, eventLog)
 			}
@@ -253,11 +253,11 @@ func intArrayToHexString(pcrDigestArray []int) string {
 }
 
 //It checks the type of TPM event and accordingly updates the event log entry values
-func getEventLogInfo(parsedEventLogEntry types.TpmEvent) types.EventLogCriteria {
+func getEventLogInfo(parsedEventLogEntry types.TpmEvent) types.EventLog {
 
 	log.Trace("vmware_host_connector:getEventLogInfo() Entering")
 	defer log.Trace("vmware_host_connector:getEventLogInfo() Leaving")
-	eventLog := types.EventLogCriteria{Measurement: intArrayToHexString(parsedEventLogEntry.EventDetails.DataHash)}
+	eventLog := types.EventLog{Measurement: intArrayToHexString(parsedEventLogEntry.EventDetails.DataHash)}
 
 	if parsedEventLogEntry.EventDetails.VibName != nil {
 		eventLog.TypeID = VIB_NAME_TYPE_ID

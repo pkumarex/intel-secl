@@ -315,7 +315,7 @@ func (pfutil PlatformFlavorUtil) GetPcrDetails(pcrManifest hcTypes.PcrManifest, 
 			// Populate Value
 			// Event logs if allowed
 			if includeEventLog {
-				var eventLogEqualEvents []hcTypes.EventLogCriteria
+				var eventLogEqualEvents []hcTypes.EventLog
 				manifestPcrEventLogs, err := pcrManifest.GetEventLogCriteria(hcTypes.SHAAlgorithm(pcr.Bank), pI)
 
 				// check if returned logset from PCR is nil

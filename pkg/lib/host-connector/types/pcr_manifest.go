@@ -36,7 +36,7 @@ type Pcr struct {
 	PcrBank SHAAlgorithm `json:"pcr_bank"`
 }
 
-type EventLogCriteria struct {
+type EventLog struct {
 	TypeID      string   `json:"type_id"`   //oneof-required
 	TypeName    string   `json:"type_name"` //oneof-required
 	Tags        []string `json:"tags,omitempty"`
@@ -49,8 +49,8 @@ type eventLogKeyAttr struct {
 }
 
 type TpmEventLog struct {
-	Pcr      PCR                `json:"pcr"`
-	TpmEvent []EventLogCriteria `json:"tpm_events"`
+	Pcr      PCR        `json:"pcr"`
+	TpmEvent []EventLog `json:"tpm_events"`
 }
 
 //PCR - To store PCR index with respective PCR bank.
@@ -61,16 +61,16 @@ type PCR struct {
 	Bank string `json:"bank"`
 }
 type PCRS struct {
-	PCR              PCR                `json:"pcr"`         //required
-	Measurement      string             `json:"measurement"` //required
-	PCRMatches       bool               `json:"pcr_matches,omitempty"`
-	EventlogEqual    *EventLogEqual     `json:"eventlog_equals,omitempty"`
-	EventlogIncludes []EventLogCriteria `json:"eventlog_includes,omitempty"`
+	PCR              PCR            `json:"pcr"`         //required
+	Measurement      string         `json:"measurement"` //required
+	PCRMatches       bool           `json:"pcr_matches,omitempty"`
+	EventlogEqual    *EventLogEqual `json:"eventlog_equals,omitempty"`
+	EventlogIncludes []EventLog     `json:"eventlog_includes,omitempty"`
 }
 
 type EventLogEqual struct {
-	Events      []EventLogCriteria `json:"events,omitempty"`
-	ExcludeTags []string           `json:"exclude_tags,omitempty"`
+	Events      []EventLog `json:"events,omitempty"`
+	ExcludeTags []string   `json:"exclude_tags,omitempty"`
 }
 
 type PcrEventLogMap struct {
@@ -270,8 +270,8 @@ func (pcrManifest *PcrManifest) IsEmpty() bool {
 // Finds the EventLogEntry in a PcrEventLogMap provided the pcrBank and index.  Returns
 // null if not found.  Returns an error if the pcrBank is not supported
 // by intel-secl (currently supports SHA1 and SHA256).
-func (pcrEventLogMap *PcrEventLogMap) GetEventLogNew(pcrBank string, pcrIndex int) ([]EventLogCriteria, int, string, error) {
-	var eventLog []EventLogCriteria
+func (pcrEventLogMap *PcrEventLogMap) GetEventLogNew(pcrBank string, pcrIndex int) ([]EventLog, int, string, error) {
+	var eventLog []EventLog
 	var pIndex int
 	var bank string
 
@@ -331,14 +331,14 @@ func (eventLogEntry *TpmEventLog) Subtract(eventsToSubtract *TpmEventLog) (*TpmE
 		},
 	}
 
-	eventsToSubtractMap := make(map[eventLogKeyAttr]EventLogCriteria)
+	eventsToSubtractMap := make(map[eventLogKeyAttr]EventLog)
 	for _, eventLog := range eventsToSubtract.TpmEvent {
 		compareInfo := eventLogKeyAttr{
 			Measurement: eventLog.Measurement,
 			TypeID:      eventLog.TypeID,
 		}
 
-		eventLogData := EventLogCriteria{
+		eventLogData := EventLog{
 			Tags:     eventLog.Tags,
 			TypeName: eventLog.TypeName,
 		}
@@ -418,7 +418,7 @@ func (eventLogEntry *TpmEventLog) Replay() (string, error) {
 }
 
 // GetEventLogCriteria returns the EventLogs for a specific PcrBank/PcrIndex, as per latest hostmanifest
-func (pcrManifest *PcrManifest) GetEventLogCriteria(pcrBank SHAAlgorithm, pcrIndex PcrIndex) ([]EventLogCriteria, error) {
+func (pcrManifest *PcrManifest) GetEventLogCriteria(pcrBank SHAAlgorithm, pcrIndex PcrIndex) ([]EventLog, error) {
 	pI := int(pcrIndex)
 
 	switch pcrBank {

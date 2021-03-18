@@ -88,7 +88,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingFault(t *testing.T) {
 			Index: 0,
 			Bank:  "SHA256",
 		},
-		TpmEvent: []types.EventLogCriteria{
+		TpmEvent: []types.EventLog{
 			{
 				TypeName:    util.EVENT_LOG_DIGEST_SHA256,
 				Measurement: zeros,
@@ -102,7 +102,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingFault(t *testing.T) {
 			Index: 1,
 			Bank:  "SHA256",
 		},
-		TpmEvent: []types.EventLogCriteria{
+		TpmEvent: []types.EventLog{
 			{
 				TypeName:    util.EVENT_LOG_DIGEST_SHA256,
 				Measurement: ones,
@@ -144,7 +144,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogContainsUnexpectedEntriesFault(t *
 		},
 	}
 	unexpectedPcrEventLogs.TpmEvent = append(unexpectedPcrEventLogs.TpmEvent, testHostManifestPcrEventLogEntry.TpmEvent...)
-	unexpectedPcrEventLogs.TpmEvent = append(unexpectedPcrEventLogs.TpmEvent, types.EventLogCriteria{
+	unexpectedPcrEventLogs.TpmEvent = append(unexpectedPcrEventLogs.TpmEvent, types.EventLog{
 		TypeName:    util.EVENT_LOG_DIGEST_SHA256,
 		Measurement: "x",
 	})

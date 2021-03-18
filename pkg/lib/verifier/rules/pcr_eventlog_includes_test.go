@@ -59,7 +59,7 @@ func TestPcrEventLogIncludesMissingMeasurement(t *testing.T) {
 			Index: 0,
 			Bank:  "SHA256",
 		},
-		TpmEvent: []types.EventLogCriteria{
+		TpmEvent: []types.EventLog{
 			{
 				TypeName:    util.EVENT_LOG_DIGEST_SHA256,
 				Measurement: zeros,
@@ -76,7 +76,7 @@ func TestPcrEventLogIncludesMissingMeasurement(t *testing.T) {
 			Index: 0,
 			Bank:  "SHA256",
 		},
-		TpmEvent: []types.EventLogCriteria{
+		TpmEvent: []types.EventLog{
 			{
 				TypeName:    util.EVENT_LOG_DIGEST_SHA256,
 				Measurement: zeros,
@@ -118,7 +118,7 @@ func TestPcrEventLogIncludesDifferentMeasurement(t *testing.T) {
 			Index: 0,
 			Bank:  "SHA256",
 		},
-		TpmEvent: []types.EventLogCriteria{
+		TpmEvent: []types.EventLog{
 			{
 				TypeName:    util.EVENT_LOG_DIGEST_SHA256,
 				Measurement: zeros,
@@ -132,7 +132,7 @@ func TestPcrEventLogIncludesDifferentMeasurement(t *testing.T) {
 			Index: 0,
 			Bank:  "SHA256",
 		},
-		TpmEvent: []types.EventLogCriteria{
+		TpmEvent: []types.EventLog{
 			{
 				TypeName:    util.EVENT_LOG_DIGEST_SHA256,
 				Measurement: ones,
@@ -173,7 +173,7 @@ func TestPcrEventLogIncludesPcrEventLogMissingFault(t *testing.T) {
 			Index: 0,
 			Bank:  "SHA256",
 		},
-		TpmEvent: []types.EventLogCriteria{
+		TpmEvent: []types.EventLog{
 			{
 				TypeName:    util.EVENT_LOG_DIGEST_SHA256,
 				Measurement: zeros,
@@ -187,7 +187,7 @@ func TestPcrEventLogIncludesPcrEventLogMissingFault(t *testing.T) {
 			Index: 1,
 			Bank:  "SHA256",
 		},
-		TpmEvent: []types.EventLogCriteria{
+		TpmEvent: []types.EventLog{
 			{
 				TypeName:    util.EVENT_LOG_DIGEST_SHA256,
 				Measurement: ones,
@@ -226,7 +226,7 @@ func TestPcrEventLogIncludesNoEventLogInHostManifest(t *testing.T) {
 			Index: 0,
 			Bank:  "SHA256",
 		},
-		TpmEvent: []types.EventLogCriteria{
+		TpmEvent: []types.EventLog{
 			{
 				TypeName:    util.EVENT_LOG_DIGEST_SHA256,
 				Measurement: zeros,
