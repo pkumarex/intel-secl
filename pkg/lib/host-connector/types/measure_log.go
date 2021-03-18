@@ -6,6 +6,6 @@
 package types
 
 type MeasureLog struct {
-	Pcr       PCR                `json:"pcr"`
-	TpmEvents []EventLogCriteria `json:"tpm_events"`
+	Pcr       PCR        `json:"pcr"`
+	TpmEvents []EventLog `json:"tpm_events"`
 }

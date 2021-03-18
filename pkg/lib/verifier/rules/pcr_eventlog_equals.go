@@ -155,7 +155,7 @@ func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.Rul
 func (rule *pcrEventLogEquals) removeExcludedEvents(pcrEventLogEntry *types.TpmEventLog) (*types.TpmEventLog, error) {
 	var pcrEventLogs *types.TpmEventLog
 
-	var eventsWithoutComponentName []types.EventLogCriteria
+	var eventsWithoutComponentName []types.EventLog
 
 	// Loop through the each eventlog and see if it contains the tag given in excludetags[]
 	// and if so, do not add it to the results eventlog.

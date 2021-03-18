@@ -417,7 +417,7 @@ var _ = Describe("FlavorTemplateController", func() {
 		Context("When label parameter is added in search API", func() {
 			It("Flavor template with the given label must be returned", func() {
 				router.Handle("/flavor-templates/", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(flavorTemplateController.Search))).Methods("GET")
-				req, err := http.NewRequest("GET", "/flavor-templates/?label=TPM_1.2", nil)
+				req, err := http.NewRequest("GET", "/flavor-templates/?label=default-esxi-tpm12", nil)
 				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", consts.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()

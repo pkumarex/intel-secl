@@ -385,7 +385,7 @@ func addPcrEntry(module types.MeasureLog, eventLogMap types.PcrEventLogMap) type
 			eventLogMap.Sha1EventLogs = append(eventLogMap.Sha1EventLogs, types.TpmEventLog{Pcr: types.PCR{Index: module.Pcr.Index, Bank: SHA1}, TpmEvent: module.TpmEvents})
 		} else {
 			for _, events := range module.TpmEvents {
-				eventLog := types.EventLogCriteria{Measurement: events.Measurement,
+				eventLog := types.EventLog{Measurement: events.Measurement,
 					Tags: events.Tags, TypeID: events.TypeID, TypeName: events.TypeName}
 
 				eventLogMap.Sha1EventLogs[index].TpmEvent = append(eventLogMap.Sha1EventLogs[index].TpmEvent, eventLog)
@@ -405,7 +405,7 @@ func addPcrEntry(module types.MeasureLog, eventLogMap types.PcrEventLogMap) type
 			eventLogMap.Sha256EventLogs = append(eventLogMap.Sha256EventLogs, types.TpmEventLog{Pcr: types.PCR{Index: module.Pcr.Index, Bank: SHA256}, TpmEvent: module.TpmEvents})
 		} else {
 			for _, events := range module.TpmEvents {
-				eventLog := types.EventLogCriteria{Measurement: events.Measurement,
+				eventLog := types.EventLog{Measurement: events.Measurement,
 					Tags: events.Tags, TypeID: events.TypeID, TypeName: events.TypeName}
 				eventLogMap.Sha256EventLogs[index].TpmEvent = append(eventLogMap.Sha256EventLogs[index].TpmEvent, eventLog)
 			}
