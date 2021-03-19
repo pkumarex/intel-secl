@@ -74,6 +74,7 @@ func (uc UpdateServiceConfig) Run() error {
 	}
 	(*uc.AppConfig).EndpointURL = viper.GetString("endpoint-url")
 	(*uc.AppConfig).Kmip = config.KmipConfig{
+		Version:    viper.GetString("kmip-version"),
 		ServerIP:   viper.GetString("kmip-server-ip"),
 		ServerPort: viper.GetString("kmip-server-port"),
 		ClientCert: viper.GetString("kmip-client-cert-path"),

@@ -5,15 +5,17 @@
 package config
 
 import (
-	log "github.com/sirupsen/logrus"
 	"os"
 
 	"github.com/intel-secl/intel-secl/v3/pkg/kbs/constants"
 	commConfig "github.com/intel-secl/intel-secl/v3/pkg/lib/common/config"
+	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
 )
+
+var defaultLog = log.GetDefaultLogger()
 
 type Configuration struct {
 	AASApiUrl        string `yaml:"aas-base-url" mapstructure:"aas-base-url"`
@@ -39,6 +41,7 @@ type KBSConfig struct {
 }
 
 type KmipConfig struct {
+	Version    string `yaml:"version" mapstructure:"version"`
 	ServerIP   string `yaml:"server-ip" mapstructure:"server-ip"`
 	ServerPort string `yaml:"server-port" mapstructure:"server-port"`
 	ClientCert string `yaml:"client-cert-path" mapstructure:"client-cert-path"`
@@ -85,7 +88,7 @@ func (config *Configuration) Save(filename string) error {
 	defer func() {
 		derr := configFile.Close()
 		if derr != nil {
-			log.WithError(derr).Error("Error closing config file")
+			defaultLog.WithError(derr).Error("Error closing config file")
 		}
 	}()
 	err = yaml.NewEncoder(configFile).Encode(config)
