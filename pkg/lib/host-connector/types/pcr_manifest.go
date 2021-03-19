@@ -417,8 +417,8 @@ func (eventLogEntry *TpmEventLog) Replay() (string, error) {
 	return cumulativeHashString, nil
 }
 
-// GetEventLog returns the EventLogs for a specific PcrBank/PcrIndex, as per latest hostmanifest
-func (pcrManifest *PcrManifest) GetEventLog(pcrBank SHAAlgorithm, pcrIndex PcrIndex) ([]EventLog, error) {
+// GetEventLogCriteria returns the EventLogs for a specific PcrBank/PcrIndex, as per latest hostmanifest
+func (pcrManifest *PcrManifest) GetEventLogCriteria(pcrBank SHAAlgorithm, pcrIndex PcrIndex) ([]EventLog, error) {
 	pI := int(pcrIndex)
 
 	switch pcrBank {

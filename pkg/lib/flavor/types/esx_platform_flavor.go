@@ -24,16 +24,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-var (
-	// This is a map of host specific modules.
-	// The map value (int) is not relevant, just use the map key for efficient lookups.
-	hostSpecificModules = map[string]int{
-		"commandLine.":              0,
-		"componentName.imgdb.tgz":   0,
-		"componentName.onetime.tgz": 0,
-	}
-)
-
 // ESXPlatformFlavor is used to generate various Flavors for a VMWare ESX-based host
 type ESXPlatformFlavor struct {
 	HostManifest    *hcTypes.HostManifest        `json:"host_manifest"`

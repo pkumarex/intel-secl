@@ -5,7 +5,6 @@
 package postgres
 
 import (
-	"reflect"
 	"strings"
 
 	"github.com/google/uuid"
@@ -110,15 +109,14 @@ func (ft *FlavorTemplateStore) Search(criteria *models.FlavorTemplateFilterCrite
 		if err := rows.Scan(&template.ID, (*PGFlavorTemplateContent)(&template.Content), &template.Deleted); err != nil {
 			return nil, errors.Wrap(err, "postgres/flavortemplate_store:Search() - Could not scan record")
 		}
-		if criteria.IncludeDeleted || (!criteria.IncludeDeleted && !template.Deleted) {
-			flavorTemplate := hvs.FlavorTemplate{
-				ID:          template.ID,
-				Label:       template.Content.Label,
-				Condition:   template.Content.Condition,
-				FlavorParts: template.Content.FlavorParts,
-			}
-			flavortemplates = append(flavortemplates, flavorTemplate)
+
+		flavorTemplate := hvs.FlavorTemplate{
+			ID:          template.ID,
+			Label:       template.Content.Label,
+			Condition:   template.Content.Condition,
+			FlavorParts: template.Content.FlavorParts,
 		}
+		flavortemplates = append(flavortemplates, flavorTemplate)
 	}
 
 	return flavortemplates, nil
@@ -183,8 +181,12 @@ func (ft *FlavorTemplateStore) buildFlavorTemplateSearchQuery(tx *gorm.DB, crite
 	}
 
 	tx = tx.Model(&flavorTemplate{})
-	if criteria == nil || reflect.DeepEqual(*criteria, models.FlavorTemplateFilterCriteria{}) {
+	if criteria == nil {
 		return tx
+	}
+
+	if !criteria.IncludeDeleted {
+		tx = tx.Where("deleted = ?", false)
 	}
 
 	if criteria.Id != uuid.Nil {
