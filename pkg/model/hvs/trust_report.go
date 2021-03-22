@@ -43,8 +43,8 @@ type MismatchField struct {
 type RuleInfo struct {
 	Name                     string                 `json:"rule_name,omitempty"`
 	Markers                  []common.FlavorPart    `json:"markers,omitempty"`
-	ExpectedPcr              *types.PCRS            `json:"expected_pcr,omitempty"`
-	PCR                      *types.PCR             `json:"pcr,omitempty"`
+	ExpectedPcr              *types.FlavorPcrs      `json:"expected_pcr,omitempty"`
+	PCR                      *types.Pcr             `json:"pcr,omitempty"`
 	Measurement              string                 `json:"measurement,omitempty"` //required
 	PCRMatches               bool                   `json:"pcr_matches,omitempty"`
 	FlavorID                 *uuid.UUID             `json:"flavor_id,omitempty"`

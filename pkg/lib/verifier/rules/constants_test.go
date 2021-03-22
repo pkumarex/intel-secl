@@ -28,8 +28,8 @@ var (
 var (
 	zeros           = "00000000000000000000000000000000"
 	ones            = "11111111111111111111111111111111"
-	testExpectedPcr = types.PCRS{
-		PCR: types.PCR{
+	testExpectedPcr = types.FlavorPcrs{
+		Pcr: types.Pcr{
 			Index: 0,
 			Bank:  "SHA256",
 		},
@@ -38,7 +38,7 @@ var (
 	}
 
 	testExpectedPcrEventLogEntry = types.TpmEventLog{
-		Pcr: types.PCR{
+		Pcr: types.Pcr{
 			Index: 0,
 			Bank:  "SHA256",
 		},
@@ -58,7 +58,7 @@ var (
 
 var (
 	testHostManifestPcrEventLogEntry = types.TpmEventLog{
-		Pcr: types.PCR{
+		Pcr: types.Pcr{
 			Index: 0,
 			Bank:  "SHA256",
 		},

@@ -76,10 +76,12 @@ func (rule *pcrEventLogIncludes) Apply(hostManifest *types.HostManifest) (*hvs.R
 			}
 
 			if len(missingEvents.TpmEvent) > 0 {
+				log.Debug("Missing eventlogs in pcreventlog includes rule :", missingEvents.TpmEvent)
 				result.Faults = append(result.Faults, newPcrEventLogMissingExpectedEntries(missingEvents))
 			}
 
 			if len(missingAttr.TpmEvent) > 0 {
+				log.Debug("Missing eventlog fields in pcrevent includes equals rule :", missingAttr.TpmEvent)
 				index := types.PcrIndex(rule.expectedPcrEventLogEntry.Pcr.Index)
 				bank := types.SHAAlgorithm(rule.expectedPcrEventLogEntry.Pcr.Bank)
 

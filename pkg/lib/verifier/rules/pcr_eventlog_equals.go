@@ -104,10 +104,12 @@ func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.Rul
 
 			// if there are any remaining events, then there were unexpected entries...
 			if len(unexpectedEventLogs.TpmEvent) > 0 {
+				log.Debug("Unexpected eventlogs in pcreventlog equals rule :", unexpectedEventLogs.TpmEvent)
 				result.Faults = append(result.Faults, newPcrEventLogContainsUnexpectedEntries(unexpectedEventLogs))
 			}
 
 			if len(unexpectedFields.TpmEvent) > 0 {
+				log.Debug("Unexpected eventlog fields in pcreventlog equals rule :", unexpectedFields.TpmEvent)
 				pcrIndex := types.PcrIndex(actualEventLog.Pcr.Index)
 				pcrBank := types.SHAAlgorithm(actualEventLog.Pcr.Bank)
 
@@ -128,10 +130,12 @@ func (rule *pcrEventLogEquals) Apply(hostManifest *types.HostManifest) (*hvs.Rul
 			}
 
 			if len(missingEventLogs.TpmEvent) > 0 {
+				log.Debug("Missing eventlogs in pcreventlog equals rule :", missingEventLogs.TpmEvent)
 				result.Faults = append(result.Faults, newPcrEventLogMissingExpectedEntries(missingEventLogs))
 			}
 
 			if len(missingFields.TpmEvent) > 0 {
+				log.Debug("Missing eventlog fields in pcreventlog equals rule :", missingFields.TpmEvent)
 				pcrIndex := types.PcrIndex(rule.expectedPcrEventLogEntry.Pcr.Index)
 				pcrBank := types.SHAAlgorithm(rule.expectedPcrEventLogEntry.Pcr.Bank)
 
@@ -186,7 +190,7 @@ func (rule *pcrEventLogEquals) removeExcludedEvents(pcrEventLogEntry *types.TpmE
 	}
 
 	pcrEventLogs = &types.TpmEventLog{
-		Pcr: types.PCR{
+		Pcr: types.Pcr{
 			Index: pcrEventLogEntry.Pcr.Index,
 			Bank:  pcrEventLogEntry.Pcr.Bank,
 		},
