@@ -6,11 +6,9 @@ package flavor
 
 import (
 	"crypto/x509"
-	"strings"
 
 	commLog "github.com/intel-secl/intel-secl/v3/pkg/lib/common/log"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/model"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/types"
 	hcConstants "github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/constants"
@@ -76,13 +74,7 @@ func (pff PlatformFlavorProvider) GetPlatformFlavor() (*types.PlatformFlavor, er
 	var rp types.PlatformFlavor
 
 	if pff.hostManifest != nil {
-		switch strings.ToUpper(strings.TrimSpace(pff.hostManifest.HostInfo.OSName)) {
-		case constants.OsVMware:
-			rp = types.NewESXPlatformFlavor(pff.hostManifest, pff.attributeCertificate, pff.FlavorTemplates)
-		// Fallback to Linux
-		default:
-			rp = types.NewLinuxPlatformFlavor(pff.hostManifest, pff.attributeCertificate, pff.FlavorTemplates)
-		}
+		rp = types.NewHostPlatformFlavor(pff.hostManifest, pff.attributeCertificate, pff.FlavorTemplates)
 	} else {
 		err = errors.New("Error while retrieving PlaformFlavor - missing HostManifest")
 		return nil, errors.Wrapf(err, common.INVALID_INPUT().Message)

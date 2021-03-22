@@ -14,8 +14,8 @@ import (
 )
 
 func TestPcrMatchesConstantNoFault(t *testing.T) {
-	expectedPcr := types.PCRS{
-		PCR: types.PCR{
+	expectedPcr := types.FlavorPcrs{
+		Pcr: types.Pcr{
 			Index: 0,
 			Bank:  "SHA256",
 		},
@@ -24,7 +24,7 @@ func TestPcrMatchesConstantNoFault(t *testing.T) {
 
 	hostManifest := types.HostManifest{
 		PcrManifest: types.PcrManifest{
-			Sha256Pcrs: []types.Pcr{
+			Sha256Pcrs: []types.HostManifestPcrs{
 				{
 					Index:   0,
 					Value:   PCR_VALID_256,
@@ -42,12 +42,12 @@ func TestPcrMatchesConstantNoFault(t *testing.T) {
 	assert.NotNil(t, result)
 	assert.Equal(t, len(result.Faults), 0)
 	assert.True(t, result.Trusted)
-	t.Logf("Pcr matches constant rule verified")	
+	t.Logf("Pcr matches constant rule verified")
 }
 
 func TestPcrMatchesConstantPcrManifestMissingFault(t *testing.T) {
-	expectedPcr := types.PCRS{
-		PCR: types.PCR{
+	expectedPcr := types.FlavorPcrs{
+		Pcr: types.Pcr{
 			Index: 0,
 			Bank:  "SHA256",
 		},
@@ -67,8 +67,8 @@ func TestPcrMatchesConstantPcrManifestMissingFault(t *testing.T) {
 }
 
 func TestPcrMatchesConstantMismatchFault(t *testing.T) {
-	expectedPcr := types.PCRS{
-		PCR: types.PCR{
+	expectedPcr := types.FlavorPcrs{
+		Pcr: types.Pcr{
 			Index: 0,
 			Bank:  "SHA256",
 		},
@@ -78,7 +78,7 @@ func TestPcrMatchesConstantMismatchFault(t *testing.T) {
 	// host manifest with 'invalid' value for pcr0
 	hostManifest := types.HostManifest{
 		PcrManifest: types.PcrManifest{
-			Sha256Pcrs: []types.Pcr{
+			Sha256Pcrs: []types.HostManifestPcrs{
 				{
 					Index:   0,
 					Value:   PCR_INVALID_256,
@@ -103,7 +103,7 @@ func TestPcrMatchesConstantMissingFault(t *testing.T) {
 	// empty manifest will result in 'missing' fault
 	hostManifest := types.HostManifest{
 		PcrManifest: types.PcrManifest{
-			Sha256Pcrs: []types.Pcr{
+			Sha256Pcrs: []types.HostManifestPcrs{
 				{
 					Index:   1,
 					Value:   PCR_VALID_256,
@@ -113,8 +113,8 @@ func TestPcrMatchesConstantMissingFault(t *testing.T) {
 		},
 	}
 
-	expectedPcr := types.PCRS{
-		PCR: types.PCR{
+	expectedPcr := types.FlavorPcrs{
+		Pcr: types.Pcr{
 			Index: 0,
 			Bank:  "SHA256",
 		},

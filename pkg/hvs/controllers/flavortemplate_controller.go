@@ -127,13 +127,13 @@ func (ftc *FlavorTemplateController) Search(w http.ResponseWriter, r *http.Reque
 	defer defaultLog.Trace("controllers/flavortemplate_controller:Search() Leaving")
 
 	if err := utils.ValidateQueryParams(r.URL.Query(), flavorTemplateSearchParams); err != nil {
-		secLog.Errorf("controllers/host_controller:Search() %s", err.Error())
+		secLog.Errorf("controllers/flavortemplate_controller:Search() %s", err.Error())
 		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: err.Error()}
 	}
 
 	criteria, err := populateFlavorTemplateFilterCriteria(r.URL.Query())
 	if err != nil {
-		secLog.WithError(err).Errorf("controllers/host_controller:Search() %s Invalid filter criteria", commLogMsg.InvalidInputBadParam)
+		secLog.WithError(err).Errorf("controllers/flavortemplate_controller:Search() %s Invalid filter criteria", commLogMsg.InvalidInputBadParam)
 		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: "Invalid filter criteria"}
 	}
 
@@ -349,8 +349,7 @@ func populateFlavorTemplateFilterCriteria(params url.Values) (*models.FlavorTemp
 	if params.Get("includeDeleted") != "" {
 		includeDeleted, err := isIncludeDeleted(params.Get("includeDeleted"))
 		if err != nil {
-			defaultLog.WithError(err).Error("controllers/flavortemplate_controller:populateFlavorTemplateFilterCriteria() Invalid query parameter given")
-			return nil, &commErr.ResourceError{Message: "Invalid query parameter given"}
+			return nil, errors.Wrap(err, "Invalid query parameter given")
 		}
 		criteria.IncludeDeleted = includeDeleted
 	}
@@ -358,7 +357,7 @@ func populateFlavorTemplateFilterCriteria(params url.Values) (*models.FlavorTemp
 	if params.Get("id") != "" {
 		id, err := uuid.Parse(params.Get("id"))
 		if err != nil {
-			return nil, errors.New("Invalid id query param value, must be UUID")
+			return nil, errors.Wrap(err, "Invalid id query param value, must be UUID")
 		}
 		criteria.Id = id
 	}

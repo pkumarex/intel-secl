@@ -26,7 +26,7 @@ func newPcrValueMissingFault(bank types.SHAAlgorithm, pcrIndex types.PcrIndex) h
 	}
 }
 
-func newPcrValueMismatchFault(pcrIndex types.PcrIndex, PcrBank types.SHAAlgorithm, expectedPcr types.PCRS, actualPcr types.Pcr) hvs.Fault {
+func newPcrValueMismatchFault(pcrIndex types.PcrIndex, PcrBank types.SHAAlgorithm, expectedPcr types.FlavorPcrs, actualPcr types.HostManifestPcrs) hvs.Fault {
 	return hvs.Fault{
 		Name:             faultsConst.FaultPcrValueMismatch + string(actualPcr.PcrBank),
 		Description:      fmt.Sprintf("Host PCR %d of %s with value '%s' does not match expected value '%s'", pcrIndex, PcrBank, actualPcr.Value, expectedPcr.Measurement),

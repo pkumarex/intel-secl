@@ -17,7 +17,7 @@ import (
 )
 
 //NewPcrMatchesConstant collects the expected PCR values
-func NewPcrMatchesConstant(expectedPcr *types.PCRS, marker common.FlavorPart) (Rule, error) {
+func NewPcrMatchesConstant(expectedPcr *types.FlavorPcrs, marker common.FlavorPart) (Rule, error) {
 	var rule pcrMatchesConstant
 
 	if expectedPcr == nil {
@@ -37,7 +37,7 @@ func NewPcrMatchesConstant(expectedPcr *types.PCRS, marker common.FlavorPart) (R
 }
 
 type pcrMatchesConstant struct {
-	expectedPcr types.PCRS
+	expectedPcr types.FlavorPcrs
 	marker      common.FlavorPart
 }
 
@@ -47,7 +47,7 @@ func (rule *pcrMatchesConstant) Apply(hostManifest *types.HostManifest) (*hvs.Ru
 	result := hvs.RuleResult{}
 	result.Trusted = true // default to true, set to false in fault logic
 	result.Rule.Name = constants.RulePcrMatchesConstant
-	result.Rule.PCR = &rule.expectedPcr.PCR
+	result.Rule.PCR = &rule.expectedPcr.Pcr
 	result.Rule.Measurement = rule.expectedPcr.Measurement
 	result.Rule.PCRMatches = rule.expectedPcr.PCRMatches
 	result.Rule.Markers = append(result.Rule.Markers, rule.marker)
@@ -55,15 +55,15 @@ func (rule *pcrMatchesConstant) Apply(hostManifest *types.HostManifest) (*hvs.Ru
 	if hostManifest.PcrManifest.IsEmpty() {
 		result.Faults = append(result.Faults, newPcrManifestMissingFault())
 	} else {
-		actualPcr, err := hostManifest.PcrManifest.GetPcrValue(types.SHAAlgorithm(rule.expectedPcr.PCR.Bank), types.PcrIndex(rule.expectedPcr.PCR.Index))
+		actualPcr, err := hostManifest.PcrManifest.GetPcrValue(types.SHAAlgorithm(rule.expectedPcr.Pcr.Bank), types.PcrIndex(rule.expectedPcr.Pcr.Index))
 		if err != nil {
 			return nil, errors.Wrap(err, "Error in getting actual Pcr in Pcr Matches constant rule")
 		}
 
 		if actualPcr == nil || actualPcr.Value == "" || rule.expectedPcr.Measurement == "" {
-			result.Faults = append(result.Faults, newPcrValueMissingFault(types.SHAAlgorithm(rule.expectedPcr.PCR.Bank), types.PcrIndex(rule.expectedPcr.PCR.Index)))
+			result.Faults = append(result.Faults, newPcrValueMissingFault(types.SHAAlgorithm(rule.expectedPcr.Pcr.Bank), types.PcrIndex(rule.expectedPcr.Pcr.Index)))
 		} else if rule.expectedPcr.Measurement != actualPcr.Value {
-			result.Faults = append(result.Faults, newPcrValueMismatchFault(types.PcrIndex(rule.expectedPcr.PCR.Index), types.SHAAlgorithm(rule.expectedPcr.PCR.Bank), rule.expectedPcr, *actualPcr))
+			result.Faults = append(result.Faults, newPcrValueMismatchFault(types.PcrIndex(rule.expectedPcr.Pcr.Index), types.SHAAlgorithm(rule.expectedPcr.Pcr.Bank), rule.expectedPcr, *actualPcr))
 		}
 	}
 

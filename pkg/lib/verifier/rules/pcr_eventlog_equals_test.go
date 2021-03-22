@@ -20,7 +20,7 @@ import (
 func TestPcrEventLogEqualsNoFault(t *testing.T) {
 	hostManifest := types.HostManifest{
 		PcrManifest: types.PcrManifest{
-			Sha256Pcrs: []types.Pcr{
+			Sha256Pcrs: []types.HostManifestPcrs{
 				{
 					Index:   0,
 					Value:   PCR_VALID_256,
@@ -47,7 +47,7 @@ func TestPcrEventLogEqualsExcludingNoFault(t *testing.T) {
 
 	hostManifest := types.HostManifest{
 		PcrManifest: types.PcrManifest{
-			Sha256Pcrs: []types.Pcr{
+			Sha256Pcrs: []types.HostManifestPcrs{
 				{
 					Index:   0,
 					Value:   PCR_VALID_256,
@@ -73,7 +73,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingFault(t *testing.T) {
 
 	hostManifest := types.HostManifest{
 		PcrManifest: types.PcrManifest{
-			Sha256Pcrs: []types.Pcr{
+			Sha256Pcrs: []types.HostManifestPcrs{
 				{
 					Index:   0,
 					Value:   PCR_VALID_256,
@@ -84,7 +84,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingFault(t *testing.T) {
 	}
 
 	flavorEventsLog := types.TpmEventLog{
-		Pcr: types.PCR{
+		Pcr: types.Pcr{
 			Index: 0,
 			Bank:  "SHA256",
 		},
@@ -98,7 +98,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingFault(t *testing.T) {
 
 	// Put something in PCR1 (not PCR0) to invoke PcrMissingEventLog fault
 	hostEventsLog := types.TpmEventLog{
-		Pcr: types.PCR{
+		Pcr: types.Pcr{
 			Index: 1,
 			Bank:  "SHA256",
 		},
@@ -127,7 +127,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogContainsUnexpectedEntriesFault(t *
 
 	hostManifest := types.HostManifest{
 		PcrManifest: types.PcrManifest{
-			Sha256Pcrs: []types.Pcr{
+			Sha256Pcrs: []types.HostManifestPcrs{
 				{
 					Index:   0,
 					Value:   PCR_VALID_256,
@@ -138,7 +138,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogContainsUnexpectedEntriesFault(t *
 	}
 
 	unexpectedPcrEventLogs := types.TpmEventLog{
-		Pcr: types.PCR{
+		Pcr: types.Pcr{
 			Index: testHostManifestPcrEventLogEntry.Pcr.Index,
 			Bank:  testHostManifestPcrEventLogEntry.Pcr.Bank,
 		},
@@ -167,7 +167,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingExpectedEntriesFault(t *tes
 
 	hostManifest := types.HostManifest{
 		PcrManifest: types.PcrManifest{
-			Sha256Pcrs: []types.Pcr{
+			Sha256Pcrs: []types.HostManifestPcrs{
 				{
 					Index:   0,
 					Value:   PCR_VALID_256,
@@ -178,7 +178,7 @@ func TestPcrEventLogEqualsExcludingPcrEventLogMissingExpectedEntriesFault(t *tes
 	}
 
 	unexpectedPcrEventLogs := types.TpmEventLog{
-		Pcr: types.PCR{
+		Pcr: types.Pcr{
 			Index: testHostManifestPcrEventLogEntry.Pcr.Index,
 			Bank:  testHostManifestPcrEventLogEntry.Pcr.Bank,
 		},

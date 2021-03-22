@@ -292,71 +292,66 @@ func (pfutil PlatformFlavorUtil) PcrExists(pcrManifest hcTypes.PcrManifest, pcrL
 
 // GetPcrDetails extracts Pcr values and Event Logs from the HostManifest/PcrManifest and  returns
 // in a format suitable for inserting into the flavor
-func (pfutil PlatformFlavorUtil) GetPcrDetails(pcrManifest hcTypes.PcrManifest, pcrList map[hvs.PCR]hvs.PcrListRules, includeEventLog bool) []hcTypes.PCRS {
+func (pfutil PlatformFlavorUtil) GetPcrDetails(pcrManifest hcTypes.PcrManifest, pcrList map[hvs.PCR]hvs.PcrListRules) []hcTypes.FlavorPcrs {
 	log.Trace("flavor/util/platform_flavor_util:GetPcrDetails() Entering")
 	defer log.Trace("flavor/util/platform_flavor_util:GetPcrDetails() Leaving")
 
-	var pcrCollection []hcTypes.PCRS
+	var pcrCollection []hcTypes.FlavorPcrs
 
 	// pull out the logs for the required PCRs from both banks
 	for pcr, rules := range pcrList {
 		pI := hcTypes.PcrIndex(pcr.Index)
-		var pcrInfo *hcTypes.Pcr
+		var pcrInfo *hcTypes.HostManifestPcrs
 		pcrInfo, _ = pcrManifest.GetPcrValue(hcTypes.SHAAlgorithm(pcr.Bank), pI)
 
 		if pcrInfo != nil {
-
-			var currPcrEx hcTypes.PCRS
-			currPcrEx.PCR.Index = pcr.Index
-			currPcrEx.PCR.Bank = pcr.Bank
+			var currPcrEx hcTypes.FlavorPcrs
+			currPcrEx.Pcr.Index = pcr.Index
+			currPcrEx.Pcr.Bank = pcr.Bank
 			currPcrEx.Measurement = pcrInfo.Value
 			currPcrEx.PCRMatches = true
 
-			// Populate Value
-			// Event logs if allowed
-			if includeEventLog {
-				var eventLogEqualEvents []hcTypes.EventLog
-				manifestPcrEventLogs, err := pcrManifest.GetEventLogCriteria(hcTypes.SHAAlgorithm(pcr.Bank), pI)
+			// Populate Event log value
+			var eventLogEqualEvents []hcTypes.EventLog
+			manifestPcrEventLogs, err := pcrManifest.GetEventLogCriteria(hcTypes.SHAAlgorithm(pcr.Bank), pI)
 
-				// check if returned logset from PCR is nil
-				if manifestPcrEventLogs != nil && err == nil {
+			// check if returned logset from PCR is nil
+			if manifestPcrEventLogs != nil && err == nil {
 
-					// Convert EventLog to flavor format
-					for _, manifestEventLog := range manifestPcrEventLogs {
-						if len(manifestEventLog.Tags) == 0 {
-							if rules.PcrEquals.IsPcrEquals {
-								eventLogEqualEvents = append(eventLogEqualEvents, manifestEventLog)
-							}
-						}
-						presentInExcludeTag := false
-						for _, tag := range manifestEventLog.Tags {
-							if _, ok := rules.PcrIncludes[tag]; ok {
-								currPcrEx.EventlogIncludes = append(currPcrEx.EventlogIncludes, manifestEventLog)
-								break
-							} else if rules.PcrEquals.IsPcrEquals {
-								if _, ok := rules.PcrEquals.ExcludingTags[tag]; ok {
-									presentInExcludeTag = true
-									break
-								}
-							}
-						}
-						if !presentInExcludeTag {
+				// Convert EventLog to flavor format
+				for _, manifestEventLog := range manifestPcrEventLogs {
+					if len(manifestEventLog.Tags) == 0 {
+						if rules.PcrEquals.IsPcrEquals {
 							eventLogEqualEvents = append(eventLogEqualEvents, manifestEventLog)
 						}
 					}
-					if rules.PcrEquals.IsPcrEquals {
-						var EventLogExcludes []string
-						for excludeTag, _ := range rules.PcrEquals.ExcludingTags {
-							EventLogExcludes = append(EventLogExcludes, excludeTag)
+					presentInExcludeTag := false
+					for _, tag := range manifestEventLog.Tags {
+						if _, ok := rules.PcrIncludes[tag]; ok {
+							currPcrEx.EventlogIncludes = append(currPcrEx.EventlogIncludes, manifestEventLog)
+							break
+						} else if rules.PcrEquals.IsPcrEquals {
+							if _, ok := rules.PcrEquals.ExcludingTags[tag]; ok {
+								presentInExcludeTag = true
+								break
+							}
 						}
-						currPcrEx.EventlogEqual = &hcTypes.EventLogEqual{
-							Events:      eventLogEqualEvents,
-							ExcludeTags: EventLogExcludes,
-						}
+					}
+					if !presentInExcludeTag {
+						eventLogEqualEvents = append(eventLogEqualEvents, manifestEventLog)
+					}
+				}
+				if rules.PcrEquals.IsPcrEquals {
+					var EventLogExcludes []string
+					for excludeTag, _ := range rules.PcrEquals.ExcludingTags {
+						EventLogExcludes = append(EventLogExcludes, excludeTag)
+					}
+					currPcrEx.EventlogEqual = &hcTypes.EventLogEqual{
+						Events:      eventLogEqualEvents,
+						ExcludeTags: EventLogExcludes,
 					}
 				}
 			}
-
 			pcrCollection = append(pcrCollection, currPcrEx)
 		}
 	}
@@ -442,7 +437,6 @@ func (pfutil PlatformFlavorUtil) GetSignedFlavorList(flavors []fm.Flavor, flavor
 		// loop through and sign each flavor
 		for _, unsignedFlavor := range flavors {
 			var sf *hvs.SignedFlavor
-
 			sf, err := pfutil.GetSignedFlavor(&unsignedFlavor, flavorSigningPrivateKey)
 			if err != nil {
 				return nil, errors.Errorf("Error signing flavor collection: %s", err.Error())
@@ -452,6 +446,7 @@ func (pfutil PlatformFlavorUtil) GetSignedFlavorList(flavors []fm.Flavor, flavor
 	} else {
 		return nil, errors.Errorf("empty flavors list provided")
 	}
+
 	return signedFlavors, nil
 }
 
