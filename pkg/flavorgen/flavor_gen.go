@@ -34,8 +34,8 @@ type Templates []string
 
 //Schema location constansts
 const (
-	commonDefinitionsSchema = "/opt/flavorgen/common.schema.json"
-	flavorTemplateSchema    = "/opt/flavorgen/flavor-template.json"
+	commonDefinitionsSchema = "/etc/flavorgen/schema/common.schema.json"
+	flavorTemplateSchema    = "/etc/flavorgen/schema/flavor-template.json"
 )
 
 // exitGracefully performs exit the from the tool
@@ -161,7 +161,7 @@ func checkIfValidFile(filename string) (bool, error) {
 
 const helpStr = `Usage:
 
-flavor-gen <command> [arguments]
+flavorgen <command> [arguments]
 	
 Available Commands:
 	-f                     To provide Flavor template json file
