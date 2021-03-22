@@ -34,7 +34,7 @@ func TestXmlMeasurementLogIntegrityNoFault(t *testing.T) {
 	}
 
 	eventLogEntry := types.TpmEventLog{
-		Pcr: types.PCR{
+		Pcr: types.Pcr{
 			Index: 15,
 			Bank:  "SHA256",
 		},
@@ -211,7 +211,7 @@ func TestXmlMeasurementLogIntegrityValueMismatchFromInvalidPcrEventLog(t *testin
 	}
 
 	eventLogEntry := types.TpmEventLog{
-		Pcr: types.PCR{
+		Pcr: types.Pcr{
 			Index: 15,
 			Bank:  "SHA256",
 		},
@@ -274,7 +274,7 @@ func TestXmlMeasurementLogIntegrityValueMismatchFromMissingPcrEventLabel(t *test
 	}
 
 	eventLogEntry := types.TpmEventLog{
-		Pcr: types.PCR{
+		Pcr: types.Pcr{
 			Index: 15,
 			Bank:  "SHA256",
 		},

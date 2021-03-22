@@ -18,15 +18,15 @@ func TestPcrEventLogIntegrityNoFault(t *testing.T) {
 	expectedCumulativeHash, err := testExpectedPcrEventLogEntry.Replay()
 	assert.NoError(t, err)
 
-	expectedPcrLog := types.PCRS{
-		PCR: types.PCR{
+	expectedPcrLog := types.FlavorPcrs{
+		Pcr: types.Pcr{
 			Index: 0,
 			Bank:  "SHA256",
 		},
 		Measurement: expectedCumulativeHash,
 	}
 
-	expectedPcrLog1 := types.Pcr{
+	expectedPcrLog1 := types.HostManifestPcrs{
 		Index:   0,
 		PcrBank: "SHA256",
 		Value:   expectedCumulativeHash,
@@ -47,7 +47,7 @@ func TestPcrEventLogIntegrityNoFault(t *testing.T) {
 func TestPcrEventLogIntegrityPcrValueMissingFault(t *testing.T) {
 	hostManifest := types.HostManifest{
 		PcrManifest: types.PcrManifest{
-			Sha256Pcrs: []types.Pcr{
+			Sha256Pcrs: []types.HostManifestPcrs{
 				{
 					Index:   1,
 					Value:   PCR_VALID_256,
@@ -60,8 +60,8 @@ func TestPcrEventLogIntegrityPcrValueMissingFault(t *testing.T) {
 	expectedCumulativeHash, err := testExpectedPcrEventLogEntry.Replay()
 	assert.NoError(t, err)
 
-	expectedPcrLog := types.PCRS{
-		PCR: types.PCR{
+	expectedPcrLog := types.FlavorPcrs{
+		Pcr: types.Pcr{
 			Index: 0,
 			Bank:  "SHA256",
 		},
@@ -89,13 +89,13 @@ func TestPcrEventLogIntegrityPcrEventLogMissingFault(t *testing.T) {
 	expectedCumulativeHash, err := testExpectedPcrEventLogEntry.Replay()
 	assert.NoError(t, err)
 
-	expectedPcrLog1 := types.Pcr{
+	expectedPcrLog1 := types.HostManifestPcrs{
 		Index:   types.PCR0,
 		PcrBank: types.SHA256,
 		Value:   expectedCumulativeHash,
 	}
-	expectedPcrLog := types.PCRS{
-		PCR: types.PCR{
+	expectedPcrLog := types.FlavorPcrs{
+		Pcr: types.Pcr{
 			Index: 0,
 			Bank:  "SHA256",
 		},
@@ -122,8 +122,8 @@ func TestPcrEventLogIntegrityPcrEventLogInvalidFault(t *testing.T) {
 	expectedCumulativeHash, err := testExpectedPcrEventLogEntry.Replay()
 	assert.NoError(t, err)
 
-	expectedPcrLog := types.PCRS{
-		PCR: types.PCR{
+	expectedPcrLog := types.FlavorPcrs{
+		Pcr: types.Pcr{
 			Index: 0,
 			Bank:  "SHA256",
 		},
@@ -131,7 +131,7 @@ func TestPcrEventLogIntegrityPcrEventLogInvalidFault(t *testing.T) {
 	}
 
 	invalidPcrEventLogEntry := types.TpmEventLog{
-		Pcr: types.PCR{
+		Pcr: types.Pcr{
 			Index: 0,
 			Bank:  "SHA256",
 		},
@@ -146,7 +146,7 @@ func TestPcrEventLogIntegrityPcrEventLogInvalidFault(t *testing.T) {
 	invalidCumulativeHash, err := testExpectedPcrEventLogEntry.Replay()
 	assert.NoError(t, err)
 
-	invalidPcrLog := types.Pcr{
+	invalidPcrLog := types.HostManifestPcrs{
 		Index:   types.PCR0,
 		PcrBank: types.SHA256,
 		Value:   invalidCumulativeHash,

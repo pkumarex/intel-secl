@@ -134,7 +134,7 @@ func TestEventReplay256(t *testing.T) {
 	}`
 
 	var eventLogEntry types.TpmEventLog
-	var pcr18 types.PCRS
+	var pcr18 types.FlavorPcrs
 
 	assert.NoError(t, json.Unmarshal([]byte(eventLogJson), &eventLogEntry))
 	assert.NoError(t, json.Unmarshal([]byte(pcr18json), &pcr18))

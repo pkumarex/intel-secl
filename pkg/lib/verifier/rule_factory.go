@@ -58,7 +58,10 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 	ruleBuilder, err := factory.getRuleBuilder()
 	if err != nil {
 		return nil, "", errors.Wrap(err, "Could not retrieve rule builder")
+
 	}
+
+	log.Info("rule builder name:", ruleBuilder.GetName())
 
 	err = (&flavorPart).Parse(factory.signedFlavor.Flavor.Meta.Description[flavormodel.FlavorPart].(string))
 	if err != nil {
@@ -76,6 +79,8 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 		return nil, "", errors.Errorf("Cannot build requiredRules for unknown flavor part %s", flavorPart)
 
 	}
+
+	log.Info("requiredRules:", requiredRules)
 
 	flavorPcrs := factory.signedFlavor.Flavor.Pcrs
 

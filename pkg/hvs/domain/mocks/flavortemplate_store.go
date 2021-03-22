@@ -101,6 +101,43 @@ func (store *MockFlavorTemplateStore) Search(criteria *models.FlavorTemplateFilt
 	if criteria.IncludeDeleted {
 		rec = append(rec, store.DeletedTemplates...)
 	}
+	for _, template := range rec {
+		//ID
+		if criteria.Id != uuid.Nil {
+			if template.ID == criteria.Id {
+				rec = append(rec, template)
+			}
+		}
+
+		//Label
+		if criteria.Label != "" {
+			if template.Label == criteria.Label {
+				rec = append(rec, template)
+			}
+		}
+
+		//Condition
+		if criteria.ConditionContains != "" {
+			for _, condition := range template.Condition {
+				if condition == criteria.ConditionContains {
+					rec = append(rec, template)
+				}
+			}
+		}
+
+		//FlavorPart
+		if criteria.FlavorPartContains != "" {
+			if template.FlavorParts.Platform != nil && criteria.FlavorPartContains == "PLATFORM" {
+				rec = append(rec, template)
+			}
+			if template.FlavorParts.OS != nil && criteria.FlavorPartContains == "OS" {
+				rec = append(rec, template)
+			}
+			if template.FlavorParts.HostUnique != nil && criteria.FlavorPartContains == "HOST_UNIQUE" {
+				rec = append(rec, template)
+			}
+		}
+	}
 	return rec, nil
 }
 

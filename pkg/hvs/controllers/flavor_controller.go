@@ -201,7 +201,7 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 			return nil, errors.Wrap(err, "Error in finding templates")
 		}
 
-		defaultLog.Debug("Matched Flavor templates ", flavorTemplates)
+		defaultLog.Debugf("Matched Flavor templates: %v", flavorTemplates)
 
 		tagCertificate := hvs.TagCertificate{}
 		var tagX509Certificate *x509.Certificate
