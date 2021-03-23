@@ -36,8 +36,8 @@ var defaultFlavorTemplateNames = []string{
 	"default-uefi",
 	"default-bmc",
 	"default-pfr",
-	"TPM_1.2",
-	"TPM_2.0",
+	"default-esxi-tpm12",
+	"default-esxi-tpm20",
 }
 
 func (t *CreateDefaultFlavorTemplate) Run() error {

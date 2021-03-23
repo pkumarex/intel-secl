@@ -10,6 +10,7 @@ package verifier
 
 import (
 	hvsconstants "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants/verifier-rules-and-faults"
+	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/common"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/verifier/rules"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
@@ -67,26 +68,8 @@ func (builder *ruleBuilderVMWare20) GetAssetTagRules() ([]rules.Rule, error) {
 }
 
 // From 'design' repo at isecl/libraries/verifier/verifier.md...
-// PcrMatchesConstant rule for PCR 0, 17, 18
-// PcrEventLogEquals for 17,18
-// PcrEventLogIntegrity rule for 17,18
-func (builder *ruleBuilderVMWare20) GetPlatformRules() ([]rules.Rule, error) {
-	return nil, nil
-}
-
-// From 'design' repo at isecl/libraries/verifier/verifier.md...
-// PcrMatchesConstant rule for PCR 19
-// PcrEventLogEquals rule for PCR 19
-// PcrEventLogIntegrity rule for PCR 19, 20, 21
-// PcrEventLogEqualsExcluding rule for PCR 20,21
-func (builder *ruleBuilderVMWare20) GetOsRules() ([]rules.Rule, error) {
-	return nil, nil
-}
-
-// From 'design' repo at isecl/libraries/verifier/verifier.md...
-// PcrEventLogIncludes rule for PCR 20,21
-// PcrEventLogIntegrity rule for PCR 20,21
-func (builder *ruleBuilderVMWare20) GetHostUniqueRules() ([]rules.Rule, error) {
+//(none)
+func (builder *ruleBuilderVMWare20) GetAikCertificateTrustedRule(fp common.FlavorPart) ([]rules.Rule, error) {
 	return nil, nil
 }
 

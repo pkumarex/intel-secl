@@ -25,15 +25,15 @@ type Flavor struct {
 	Meta Meta  `json:"meta"`
 	Bios *Bios `json:"bios,omitempty"`
 	// Hardware section is unique to Platform Flavor type
-	Hardware *Hardware    `json:"hardware,omitempty"`
-	Pcrs     []types.PCRS `json:"pcrs,omitempty"`
+	Hardware *Hardware          `json:"hardware,omitempty"`
+	Pcrs     []types.FlavorPcrs `json:"pcrs,omitempty"`
 	// External section is unique to AssetTag Flavor type
 	External *External `json:"external,omitempty"`
 	Software *Software `json:"software,omitempty"`
 }
 
 // NewFlavor returns a new instance of Flavor
-func NewFlavor(meta *Meta, bios *Bios, hardware *Hardware, pcrs []types.PCRS, external *External, software *Software) *Flavor {
+func NewFlavor(meta *Meta, bios *Bios, hardware *Hardware, pcrs []types.FlavorPcrs, external *External, software *Software) *Flavor {
 	// Since maps are hard to marshal as JSON, let's try to convert the DigestAlgorithm and PcrIndex to strings
 	return &Flavor{
 		Meta:     *meta,

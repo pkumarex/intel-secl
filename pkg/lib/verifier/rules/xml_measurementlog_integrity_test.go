@@ -34,11 +34,11 @@ func TestXmlMeasurementLogIntegrityNoFault(t *testing.T) {
 	}
 
 	eventLogEntry := types.TpmEventLog{
-		Pcr: types.PCR{
+		Pcr: types.Pcr{
 			Index: 15,
 			Bank:  "SHA256",
 		},
-		TpmEvent: []types.EventLogCriteria{
+		TpmEvent: []types.EventLog{
 			{
 				Measurement: getSha256String(testExpectedMeasurement.CumulativeHash),
 				Tags:        []string{testExpectedMeasurement.Label + "-" + testExpectedMeasurement.Uuid},
@@ -211,11 +211,11 @@ func TestXmlMeasurementLogIntegrityValueMismatchFromInvalidPcrEventLog(t *testin
 	}
 
 	eventLogEntry := types.TpmEventLog{
-		Pcr: types.PCR{
+		Pcr: types.Pcr{
 			Index: 15,
 			Bank:  "SHA256",
 		},
-		TpmEvent: []types.EventLogCriteria{
+		TpmEvent: []types.EventLog{
 			{
 				Measurement: "0000000000000000000000000000000000", // ==> NOT RIGHT
 				Tags:        []string{testExpectedMeasurement.Label + "-" + testExpectedMeasurement.Uuid},
@@ -274,11 +274,11 @@ func TestXmlMeasurementLogIntegrityValueMismatchFromMissingPcrEventLabel(t *test
 	}
 
 	eventLogEntry := types.TpmEventLog{
-		Pcr: types.PCR{
+		Pcr: types.Pcr{
 			Index: 15,
 			Bank:  "SHA256",
 		},
-		TpmEvent: []types.EventLogCriteria{
+		TpmEvent: []types.EventLog{
 			{
 				Measurement: getSha256String(testExpectedMeasurement.CumulativeHash),
 				Tags:        []string{"invalid labor"}, // ==> won't match the flavor
