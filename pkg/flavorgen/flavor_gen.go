@@ -17,7 +17,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/intel-secl/intel-secl/v3/pkg/flavorgen/version"
 	controller "github.com/intel-secl/intel-secl/v3/pkg/hvs/controllers"
-	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/types"
 	hcType "github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
@@ -266,13 +265,7 @@ func (flavorgen FlavorGen) GenerateFlavors() {
 	}
 
 	var rp types.PlatformFlavor
-	switch strings.ToUpper(strings.TrimSpace(hostmanifest.HostInfo.OSName)) {
-	case constants.OsVMware:
-		rp = types.NewESXPlatformFlavor(&hostmanifest, nil, flavorTemplates)
-	// Fallback to Linux
-	default:
-		rp = types.NewLinuxPlatformFlavor(&hostmanifest, nil, flavorTemplates)
-	}
+	rp = types.NewHostPlatformFlavor(&hostmanifest, nil, flavorTemplates)
 
 	// Create the flavor json
 	err = createFlavor(rp)
