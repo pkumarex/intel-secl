@@ -6,7 +6,7 @@ package constants
 
 const (
 	OsVMware string = "VMWARE ESXI"
-	OsLinux  string = "LINUX"
+	OsLinux  string = "REDHATENTERPRISE"
 
 	// Software Flavor Prefix
 	DefaultSoftwareFlavorPrefix string = "ISecL_Default_Application_Flavor_v"
@@ -32,4 +32,9 @@ const (
 	// Timestamp format
 	FlavorTimestampFormat   = "2006-01-02T15:04:05-0700"
 	FlavorWoTimestampFormat = "2006-01-02T15:04:05.999999-07:00"
+
+	//PCR Info
+	PCR22  = 22
+	SHA256 = "SHA256"
+	SHA1   = "SHA1"
 )

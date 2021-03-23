@@ -21,9 +21,7 @@ import (
 // vendor (ex. intel TPM2.0 vs. vmware TPM1.2 vs. vmware TPM2.0)
 type ruleBuilder interface {
 	GetAssetTagRules() ([]rules.Rule, error)
-	GetPlatformRules() ([]rules.Rule, error)
-	GetOsRules() ([]rules.Rule, error)
-	GetHostUniqueRules() ([]rules.Rule, error)
+	GetAikCertificateTrustedRule(common.FlavorPart) ([]rules.Rule, error)
 	GetSoftwareRules() ([]rules.Rule, error)
 	GetName() string
 }
@@ -60,7 +58,10 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 	ruleBuilder, err := factory.getRuleBuilder()
 	if err != nil {
 		return nil, "", errors.Wrap(err, "Could not retrieve rule builder")
+
 	}
+
+	log.Info("rule builder name:", ruleBuilder.GetName())
 
 	err = (&flavorPart).Parse(factory.signedFlavor.Flavor.Meta.Description[flavormodel.FlavorPart].(string))
 	if err != nil {
@@ -68,20 +69,18 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 	}
 
 	switch flavorPart {
-	case common.FlavorPartPlatform:
-		requiredRules, err = ruleBuilder.GetPlatformRules()
+	case common.FlavorPartPlatform, common.FlavorPartOs, common.FlavorPartHostUnique:
+		requiredRules, err = ruleBuilder.GetAikCertificateTrustedRule(flavorPart)
 	case common.FlavorPartAssetTag:
 		requiredRules, err = ruleBuilder.GetAssetTagRules()
-	case common.FlavorPartOs:
-		requiredRules, err = ruleBuilder.GetOsRules()
-	case common.FlavorPartHostUnique:
-		requiredRules, err = ruleBuilder.GetHostUniqueRules()
 	case common.FlavorPartSoftware:
 		requiredRules, err = ruleBuilder.GetSoftwareRules()
 	default:
 		return nil, "", errors.Errorf("Cannot build requiredRules for unknown flavor part %s", flavorPart)
 
 	}
+
+	log.Info("requiredRules:", requiredRules)
 
 	flavorPcrs := factory.signedFlavor.Flavor.Pcrs
 

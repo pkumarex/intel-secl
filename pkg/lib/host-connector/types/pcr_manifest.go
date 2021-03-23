@@ -30,13 +30,13 @@ const (
 	PCR_INDEX_PREFIX = "pcr_"
 )
 
-type Pcr struct {
+type HostManifestPcrs struct {
 	Index   PcrIndex     `json:"index"`
 	Value   string       `json:"value"`
 	PcrBank SHAAlgorithm `json:"pcr_bank"`
 }
 
-type EventLogCriteria struct {
+type EventLog struct {
 	TypeID      string   `json:"type_id"`   //oneof-required
 	TypeName    string   `json:"type_name"` //oneof-required
 	Tags        []string `json:"tags,omitempty"`
@@ -49,28 +49,28 @@ type eventLogKeyAttr struct {
 }
 
 type TpmEventLog struct {
-	Pcr      PCR                `json:"pcr"`
-	TpmEvent []EventLogCriteria `json:"tpm_events"`
+	Pcr      Pcr        `json:"pcr"`
+	TpmEvent []EventLog `json:"tpm_events"`
 }
 
 //PCR - To store PCR index with respective PCR bank.
-type PCR struct {
+type Pcr struct {
 	// Valid PCR index is from 0 to 23.
 	Index int `json:"index"`
 	// Valid PCR banks are SHA1, SHA256, SHA384 and SHA512.
 	Bank string `json:"bank"`
 }
-type PCRS struct {
-	PCR              PCR                `json:"pcr"`         //required
-	Measurement      string             `json:"measurement"` //required
-	PCRMatches       bool               `json:"pcr_matches,omitempty"`
-	EventlogEqual    *EventLogEqual     `json:"eventlog_equals,omitempty"`
-	EventlogIncludes []EventLogCriteria `json:"eventlog_includes,omitempty"`
+type FlavorPcrs struct {
+	Pcr              Pcr            `json:"pcr"`         //required
+	Measurement      string         `json:"measurement"` //required
+	PCRMatches       bool           `json:"pcr_matches,omitempty"`
+	EventlogEqual    *EventLogEqual `json:"eventlog_equals,omitempty"`
+	EventlogIncludes []EventLog     `json:"eventlog_includes,omitempty"`
 }
 
 type EventLogEqual struct {
-	Events      []EventLogCriteria `json:"events,omitempty"`
-	ExcludeTags []string           `json:"exclude_tags,omitempty"`
+	Events      []EventLog `json:"events,omitempty"`
+	ExcludeTags []string   `json:"exclude_tags,omitempty"`
 }
 
 type PcrEventLogMap struct {
@@ -78,15 +78,15 @@ type PcrEventLogMap struct {
 	Sha256EventLogs []TpmEventLog `json:"SHA256"`
 }
 type PcrManifest struct {
-	Sha1Pcrs       []Pcr          `json:"sha1pcrs"`
-	Sha256Pcrs     []Pcr          `json:"sha2pcrs"`
-	PcrEventLogMap PcrEventLogMap `json:"pcr_event_log_map"`
+	Sha1Pcrs       []HostManifestPcrs `json:"sha1pcrs"`
+	Sha256Pcrs     []HostManifestPcrs `json:"sha2pcrs"`
+	PcrEventLogMap PcrEventLogMap     `json:"pcr_event_log_map"`
 }
 
 type PcrIndex int
 
-func (p PCRS) EqualsWithoutValue(pcr PCRS) bool {
-	return reflect.DeepEqual(p.PCR.Index, pcr.PCR.Index) && reflect.DeepEqual(p.PCR.Bank, pcr.PCR.Bank)
+func (p FlavorPcrs) EqualsWithoutValue(flavorPcr FlavorPcrs) bool {
+	return reflect.DeepEqual(p.Pcr.Index, flavorPcr.Pcr.Index) && reflect.DeepEqual(p.Pcr.Bank, flavorPcr.Pcr.Bank)
 }
 
 // String returns the string representation of the PcrIndex
@@ -218,11 +218,11 @@ func GetPcrIndexFromString(stringValue string) (PcrIndex, error) {
 // Finds the Pcr in a PcrManifest provided the pcrBank and index.  Returns
 // null if not found.  Returns an error if the pcrBank is not supported
 // by intel-secl (currently supports SHA1 and SHA256).
-func (pcrManifest *PcrManifest) GetPcrValue(pcrBank SHAAlgorithm, pcrIndex PcrIndex) (*Pcr, error) {
+func (pcrManifest *PcrManifest) GetPcrValue(pcrBank SHAAlgorithm, pcrIndex PcrIndex) (*HostManifestPcrs, error) {
 	// TODO: Is this the right data model for the PcrManifest?  Two things...
 	// - Flavor API returns a map[bank]map[pcrindex]
 	// - Finding the PCR by bank/index is a linear search.
-	var pcrValue *Pcr
+	var pcrValue *HostManifestPcrs
 
 	switch pcrBank {
 	case SHA1:
@@ -248,7 +248,7 @@ func (pcrManifest *PcrManifest) GetPcrValue(pcrBank SHAAlgorithm, pcrIndex PcrIn
 
 // Utility function that uses GetPcrValue but also returns an error if
 // the Pcr was not found.
-func (pcrManifest *PcrManifest) GetRequiredPcrValue(bank SHAAlgorithm, pcrIndex PcrIndex) (*Pcr, error) {
+func (pcrManifest *PcrManifest) GetRequiredPcrValue(bank SHAAlgorithm, pcrIndex PcrIndex) (*HostManifestPcrs, error) {
 	pcrValue, err := pcrManifest.GetPcrValue(bank, pcrIndex)
 	if err != nil {
 		return nil, err
@@ -270,8 +270,8 @@ func (pcrManifest *PcrManifest) IsEmpty() bool {
 // Finds the EventLogEntry in a PcrEventLogMap provided the pcrBank and index.  Returns
 // null if not found.  Returns an error if the pcrBank is not supported
 // by intel-secl (currently supports SHA1 and SHA256).
-func (pcrEventLogMap *PcrEventLogMap) GetEventLogNew(pcrBank string, pcrIndex int) ([]EventLogCriteria, int, string, error) {
-	var eventLog []EventLogCriteria
+func (pcrEventLogMap *PcrEventLogMap) GetEventLogNew(pcrBank string, pcrIndex int) ([]EventLog, int, string, error) {
+	var eventLog []EventLog
 	var pIndex int
 	var bank string
 
@@ -318,27 +318,27 @@ func (eventLogEntry *TpmEventLog) Subtract(eventsToSubtract *TpmEventLog) (*TpmE
 	// build a new EventLogEntry that will be populated by the event log entries
 	// in the source less those 'eventsToSubtract'.
 	subtractedEvents := TpmEventLog{
-		Pcr: PCR{
+		Pcr: Pcr{
 			Bank:  eventLogEntry.Pcr.Bank,
 			Index: eventLogEntry.Pcr.Index,
 		},
 	}
 
 	mismatchedEvents := TpmEventLog{
-		Pcr: PCR{
+		Pcr: Pcr{
 			Bank:  eventLogEntry.Pcr.Bank,
 			Index: eventLogEntry.Pcr.Index,
 		},
 	}
 
-	eventsToSubtractMap := make(map[eventLogKeyAttr]EventLogCriteria)
+	eventsToSubtractMap := make(map[eventLogKeyAttr]EventLog)
 	for _, eventLog := range eventsToSubtract.TpmEvent {
 		compareInfo := eventLogKeyAttr{
 			Measurement: eventLog.Measurement,
 			TypeID:      eventLog.TypeID,
 		}
 
-		eventLogData := EventLogCriteria{
+		eventLogData := EventLog{
 			Tags:     eventLog.Tags,
 			TypeName: eventLog.TypeName,
 		}
@@ -418,7 +418,7 @@ func (eventLogEntry *TpmEventLog) Replay() (string, error) {
 }
 
 // GetEventLogCriteria returns the EventLogs for a specific PcrBank/PcrIndex, as per latest hostmanifest
-func (pcrManifest *PcrManifest) GetEventLogCriteria(pcrBank SHAAlgorithm, pcrIndex PcrIndex) ([]EventLogCriteria, error) {
+func (pcrManifest *PcrManifest) GetEventLogCriteria(pcrBank SHAAlgorithm, pcrIndex PcrIndex) ([]EventLog, error) {
 	pI := int(pcrIndex)
 
 	switch pcrBank {
