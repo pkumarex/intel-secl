@@ -288,8 +288,8 @@ func createPCRManifest(pcrList []string, eventLog string) (types.PcrManifest, er
 	defer log.Trace("util/aik_quote_verifier:createPCRManifest() Leaving")
 	var pcrManifest types.PcrManifest
 	var err error
-	pcrManifest.Sha256Pcrs = []types.Pcr{}
-	pcrManifest.Sha1Pcrs = []types.Pcr{}
+	pcrManifest.Sha256Pcrs = []types.HostManifestPcrs{}
+	pcrManifest.Sha1Pcrs = []types.HostManifestPcrs{}
 
 	for _, pcrString := range pcrList {
 		parts := strings.Split(strings.TrimSpace(pcrString), " ")
@@ -323,13 +323,13 @@ func createPCRManifest(pcrList []string, eventLog string) (types.PcrManifest, er
 				}
 
 				if strings.EqualFold(pcrBank, "SHA256") {
-					pcrManifest.Sha256Pcrs = append(pcrManifest.Sha256Pcrs, types.Pcr{
+					pcrManifest.Sha256Pcrs = append(pcrManifest.Sha256Pcrs, types.HostManifestPcrs{
 						Index:   pcrIndex,
 						Value:   pcrValue,
 						PcrBank: shaAlgorithm,
 					})
 				} else if strings.EqualFold(pcrBank, "SHA1") {
-					pcrManifest.Sha1Pcrs = append(pcrManifest.Sha1Pcrs, types.Pcr{
+					pcrManifest.Sha1Pcrs = append(pcrManifest.Sha1Pcrs, types.HostManifestPcrs{
 						Index:   pcrIndex,
 						Value:   pcrValue,
 						PcrBank: shaAlgorithm,
@@ -340,7 +340,7 @@ func createPCRManifest(pcrList []string, eventLog string) (types.PcrManifest, er
 			}
 		}
 	}
-	pcrManifest.PcrEventLogMapLinux, err = getPcrEventLog(eventLog)
+	pcrManifest.PcrEventLogMap, err = getPcrEventLog(eventLog)
 	if err != nil {
 		log.Errorf("util/aik_quote_verifier:createPCRManifest() Error getting PCR event log : %s", err.Error())
 		return pcrManifest, errors.Wrap(err, "util/aik_quote_verifier:createPCRManifest() Error getting PCR "+
@@ -349,15 +349,15 @@ func createPCRManifest(pcrList []string, eventLog string) (types.PcrManifest, er
 	return pcrManifest, nil
 }
 
-func getPcrEventLog(eventLog string) (types.PcrEventLogMapFC, error) {
+func getPcrEventLog(eventLog string) (types.PcrEventLogMap, error) {
 
 	log.Trace("util/aik_quote_verifier:getPcrEventLog() Entering")
 	defer log.Trace("util/aik_quote_verifier:getPcrEventLog() Leaving")
-	var pcrEventLogMap types.PcrEventLogMapFC
+	var pcrEventLogMap types.PcrEventLogMap
 	var measureLogs []types.MeasureLog
 	err := json.Unmarshal([]byte(eventLog), &measureLogs)
 	if err != nil {
-		return types.PcrEventLogMapFC{}, errors.Wrap(err, "util/aik_quote_verifier:getPcrEventLog() Error unmarshalling measureLog")
+		return types.PcrEventLogMap{}, errors.Wrap(err, "util/aik_quote_verifier:getPcrEventLog() Error unmarshalling measureLog")
 	}
 	for _, measureLog := range measureLogs {
 		pcrEventLogMap = addPcrEntry(measureLog, pcrEventLogMap)
@@ -365,7 +365,7 @@ func getPcrEventLog(eventLog string) (types.PcrEventLogMapFC, error) {
 	return pcrEventLogMap, nil
 }
 
-func addPcrEntry(module types.MeasureLog, eventLogMap types.PcrEventLogMapFC) types.PcrEventLogMapFC {
+func addPcrEntry(module types.MeasureLog, eventLogMap types.PcrEventLogMap) types.PcrEventLogMap {
 
 	log.Trace("util/aik_quote_verifier:addPcrEntry() Entering")
 	defer log.Trace("util/aik_quote_verifier:addPcrEntry() Leaving")
@@ -382,10 +382,10 @@ func addPcrEntry(module types.MeasureLog, eventLogMap types.PcrEventLogMapFC) ty
 		}
 
 		if !pcrFound {
-			eventLogMap.Sha1EventLogs = append(eventLogMap.Sha1EventLogs, types.TpmEventLog{Pcr: types.PCR{Index: module.Pcr.Index, Bank: SHA1}, TpmEvent: module.TpmEvents})
+			eventLogMap.Sha1EventLogs = append(eventLogMap.Sha1EventLogs, types.TpmEventLog{Pcr: types.Pcr{Index: module.Pcr.Index, Bank: SHA1}, TpmEvent: module.TpmEvents})
 		} else {
 			for _, events := range module.TpmEvents {
-				eventLog := types.EventLogCriteria{Measurement: events.Measurement,
+				eventLog := types.EventLog{Measurement: events.Measurement,
 					Tags: events.Tags, TypeID: events.TypeID, TypeName: events.TypeName}
 
 				eventLogMap.Sha1EventLogs[index].TpmEvent = append(eventLogMap.Sha1EventLogs[index].TpmEvent, eventLog)
@@ -402,10 +402,10 @@ func addPcrEntry(module types.MeasureLog, eventLogMap types.PcrEventLogMapFC) ty
 		}
 
 		if !pcrFound {
-			eventLogMap.Sha256EventLogs = append(eventLogMap.Sha256EventLogs, types.TpmEventLog{Pcr: types.PCR{Index: module.Pcr.Index, Bank: SHA256}, TpmEvent: module.TpmEvents})
+			eventLogMap.Sha256EventLogs = append(eventLogMap.Sha256EventLogs, types.TpmEventLog{Pcr: types.Pcr{Index: module.Pcr.Index, Bank: SHA256}, TpmEvent: module.TpmEvents})
 		} else {
 			for _, events := range module.TpmEvents {
-				eventLog := types.EventLogCriteria{Measurement: events.Measurement,
+				eventLog := types.EventLog{Measurement: events.Measurement,
 					Tags: events.Tags, TypeID: events.TypeID, TypeName: events.TypeName}
 				eventLogMap.Sha256EventLogs[index].TpmEvent = append(eventLogMap.Sha256EventLogs[index].TpmEvent, eventLog)
 			}

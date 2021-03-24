@@ -44,18 +44,15 @@ func (builder *ruleBuilderIntelTpm20) GetName() string {
 
 // From 'design' repo at isecl/libraries/verifier/verifier.md...
 // AikCertificateTrusted
-// PcrMatchesConstant depend on HW features present in flavor
-// PcrEventLogEqualsExcluding rule for PCR 17, 18
-// PcrEventLogIntegrity rule for PCR 17,18 (if tboot is installed)
 // FlavorTrusted (added in verifierimpl)
-func (builder *ruleBuilderIntelTpm20) GetPlatformRules() ([]rules.Rule, error) {
+func (builder *ruleBuilderIntelTpm20) GetAikCertificateTrustedRule(flavorPart common.FlavorPart) ([]rules.Rule, error) {
 
 	var results []rules.Rule
 
 	//
 	// Add 'AikCertificateTrusted' rule...
 	//
-	aikCertificateTrusted, err := rules.NewAikCertificateTrusted(builder.verifierCertificates.PrivacyCACertificates, common.FlavorPartPlatform)
+	aikCertificateTrusted, err := rules.NewAikCertificateTrusted(builder.verifierCertificates.PrivacyCACertificates, flavorPart)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error in getting AikCertificateTrusted rule")
 	}
@@ -92,50 +89,6 @@ func (builder *ruleBuilderIntelTpm20) GetAssetTagRules() ([]rules.Rule, error) {
 	}
 
 	results = append(results, assetTagMatches)
-
-	return results, nil
-}
-
-// From 'design' repo at isecl/libraries/verifier/verifier.md...
-// AikCertificateTrusted
-// PcrEventLogIntegrity rule for PCR 17 (if tboot is installed)
-// PcrEventLogIncludes rule for PCR 17
-// FlavorTrusted (added in verifierimpl)
-func (builder *ruleBuilderIntelTpm20) GetOsRules() ([]rules.Rule, error) {
-
-	var results []rules.Rule
-
-	//
-	// Add 'AikCertificateTrusted' rule...
-	//
-	aikCertificateTrusted, err := rules.NewAikCertificateTrusted(builder.verifierCertificates.PrivacyCACertificates, common.FlavorPartOs)
-	if err != nil {
-		return nil, errors.Wrap(err, "Error in getting AikCertificateTrusted rule")
-	}
-
-	results = append(results, aikCertificateTrusted)
-
-	return results, nil
-}
-
-// From 'design' repo at isecl/libraries/verifier/verifier.md...
-// AikCertificateTrusted
-// PcrEventLogIncludes rule for PCR 17, 18
-// PcrEventLogIntegrity rule for PCR 17, 18 (if tboot is installed)
-// FlavorTrusted (added in verifierimpl)
-func (builder *ruleBuilderIntelTpm20) GetHostUniqueRules() ([]rules.Rule, error) {
-
-	var results []rules.Rule
-
-	//
-	// Add 'AikCertificateTrusted' rule...
-	//
-	aikCertificateTrusted, err := rules.NewAikCertificateTrusted(builder.verifierCertificates.PrivacyCACertificates, common.FlavorPartHostUnique)
-	if err != nil {
-		return nil, errors.Wrap(err, "Error in getting AikCertificateTrusted rule")
-	}
-
-	results = append(results, aikCertificateTrusted)
 
 	return results, nil
 }
@@ -191,44 +144,4 @@ func (builder *ruleBuilderIntelTpm20) GetSoftwareRules() ([]rules.Rule, error) {
 	results = append(results, xmlMeasurementLogEqualsRule)
 
 	return results, nil
-}
-
-// Based on the manifest's hardware metadata, return the correct PCRs...
-//   - Always match on PCR0
-//   - If CBNT is enabled and profile 5: Add PCR7
-//   - If SUEFI is enabled: add PCR0-PCR7
-func (builder *ruleBuilderIntelTpm20) getPlatformPcrsFromHardwareMeta() ([]types.PcrIndex, error) {
-
-	var feature *flavormodel.Feature
-	var pcrs []types.PcrIndex
-
-	pcrs = append(pcrs, types.PCR0)
-
-	if builder.signedFlavor.Flavor.Hardware == nil {
-		return nil, errors.New("The flavor's Hardware information is not present")
-	}
-
-	feature = builder.signedFlavor.Flavor.Hardware.Feature
-	if feature == nil {
-		return nil, errors.New("The flavor's Feature information is not present")
-	}
-
-	if feature.CBNT.Enabled {
-		if feature.CBNT.Meta.Profile == "BTGP5" {
-			pcrs = append(pcrs, types.PCR7)
-		}
-	}
-
-	suefiPcrs := []types.PcrIndex{
-		types.PCR1,
-		types.PCR2,
-		types.PCR3,
-		types.PCR4,
-		types.PCR5,
-		types.PCR6,
-		types.PCR7,
-	}
-	pcrs = append(pcrs, suefiPcrs...)
-
-	return pcrs, nil
 }

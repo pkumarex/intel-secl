@@ -4,6 +4,10 @@
  */
 package model
 
+import (
+	model "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
+)
+
 /**
  *
  * @author mullas
@@ -14,10 +18,7 @@ type AES_NI struct {
 	Enabled bool `json:"enabled,omitempty"`
 }
 
-// TPM
-type HardwareFeature struct {
-	Enabled bool `json:"enabled,string"`
-}
+type HardwareFeature = model.HardwareFeature
 
 type CBNT struct {
 	HardwareFeature

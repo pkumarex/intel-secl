@@ -42,16 +42,16 @@ func getFlavorTemplates(osName string, templatePath string) []hvs.FlavorTemplate
 	if templatePath != "" {
 		templateFile, err := os.Open(templatePath)
 		if err != nil {
-			fmt.Printf("flavor/util/linux_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to open template path %s", err)
+			fmt.Printf("flavor/util/host_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to open template path %s", err)
 		}
 
 		templateFileBytes, err := ioutil.ReadAll(templateFile)
 		if err != nil {
-			fmt.Printf("flavor/util/linux_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to read template file %s", err)
+			fmt.Printf("flavor/util/host_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to read template file %s", err)
 		}
 		err = json.Unmarshal(templateFileBytes, &template)
 		if err != nil {
-			fmt.Printf("flavor/util/linux_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to unmarshall flavor template %s", err)
+			fmt.Printf("flavor/util/host_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to unmarshall flavor template %s", err)
 		}
 		templates = append(templates, template)
 	}
@@ -65,12 +65,12 @@ func TestLinuxPlatformFlavor_GetPcrDetails(t *testing.T) {
 
 	hmBytes, err := ioutil.ReadFile(ManifestPath)
 	if err != nil {
-		fmt.Println("flavor/util/linux_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to read hostmanifest file : ", err)
+		fmt.Println("flavor/util/host_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to read hostmanifest file : ", err)
 	}
 
 	err = json.Unmarshal(hmBytes, &hm)
 	if err != nil {
-		fmt.Println("flavor/util/linux_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to unmarshall hostmanifest : ", err)
+		fmt.Println("flavor/util/host_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to unmarshall hostmanifest : ", err)
 	}
 
 	// load tag cert
@@ -79,39 +79,39 @@ func TestLinuxPlatformFlavor_GetPcrDetails(t *testing.T) {
 		// read the test tag cert
 		tagCertFile, err := os.Open(TagCertPath)
 		if err != nil {
-			fmt.Printf("flavor/util/linux_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to open tagcert path %s", err)
+			fmt.Printf("flavor/util/host_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to open tagcert path %s", err)
 		}
 		tagCertPathBytes, err := ioutil.ReadAll(tagCertFile)
 		if err != nil {
-			fmt.Printf("flavor/util/linux_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to read tagcert file %s", err)
+			fmt.Printf("flavor/util/host_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to read tagcert file %s", err)
 		}
 
 		// convert pem to cert
 		pemBlock, rest := pem.Decode(tagCertPathBytes)
 		if len(rest) > 0 {
-			fmt.Printf("flavor/util/linux_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to decode tagcert %s", err)
+			fmt.Printf("flavor/util/host_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to decode tagcert %s", err)
 		}
 		tagCertificate, err := x509.ParseCertificate(pemBlock.Bytes)
 		if err != nil {
-			fmt.Printf("flavor/util/linux_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to parse tagcert %s", err)
+			fmt.Printf("flavor/util/host_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to parse tagcert %s", err)
 		}
 
 		if tagCertificate != nil {
 			tagCert, err = model.NewX509AttributeCertificate(tagCertificate)
 			if err != nil {
-				fmt.Println("flavor/util/linux_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() Error while generating X509AttributeCertificate from TagCertificate")
+				fmt.Println("flavor/util/host_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() Error while generating X509AttributeCertificate from TagCertificate")
 			}
 		}
 	}
 
 	tagCertBytes, err := ioutil.ReadFile(TagCertPath)
 	if err != nil {
-		fmt.Println("flavor/util/linux_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to read tagcertificate file : ", err)
+		fmt.Println("flavor/util/host_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to read tagcertificate file : ", err)
 	}
 
 	err = json.Unmarshal(tagCertBytes, &tagCert)
 	if err != nil {
-		fmt.Println("flavor/util/linux_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to unmarshall tagcertificate : ", err)
+		fmt.Println("flavor/util/host_platform_flavor_test:TestLinuxPlatformFlavor_GetPcrDetails() failed to unmarshall tagcertificate : ", err)
 	}
 
 	testPcrList := make(map[hvs.PCR]hvs.PcrListRules)
@@ -153,7 +153,7 @@ func TestLinuxPlatformFlavor_GetPcrDetails(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    []hcTypes.PCRS
+		want    []hcTypes.FlavorPcrs
 		wantErr bool
 	}{
 		{
@@ -176,15 +176,15 @@ func TestLinuxPlatformFlavor_GetPcrDetails(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		var got []hcTypes.PCRS
+		var got []hcTypes.FlavorPcrs
 		t.Run(tt.name, func(t *testing.T) {
-			rhelpf := LinuxPlatformFlavor{
+			rhelpf := HostPlatformFlavor{
 				HostManifest:    tt.fields.HostManifest,
 				HostInfo:        tt.fields.HostInfo,
 				TagCertificate:  tt.fields.TagCertificate,
 				FlavorTemplates: tt.fields.FlavorTemplates,
 			}
-			if got = rhelpf.GetPcrDetails(tt.args.pcrManifest, tt.args.pcrList, tt.args.includeEventLog); len(got) == 0 {
+			if got = pfutil.GetPcrDetails(rhelpf.HostManifest.PcrManifest, tt.args.pcrList); len(got) == 0 {
 				t.Errorf("LinuxPlatformFlavor.GetPcrDetails() unable to perform GetPcrDetails")
 			}
 		})
