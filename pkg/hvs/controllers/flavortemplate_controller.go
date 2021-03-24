@@ -34,8 +34,8 @@ type FlavorTemplateController struct {
 	Store                   domain.FlavorTemplateStore
 	CommonDefinitionsSchema string
 	FlavorTemplateSchema    string
-	definitionsSchemaJSON   string
-	templateSchemaJSON      string
+	DefinitionsSchemaJSON   string
+	TemplateSchemaJSON      string
 }
 type ErrorMessage struct {
 	Message string
@@ -223,7 +223,7 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 	}
 
 	defaultLog.Debug("Validating create flavor request")
-	errMsg, err := ftc.validateFlavorTemplateCreateRequest(createFlavorTemplateReq, string(body))
+	errMsg, err := ftc.ValidateFlavorTemplateCreateRequest(createFlavorTemplateReq, string(body))
 	if err != nil {
 		defaultLog.WithError(err).Error("controllers/flavortemplate_controller:getFlavorTemplateCreateReq() Unable to create flavor template, validation failed")
 		return createFlavorTemplateReq, &commErr.BadRequestError{Message: errMsg}
@@ -238,30 +238,30 @@ func (ftc *FlavorTemplateController) getFlavorTemplateCreateReq(r *http.Request)
 }
 
 // validateFlavorTemplateCreateRequest This method is used to validate the flavor template
-func (ftc *FlavorTemplateController) validateFlavorTemplateCreateRequest(FlvrTemp hvs.FlavorTemplate, template string) (string, error) {
+func (ftc *FlavorTemplateController) ValidateFlavorTemplateCreateRequest(FlvrTemp hvs.FlavorTemplate, template string) (string, error) {
 	defaultLog.Trace("controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Entering")
 	defer defaultLog.Trace("controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Leaving")
 	// Check whether the template is adhering to the schema
 	schemaLoader := gojsonschema.NewSchemaLoader()
 
 	var err error
-	if ftc.definitionsSchemaJSON == "" {
-		ftc.definitionsSchemaJSON, err = readJSON(ftc.CommonDefinitionsSchema)
+	if ftc.DefinitionsSchemaJSON == "" {
+		ftc.DefinitionsSchemaJSON, err = readJSON(ftc.CommonDefinitionsSchema)
 		if err != nil {
 			return "Unable to read the common definitions schema", errors.Wrap(err, "controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Unable to read the file"+consts.CommonDefinitionsSchema)
 		}
 	}
 
-	definitionsSchema := gojsonschema.NewStringLoader(ftc.definitionsSchemaJSON)
+	definitionsSchema := gojsonschema.NewStringLoader(ftc.DefinitionsSchemaJSON)
 
-	if ftc.templateSchemaJSON == "" {
-		ftc.templateSchemaJSON, err = readJSON(ftc.FlavorTemplateSchema)
+	if ftc.TemplateSchemaJSON == "" {
+		ftc.TemplateSchemaJSON, err = readJSON(ftc.FlavorTemplateSchema)
 		if err != nil {
 			return "Unable to read the template schema", errors.Wrap(err, "controllers/flavortemplate_controller:validateFlavorTemplateCreateRequest() Unable to read the file"+consts.FlavorTemplateSchema)
 		}
 	}
 
-	flvrTemplateSchema := gojsonschema.NewStringLoader(ftc.templateSchemaJSON)
+	flvrTemplateSchema := gojsonschema.NewStringLoader(ftc.TemplateSchemaJSON)
 	schemaLoader.AddSchemas(definitionsSchema)
 
 	schema, err := schemaLoader.Compile(flvrTemplateSchema)
