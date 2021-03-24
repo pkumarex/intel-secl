@@ -21,9 +21,7 @@ import (
 // vendor (ex. intel TPM2.0 vs. vmware TPM1.2 vs. vmware TPM2.0)
 type ruleBuilder interface {
 	GetAssetTagRules() ([]rules.Rule, error)
-	GetPlatformRules() ([]rules.Rule, error)
-	GetOsRules() ([]rules.Rule, error)
-	GetHostUniqueRules() ([]rules.Rule, error)
+	GetAikCertificateTrustedRule(common.FlavorPart) ([]rules.Rule, error)
 	GetSoftwareRules() ([]rules.Rule, error)
 	GetName() string
 }
@@ -60,7 +58,10 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 	ruleBuilder, err := factory.getRuleBuilder()
 	if err != nil {
 		return nil, "", errors.Wrap(err, "Could not retrieve rule builder")
+
 	}
+
+	log.Info("rule builder name:", ruleBuilder.GetName())
 
 	err = (&flavorPart).Parse(factory.signedFlavor.Flavor.Meta.Description[flavormodel.FlavorPart].(string))
 	if err != nil {
@@ -68,14 +69,10 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 	}
 
 	switch flavorPart {
-	case common.FlavorPartPlatform:
-		requiredRules, err = ruleBuilder.GetPlatformRules()
+	case common.FlavorPartPlatform, common.FlavorPartOs, common.FlavorPartHostUnique:
+		requiredRules, err = ruleBuilder.GetAikCertificateTrustedRule(flavorPart)
 	case common.FlavorPartAssetTag:
 		requiredRules, err = ruleBuilder.GetAssetTagRules()
-	case common.FlavorPartOs:
-		requiredRules, err = ruleBuilder.GetOsRules()
-	case common.FlavorPartHostUnique:
-		requiredRules, err = ruleBuilder.GetHostUniqueRules()
 	case common.FlavorPartSoftware:
 		requiredRules, err = ruleBuilder.GetSoftwareRules()
 	default:
@@ -83,50 +80,46 @@ func (factory *ruleFactory) GetVerificationRules() ([]rules.Rule, string, error)
 
 	}
 
-	if ruleBuilder.GetName() == hvsconstants.IntelBuilder {
-		flavorPcrs := factory.signedFlavor.Flavor.PcrLogs
+	log.Info("requiredRules:", requiredRules)
 
-		// Iterate the pcrs section to get rules
-		for _, rule := range flavorPcrs {
+	flavorPcrs := factory.signedFlavor.Flavor.Pcrs
 
-			eventsPresent := false
-			integrityRuleAdded := false
-			value := reflect.Indirect(reflect.ValueOf(rule))
+	// Iterate the pcrs section to get rules
+	for _, rule := range flavorPcrs {
+		eventsPresent := false
+		integrityRuleAdded := false
+		value := reflect.Indirect(reflect.ValueOf(rule))
 
-			for i := 0; i < value.NumField(); i++ {
-
-				if value.Type().Field(i).Name == hvsconstants.EventlogEqualRule && rule.EventlogEqual != nil {
-					eventsPresent = true
-					//call method to create pcr event log equals rule
-					if len(rule.EventlogEqual.ExcludeTags) == 0 {
-						pcrRules, err = getPcrEventLogEqualsRules(nil, &rule, nil, flavorPart)
-					} else {
-						pcrRules, err = getPcrEventLogEqualsExcludingRules(nil, &rule, nil, flavorPart)
-					}
-					requiredRules = append(requiredRules, pcrRules...)
-				} else if value.Type().Field(i).Name == hvsconstants.EventlogIncludesRule && len(rule.EventlogIncludes) > 0 {
-					eventsPresent = true
-					//call method to create pcr event log includes rule
-					pcrRules, err = getPcrEventLogIncludesRules(nil, nil, &rule, flavorPart)
-					requiredRules = append(requiredRules, pcrRules...)
-				} else if value.Type().Field(i).Name == hvsconstants.PCRMatchesRule && rule.PCRMatches {
-					//call method to create pcr matches constant rule
-					pcrRules, err = getPcrMatchesConstantRules(nil, nil, &rule, flavorPart)
-					requiredRules = append(requiredRules, pcrRules...)
+		for i := 0; i < value.NumField(); i++ {
+			if value.Type().Field(i).Name == hvsconstants.EventlogEqualRule && rule.EventlogEqual != nil {
+				eventsPresent = true
+				//call method to create pcr event log equals rule
+				if len(rule.EventlogEqual.ExcludeTags) == 0 {
+					pcrRules, err = getPcrEventLogEqualsRules(&rule, flavorPart)
+				} else {
+					pcrRules, err = getPcrEventLogEqualsExcludingRules(&rule, flavorPart)
 				}
-
-				if eventsPresent == true && integrityRuleAdded == false {
-					//add Integrity rules//
-					integrityRuleAdded = true
-					pcrRules, err = getPcrEventLogIntegrityRules(nil, nil, &rule, flavorPart)
-					requiredRules = append(requiredRules, pcrRules...)
-				}
-				if err != nil {
-					return nil, "", errors.Wrapf(err, "Error creating trust requiredRules for flavor '%s'", factory.signedFlavor.Flavor.Meta.ID)
-				}
-
+				requiredRules = append(requiredRules, pcrRules...)
+			} else if value.Type().Field(i).Name == hvsconstants.EventlogIncludesRule && len(rule.EventlogIncludes) > 0 {
+				eventsPresent = true
+				//call method to create pcr event log includes rule
+				pcrRules, err = getPcrEventLogIncludesRules(&rule, flavorPart)
+				requiredRules = append(requiredRules, pcrRules...)
+			} else if value.Type().Field(i).Name == hvsconstants.PCRMatchesRule && rule.PCRMatches {
+				//call method to create pcr matches constant rule
+				pcrRules, err = getPcrMatchesConstantRules(&rule, flavorPart)
+				requiredRules = append(requiredRules, pcrRules...)
 			}
 
+			if eventsPresent == true && integrityRuleAdded == false {
+				//add Integrity rules//
+				integrityRuleAdded = true
+				pcrRules, err = getPcrEventLogIntegrityRules(&rule, flavorPart)
+				requiredRules = append(requiredRules, pcrRules...)
+			}
+			if err != nil {
+				return nil, "", errors.Wrapf(err, "Error creating trust requiredRules for flavor '%s'", factory.signedFlavor.Flavor.Meta.ID)
+			}
 		}
 	}
 

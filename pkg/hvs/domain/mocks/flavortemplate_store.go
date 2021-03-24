@@ -9,6 +9,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
 	commErr "github.com/intel-secl/intel-secl/v3/pkg/lib/common/err"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 )
@@ -95,10 +96,47 @@ func (store *MockFlavorTemplateStore) Retrieve(templateID uuid.UUID, includeDele
 }
 
 // Search a Flavortemplate(s)
-func (store *MockFlavorTemplateStore) Search(includeDeleted bool) ([]hvs.FlavorTemplate, error) {
+func (store *MockFlavorTemplateStore) Search(criteria *models.FlavorTemplateFilterCriteria) ([]hvs.FlavorTemplate, error) {
 	rec := store.FlavorTemplates
-	if includeDeleted {
+	if criteria.IncludeDeleted {
 		rec = append(rec, store.DeletedTemplates...)
+	}
+	for _, template := range rec {
+		//ID
+		if criteria.Id != uuid.Nil {
+			if template.ID == criteria.Id {
+				rec = append(rec, template)
+			}
+		}
+
+		//Label
+		if criteria.Label != "" {
+			if template.Label == criteria.Label {
+				rec = append(rec, template)
+			}
+		}
+
+		//Condition
+		if criteria.ConditionContains != "" {
+			for _, condition := range template.Condition {
+				if condition == criteria.ConditionContains {
+					rec = append(rec, template)
+				}
+			}
+		}
+
+		//FlavorPart
+		if criteria.FlavorPartContains != "" {
+			if template.FlavorParts.Platform != nil && criteria.FlavorPartContains == "PLATFORM" {
+				rec = append(rec, template)
+			}
+			if template.FlavorParts.OS != nil && criteria.FlavorPartContains == "OS" {
+				rec = append(rec, template)
+			}
+			if template.FlavorParts.HostUnique != nil && criteria.FlavorPartContains == "HOST_UNIQUE" {
+				rec = append(rec, template)
+			}
+		}
 	}
 	return rec, nil
 }

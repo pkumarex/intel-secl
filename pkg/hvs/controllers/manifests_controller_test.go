@@ -6,6 +6,9 @@
 package controllers_test
 
 import (
+	"net/http"
+	"net/http/httptest"
+
 	"github.com/gorilla/mux"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/controllers"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/mocks"
@@ -13,8 +16,6 @@ import (
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/constants"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"net/http"
-	"net/http/httptest"
 )
 
 var _ = Describe("ManifestsController", func() {
@@ -35,7 +36,7 @@ var _ = Describe("ManifestsController", func() {
 			It("Should create a manifest", func() {
 				router.Handle("/manifests", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(manifestsController.GetManifest))).
 					Methods("GET")
-				req, err := http.NewRequest("GET", "/manifests?id=339a7ac6-b8be-4356-ab34-be6e3bdfa1ed", nil)
+				req, err := http.NewRequest("GET", "/manifests?id=bffa1025-3605-4336-9be1-a7044cb949d6", nil)
 				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()
@@ -50,7 +51,7 @@ var _ = Describe("ManifestsController", func() {
 			It("Should fail to create manifest", func() {
 				router.Handle("/manifests", hvsRoutes.ErrorHandler(hvsRoutes.JsonResponseHandler(manifestsController.GetManifest))).
 					Methods("GET")
-				req, err := http.NewRequest("GET", "/manifests?id=71e4c52e-595a-429d-9917-1965b437c353", nil)
+				req, err := http.NewRequest("GET", "/manifests?id=49705d53-a75e-414e-998e-049cbb2a0ee6", nil)
 				Expect(err).NotTo(HaveOccurred())
 				req.Header.Set("Accept", constants.HTTPMediaTypeJson)
 				w = httptest.NewRecorder()

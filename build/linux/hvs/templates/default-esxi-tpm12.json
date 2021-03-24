@@ -1,0 +1,78 @@
+{
+    "label": "default-esxi-tpm12",
+    "condition": [
+        "//host_info/os_name//*[text()='VMware ESXi']",
+        "//host_info/hardware_features/TPM/meta/tpm_version//*[text()='1.2']"
+    ],
+    "flavor_parts": {
+        "PLATFORM": {
+            "meta": {
+                "tpm_version": "1.2"
+            },
+            "pcr_rules": [
+                {
+                    "pcr": {
+                        "index": 0,
+                        "bank": "SHA1"
+                    },
+                    "pcr_matches": true
+                },
+                {
+                    "pcr": {
+                        "index": 17,
+                        "bank": "SHA1"
+                    },
+                    "pcr_matches": true
+                }
+            ]
+        },
+        "OS": {
+            "meta": {
+                "tpm_version": "1.2"
+            },
+            "pcr_rules": [
+                {
+                    "pcr": {
+                        "index": 18,
+                        "bank": "SHA1"
+                    },
+                    "pcr_matches": true
+                },
+                {
+                    "pcr": {
+                        "index": 19,
+                        "bank": "SHA1"
+                    },
+                    "eventlog_equals": {
+                        "excluding_tags": [
+                            "commandLine."
+                        ]
+                    }
+                },
+                {
+                    "pcr": {
+                        "index": 20,
+                        "bank": "SHA1"
+                    },
+                    "pcr_matches": true
+                }
+            ]
+        },
+        "HOST_UNIQUE": {
+            "meta": {
+                "tpm_version": "1.2"
+            },
+            "pcr_rules": [
+                {
+                    "pcr": {
+                        "index": 19,
+                        "bank": "SHA1"
+                    },
+                    "eventlog_includes": [
+                        "commandLine."
+                    ]
+                }
+            ]
+        }
+    }
+}

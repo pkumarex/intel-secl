@@ -19,6 +19,7 @@ import (
 	"github.com/gorilla/mux"
 	consts "github.com/intel-secl/intel-secl/v3/pkg/hvs/constants"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain"
+	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
 	dm "github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/utils"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/auth"
@@ -190,19 +191,17 @@ func (fcon *FlavorController) createFlavors(flavorReq dm.FlavorCreateRequest) ([
 		}
 
 		var flavorTemplates []hvs.FlavorTemplate
-		if !strings.EqualFold(hostManifest.HostInfo.OSName, "VMWARE ESXI") {
-			defaultLog.Debug("Getting flavor templates...")
-			flavorTemplates, err = fcon.findTemplatesToApply(hostManifest)
-			if len(flavorTemplates) == 0 {
-				defaultLog.WithError(err).Error("controllers/flavor_controller:CreateFlavors() No templates found to apply")
-				return nil, errors.Wrap(err, "No templates found to create flavors")
-			} else if err != nil {
-				defaultLog.WithError(err).Error("controllers/flavor_controller:CreateFlavors() Error in finding templates")
-				return nil, errors.Wrap(err, "Error in finding templates")
-			}
-
-			defaultLog.Debug("Matched Flavor templates ", flavorTemplates)
+		defaultLog.Debug("Getting flavor templates...")
+		flavorTemplates, err = fcon.findTemplatesToApply(hostManifest)
+		if len(flavorTemplates) == 0 {
+			defaultLog.WithError(err).Error("controllers/flavor_controller:CreateFlavors() No templates found to apply")
+			return nil, errors.Wrap(err, "No templates found to create flavors")
+		} else if err != nil {
+			defaultLog.WithError(err).Error("controllers/flavor_controller:CreateFlavors() Error in finding templates")
+			return nil, errors.Wrap(err, "Error in finding templates")
 		}
+
+		defaultLog.Debugf("Matched Flavor templates: %v", flavorTemplates)
 
 		tagCertificate := hvs.TagCertificate{}
 		var tagX509Certificate *x509.Certificate
@@ -382,7 +381,9 @@ func (fcon *FlavorController) findTemplatesToApply(hostManifest *hcType.HostMani
 	defaultLog.Trace("controllers/flavor_controller:findTemplatesToApply() Entering")
 	defer defaultLog.Trace("controllers/flavor_controller:findTemplatesToApply() Leaving")
 	var filteredTemplates []hvs.FlavorTemplate
-	flavorTemplates, err := fcon.FTStore.Search(false)
+
+	ftc := models.FlavorTemplateFilterCriteria{IncludeDeleted: false}
+	flavorTemplates, err := fcon.FTStore.Search(&ftc)
 	if err != nil {
 		return nil, errors.Wrap(err, "controllers/flavor_controller:findTemplatesToApply() Error retrieving all flavor templates")
 	}

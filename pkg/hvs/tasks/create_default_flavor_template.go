@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/constants"
+	"github.com/intel-secl/intel-secl/v3/pkg/hvs/domain/models"
 	"github.com/intel-secl/intel-secl/v3/pkg/model/hvs"
 
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/postgres"
@@ -35,6 +36,8 @@ var defaultFlavorTemplateNames = []string{
 	"default-uefi",
 	"default-bmc",
 	"default-pfr",
+	"default-esxi-tpm12",
+	"default-esxi-tpm20",
 }
 
 func (t *CreateDefaultFlavorTemplate) Run() error {
@@ -83,7 +86,8 @@ func (t *CreateDefaultFlavorTemplate) Validate() error {
 		defaultFlavorTemplateMap[templateName] = false
 	}
 
-	ftList, err = t.TemplateStore.Search(false)
+	ftc := models.FlavorTemplateFilterCriteria{IncludeDeleted: false}
+	ftList, err = t.TemplateStore.Search(&ftc)
 	if err != nil {
 		return errors.Wrap(err, "Failed to validate "+t.commandName)
 	}
