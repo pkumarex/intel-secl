@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Intel Corporation
+ * Copyright (C) 2021 Intel Corporation
  * SPDX-License-Identifier: BSD-3-Clause
  */
 package types
@@ -42,8 +42,8 @@ var sfutil util.SoftwareFlavorUtil
 
 // NewHostPlatformFlavor returns an instance of LinuxPlatformFlavor
 func NewHostPlatformFlavor(hostReport *hcTypes.HostManifest, tagCertificate *cm.X509AttributeCertificate, flavorTemplates []hvs.FlavorTemplate) PlatformFlavor {
-	log.Trace("flavor/types/host_platform_flavor:NewLinuxPlatformFlavor() Entering")
-	defer log.Trace("flavor/types/host_platform_flavor:NewLinuxPlatformFlavor() Leaving")
+	log.Trace("flavor/types/host_platform_flavor:NewHostPlatformFlavor() Entering")
+	defer log.Trace("flavor/types/host_platform_flavor:NewHostPlatformFlavor() Leaving")
 
 	return HostPlatformFlavor{
 		HostManifest:    hostReport,
