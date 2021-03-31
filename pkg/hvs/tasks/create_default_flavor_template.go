@@ -43,6 +43,13 @@ var defaultFlavorTemplateNames = []string{
 func (t *CreateDefaultFlavorTemplate) Run() error {
 	var templates []hvs.FlavorTemplate
 
+	if t.TemplateStore == nil {
+		err := t.flavorTemplateStore()
+		if err != nil {
+			return errors.Wrap(err, "Failed to initialize flavor template store instance")
+		}
+	}
+
 	if len(t.deleted) != 0 {
 		// Recover deleted default template.
 		err := t.TemplateStore.Recover(t.deleted)
@@ -74,13 +81,6 @@ func (t *CreateDefaultFlavorTemplate) Validate() error {
 	defaultFlavorTemplateMap := map[string]bool{}
 	t.deleted = []string{}
 	var err error
-
-	if t.TemplateStore == nil {
-		err = t.flavorTemplateStore()
-		if err != nil {
-			return errors.Wrap(err, "Failed to initialize flavor template store instance")
-		}
-	}
 
 	for _, templateName := range defaultFlavorTemplateNames {
 		defaultFlavorTemplateMap[templateName] = false
