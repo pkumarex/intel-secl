@@ -128,7 +128,11 @@ func (ic *IntelConnector) GetHostManifestAcceptNonce(nonce string, pcrList []int
 	}
 	log.Info("intel_host_connector:GetHostManifestAcceptNonce() Verifying quote and retrieving PCR manifest from TPM quote " +
 		"response ...")
+<<<<<<< HEAD
 	pcrManifest, pcrsDigest, err := util.VerifyQuoteAndGetPCRManifest(tpmQuoteResponse.EventLog, verificationNonceInBytes,
+=======
+	pcrManifest, pcrsDigest, err := util.VerifyQuoteAndGetPCRManifest(decodedEventLog, verificationNonceInBytes,
+>>>>>>> original-repo/master
 		tpmQuoteInBytes, aikCertificate)
 	if err != nil {
 		return types.HostManifest{}, errors.Wrap(err, "intel_host_connector:GetHostManifestAcceptNonce() Error verifying "+

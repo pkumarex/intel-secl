@@ -196,13 +196,18 @@ func (pfutil PlatformFlavorUtil) getSchema() *fm.Schema {
 }
 
 // getHardwareSectionDetails extracts the host Hardware details from the manifest
+<<<<<<< HEAD
 func (pfutil PlatformFlavorUtil) GetHardwareSectionDetails(hostInfo *taModel.HostInfo) *fm.Hardware {
+=======
+func (pfutil PlatformFlavorUtil) GetHardwareSectionDetails(hostManifest *hcTypes.HostManifest) *cm.Hardware {
+>>>>>>> original-repo/master
 	log.Trace("flavor/util/platform_flavor_util:GetHardwareSectionDetails() Entering")
 	defer log.Trace("flavor/util/platform_flavor_util:GetHardwareSectionDetails() Leaving")
 
 	var hardware fm.Hardware
 	var feature fm.Feature
 
+<<<<<<< HEAD
 	if hostInfo != nil {
 		// Extract Processor Info
 		hardware.ProcessorInfo = strings.TrimSpace(hostInfo.ProcessorInfo)
@@ -250,9 +255,52 @@ func (pfutil PlatformFlavorUtil) GetHardwareSectionDetails(hostInfo *taModel.Hos
 		pfr.Enabled = hostInfo.HardwareFeatures.PFR.Enabled
 		pfr.Supported = hostInfo.HardwareFeatures.PFR.Supported
 		feature.PFR = pfr
+=======
+	hostInfo := hostManifest.HostInfo
 
-		hardware.Feature = &feature
+	// Extract Processor Info
+	hardware.ProcessorInfo = strings.TrimSpace(hostInfo.ProcessorInfo)
+	hardware.ProcessorFlags = strings.TrimSpace(hostInfo.ProcessorFlags)
+
+	// Set TPM Feature presence
+	tpm := cm.TPM{}
+	tpm.Enabled = hostInfo.HardwareFeatures.TPM.Enabled
+	tpm.Enabled = hostInfo.HardwareFeatures.TPM.Enabled
+	tpm.Version = hostInfo.HardwareFeatures.TPM.Meta.TPMVersion
+	// populate tpm.Pcrbanks by checking the contents of PcrManifest
+	if hostManifest.PcrManifest.Sha1Pcrs != nil {
+		tpm.PcrBanks = append(tpm.PcrBanks, string(hcTypes.SHA1))
 	}
+	if hostManifest.PcrManifest.Sha256Pcrs != nil {
+		tpm.PcrBanks = append(tpm.PcrBanks, string(hcTypes.SHA256))
+	}
+
+	feature.TPM = &tpm
+>>>>>>> original-repo/master
+
+	txt := cm.TXT{}
+	if hostInfo.HardwareFeatures.TXT != nil {
+		// Set TXT Feature presence
+		txt.Enabled = hostInfo.HardwareFeatures.TXT.Enabled
+		feature.TXT = &txt
+	}
+
+	cbnt := cm.CBNT{}
+	// set CBNT
+	if hostInfo.HardwareFeatures.CBNT != nil {
+		cbnt.Enabled = hostInfo.HardwareFeatures.CBNT.Enabled
+		cbnt.Profile = hostInfo.HardwareFeatures.CBNT.Meta.Profile
+		feature.CBNT = &cbnt
+	}
+
+	suefi := cm.SUEFI{}
+	// and SUEFI state
+	if hostInfo.HardwareFeatures.SUEFI != nil {
+		suefi.Enabled = hostInfo.HardwareFeatures.SUEFI.Enabled
+		feature.SUEFI = &suefi
+	}
+
+	hardware.Feature = &feature
 	return &hardware
 }
 

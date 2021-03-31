@@ -48,9 +48,15 @@ type eventLogKeyAttr struct {
 	Measurement string `json:"measurement"`
 }
 
+<<<<<<< HEAD
 type TpmEventLog struct {
 	Pcr      Pcr        `json:"pcr"`
 	TpmEvent []EventLog `json:"tpm_events"`
+=======
+type PcrEventLogMap struct {
+	Sha1EventLogs   []EventLogEntry `json:"SHA1,omitempty"`
+	Sha256EventLogs []EventLogEntry `json:"SHA256,omitempty"`
+>>>>>>> original-repo/master
 }
 
 //PCR - To store PCR index with respective PCR bank.
@@ -78,9 +84,15 @@ type PcrEventLogMap struct {
 	Sha256EventLogs []TpmEventLog `json:"SHA256"`
 }
 type PcrManifest struct {
+<<<<<<< HEAD
 	Sha1Pcrs       []HostManifestPcrs `json:"sha1pcrs"`
 	Sha256Pcrs     []HostManifestPcrs `json:"sha2pcrs"`
 	PcrEventLogMap PcrEventLogMap     `json:"pcr_event_log_map"`
+=======
+	Sha1Pcrs       []Pcr          `json:"sha1pcrs,omitempty"`
+	Sha256Pcrs     []Pcr          `json:"sha2pcrs,omitempty"`
+	PcrEventLogMap PcrEventLogMap `json:"pcr_event_log_map"`
+>>>>>>> original-repo/master
 }
 
 type PcrIndex int

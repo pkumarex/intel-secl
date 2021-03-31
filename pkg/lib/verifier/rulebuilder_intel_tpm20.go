@@ -145,3 +145,51 @@ func (builder *ruleBuilderIntelTpm20) GetSoftwareRules() ([]rules.Rule, error) {
 
 	return results, nil
 }
+<<<<<<< HEAD
+=======
+
+// Based on the manifest's hardware metadata, return the correct PCRs...
+//   - Always match on PCR0
+//   - If CBNT is enabled and profile 5: Add PCR7
+//   - If SUEFI is enabled: add PCR0-PCR7
+func (builder *ruleBuilderIntelTpm20) getPlatformPcrsFromHardwareMeta() ([]types.PcrIndex, error) {
+
+	var feature *flavormodel.Feature
+	var pcrs []types.PcrIndex
+
+	pcrs = append(pcrs, types.PCR0)
+
+	if builder.signedFlavor.Flavor.Hardware == nil {
+		return nil, errors.New("The flavor's Hardware information is not present")
+	}
+
+	feature = builder.signedFlavor.Flavor.Hardware.Feature
+	if feature == nil {
+		return nil, errors.New("The flavor's Feature information is not present")
+	}
+
+	if feature.CBNT != nil {
+		if feature.CBNT.Enabled {
+			if feature.CBNT.Profile == "BTGP5" {
+				pcrs = append(pcrs, types.PCR7)
+			}
+		}
+	}
+
+	if feature.SUEFI != nil {
+		if feature.SUEFI.Enabled {
+			suefiPcrs := []types.PcrIndex{
+				types.PCR2,
+				types.PCR3,
+				types.PCR4,
+				types.PCR6,
+				types.PCR7,
+			}
+
+			pcrs = append(pcrs, suefiPcrs...)
+		}
+	}
+
+	return pcrs, nil
+}
+>>>>>>> original-repo/master

@@ -15,6 +15,10 @@ import (
 
 	"github.com/intel-secl/intel-secl/v3/pkg/clients/vmware"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/crypt"
+<<<<<<< HEAD
+=======
+	"github.com/intel-secl/intel-secl/v3/pkg/lib/common/slice"
+>>>>>>> original-repo/master
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/flavor/constants"
 	"github.com/intel-secl/intel-secl/v3/pkg/lib/host-connector/types"
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
@@ -134,6 +138,7 @@ func createPCRManifest(hostTpmAttestationReport *vim25Types.HostTpmAttestationRe
 		if err != nil {
 			return pcrManifest, "", err
 		}
+<<<<<<< HEAD
 
 		if strings.EqualFold(pcrDetails.DigestMethod, "SHA256") {
 			pcrManifest.Sha256Pcrs = append(pcrManifest.Sha256Pcrs, types.HostManifestPcrs{
@@ -147,6 +152,24 @@ func createPCRManifest(hostTpmAttestationReport *vim25Types.HostTpmAttestationRe
 				Value:   intArrayToHexString(pcrDetails.DigestValue),
 				PcrBank: shaAlgorithm,
 			})
+=======
+		pcrValue := intArrayToHexString(pcrDetails.DigestValue)
+		pcr := types.Pcr{
+			Index:   pcrIndex,
+			Value:   pcrValue,
+			PcrBank: shaAlgorithm,
+		}
+		if pcrList == nil || len(pcrList) == 0 || slice.Contains(pcrList, int(pcrIndex)) {
+			cumulativePcrsValue = cumulativePcrsValue + pcrValue
+		}
+
+		if strings.EqualFold(pcrDetails.DigestMethod, "SHA256") {
+			pcr.DigestType = fmt.Sprintf(constants.PcrClassNamePrefix+"%d", 256)
+			pcrManifest.Sha256Pcrs = append(pcrManifest.Sha256Pcrs, pcr)
+		} else if strings.EqualFold(pcrDetails.DigestMethod, "SHA1") {
+			pcr.DigestType = fmt.Sprintf(constants.PcrClassNamePrefix+"%d", 1)
+			pcrManifest.Sha1Pcrs = append(pcrManifest.Sha1Pcrs, pcr)
+>>>>>>> original-repo/master
 		} else {
 			log.Warn("vmware_host_connector:createPCRManifest() Result PCR invalid")
 		}

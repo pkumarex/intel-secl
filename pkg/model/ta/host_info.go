@@ -51,10 +51,22 @@ type HostInfo struct {
 }
 
 type HardwareFeatures struct {
+<<<<<<< HEAD
 	TXT  HardwareFeature `json:"TXT"`
 	TPM  TPM             `json:"TPM"`
 	CBNT CBNT            `json:"CBNT"`
 	UEFI UEFI            `json:"UEFI"`
 	PFR  HardwareFeature `json:"PFR"`
 	BMC  HardwareFeature `json:"BMC"`
+=======
+	TXT *HardwareFeature `json:"TXT"`
+	TPM struct {
+		Enabled bool `json:"enabled,string"`
+		Meta    struct {
+			TPMVersion string `json:"tpm_version,omitempty"`
+		} `json:"meta"`
+	} `json:"TPM,omitempty"`
+	CBNT  *CBNT            `json:"CBNT,omitempty"`
+	SUEFI *HardwareFeature `json:"SUEFI,omitempty"`
+>>>>>>> original-repo/master
 }

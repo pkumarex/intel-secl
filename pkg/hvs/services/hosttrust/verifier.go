@@ -21,6 +21,7 @@ import (
 	taModel "github.com/intel-secl/intel-secl/v3/pkg/model/ta"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"sync"
 )
 
 var ErrInvalidHostManiFest = errors.New("invalid host data")

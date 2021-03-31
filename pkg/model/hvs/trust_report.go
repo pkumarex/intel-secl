@@ -24,6 +24,7 @@ type TrustReport struct {
 }
 
 type RuleResult struct {
+<<<<<<< HEAD
 	Rule          RuleInfo        `json:"rule"`
 	FlavorId      *uuid.UUID      `json:"flavor_id,omitempty"`
 	MismatchField []MismatchField `json:"mismatch_fields,omitempty"`
@@ -67,6 +68,39 @@ type Fault struct {
 	MissingEntries         []types.EventLog       `json:"missing_entries,omitempty"`
 	UnexpectedEntries      []types.EventLog       `json:"unexpected_entries,omitempty"`
 	ExcludeTags            []string               `json:"exclude_tags,omitempty"`
+=======
+	Rule RuleInfo `json:"rule"`
+	// swagger:strfmt uuid
+	FlavorId *uuid.UUID `json:"flavor_id,omitempty"`
+	Faults   []Fault    `json:"faults,omitempty"`
+	Trusted  bool       `json:"trusted"`
+}
+
+type RuleInfo struct {
+	Name        string              `json:"rule_name,omitempty"`
+	Markers     []common.FlavorPart `json:"markers,omitempty"`
+	ExpectedPcr *types.Pcr          `json:"expected_pcr,omitempty"`
+	// swagger:strfmt uuid
+	FlavorID              *uuid.UUID             `json:"flavor_id,omitempty"`
+	FlavorName            *string                `json:"flavor_name,omitempty"`
+	ExpectedValue         *string                `json:"expected_value,omitempty"`
+	ExpectedMeasurements  []ta.FlavorMeasurement `json:"expected_measurements,omitempty"`
+	ExpectedEventLogs     []types.EventLog       `json:"expected,omitempty"`
+	ExpectedEventLogEntry *types.EventLogEntry   `json:"expected,omitempty"`
+	ExpectedTag           []byte                 `json:"expected_tag,omitempty"`
+	Tags                  map[string]string      `json:"tags,omitempty"`
+}
+
+type Fault struct {
+	Name              string           `json:"fault_name"`
+	Description       string           `json:"description"`
+	PcrIndex          *types.PcrIndex  `json:"pcr_index,omitempty"`
+	ExpectedPcrValue  *string          `json:"expected_value,omitempty"`
+	ActualPcrValue    *string          `json:"actual_value,omitempty"`
+	MissingEntries    []types.EventLog `json:"missing_entries,omitempty"`
+	UnexpectedEntries []types.EventLog `json:"unexpected_entries,omitempty"`
+	// swagger:strfmt uuid
+>>>>>>> original-repo/master
 	FlavorId               *uuid.UUID             `json:"flavor_id,omitempty"`
 	UnexpectedMeasurements []ta.FlavorMeasurement `json:"unexpected_measurements,omitempty"`
 	MissingMeasurements    []ta.FlavorMeasurement `json:"missing_measurements,omitempty"`
