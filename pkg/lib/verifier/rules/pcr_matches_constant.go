@@ -47,9 +47,9 @@ func (rule *pcrMatchesConstant) Apply(hostManifest *types.HostManifest) (*hvs.Ru
 	result := hvs.RuleResult{}
 	result.Trusted = true // default to true, set to false in fault logic
 	result.Rule.Name = constants.RulePcrMatchesConstant
-	result.Rule.PCR = &rule.expectedPcr.Pcr
-	result.Rule.Measurement = rule.expectedPcr.Measurement
-	result.Rule.PCRMatches = rule.expectedPcr.PCRMatches
+	result.Rule.ExpectedPcr = &rule.expectedPcr
+	result.Rule.ExpectedPcr.EventlogEqual = nil
+	result.Rule.ExpectedPcr.EventlogIncludes = nil
 	result.Rule.Markers = append(result.Rule.Markers, rule.marker)
 
 	if hostManifest.PcrManifest.IsEmpty() {
