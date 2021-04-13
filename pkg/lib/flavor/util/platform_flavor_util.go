@@ -196,63 +196,68 @@ func (pfutil PlatformFlavorUtil) getSchema() *fm.Schema {
 }
 
 // getHardwareSectionDetails extracts the host Hardware details from the manifest
-func (pfutil PlatformFlavorUtil) GetHardwareSectionDetails(hostInfo *taModel.HostInfo) *fm.Hardware {
+func (pfutil PlatformFlavorUtil) GetHardwareSectionDetails(hostManifest *hcTypes.HostManifest) *fm.Hardware {
 	log.Trace("flavor/util/platform_flavor_util:GetHardwareSectionDetails() Entering")
 	defer log.Trace("flavor/util/platform_flavor_util:GetHardwareSectionDetails() Leaving")
 
 	var hardware fm.Hardware
 	var feature fm.Feature
 
-	if hostInfo != nil {
-		// Extract Processor Info
-		hardware.ProcessorInfo = strings.TrimSpace(hostInfo.ProcessorInfo)
-		hardware.ProcessorFlags = strings.TrimSpace(hostInfo.ProcessorFlags)
+	hostInfo := hostManifest.HostInfo
 
-		// Set TPM Feature presence
-		tpm := fm.TPM{}
-		tpm.Enabled = hostInfo.HardwareFeatures.TPM.Enabled
-		tpm.Supported = hostInfo.HardwareFeatures.TPM.Supported
+	// Extract Processor Info
+	hardware.ProcessorInfo = strings.TrimSpace(hostInfo.ProcessorInfo)
+	hardware.ProcessorFlags = strings.TrimSpace(hostInfo.ProcessorFlags)
 
-		tpm.Meta.TPMVersion = hostInfo.HardwareFeatures.TPM.Meta.TPMVersion
-		// split into list
-		tpm.Meta.PCRBanks = strings.Split(hostInfo.HardwareFeatures.TPM.Meta.PCRBanks, constants.PCRBankSeparator)
-		feature.TPM = tpm
+	// Set TPM Feature presence
+	tpm := fm.TPM{}
+	tpm.Enabled = hostInfo.HardwareFeatures.TPM.Enabled
+	tpm.Supported = hostInfo.HardwareFeatures.TPM.Supported
 
-		txt := fm.HardwareFeature{}
-		// Set TXT Feature presence
-		txt.Enabled = hostInfo.HardwareFeatures.TXT.Enabled
-		txt.Supported = hostInfo.HardwareFeatures.TXT.Supported
-		feature.TXT = txt
-
-		cbnt := fm.CBNT{}
-		// set CBNT
-		cbnt.Enabled = hostInfo.HardwareFeatures.CBNT.Enabled
-		cbnt.Supported = hostInfo.HardwareFeatures.CBNT.Supported
-		cbnt.Meta.Profile = hostInfo.HardwareFeatures.CBNT.Meta.Profile
-		cbnt.Meta.MSR = hostInfo.HardwareFeatures.CBNT.Meta.MSR
-		feature.CBNT = cbnt
-
-		uefi := fm.UEFI{}
-		// and UEFI state
-		uefi.Enabled = hostInfo.HardwareFeatures.UEFI.Enabled
-		uefi.Supported = hostInfo.HardwareFeatures.UEFI.Supported
-		uefi.Meta.SecureBootEnabled = hostInfo.HardwareFeatures.UEFI.Meta.SecureBootEnabled
-		feature.UEFI = uefi
-
-		bmc := fm.HardwareFeature{}
-		// Set BMC Feature presence
-		bmc.Enabled = hostInfo.HardwareFeatures.BMC.Enabled
-		bmc.Supported = hostInfo.HardwareFeatures.BMC.Supported
-		feature.BMC = bmc
-
-		pfr := fm.HardwareFeature{}
-		// Set PFR Feature presence
-		pfr.Enabled = hostInfo.HardwareFeatures.PFR.Enabled
-		pfr.Supported = hostInfo.HardwareFeatures.PFR.Supported
-		feature.PFR = pfr
-
-		hardware.Feature = &feature
+	tpm.Meta.TPMVersion = hostInfo.HardwareFeatures.TPM.Meta.TPMVersion
+	// populate tpm.Pcrbanks by checking the contents of PcrManifest
+	if hostManifest.PcrManifest.Sha1Pcrs != nil {
+		tpm.Meta.PCRBanks = append(tpm.Meta.PCRBanks, string(hcTypes.SHA1))
 	}
+	if hostManifest.PcrManifest.Sha256Pcrs != nil {
+		tpm.Meta.PCRBanks = append(tpm.Meta.PCRBanks, string(hcTypes.SHA256))
+	}
+	feature.TPM = tpm
+
+	txt := fm.HardwareFeature{}
+	// Set TXT Feature presence
+	txt.Enabled = hostInfo.HardwareFeatures.TXT.Enabled
+	txt.Supported = hostInfo.HardwareFeatures.TXT.Supported
+	feature.TXT = txt
+
+	cbnt := fm.CBNT{}
+	// set CBNT
+	cbnt.Enabled = hostInfo.HardwareFeatures.CBNT.Enabled
+	cbnt.Supported = hostInfo.HardwareFeatures.CBNT.Supported
+	cbnt.Meta.Profile = hostInfo.HardwareFeatures.CBNT.Meta.Profile
+	cbnt.Meta.MSR = hostInfo.HardwareFeatures.CBNT.Meta.MSR
+	feature.CBNT = cbnt
+
+	uefi := fm.UEFI{}
+	// and UEFI state
+	uefi.Enabled = hostInfo.HardwareFeatures.UEFI.Enabled
+	uefi.Supported = hostInfo.HardwareFeatures.UEFI.Supported
+	uefi.Meta.SecureBootEnabled = hostInfo.HardwareFeatures.UEFI.Meta.SecureBootEnabled
+	feature.UEFI = uefi
+
+	bmc := fm.HardwareFeature{}
+	// Set BMC Feature presence
+	bmc.Enabled = hostInfo.HardwareFeatures.BMC.Enabled
+	bmc.Supported = hostInfo.HardwareFeatures.BMC.Supported
+	feature.BMC = bmc
+
+	pfr := fm.HardwareFeature{}
+	// Set PFR Feature presence
+	pfr.Enabled = hostInfo.HardwareFeatures.PFR.Enabled
+	pfr.Supported = hostInfo.HardwareFeatures.PFR.Supported
+	feature.PFR = pfr
+
+	hardware.Feature = &feature
 	return &hardware
 }
 

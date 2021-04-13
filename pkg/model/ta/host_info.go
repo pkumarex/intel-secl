@@ -21,7 +21,6 @@ type TPM struct {
 	HardwareFeature
 	Meta struct {
 		TPMVersion string `json:"tpm_version"`
-		PCRBanks   string `json:"pcr_banks"`
 	} `json:"meta"`
 }
 

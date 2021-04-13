@@ -137,7 +137,7 @@ func (pf HostPlatformFlavor) getPlatformFlavor() ([]cm.Flavor, error) {
 	}
 	log.Debugf("flavor/types/host_platform_flavor:getPlatformFlavor() New Bios Section: %v", *newBios)
 
-	newHW := pfutil.GetHardwareSectionDetails(pf.HostInfo)
+	newHW := pfutil.GetHardwareSectionDetails(pf.HostManifest)
 	if newHW == nil {
 		return nil, errors.Errorf("flavor/types/host_platform_flavor:getPlatformFlavor() %s failure in Hardware section details", errorMessage)
 	}
