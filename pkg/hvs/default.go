@@ -5,12 +5,13 @@
 package hvs
 
 import (
+	"os"
+
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/config"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/constants"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/services/hrrs"
 	commConfig "github.com/intel-secl/intel-secl/v3/pkg/lib/common/config"
 	"github.com/spf13/viper"
-	"os"
 )
 
 const (
@@ -180,6 +181,19 @@ func defaultConfig() *config.Configuration {
 			NumberOfDataFetchers:            viper.GetInt(fvsNumberOfDataFetchers),
 			SkipFlavorSignatureVerification: viper.GetBool(fvsSkipFlavorSignatureVerification),
 			HostTrustCacheThreshold:         viper.GetInt(fvsHostTrustCacheThreshold),
+		},
+		DB: commConfig.DBConfig{
+			Vendor:   viper.GetString("db-vendor"),
+			Host:     viper.GetString("db-host"),
+			Port:     viper.GetInt("db-port"),
+			DBName:   viper.GetString("db-name"),
+			Username: viper.GetString("db-username"),
+			Password: viper.GetString("db-password"),
+			SSLMode:  viper.GetString("db-ssl-mode"),
+			SSLCert:  viper.GetString("db-ssl-cert"),
+
+			ConnectionRetryAttempts: viper.GetInt("db-conn-retry-attempts"),
+			ConnectionRetryTime:     viper.GetInt("db-conn-retry-time"),
 		},
 	}
 }

@@ -7,10 +7,11 @@ package hvs
 import (
 	"crypto/x509/pkix"
 	"fmt"
-	"github.com/intel-secl/intel-secl/v3/pkg/hvs/config"
-	cos "github.com/intel-secl/intel-secl/v3/pkg/lib/common/os"
 	"os"
 	"strings"
+
+	"github.com/intel-secl/intel-secl/v3/pkg/hvs/config"
+	cos "github.com/intel-secl/intel-secl/v3/pkg/lib/common/os"
 
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/constants"
 	"github.com/intel-secl/intel-secl/v3/pkg/hvs/services/hrrs"
@@ -121,27 +122,14 @@ func (a *App) setupTaskRunner() (*setup.Runner, error) {
 	runner.ConsoleWriter = a.consoleWriter()
 	runner.ErrorWriter = a.errorWriter()
 
-	dbConf := commConfig.DBConfig{
-		Vendor:   viper.GetString("db-vendor"),
-		Host:     viper.GetString("db-host"),
-		Port:     viper.GetInt("db-port"),
-		DBName:   viper.GetString("db-name"),
-		Username: viper.GetString("db-username"),
-		Password: viper.GetString("db-password"),
-		SSLMode:  viper.GetString("db-ssl-mode"),
-		SSLCert:  viper.GetString("db-ssl-cert"),
-
-		ConnectionRetryAttempts: viper.GetInt("db-conn-retry-attempts"),
-		ConnectionRetryTime:     viper.GetInt("db-conn-retry-time"),
-	}
 	runner.AddTask("database", "", &tasks.DBSetup{
 		DBConfigPtr:   &a.Config.DB,
-		DBConfig:      dbConf,
+		DBConfig:      a.Config.DB,
 		SSLCertSource: viper.GetString("db-ssl-cert-source"),
 		ConsoleWriter: a.consoleWriter(),
 	})
 	runner.AddTask("create-default-flavorgroup", "", &tasks.CreateDefaultFlavor{
-		DBConfig: dbConf,
+		DBConfig: a.Config.DB,
 	})
 	runner.AddTask("create-dek", "", &tasks.CreateDek{
 		DekStore: &a.Config.Dek,
@@ -192,7 +180,7 @@ func (a *App) setupTaskRunner() (*setup.Runner, error) {
 	runner.AddTask("create-endorsement-ca", "endorsement-ca", a.selfSignTask("endorsement-ca"))
 	runner.AddTask("create-tag-ca", "tag-ca", a.selfSignTask("tag-ca"))
 	runner.AddTask("create-default-flavor-template", "", &tasks.CreateDefaultFlavorTemplate{
-		DBConf: dbConf,
+		DBConf: a.Config.DB,
 	})
 
 	return runner, nil
