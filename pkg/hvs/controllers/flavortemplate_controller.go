@@ -70,6 +70,10 @@ func (ftc *FlavorTemplateController) Create(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
+	if strings.Contains(flavorTemplateReq.Label, "default") {
+		return nil, http.StatusBadRequest, &commErr.ResourceError{Message: "Flavor template label should not contain 'default' keyword"}
+	}
+
 	//Store this template into database.
 	flavorTemplate, err := ftc.Store.Create(&flavorTemplateReq)
 	if err != nil {

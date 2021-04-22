@@ -45,7 +45,7 @@ func (t *CreateDefaultFlavorTemplate) Run() error {
 	var ftList []hvs.FlavorTemplate
 
 	if t.TemplateStore == nil {
-		err := t.flavorTemplateStore()
+		err := t.FlavorTemplateStore()
 		if err != nil {
 			return errors.Wrap(err, "Failed to initialize flavor template store instance")
 		}
@@ -91,7 +91,7 @@ func (t *CreateDefaultFlavorTemplate) Validate() error {
 	var err error
 
 	if t.TemplateStore == nil {
-		err := t.flavorTemplateStore()
+		err := t.FlavorTemplateStore()
 		if err != nil {
 			return errors.Wrap(err, "Failed to initialize flavor template store instance")
 		}
@@ -135,7 +135,7 @@ func (t *CreateDefaultFlavorTemplate) SetName(n, e string) {
 	t.commandName = n
 }
 
-func (t *CreateDefaultFlavorTemplate) flavorTemplateStore() error {
+func (t *CreateDefaultFlavorTemplate) FlavorTemplateStore() error {
 	var dataStore *postgres.DataStore
 	var err error
 	if t.TemplateStore == nil {
